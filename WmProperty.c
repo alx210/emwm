@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2.3
 */ 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 
 #ifdef REV_INFO
@@ -33,8 +30,6 @@
 static char rcsid[] = "$TOG: WmProperty.c /main/7 1997/12/02 10:00:00 bill $"
 #endif
 #endif
-/*
- * (c) Copyright 1987, 1988, 1989, 1990, 1993 HEWLETT-PACKARD COMPANY */
 
 /*
  * Included Files:
@@ -1966,6 +1961,7 @@ HasProperty (
 
 } /* END OF FUNCTION HasProperty */
 #endif /* WSM */
+
 
 
 

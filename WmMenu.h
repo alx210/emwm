@@ -26,9 +26,6 @@
 /* 
  * Motif Release 1.2.2
 */ 
-/*   $XConsortium: WmMenu.h /main/7 1996/11/20 15:20:45 rswiston $ */
-/*
- * (c) Copyright 1987, 1988, 1989, 1990 HEWLETT-PACKARD COMPANY */
 
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
 # define MAKE_MENU(pSD, pCD, mName, iC, aC, moreItems, sysMenu) \

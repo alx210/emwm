@@ -38,6 +38,8 @@ XtPointer *, unsigned long *, int *
 );
 #endif /* JUNK */
 
+extern Time GetTimestamp (Display *dpy);
+
 
 /*	Function Name: WSMDefaultOwnSelection
  *	Description: This is the default routine that owns the proper

@@ -28,13 +28,7 @@
 static char rcsid[] = "$XConsortium: WmCEvent.c /main/10 1996/08/09 15:05:39 rswiston $"
 #endif
 #endif
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
-
-/*
- * (c) Copyright 1987, 1988, 1989, 1990 HEWLETT-PACKARD COMPANY */
 
 /*
  * Included Files:
@@ -56,9 +50,6 @@ static char rcsid[] = "$XConsortium: WmCEvent.c /main/10 1996/08/09 15:05:39 rsw
 #include "WmFunction.h"
 #include "WmIDecor.h"
 #include "WmKeyFocus.h"
-#ifdef PANELIST
-#include "WmPanelP.h"
-#endif /* PANELIST */
 #include "WmManage.h"
 #include "WmMenu.h"
 #include "WmProperty.h"
@@ -340,19 +331,6 @@ Boolean WmDispatchClientEvent (XEvent *event)
 			BaseWinExposureProc (pCD);
 		    }
 		}
-#ifdef PANELIST
-		else if (pCD->clientFlags & FRONT_PANEL_BOX)
-		{
-	        /*
-		 *
-		 *  Then this client is the shell for the 
-		 *  front panel and we want the toolkit to repaint
-		 *  it.
-		 *
-		 */
-		    dispatchEvent = True;
-		}
-#endif /* PANELIST */
 	    }
 	    break;
 	}
@@ -2570,7 +2548,7 @@ void HandleCColormapNotify (ClientData *pCD, XColormapEvent *colorEvent)
 
 void HandleClientMessage (ClientData *pCD, XClientMessageEvent *clientEvent)
 {
-    unsigned int newState;
+    unsigned int newState = 0;
 
     /*
      * Process the client message event based on the message_type.

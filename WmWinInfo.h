@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2
 */ 
-/*   $XConsortium: WmWinInfo.h /main/5 1995/12/27 17:24:50 rswiston $ */
-/*
- * (c) Copyright 1987, 1988, 1989, 1990 HEWLETT-PACKARD COMPANY */
 
 
 extern void FindClientPlacement (ClientData *pCD);

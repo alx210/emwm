@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2.3
 */ 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 
 #ifdef REV_INFO
@@ -33,8 +30,6 @@
 static char rcsid[] = "$XConsortium: WmKeyFocus.c /main/5 1996/05/17 12:53:16 rswiston $"
 #endif
 #endif
-/*
- * (c) Copyright 1987, 1988, 1989, 1990 HEWLETT-PACKARD COMPANY */
 
 /*
  * Included Files:
@@ -633,8 +628,8 @@ ClientData *GetClientUnderPointer (pSameScreen)
 
 Boolean FocusNextWindow (unsigned long type, Time focusTime)
 {
-    ClientListEntry *pCurrentEntry;
-    ClientListEntry *pNextEntry;
+    ClientListEntry *pCurrentEntry = NULL;
+    ClientListEntry *pNextEntry = NULL;
     Boolean focused = False;
     ClientData *pCD;
 
@@ -1015,8 +1010,8 @@ ClientData *FindNextTFocusInSeq (pCD, startAt)
 
 Boolean FocusPrevWindow (unsigned long type, Time focusTime)
 {
-    ClientListEntry *pCurrentEntry;
-    ClientListEntry *pNextEntry;
+    ClientListEntry *pCurrentEntry = NULL;
+    ClientListEntry *pNextEntry = NULL;
     Boolean focused = False;
     ClientData *pCD;
 

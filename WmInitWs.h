@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2.2
 */ 
-/*   $XConsortium: WmInitWs.h /main/5 1996/09/14 14:50:22 drk $ */
-/*
- * (c) Copyright 1987, 1988, 1989, 1990 HEWLETT-PACKARD COMPANY */
 
 extern void InitWmGlobal (int argc, char *argv [], char *environ []);
 extern void InitWmScreen (WmScreenData *pSD, int sNum);

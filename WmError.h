@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2
 */ 
-/*   $XConsortium: WmError.h /main/5 1996/09/14 14:49:17 drk $ */
-/*
- * (c) Copyright 1987, 1988, 1989, 1990 HEWLETT-PACKARD COMPANY */
 
 #ifdef WSM
 #ifdef DEBUGGER

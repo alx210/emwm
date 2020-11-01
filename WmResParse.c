@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2.4
 */ 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 
 #ifdef REV_INFO
@@ -33,16 +30,6 @@
 static char rcsid[] = "$XConsortium: WmResParse.c /main/9 1996/11/01 10:17:34 drk $"
 #endif
 #endif
-/*
- * (c) Copyright 1987, 1988, 1989, 1990, 1993, 1994 Hewlett-Packard Company
- * (c) Copyright 1993, 1994 International Business Machines Corp.
- * (c) Copyright 1993, 1994 Sun Microsystems, Inc.
- * (c) Copyright 1993, 1994 Novell, Inc.
- */
-/*
- * (c) Copyright 1987, 1988 DIGITAL EQUIPMENT CORPORATION */
-/*
- * (c) Copyright 1988 MASSACHUSETTS INSTITUTE OF TECHNOLOGY */
 
 /*
  * Included Files:
@@ -55,14 +42,11 @@ static char rcsid[] = "$XConsortium: WmResParse.c /main/9 1996/11/01 10:17:34 dr
 #include <Dt/Connect.h>
 #include <Tt/tt_c.h>
 #endif /* WSM */
-#ifdef PANELIST
-#include "WmParse.h"
-#include "WmParseP.h"
-#include "WmPanelP.h"
-#endif /* PANELIST */
 #include "WmResource.h"
+#include "WmWinConf.h"
 
 #include <Xm/VirtKeysP.h>
+#include "Xm/VirtKeysI.h"
 
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
@@ -125,15 +109,6 @@ static char rcsid[] = "$XConsortium: WmResParse.c /main/9 1996/11/01 10:17:34 dr
 #ifdef MOTIF_ONE_DOT_ONE
 extern char   *getenv ();
 #endif
-#ifdef PANELIST
-# include <errno.h>
-# ifdef X_NOT_STDC_ENV
-extern int errno;
-# endif
-# define HOME_DT_WMRC    "/.dt/dtwmrc"
-# define LANG_DT_WMRC    "/dtwmrc"
-# define SYS_DT_WMRC     CDE_CONFIGURATION_TOP "/sys.dtwmrc"
-#endif /* PANELIST */
 
 /*
  * Global Variables And Tables:
@@ -253,16 +228,12 @@ static void ParseWmMnemonic (unsigned char **linePP, MenuItem *menuItem);
 static Boolean ParseWmAccelerator (unsigned char **linePP, MenuItem *menuItem);
 int ParseWmFunction (unsigned char **linePP, unsigned int res_spec, 
 			    WmFunction *pWmFunction);
-#ifndef PANELIST
 static Boolean ParseWmFuncMaybeStrArg (unsigned char **linePP, 
 				       WmFunction wmFunction, String *pArgs);
-#endif /* PANELIST */
 static Boolean ParseWmFuncNoArg (unsigned char **linePP, WmFunction wmFunction,
 				 String *pArgs);
-#ifndef PANELIST
 static Boolean ParseWmFuncStrArg (unsigned char **linePP, 
 				  WmFunction wmFunction, String *pArgs);
-#endif /* PANELIST */
 void FreeMenuItem (MenuItem *menuItem);
 static Boolean ParseWmFuncGrpArg (unsigned char **linePP, 
 				  WmFunction wmFunction, GroupArg *pGroup);
@@ -308,15 +279,6 @@ void ProcessCommandLine (int argc,  char *argv[]);
 static void ParseScreensArgument (int argc, char *argv[], int *pArgnum,
 				  unsigned char *lineP);
 void ProcessMotifBindings (void);
-#ifdef PANELIST
-static void ParseIncludeSet (WmScreenData *pSD, unsigned char *lineP);
-static void ConfigStackInit (char *pchFileName);
-static FILE *ConfigStackPush (unsigned char *pchFileName);
-static void ConfigStackPop (void);
-Boolean ParseWmFuncActionArg (unsigned char **linePP, 
-				  WmFunction wmFunction, String *pArgs);
-static void PreprocessConfigFile (void);
-#endif /* PANELIST */
 
 static EventTableEntry buttonEvents[] = {
 
@@ -340,32 +302,15 @@ static EventTableEntry buttonEvents[] = {
     {"btn5up",      ButtonRelease,  ParseImmed,    Button5,  FALSE},
     {"btn5click",   ButtonRelease,  ParseImmed,    Button5,  TRUE},
     {"btn5click2",  ButtonPress,    ParseImmed,    Button5,  TRUE},
-    { NULL, (unsigned int)NULL, (Boolean(*)())NULL, (unsigned int)NULL, (Boolean)NULL}
+    { NULL, (unsigned int)NULL, (Boolean(*)())NULL, (unsigned int)NULL, (Boolean)(unsigned)NULL}
 };
 
 
 static EventTableEntry keyEvents[] = {
 
     {"key",         KeyPress,    ParseKeySym,    0,  FALSE},
-    { NULL, (unsigned int)NULL, (Boolean(*)())NULL, (unsigned int)NULL, (Boolean)NULL}
+    { NULL, (unsigned int)NULL, (Boolean(*)())NULL, (unsigned int)NULL, (Boolean)(unsigned)NULL}
 };
-
-#ifdef PANELIST
-typedef struct _ConfigFileStackEntry {
-    char		*fileName;
-    char 		*tempName;
-    char 		*cppName;
-    char		*wmgdConfigFile;
-    long		offset;
-    DtWmpParseBuf	*pWmPB;
-    struct _ConfigFileStackEntry	*pIncluder;
-    
-} ConfigFileStackEntry;
-
-static ConfigFileStackEntry *pConfigStack = NULL;
-static ConfigFileStackEntry *pConfigStackTop = NULL;
-
-#endif /* PANELIST */
 
 unsigned int buttonModifierMasks[] = {
     0,
@@ -397,19 +342,11 @@ typedef struct {
 
 FunctionTableEntry functionTable[] = {
 #ifdef WSM
-#ifdef PANELIST
-    {"f.action",	0,
-			CRS_ANY,
-			0,
-			F_Action,
-			ParseWmFuncActionArg},
-#else /* PANELIST */
     {"f.action",	0,
 			CRS_ANY,
 			0,
 			F_Action,
 			ParseWmFuncStrArg},
-#endif  /* PANELIST */
 #endif /* WSM */
     {"f.beep",		0,
 			CRS_ANY,
@@ -553,21 +490,12 @@ FunctionTableEntry functionTable[] = {
 			0,
 			F_Normalize,
 			ParseWmFuncNoArg},
-#ifdef PANELIST
-    {"f.normalize_and_raise",
-	                F_CONTEXT_ROOT|F_CONTEXT_NORMAL,
-			CRS_ANY,
-			0,
-			F_Normalize_And_Raise,
-			ParseWmFuncMaybeStrArg},
-#else /* PANELIST */
     {"f.normalize_and_raise",
 	                F_CONTEXT_ROOT|F_CONTEXT_NORMAL,
 			CRS_ANY,
 			0,
 			F_Normalize_And_Raise,
 			ParseWmFuncNoArg},
-#endif /* PANELIST */
 #ifdef WSM
     {"f.occupy_all", F_CONTEXT_ICONBOX|F_CONTEXT_ROOT,
 			CRS_ANY,
@@ -709,19 +637,6 @@ FunctionTableEntry functionTable[] = {
 			0,
 			F_Title,
 			ParseWmFuncNoArg},
-#if defined(PANELIST)
-    {"f.toggle_frontpanel", 0,
-			CRS_ANY,
-			0,
-			F_Toggle_Front_Panel,
-			ParseWmFuncNoArg},
-
-    {"f.version",       0,
-			CRS_ANY,
-			0,
-			F_Version,
-			ParseWmFuncNoArg},
-#endif /* PANELIST */
 #ifdef WSM
 
 #ifdef OLD
@@ -1817,7 +1732,11 @@ void SyncModifierStrings(void)
 	{
 	    if (map->modifiermap[k])
 	    {
+#ifdef FIX_1611
+		KeySym ks = WmKeycodeToKeysym(DISPLAY, map->modifiermap[k]);
+#else 
 		KeySym ks = XKeycodeToKeysym(DISPLAY, map->modifiermap[k], 0);
+#endif
 		char *nm = XKeysymToString(ks);
 
 		/* Compare, ignoring the trailing '_L' or '_R' in keysym */
@@ -1879,34 +1798,12 @@ void SyncModifierStrings(void)
 #define MENU_SPEC	"menu"
 #define BUTTON_SPEC	"buttons"
 #define KEY_SPEC	"keys"
-#ifdef PANELIST
-#define FRONT_PANEL_SPEC DTWM_FP_PANEL_OLD
-#define DROP_EFFECTS_SPEC   DTWM_FP_DROP_EFFECTS
-#define PANEL_SPEC	DTWM_FP_PANEL
-#define BOX_SPEC	DTWM_FP_BOX
-#define CONTROL_SPEC	DTWM_FP_CONTROL
-#define INCLUDE_SPEC	DTWM_FP_INCLUDE
-#define ANIMATION_SPEC	DTWM_FP_ANIMATION
-#define SWITCH_SPEC	DTWM_FP_SWITCH
-
-void ProcessWmFile (WmScreenData *pSD, Boolean bNested)
-
-#else /* PANELIST */
 void ProcessWmFile (WmScreenData *pSD)
-#endif /* PANELIST */
 {
     unsigned char *lineP;
     unsigned char *string;
     unsigned int   n;
     MenuSpec      *menuSpec;
-#ifdef PANELIST
-    static Boolean conversionInProgress = False;
-    Arg args[10];
-    int argnum;
-
-    if (!bNested)
-    {
-#endif /* PANELIST */
 
     /*
      * Initialize global data values that are set based on data in
@@ -1941,13 +1838,6 @@ void ProcessWmFile (WmScreenData *pSD)
 	lineP = line;
         ParseMenuSet (pSD, lineP);
     }
-#ifdef PANELIST
-    if (wmGD.useFrontPanel &&  !wmGD.dtSD &&
-	(XDefaultScreen (wmGD.display) == pSD->screen))
-    {
-        wmGD.dtSD = pSD;  /* only one per display */
-    }
-#endif /* PANELIST */
 
     /*
      * Find and associate a stream with the window manager resource 
@@ -1961,9 +1851,6 @@ void ProcessWmFile (WmScreenData *pSD)
 	return;
     }
 
-#ifdef PANELIST 
-    }  /* end if (!bNested) */
-#endif /* PANELIST */
     /*
      * Parse the information in the configuration file.
      * If there are more than MAXLINE characters on a line the excess are
@@ -1993,12 +1880,6 @@ void ProcessWmFile (WmScreenData *pSD)
 	{
 	    ParseKeySet (pSD, lineP);
 	}
-#ifdef PANELIST
-        else if (!strcmp ((char *)string, INCLUDE_SPEC))
-        {
-            ParseIncludeSet (pSD, lineP);
-        }
-#endif /* PANELIST */
     }
 
     fclose (cfileP);
@@ -2108,10 +1989,6 @@ FILE *FopenConfigFile (void)
 #ifndef MOTIF_ONE_DOT_ONE
     char *homeDir = XmeGetHomeDirName();
 #endif
-#ifdef PANELIST
-    Boolean stackPushed;
-#endif /* PANELIST */
-
     /*
      * Get the LANG environment variable
      * make copy since another call to getenv will blast the value.
@@ -2146,16 +2023,6 @@ FILE *FopenConfigFile (void)
      * Use the LANG variable if set and .mwmrc is in $HOME/$LANG/.mwmrc  
      */
 
-#ifdef PANELIST
-    if (pConfigStackTop && pConfigStackTop->tempName)
-    {
-	fileP = fopen (pConfigStackTop->tempName, "r");
-	return (fileP);
-    }
-    stackPushed = (pConfigStackTop && (pConfigStackTop != pConfigStack));
-    fileP = NULL;
-    cfileName[0] = '\0';
-#endif /* PANELIST */
     if ((wmGD.configFile != NULL) && (wmGD.configFile[0] != '\0'))
     /* pointer to nonNULL string */
     {
@@ -2179,9 +2046,7 @@ FILE *FopenConfigFile (void)
 		    XtFree(LANG); 
 		    LANG = NULL; 
 		}
-#ifndef PANELIST
 		return (fileP);
-#endif /* PANELIST */
 	    }
 	    else
 	    {
@@ -2201,9 +2066,7 @@ FILE *FopenConfigFile (void)
 		      XtFree(LANG);
 		      LANG = NULL;
 		  }
-#ifndef PANELIST
 		  return (fileP);
-#endif /* PANELIST */
 		}
 	    }
 
@@ -2212,41 +2075,16 @@ FILE *FopenConfigFile (void)
 	else
 	/* relative to current directory or absolute */
 	{
-#ifdef PANELIST
-	    char *pch;
-
-            pch = (char *) GetNetworkFileName (wmGD.configFile);
-
-	    if ((fileP = fopen (pch, "r")) != NULL)
-	    {
-	        strncpy (cfileName, pch, MAXWMPATH);
-	    }
-	    XtFree (pch);
-  
-  	  if ((fileP == NULL) && !stackPushed)
-	  {
-#endif  /* PANELIST  */
-            if ((fileP = fopen (wmGD.configFile, "r")) != NULL)
-	      {
+      if ((fileP = fopen (wmGD.configFile, "r")) != NULL)
+      {
 		if (LANG != NULL) {
 		    XtFree(LANG);
 		    LANG = NULL;
 		}
 		return(fileP);
-	      }
-#ifdef PANELIST 
-	  }
-	  else if ((fileP == NULL) && stackPushed)
-	  {
-		strcpy (cfileName, wmGD.configFile);
-	  }
-#endif /* PANELIST */
+      }
 	}
     }
-#ifdef PANELIST 
-  if ((fileP == NULL) && !stackPushed)
-  {
-#endif /* PANELIST */
 
     /*
      * The configFile resource didn't do it for us.
@@ -2311,10 +2149,8 @@ FILE *FopenConfigFile (void)
         if (LANG != NULL) {
 	    XtFree(LANG);
 	    LANG = NULL;
-	}
-#ifndef PANELIST
+		}
         return (fileP);
-#endif /* PANELIST */
     }
     else
     {
@@ -2350,46 +2186,9 @@ FILE *FopenConfigFile (void)
 	      XtFree(LANG);
 	      LANG = NULL;
 	  }
-#ifndef PANELIST
 	  return (fileP);
-#endif /* PANELIST */
 	}
     }
-#ifdef PANELIST
-  }
-
-#define DTLIBDIR  CDE_INSTALLATION_TOP
-#define DTADMINDIR  CDE_CONFIGURATION_TOP
-#define SLASH_DT_WMRC "/sys.dtwmrc"
-
-  if ((fileP == NULL) && !stackPushed)
-  {
-    /* 
-     * No home-based config file. Try the admin directory.
-     */
-    strcpy(cfileName, DTADMINDIR);
-    strncat(cfileName, RC_CONFIG_SUBDIR, MAXWMPATH-strlen(cfileName));
-    strncat(cfileName, LANG, MAXWMPATH-strlen(cfileName));
-    strncat(cfileName, SLASH_DT_WMRC, MAXWMPATH - strlen(cfileName));
-
-    if (((fileP = fopen (cfileName, "r")) == NULL) && LANG && *LANG)
-    {
-	/* Try it with no LANG */
-	strcpy(cfileName, DTADMINDIR);
-	strncat(cfileName, RC_CONFIG_SUBDIR, MAXWMPATH-strlen(cfileName));
-	strncat(cfileName, SLASH_DT_WMRC, MAXWMPATH - strlen(cfileName));
-    }
-
-    if ((fileP = fopen (cfileName, "r")) != NULL)
-    {
-      XtFree(LANG);
-      LANG = NULL;
-    }
-  }
-
-  if ((fileP == NULL) && !stackPushed)
-  {
-#endif /* PANELIST */
 
 #ifndef MWMRCDIR
 #define MWMRCDIR "/usr/lib/X11"
@@ -2424,26 +2223,16 @@ FILE *FopenConfigFile (void)
 	{
 	  XtFree(LANG);
 	  LANG = NULL;
-#ifndef PANELIST
 	  return (fileP);
-#endif /* PANELIST */
 	}
     }
 
-#ifdef PANELIST
-    if ((fileP == NULL) && !stackPushed)
-    {
-#endif /* PANELIST */
 #ifdef WSM
     if (MwmBehavior)
     {
 	strcpy(cfileName, MWMRCDIR);
 	strncat(cfileName, SLASH_MWMRC, MAXWMPATH - strlen(cfileName));
-#ifdef PANELIST
-	fileP = fopen (cfileName, "r");
-#else /* PANELIST */
 	return (fopen (cfileName, "r"));
-#endif /* PANELIST */
     }
     else
     {
@@ -2451,11 +2240,7 @@ FILE *FopenConfigFile (void)
 	strncat(cfileName, RC_DEFAULT_CONFIG_SUBDIR, 
 					MAXWMPATH - strlen(cfileName));
 	strncat(cfileName, SLASH_DT_WMRC, MAXWMPATH - strlen(cfileName));
-#ifdef PANELIST
-	fileP = fopen (cfileName, "r");
-#else /* PANELIST */
 	return (fopen (cfileName, "r"));
-#endif /* PANELIST */
     }
 #else /* WSM */
     /*
@@ -2469,67 +2254,8 @@ FILE *FopenConfigFile (void)
        XtFree(LANG);
        LANG = NULL;
     }
-#ifdef PANELIST
-    strcpy(cfileName, cfileName);
-    fileP = fopen (cfileName, "r");
-#else /* PANELIST */
     return (fopen (cfileName, "r"));
-#endif /* PANELIST */
 #endif /* WSM */
-#ifdef PANELIST
-    }
-  }
-
-    if (!fileP)
-    {
-	char *pch;
-
-	/*
-	 * handle "<host>:<path>" form of file name
-	 */
-	pch = (char *) GetNetworkFileName (cfileName);
-	if ((fileP = fopen (cfileName, "r")) != NULL)
-	{
-	    strncpy (cfileName, pch, MAXWMPATH);
-	    XtFree (pch);
-	}
-
-	/*
-	 * Either not "<host>:<path>" form or there was a
-	 * problem up above. This is the last attempt to 
-	 * open something.
-	 */
-	if (!fileP)
-	{
-	    fileP = fopen (cfileName, "r");
-	}
-    }
-
-    if (!pConfigStack)
-    {
-	ConfigStackInit (cfileName);
-    }
-
-    if (wmGD.cppCommand && *wmGD.cppCommand)
-    {
-	/*
-	 *  Run the file through the C-preprocessor
-	 */
-	PreprocessConfigFile ();
-	if (pConfigStackTop->cppName)
-	{
-	    /* open the result */
-	    fileP = fopen (pConfigStackTop->cppName, "r");
-	}
-    }
-
-    if (LANG != NULL) 
-    {
-	XtFree(LANG);
-	LANG = NULL;
-    }
-    return (fileP);
-#endif /* PANELIST */
 
 } /* END OF FUNCTION FopenConfigFile */
 
@@ -2827,7 +2553,7 @@ static MenuItem *ParseMenuItems (WmScreenData *pSD
     MenuItem      *firstMenuItem;
     MenuItem      *lastMenuItem;
     MenuItem      *menuItem;
-    register int   ix;
+    register int   ix = 0;
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
     Boolean        use_separators = False;
 #endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
@@ -2943,22 +2669,7 @@ static MenuItem *ParseMenuItems (WmScreenData *pSD
 
 	menuItem->greyedContext = functionTable[ix].greyedContext;
 	menuItem->mgtMask = functionTable[ix].mgtMask;
-#ifdef PANELIST
-        if ((menuItem->wmFunction == F_Toggle_Front_Panel) &&
-	    ((wmGD.useFrontPanel == False) ||
-	     (wmGD.dtSD != pSD)))
-	{
-	    /*
-	     * disallow this function if there's no front
-	     * panel on this screen.
-	     */
-	    menuItem->greyedContext |= (F_CONTEXT_ALL 		| 
-				       F_SUBCONTEXT_IB_WICON 	| 
-				       F_SUBCONTEXT_IB_IICON);
-	}
-#endif /* PANELIST */
-
-        /* 
+    /* 
 	 * Apply the function argument parser.
 	 */
         if (!(*(functionTable [ix].parseProc)) 
@@ -3974,10 +3685,7 @@ int ParseWmFunction (unsigned char **linePP, unsigned int res_spec,
  * 
  *************************************<->***********************************/
 
-#ifndef PANELIST
-static
-#endif 
-Boolean ParseWmFuncMaybeStrArg (unsigned char **linePP, 
+static Boolean ParseWmFuncMaybeStrArg (unsigned char **linePP, 
 				       WmFunction wmFunction, String *pArgs)
 {
     unsigned char *string = *linePP;
@@ -3991,16 +3699,6 @@ Boolean ParseWmFuncMaybeStrArg (unsigned char **linePP,
 	return (ParseWmFuncStrArg (linePP, wmFunction, pArgs));
     }
 */
-#ifdef PANELIST
-#if 0
-    else if (*lineP == '"' && *(lineP+1) == '-')
-    {
-	/* kill off '-' */
-	strcpy ((char *) (lineP+1), (char *) (lineP+2));
-	return (ParseWmFuncStrArg (linePP, wmFunction, pArgs));
-    }
-#endif
-#endif /* PANELIST */
     if ((len = strlen ((char *)string)) != 0)
     {
 	if ((*pArgs = (String)XtMalloc (len + 1)) == NULL)
@@ -4094,10 +3792,7 @@ static Boolean ParseWmFuncNoArg (unsigned char **linePP, WmFunction wmFunction,
  * 
  *************************************<->***********************************/
 
-#ifndef PANELIST
-static
-#endif
-Boolean ParseWmFuncStrArg (unsigned char **linePP, 
+static Boolean ParseWmFuncStrArg (unsigned char **linePP, 
 				  WmFunction wmFunction, String *pArgs)
 {
     unsigned char *string;
@@ -4126,7 +3821,7 @@ Boolean ParseWmFuncStrArg (unsigned char **linePP,
          */
 
 #ifndef NO_MULTIBYTE
-	if ((wmFunction == F_Exec))
+	if (wmFunction == F_Exec)
 	{
 	    lastlen = 0;
 	    p = *pArgs;
@@ -5354,7 +5049,6 @@ GetNextLine (void)
 } /* END OF FUNCTION GetNextLine */
 #endif /* WSM */
 
-#ifndef PANELIST
 
 #ifdef WSM
 /*************************************<->*************************************
@@ -5769,8 +5463,6 @@ unsigned char *GetString (unsigned char **linePP)
     return ((unsigned char *)lineP);
 
 } /* END OF FUNCTION GetString */
-#endif /* PANELIST */
-
 
 
 /*************************************<->*************************************
@@ -7391,664 +7083,6 @@ void ProcessMotifBindings (void)
 #endif
 } /* END OF FUNCTION ProcessMotifBindings */
 
-#ifdef PANELIST
-
-/*************************************<->*************************************
- *
- *  void
- *  ParseWmFunctionArg (linePP, ix, wmFunc, ppArg, sClientName)
- *
- *
- *  Description:
- *  -----------
- *  Parse the function arguments for a window manager function.
- *
- *
- *  Inputs:
- *  ------
- *  linePP   = pointer to line buffer pointer (contains string arg).
- *  ix = window manager function index (returned by ParseWmFunction)
- *  pWmFunction = pointer to window manager function destination.
- *  ppArg = ptr to argument pointer.
- *  sClientName = string name of client 
- *
- *
- *  Outputs:
- *  -------
- *  *ppArg = arg to pass to window manager function when invoking.
- *  Return = true on succes, false on some kind of parse error
- *
- *
- *  Comments:
- *  --------
- *  functionTable (window manager function table) is indexed with ix
- *  to get parsing info.
- *
- *  This function may malloc memory for the returned arg.
- *
- *  The sClientName is needed for starting some hpterm-based push_recall
- *  clients. It needs to be passed into the action so the hpterm gets
- *  named appropriately.
- * 
- *************************************<->***********************************/
-
-Boolean
-ParseWmFunctionArg (
-		unsigned char **linePP,
-		int ix, 
-		WmFunction wmFunc, 
-		void **ppArg,
-		String sClientName,
-		String sTitle)
-{
-    unsigned char *lineP = *linePP;
-    Boolean bValidArg = True;
-    unsigned char *str = NULL;
-
-    /*
-     * If this is (possibly) a string argument, put it 
-     * in quotes so that it will be parsed properly.
-     */
-    if ((functionTable[ix].parseProc == ParseWmFuncStrArg) ||
-        (functionTable[ix].parseProc == ParseWmFuncMaybeStrArg))
-    {
-	if (lineP && *lineP != '"')
-	{
-	    /*
-	     * not in quotes, repackage it, escaping the appropriate
-	     * characters.
-	     */
-	    str = _DtWmParseMakeQuotedString (lineP);
-	    if (str)
-	    {
-		lineP = str;
-	    }
-	}
-    }
-
-    /* 
-     * Apply the function argument parser.
-     */
-    if ((functionTable[ix].wmFunction != wmFunc) ||
-	!(*(functionTable [ix].parseProc)) (&lineP, wmFunc, ppArg))
-    {
-	bValidArg = False;
-    }
-
-    /*
-     * Add the exec parms if this is an f.action
-     */
-    if ((wmFunc == F_Action) && ppArg && *ppArg)
-    {
-	WmActionArg *pAP = (WmActionArg *) *ppArg;
-	int totLen = 0;
-
-	/*
-	 * allocate more than enough string space to copy 
-	 * strings and intervening spaces.
-	 */
-	if (sClientName && *sClientName)
-	{
-	    /* length of: "name=" + sClientName + NULL */
-	    totLen += 5 + strlen(sClientName) + 1;
-	}
-	if (sTitle && *sTitle)
-	{
-	    /* length of: "," + "title=" + sTitle + NULL */
-	    totLen += 1 + 6 + strlen(sTitle) + 1;
-	}
-
-	if (totLen > 0)
-	{
-	    pAP->szExecParms = (String) XtMalloc (totLen);
-	    /* start with empty string */
-	    pAP->szExecParms[0] = '\0'; 
-
-	    if (sClientName && *sClientName)
-	    {
-		strcat (pAP->szExecParms, "name=");
-		strcat (pAP->szExecParms, sClientName);
-	    }
-	    if (sTitle && *sTitle)
-	    {
-		if (pAP->szExecParms[0] != '\0')
-		{
-		    strcat (pAP->szExecParms, ",");
-		}
-		strcat (pAP->szExecParms, "title=");
-		strcat (pAP->szExecParms, sTitle);
-	    }
-	}
-    }
-
-    if (str)
-    {
-	XtFree ((char *) str);
-    }
-
-    return (bValidArg);
-
-} /* END OF FUNCTION ParseWmFunctionArg */
-
-
-/*************************************<->*************************************
- *
- *  SystemCmd (pchCmd)
- *
- *
- *  Description:
- *  -----------
- *  This function fiddles with our signal handling and calls the
- *  system() function to invoke a unix command.
- *
- *
- *  Inputs:
- *  ------
- *  pchCmd = string with the command we want to exec.
- *
- *  Outputs:
- *  -------
- *
- *
- *  Comments:
- *  --------
- *  The system() command is touchy about the SIGCLD behavior. Restore
- *  the default SIGCLD handler during the time we run system().
- * 
- *************************************<->***********************************/
-
-void
-SystemCmd (char *pchCmd)
-{
-    struct sigaction sa;
-    struct sigaction osa;
-
-    (void) sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
-    sa.sa_handler = SIG_DFL;
-
-    (void) sigaction (SIGCLD, &sa, &osa);
-
-    system (pchCmd);
-
-    (void) sigaction (SIGCLD, &osa, (struct sigaction *) 0);
-}
-
-
-
-/*************************************<->*************************************
- *
- *  DeleteTempConfigFileIfAny ()
- *
- *
- *  Description:
- *  -----------
- *  This function deletes the temporary config file used to process 
- *  old dtwmrc syntax.
- *
- *
- *  Inputs:
- *  ------
- *
- *
- *  Outputs:
- *  -------
- *
- *
- *  Comments:
- *  --------
- * 
- *************************************<->***********************************/
-
-void
-DeleteTempConfigFileIfAny (void)
-{
-    char pchCmd[MAXWMPATH+1];
-
-    if (pConfigStackTop->tempName)
-    {
-	strcpy (pchCmd, "/bin/rm ");
-	strcat (pchCmd, pConfigStackTop->tempName);
-	SystemCmd (pchCmd);
-	XtFree ((char *) pConfigStackTop->tempName);
-	pConfigStackTop->tempName = NULL;
-    }
-    if (pConfigStackTop->cppName)
-    {
-	strcpy (pchCmd, "/bin/rm ");
-	strcat (pchCmd, pConfigStackTop->cppName);
-	SystemCmd (pchCmd);
-	XtFree ((char *) pConfigStackTop->cppName);
-	pConfigStackTop->cppName = NULL;
-    }
-}
-
-
-/*************************************<->*************************************
- *
- *  ParseIncludeSet (pSD, lineP)
- *
- *
- *  Description:
- *  -----------
- *
- *
- *  Inputs:
- *  ------
- *  cfileP = (global) file pointer to fopened configuration file or NULL
- *  lineP = pointer to line buffer
- *  line   = (global) line buffer
- *  linec  = (global) line count
- *  parseP = (global) parse string pointer if cfileP == NULL
- *  pSD->rootWindow = default root window of display
- * 
- *  Outputs:
- *  -------
- *  linec  = (global) line count incremented
- *  parseP = (global) parse string pointer if cfileP == NULL
- *
- *
- *  Comments:
- *  --------
- * 
- *************************************<->***********************************/
-
-static void ParseIncludeSet (WmScreenData *pSD, unsigned char *lineP) 
-{
-    unsigned char     *string;
-    unsigned char     *pchName;
-
-    /*
-     * Require leading '{' on the next line.
-     */
-
-    while ((GetNextLine () != NULL))  /* not EOF nor read error */
-    {
-        lineP = line;
-	ScanWhitespace(&lineP);
-
-	if ((lineP == NULL) || (*line == '!') || (*lineP == '\0') || (*lineP == '#'))
-	/* ignore empty or comment line */
-        {
-            continue;
-        }
-
-        if (*lineP == '{')
-	/* found '{' */
-        {
-            break;
-        }
-
-	/* not a '{' */
-	PWarning (((char *)GETMESSAGE(60, 37, "Expected '{'")));
-        return;
-    }
-
-    /*
-     * Found leading "{" or EOF.
-     * Parse include files until "}" or EOF found.
-     */
-    while ((GetNextLine () != NULL))
-    {
-	lineP = line;
-	if ((*line == '!') || (string = GetString (&lineP)) == NULL)
-	/* ignore empty or comment lines */
-        {
-            continue;
-        }
-        if (*string == '}')  /* finished with set. */
-        {
-	    break;
-        }
-	pchName = _DtWmParseFilenameExpand (string);
-	if (pchName && ConfigStackPush (pchName))
-	{
-	    ProcessWmFile (pSD, True /* nested */);
-	    ConfigStackPop ();
-	    XtFree ((char *) pchName);
-	}
-
-    }
-
-}
-
-
-
-/*************************************<->*************************************
- *
- *  ConfigStackInit (pchFileName)
- *
- *
- *  Description:
- *  -----------
- *  Initializes the config file processing stack
- *
- *  Inputs:
- *  ------
- *  pchFileName = name of new file to start parsing
- * 
- *  Outputs:
- *  -------
- *
- *
- *  Comments:
- *  --------
- * 
- *************************************<->***********************************/
-
-static void ConfigStackInit (char *pchFileName)
-{
-
-    pConfigStack  = XtNew (ConfigFileStackEntry);
-
-    if (pConfigStack)
-    {
-	pConfigStackTop = pConfigStack;
-	pConfigStackTop->fileName = XtNewString (pchFileName);
-	pConfigStackTop->tempName = NULL;
-	pConfigStackTop->cppName = NULL;
-	pConfigStackTop->offset = 0;
-	pConfigStackTop->pWmPB = wmGD.pWmPB;
-	pConfigStackTop->wmgdConfigFile = wmGD.configFile;
-	pConfigStackTop->pIncluder = NULL;
-
-    }
-    else
-    {
-	sprintf ((char *)wmGD.tmpBuffer,
-	    (char *)GETMESSAGE(60,36,"Insufficient memory to process included file: %s"), 
-	    pchFileName);
-	Warning ((char *)wmGD.tmpBuffer);
-    }
-}
-
-
-/*************************************<->*************************************
- *
- *  ConfigStackPush (pchFileName)
- *
- *
- *  Description:
- *  -----------
- *  Open an included config file
- *
- *  Inputs:
- *  ------
- *  pchFileName = name of new file to start parsing
- *  wmGD.pWmPB = global parse buffer (pickle this)
- * 
- *  Outputs:
- *  -------
- *  wmGD.pWmPB = global parse buffer (new one for new file)
- *  return = FILE * to open file or NULL
- *
- *
- *  Comments:
- *  --------
- * 
- *************************************<->***********************************/
-
-static FILE *
-ConfigStackPush (unsigned char *pchFileName)
-{
-    ConfigFileStackEntry *pEntry;
-    FILE *pNewFile = NULL;
-
-    pEntry = XtNew (ConfigFileStackEntry);
-    if (pEntry)
-    {
-	/* save off state of current config file */
-	pConfigStackTop->offset = ftell (cfileP);
-	pConfigStackTop->pWmPB = wmGD.pWmPB;
-	fclose (cfileP);
-
-	/* set up state of new config file */
-	pEntry->fileName = XtNewString ((char *)pchFileName);
-	pEntry->tempName = NULL;
-	pEntry->cppName = NULL;
-	pEntry->wmgdConfigFile = (String) pEntry->fileName;
-
-	/* set globals for new config file */
-	wmGD.pWmPB = _DtWmParseNewBuf ();
-	wmGD.configFile = pEntry->wmgdConfigFile;
-
-	/* put new entry onto stack */
-	pEntry->pIncluder = pConfigStackTop;
-	pConfigStackTop = pEntry;
-
-	/* open the file */
-	pNewFile = cfileP = FopenConfigFile();
-
-	if (!pNewFile)
-	{
-	    /* file open failed! back out */
-	    ConfigStackPop ();
-	}
-    }
-    else
-    {
-	sprintf ((char *)wmGD.tmpBuffer,
-	    (char *)GETMESSAGE(60,36,"Insufficient memory to process included file: %s"), 
-	    pchFileName);
-	Warning ((char *)wmGD.tmpBuffer);
-    }
-
-    return (pNewFile);
-}
-
-
-
-/*************************************<->*************************************
- *
- *  ConfigStackPop ()
- *
- *
- *  Description:
- *  -----------
- *
- *
- *  Inputs:
- *  ------
- *  pchFileName = name of new file to start parsing
- *  wmGD.pWmPB = global parse buffer (pickle this)
- * 
- *  Outputs:
- *  -------
- *  wmGD.pWmPB = global parse buffer (new one for new file)
- *
- *
- *  Comments:
- *  --------
- *  assumes cfileP is closed already
- * 
- *************************************<->***********************************/
-
-static void ConfigStackPop (void)
-{
-    Boolean error = False;
-    ConfigFileStackEntry *pPrev;
-    char pchCmd[MAXWMPATH+1];
-
-    if (pConfigStackTop != pConfigStack)
-    {
-	pPrev = pConfigStackTop->pIncluder;
-
-	_DtWmParseDestroyBuf (wmGD.pWmPB);
-	if (pConfigStackTop->tempName)
-	{
-	    XtFree (pConfigStackTop->tempName);
-	}
-	if (pConfigStackTop->cppName)
-	{
-	    strcpy (pchCmd, "/bin/rm "); 
-	    strcat (pchCmd, pConfigStackTop->cppName); 
-	    SystemCmd (pchCmd);
-	    XtFree ((char *) pConfigStackTop->cppName);
-	    pConfigStackTop->cppName = NULL;
-	}
-	if (pConfigStackTop->fileName)
-	{
-	    XtFree (pConfigStackTop->fileName);
-	}
-
-	wmGD.pWmPB = pPrev->pWmPB;
-	wmGD.configFile = pPrev->wmgdConfigFile;
-	if (pPrev->tempName)
-	{
-	    cfileP = fopen (pPrev->tempName, "r");
-	}
-	else if (pPrev->cppName)
-	{
-	    cfileP = fopen (pPrev->cppName, "r");
-	}
-	else
-	{
-	    cfileP = fopen (pPrev->fileName, "r");
-	}
-	if (cfileP) 
-	{
-	    fseek (cfileP, pPrev->offset, 0);
-	}
-	else
-	{
-	    char msg[MAXWMPATH+1];
-
-	    sprintf(msg, ((char *)GETMESSAGE(60, 39, 
-			    "Could not reopen configuration file %s")),
-		pPrev->fileName);
-	    Warning (msg);
-	}
-
-	XtFree ((char *)pConfigStackTop);
-	pConfigStackTop = pPrev;
-    }
-}
-
-
-/*************************************<->*************************************
- *
- *  ParseWmFuncActionArg (linePP, wmFunction, pArgs)
- *
- *
- *  Description:
- *  -----------
- *  Parses a window manager f.action argument
- *
- *
- *  Inputs:
- *  ------
- *  linePP   = pointer to current line buffer pointer.
- *  wmFunction = function for which the argument string is intended.
- *  pArgs = pointer to argument destination.
- *
- * 
- *  Outputs:
- *  -------
- *  linePP   = pointer to revised line buffer pointer.
- *  pArgs    = pointer to parsed argument.
- *  Return   = FALSE iff insufficient memory
- *
- *
- *  Comments:
- *  --------
- * 
- *************************************<->***********************************/
-
-Boolean ParseWmFuncActionArg (unsigned char **linePP, 
-				  WmFunction wmFunction, String *pArgs)
-{
-#define WM_ACTION_ARG_INCREMENT 5
-#define WM_ACTION_ARG_PAD	256
-    unsigned char *string;
-    char *pch;
-    WmActionArg *pAP;
-    int iArgSz;
-
-    pAP = XtNew (WmActionArg);
-    if (pAP && (string = GetString (linePP)) != NULL)
-    {
-	/* Got action name */
-	pAP->actionName = XtNewString ((char *) string);
-
-	/* Get action arguments, if any */
-	if (pAP->aap = (DtActionArg *) 
-		XtMalloc (WM_ACTION_ARG_INCREMENT * sizeof (DtActionArg)))
-	{
-	    iArgSz = WM_ACTION_ARG_INCREMENT;
-	    pAP->numArgs = 0;
-
-	    while ((string = GetString (linePP)) != NULL)
-	    {
-	       if (pAP->aap[pAP->numArgs].u.file.name = (char *)
-		       XtMalloc(1 + strlen((char *)string)))
-	       {
-		   pAP->aap[pAP->numArgs].argClass = DtACTION_FILE;
-
-		   /* format the action argument */
-		   pch = pAP->aap[pAP->numArgs].u.file.name;
-
-		   /* 
-		    * Expand environment variable
-		    */
-		   if (string[0] == '$')
-		   {
-		       string = (unsigned char *) getenv ((char *)&string[1]);
-		       if (!string)
-		       {
-			   break;
-		       }
-		       else
-		       {
-			   /*
-			    * Make sure there's room for the new
-			    * string.
-			    */
-			   pch = (char *) 
-			     XtRealloc (pch, (1+strlen((char *)string)));
-			   pAP->aap[pAP->numArgs].u.file.name = pch;
-		       }
-		   }
-
-		   /* !!! No host name processing is done!!! */
-
-		   strcpy (pch, (char *)string);
-
-		   pAP->numArgs++;
-		   if (pAP->numArgs == iArgSz)
-		   {
-		       /* need to increase our array space */
-		       iArgSz += WM_ACTION_ARG_INCREMENT;
-		       pAP->aap = (DtActionArg *) 
-			   XtRealloc((char *)pAP->aap,
-			             (iArgSz * sizeof (DtActionArg)));
-		       if (!pAP->aap)
-		       {
-			   break; /* out of memory */
-		       }
-		   }
-	       }
-	       else
-	       {
-		   break; /* out of memory */
-	       }
-	    }
-
-	}
-	pAP->szExecParms = NULL;
-        *pArgs = (String) pAP;
-    }
-    else
-    /* NULL string argument */
-    {
-        *pArgs = NULL;
-    }
-
-    return (TRUE);
-
-} /* END OF FUNCTION ParseWmFuncActionArg */
-
-
-#endif /* PANELIST */
 #ifdef WSM
 
 /*************************************<->*************************************

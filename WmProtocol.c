@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2.3
 */ 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 
 #ifdef REV_INFO
@@ -33,8 +30,6 @@
 static char rcsid[] = "$TOG: WmProtocol.c /main/8 1997/06/18 17:31:34 samborn $"
 #endif
 #endif
-/*
- * (c) Copyright 1987, 1988, 1989, 1990 HEWLETT-PACKARD COMPANY */
 
 /*
  * Included Files:
@@ -55,9 +50,6 @@ static char rcsid[] = "$TOG: WmProtocol.c /main/8 1997/06/18 17:31:34 samborn $"
 #ifndef NO_WMQUERY 
 #include "WmEvent.h"
 #endif /* NO_WMQUERY */
-#ifdef PANELIST
-#include "WmPanelP.h"
-#endif /* PANELIST */
 
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
 # include "WmCmd.h"
@@ -342,31 +334,6 @@ void SendConfigureNotify (ClientData *pCD)
     notifyEvent.display = DISPLAY;
     notifyEvent.event = pCD->client;
     notifyEvent.window = pCD->client;
-#ifdef PANELIST
-    if (pCD->pECD)
-    {
-	int rootX, rootY;
-	Window wChild;
-     	WmFpEmbeddedClientData *pECD = (WmFpEmbeddedClientData *)pCD->pECD;
-
-	/*
-	 * The front panel uses clientX, clientY for position in
-	 * front panel. Translate to root coords for client's
-	 * information.
-	 */
-
-	XTranslateCoordinates (DISPLAY, pECD->winParent,
-	    ROOT_FOR_CLIENT(pCD), pCD->clientX, pCD->clientY, 
-	    &rootX, &rootY, &wChild);
-
-	notifyEvent.x = rootX;
-	notifyEvent.y = rootY;
-	notifyEvent.width = pCD->clientWidth;
-	notifyEvent.height = pCD->clientHeight;
-    }
-    else
-#else /* PANELIST */
-#endif /* PANELIST */
     if (pCD->maxConfig)
     {
 	notifyEvent.x = pCD->maxX;

@@ -1,0 +1,1355 @@
+'\" t
+...\" emwm.sgm /main/13 1996/09/25 11:30:27 cdedoc $
+.de P!
+.fl
+\!!1 setgray
+.fl
+\\&.\"
+.fl
+\!!0 setgray
+.fl			\" force out current output buffer
+\!!save /psv exch def currentpoint translate 0 0 moveto
+\!!/showpage{}def
+.fl			\" prolog
+.sy sed -e 's/^/!/' \\$1\" bring in postscript file
+\!!psv restore
+.
+.de pF
+.ie     \\*(f1 .ds f1 \\n(.f
+.el .ie \\*(f2 .ds f2 \\n(.f
+.el .ie \\*(f3 .ds f3 \\n(.f
+.el .ie \\*(f4 .ds f4 \\n(.f
+.el .tm ? font overflow
+.ft \\$1
+..
+.de fP
+.ie     !\\*(f4 \{\
+.	ft \\*(f4
+.	ds f4\"
+'	br \}
+.el .ie !\\*(f3 \{\
+.	ft \\*(f3
+.	ds f3\"
+'	br \}
+.el .ie !\\*(f2 \{\
+.	ft \\*(f2
+.	ds f2\"
+'	br \}
+.el .ie !\\*(f1 \{\
+.	ft \\*(f1
+.	ds f1\"
+'	br \}
+.el .tm ? font underflow
+..
+.ds f1\"
+.ds f2\"
+.ds f3\"
+.ds f4\"
+.ta 8n 16n 24n 32n 40n 48n 56n 64n 72n 
+.TH "emwm" "user cmd"
+.SH "NAME"
+\fBemwm\fP \(em The Motif
+Window Manager
+.SH "SYNOPSIS"
+.PP
+\fBemwm\fP [\fIoptions\fP] 
+.SH "DESCRIPTION"
+.PP
+The \fBemwm\fP window manager provides
+functions that facilitate control (by the user and the programmer)
+of elements of window state such as placement, size, icon/normal display,
+and input-focus ownership\&.
+.PP
+The stand-alone window manager is not an integral part
+of CDE and does not support communication with other components in the CDE
+environment, such as the Style Manager and the Session Manager\&.
+.SS "Options"
+.IP "\fI-display\fP\ \fBdisplay\fP" 10
+This option specifies the display to use; see \fBX\fP(1)\&.
+.IP "\fI-xrm\fP\ \fBresourcestring\fP" 10
+This option specifies a resource string to use\&.
+.IP "\fI-multiscreen\fP" 10
+This option causes \fBemwm\fP to manage all screens on
+the display\&. The default is to manage only a single screen.
+.IP "\fI-name\fP\ \fBname\fP" 10
+This option causes \fBemwm\fP to retrieve its resources
+using the specified name, as in \fBname*resource\fP\&.
+.IP "\fI-screens\fP\ \fBname\ [name\ [\&.\&.\&.]]\fP" 10
+This option specifies the resource names to use for the screens managed
+by \fBemwm\fP\&. If \fBemwm\fP is managing a single
+screen, only the first name in the list is used\&. If \fBemwm\fP
+is managing multiple screens, the names are assigned to the screens in order,
+starting with screen 0\&. Screen 0 gets the first name, screen 1 the second
+name, and so on\&.
+.SS "Appearance"
+.PP
+The following sections describe the basic default behaviors of windows,
+icons, the icon box, input focus, and window stacking\&. The appearance and
+behavior of the window manager can be altered by changing the configuration
+of specific resources\&. Resources are defined under the heading "X DEFAULTS\&."
+.SS "Screens"
+.PP
+By default, \fBemwm\fP manages only the single screen specified
+by the \fI-display\fP option or the \fBDISPLAY\fP environment variable (by default, screen 0)\&. If the \fI-multiscreen\fP option is specified or if the \fImultiScreen\fP resource is True, \fBemwm\fP tries to manage all
+the screens on the display\&.
+.PP
+When \fBemwm\fP is managing multiple screens, the \fI-screens\fP option can be used to give each screen a unique
+resource name\&. The names are separated by blanks, for example, \fI-screens\fP scr0 scr1\&. If there are more screens than names,
+resources for the remaining screens will be retrieved using the first name\&.
+By default, the screen number is used for the screen name\&.
+.SS "Windows"
+.PP
+Default \fBemwm\fP window frames have distinct components
+with associated functions:
+.IP "\fITitle\ Area\fP" 10
+In addition to displaying the client\&'s title, the title area is used
+to move the window\&. To move the window, place the pointer over the title area,
+press button 1 and drag the window to a new location\&. By default, a wire
+frame is moved during the drag to indicate the new location\&. When the button
+is released, the window is moved to the new location\&.
+.IP "\fITitle\ Bar\fP" 10
+The title bar includes the title area, the minimize button, the maximize
+button, and the window menu button\&. In shaped windows, such as round windows,
+the title bar floats above the window\&.
+.IP "\fIMinimize\ Button\fP" 10
+To turn the window into an icon, click button 1 on the minimize button
+(the frame box with a \fBsmall\fP square in it)\&.
+.IP "\fIMaximize\ Button\fP" 10
+To make the window fill the screen (or enlarge to the largest size allowed
+by the configuration files), click button 1 on the maximize button (the frame
+box with a \fBlarge\fP square in it)\&.
+.IP "\fIWindow\ Menu\ Button\fP" 10
+The window menu button is the frame box with a horizontal bar in it\&.
+To pull down the window menu, press button 1\&. While pressing, drag the pointer
+on the menu to your selection, then release the button when your selection
+is highlighted\&. Pressing button 3 in the title bar or resize border handles
+also posts the window menu\&. Alternately, you can click button 1 to pull down
+the menu and keep it posted; then position the pointer and select\&. You can
+also post the window menu by pressing <Shift> <Esc> or <Alt> <Space>\&.
+Double-clicking button 1 with the pointer on the window menu button closes
+the window\&.
+.PP
+The following table lists the contents of the window menu\&.
+.SS "Default Window Menu"
+.TS
+tab();
+lw(1.803823i) lw(1.062374i) lw(2.633803i).
+SelectionAcceleratorDescription
+RestoreT{
+Restores the window to its size before minimizing
+or maximizing\&.
+T}
+MoveT{
+Allows the window to be moved with keys or
+mouse\&.
+T}
+SizeAllows the window to be resized\&.
+MinimizeTurns the window into an icon\&.
+MaximizeMakes the window fill the screen\&.
+LowerT{
+Moves window to bottom of window stack\&.
+T}
+CloseAlt+F4Causes client to terminate\&.
+.TE
+.IP "\fIResize\ Border\ Handles\fP" 10
+To change the size of a window, move the pointer over a resize border
+handle (the cursor changes), press button 1, and drag the window to a new
+size\&. When the button is released, the window is resized\&. While dragging is
+being done, a rubber-band outline is displayed to indicate the new window
+size\&.
+.IP "\fIMatte\fP" 10
+An optional matte decoration can be added between the client area and
+the window frame (see the \fImatteWidth\fP resource)\&. A
+\fImatte\fP is not actually part of the window frame\&.
+There is no functionality associated with a matte\&.
+.SS "Icons"
+.PP
+Icons are small graphic representations of windows\&. A window can be
+minimized (iconified) using the minimize button on the window frame\&. Icons
+provide a way to reduce clutter on the screen\&.
+.PP
+Pressing mouse button 1 when the pointer is over an icon causes the
+icon\&'s window menu to pop up\&. Releasing the button (press + release without
+moving mouse = click) causes the menu to stay posted\&. The menu contains the
+following selections:
+.SS "Icon Window Menu"
+.TS
+tab();
+lw(0.913000i) lw(1.144000i) lw(3.443000i).
+SelectionAcceleratorDescription
+RestoreOpens the associated window\&.
+MoveT{
+Allows the icon to be moved with keys\&.
+T}
+SizeInactive (not an option for icons)\&.
+MinimizeInactive (not an option for icons)\&.
+MaximizeT{
+Opens the associated window and makes it
+fill the screen\&.
+T}
+LowerMoves icon to bottom of icon stack\&.
+CloseAlt+F4T{
+Removes client from \fBemwm\fP
+management\&.
+T}
+.TE
+.PP
+Note that pressing button 3 over an icon also causes the icon\&'s window
+menu to pop up\&. To make a menu selection, drag the pointer over the menu and
+release button 3 when the desired item is highlighted\&.
+.PP
+Double-clicking button 1 on an icon invokes the \fBf\&.restore_and_raise\fP function and restores the icon\&'s associated window to its previous
+state\&. For example, if a maximized window is iconified, double-clicking button
+1 restores it to its maximized state\&. Double-clicking button 1 on the icon
+box\&'s icon opens the icon box and allows access to the contained icons\&. (In
+general, double-clicking a mouse button is a quick way to perform a function\&.)
+Pressing <Shift> <Esc> or <Menu> (the pop-up menu key) causes the
+icon window menu of the currently selected icon to pop up\&.
+.SS "Icon Box"
+.PP
+When icons begin to clutter the screen, they can be packed into an icon
+box\&. (To use an icon box, \fBemwm\fP must be started with the
+icon box configuration already set\&.) The icon box is a \fBemwm\fP
+window that holds client icons\&. It includes one or more scroll bars when there
+are more window icons than the icon box can show at the same time\&.
+.PP
+Icons in the icon box can be manipulated with the mouse\&. The following
+table summarizes the behavior of this interface\&. Button actions apply whenever
+the pointer is on any part of the icon\&. Note that double-clicking an icon
+in the icon box invokes the \fBf\&.restore_and_raise\fP function\&.
+.TS
+tab();
+lw(0.841046i) lw(1.051308i) lw(3.607646i).
+ButtonActionDescription
+Button 1clickSelects the icon\&.
+Button 1double-clickT{
+Normalizes (opens) the associated window\&.
+Raises an already open window to the top of the stack\&.
+T}
+Button 1dragMoves the icon\&.
+Button 3pressT{
+Causes the menu for that icon to pop up\&.
+T}
+Button 3dragT{
+Highlights items as the pointer moves across
+the menu\&.
+T}
+.TE
+.PP
+Pressing mouse button 3 when the pointer is over an icon causes the
+menu for that icon to pop up\&.
+.SS "Icon Menu for the Icon Box"
+.TS
+tab();
+lw(0.885312i) lw(1.062374i) lw(3.552314i).
+SelectionAcceleratorDescription
+RestoreT{
+Opens the associated window (if not already
+open)\&.
+T}
+MoveT{
+Allows the icon to be moved with keys\&.
+T}
+SizeInactive\&.
+MinimizeInactive\&.
+MaximizeT{
+Opens the associated window (if not already
+open) and maximizes its size\&.
+T}
+LowerInactive\&.
+CloseAlt+F4T{
+Removes client from \fBemwm\fP
+management\&.
+T}
+.TE
+.PP
+To pull down the window menu for the icon box itself, press button 1
+with the pointer over the menu button for the icon box\&. The window menu of
+the icon box differs from the window menu of a client window: The "Close"
+selection is replaced with the "PackIcons Shift+Alt+F7" selection\&. When selected,
+PackIcons packs the icons in the box to achieve neat rows with no empty slots\&.
+.PP
+You can also post the window menu by pressing <Shift>, <Esc> or
+<Alt> <Space>\&. Pressing <Menu> (the pop-up menu key) causes the icon
+window menu of the currently selected icon to pop up\&.
+.SS "Input Focus"
+.PP
+The \fBemwm\fP window manager supports (by default) a keyboard
+input focus policy of explicit selection\&. This means when a window is selected
+to get keyboard input, it continues to get keyboard input until the window
+is withdrawn from window management, another window is explicitly selected
+to get keyboard input, or the window is iconified\&. Several resources control
+the input focus\&. The client window with the keyboard input focus has the active
+window appearance with a visually distinct window frame\&.
+.PP
+The following tables summarize the keyboard input focus selection behavior:
+.TS
+tab();
+lw(0.880482i) lw(0.844298i) lw(1.350877i) lw(2.424342i).
+ButtonActionObjectFunction Description
+Button 1pressWindow / window frameKeyboard focus selection\&.
+Button 1pressIconKeyboard focus selection\&.
+.TE
+.TS
+tab();
+lw(1.394366i) lw(4.105634i).
+Key ActionFunction Description
+[Alt][Tab]T{
+Move input focus to next window in window
+stack (available only in explicit focus mode)\&.
+T}
+[Alt][Shift][Tab]T{
+Move input focus to previous window in window
+stack (available only in explicit focus mode)\&.
+T}
+.TE
+.SS "Window Stacking"
+.PP
+There are two types of window stacks: global window stacks and an application\&'s
+local family window stack\&.
+.PP
+The global stacking order of windows may be changed as a result of setting
+the keyboard input focus, iconifying a window, or performing a window manager
+window stacking function\&. When keyboard focus policy is explicit the default
+value of the \fIfocusAutoRaise\fP resource is True\&. This causes
+a window to be raised to the top of the stack when it receives input focus,
+for example, by pressing button 1 on the title bar\&. The key actions defined
+in the previous table will thus raise the window receiving focus to the top
+of the stack\&.
+.PP
+In pointer mode, the default value of \fIfocusAutoRaise\fP
+is False, that is, the window stacking order is not changed when a window
+receives keyboard input focus\&. The following key actions can be used to cycle
+through the global window stack\&.
+.TS
+tab();
+lw(1.567982i) lw(3.932018i).
+Key ActionFunction Description
+[Alt][ESC]T{
+Place top window on bottom of stack\&.
+T}
+[Alt][Shift][ESC]T{
+Place bottom window on top of stack\&.
+T}
+.TE
+.PP
+By default, a window\&'s icon is placed on the bottom of the stack when
+the window is iconified; however, the default can be changed by the \fIlowerOnIconify\fP resource\&.
+.PP
+Transient windows (secondary windows such a dialog boxes) stay above
+their parent windows by default; however, an application\&'s local family stacking
+order may be changed to allow a transient window to be placed below its parent
+top-level window\&. The following arguments show the modification of the stacking
+order for the \fBf\&.lower\fP function\&.
+.IP "\fBf\&.lower\fP" 10
+Lowers the transient window within the family (staying above the parent)
+and lowers the family in the global window stack\&.
+.IP "\fBf\&.lower\fP\ [ \fIwithin\fP]" 10
+Lowers the transient window within the family (staying above the parent)
+but does not lower the family in the global window stack\&.
+.IP "\fBf\&.lower\fP\ [\fIfreeFamily\fP ]" 10
+Lowers the window free from its family stack (below the parent), but
+does not lower the family in the global window stack\&.
+.PP
+The arguments \fIwithin\fP and \fIfreeFamily\fP can also be used with \fBf\&.raise\fP
+and \fBf\&.raise_lower\fP\&.
+.SS "Session Management"
+.PP
+The window manager is an X Session Management Protocol aware client\&. It responds to SaveYourself
+(and other associated messages) by saving the geometries of its clients to a state file\&. 
+\fBemwm\fP can then be restarted by the XSMP session manager\&.
+The default location for the state file is \fB$HOME/\&.emwmclientdb\fP\&.
+This location can be overriden with the resource \fBsessionClientDB\fP\&.
+.SS "X Resources"
+.PP
+The \fBemwm\fP command is configured from its resource
+database\&. This database is built from the following sources\&. They are listed
+in order of precedence, low to high:
+.PP
+\fB/usr/X11R6/lib/X11/app-defaults/Mwm\fP
+.PP
+\fB$HOME/Mwm\fP
+.PP
+\fBRESOURCE_MANAGER\fP root window property or \fB$HOME/\&.Xdefaults\fP
+.PP
+\fBXENVIRONMENT\fP variable or \fB$HOME/\&.Xdefaults-host\fP
+.PP
+\fBemwm\fP command line options
+.PP
+The file names \fB/usr/X11R6/lib/X11/app-defaults/Mwm\fP and \fB$HOME/Mwm\fP represent customary locations for these files\&. The actual
+location of the system-wide class resource file may depend on the \fBXFILESEARCHPATH\fP environment variable and the
+current language environment\&. The actual location of the user-specific class
+resource file may depend on the \fBXUSERFILESEARCHPATH\fP and \fBXAPPLRESDIR\fP
+environment variables and the current language environment\&.
+.PP
+Entries in the resource database may refer to other resource files for
+specific types of resources\&. These include files that contain bitmaps, fonts,
+and \fBemwm\fP specific resources such as menus and behavior
+specifications (for example, button and key bindings)\&.
+.PP
+\fIMwm\fP is the resource class name of \fBemwm\fP and \fBemwm\fP is the default resource name used by \fBemwm\fP to look up resources\&. the \fI-screens\fP
+command line option specifies resource names, such as "emwm_b+w" and "emwm_color"\&.)
+In the following discussion of resource specification, "Mwm" and "emwm" (and
+the aliased \fBemwm\fP resource names) can be used interchangeably,
+but "emwm" takes precedence over "Mwm"\&.
+.PP
+The \fBemwm\fP command uses the following types of resources:
+.IP "\fBComponent Appearance Resources:\fP" 10
+These resources specify appearance attributes of window manager user
+interface components\&. They can be applied to the appearance of window manager
+menus, feedback windows (for example, the window reconfiguration feedback
+window), client window frames, and icons\&.
+.IP "\fBGeneral Appearance and Behavior Resources:\fP" 10
+These resources specify \fBemwm\fP appearance and behavior
+(for example, window management policies)\&. They are not set separately for
+different \fBemwm\fP user interface components\&. They apply to
+all screens and workspaces\&.
+.IP "\fBScreen Specific Appearance and Behavior Resources:\fP" 10
+These resources specify the appearance and behavior of \fBemwm\fP elements that are settable on a per-screen basis\&.
+.IP "\fBClient Specific Resources:\fP" 10
+These \fBemwm\fP resources can be set for a particular
+client window or class of client windows\&. They specify client-specific icon
+and client window frame appearance and behavior\&.
+.PP
+Resource identifiers can be either a resource name (for example, foreground)
+or a resource class (for example, Foreground)\&. If the value of a resource
+is a filename and if the filename is prefixed by "~/", then it is relative
+to the path contained in the \fBHOME\fP
+environment variable (generally the user\&'s home directory)\&.
+.SS "Component Appearance Resources"
+.PP
+The syntax for specifying component appearance resources that apply
+to window manager icons, menus, and client window frames is \fIMwm*\fP \fBresource_id\fP
+.PP
+For example, \fIMwm*foreground\fP is used to specify
+the foreground color for \fBemwm\fP menus, icons, client window
+frames, and feedback dialogs\&.
+.PP
+The syntax for specifying component appearance resources that apply
+to a particular \fBemwm\fP component is \fIMwm*\fP[\fImenu\fP|\fIicon\fP|\fIclient\fP|\fIfeedback\fP] \fI*\fP\fBresource_id\fP
+.PP
+If \fBmenu\fP is specified, the resource is applied only
+to \fBemwm\fP menus; if \fBicon\fP is specified,
+the resource is applied to icons; and if \fBclient\fP is specified,
+the resource is applied to client window frames\&. For example, \fIMwm*icon*foreground\fP is used to specify the foreground color for \fBemwm\fP
+icons, \fIMwm*menu*foreground\fP specifies the foreground
+color for \fBemwm\fP menus, and \fIMwm*client*foreground\fP is used to specify the foreground color for \fBemwm\fP
+client window frames\&.
+.PP
+The appearance of the title area of a client window frame (including
+window management buttons) can be separately configured\&. The syntax for configuring
+the title area of a client window frame is \fIMwm*client*title*\fP \fBresource_id\fP
+.PP
+For example, \fIMwm*client*title*foreground\fP specifies
+the foreground color for the title area\&. Defaults for title area resources
+are based on the values of the corresponding client window frame resources\&.
+.PP
+The appearance of menus can be configured based on the name of the menu\&.
+The syntax for specifying menu appearance by name is \fIMwm*menu*\fP \fBmenu_name\fP\fI*\fP\fBresource_id\fP
+.PP
+For example, \fIMwm*menu*my_menu*foreground\fP specifies
+the foreground color for the menu named \fImy_menu\fP\&. The
+user can also specify resources for window manager menu components, that is,
+the gadgets that comprise the menu\&. These may include for example, a menu
+title, title separator, one or more buttons, and separators\&. If a menu contains
+more than one instance of a class, such as multiple PushButtonGadgets, the
+name of the first instance is "PushButtonGadget1", the second is "PushButtonGadget2",
+and so on\&. The following list identifies the naming convention used for window
+manager menu components:
+.IP "   \(bu" 6
+Menu Title LabelGadget - "TitleName"
+.IP "   \(bu" 6
+Menu Title SeparatorGadget - "TitleSeparator"
+.IP "   \(bu" 6
+CascadeButtonGadget - "CascadeButtonGadget<n>"
+.IP "   \(bu" 6
+PushButtonGadget - "PushButtonGadget<n>"
+.IP "   \(bu" 6
+SeparatorGadget - "SeparatorGadget<n>"
+.PP
+Refer to the man page for each class for a list of resources that can
+be specified\&.
+.PP
+The following component appearance resources that apply to all window
+manager parts can be specified:
+.SS "Component Appearance Resources - All Window Manager Parts"
+.TS
+tab();
+lw(1.802521i) lw(1.571429i) lw(1.178571i) lw(0.947479i).
+NameClassValue TypeDefault
+backgroundBackgroundcolorvaries\(dg
+backgroundPixmapBackgroundPixmapstring\(dg\(dgvaries\(dg
+bottomShadowColorForegroundcolorvaries\(dg
+bottomShadowPixmapForegroundstring\(dg\(dgvaries\(dg
+fontListFontListT{
+string\(dg\(dg\(dg
+T}"fixed"
+foregroundForegroundcolorvaries\(dg
+saveUnderSaveUnderT/FF
+topShadowColorBackgroundcolorvaries\(dg
+topShadowPixmapTopShadowPixmapstring\(dg\(dgvaries\(dg
+.TE
+.PP
+\(dgThe default is chosen based on the visual type of the screen\&.
+\(dg\(dgImage name\&. See \fBXmInstallImage\fP(3)\&. \(dg\(dg\(dgX11
+X Logical Font Description
+.IP "\fIbackground\fP\ (class\  \fIBackground\fP)" 10
+This resource specifies the background color\&. Any legal X color may
+be specified\&. The default value is chosen based on the visual type of the
+screen\&.
+.IP "\fIbackgroundPixmap\fP\ (class\  \fIBackgroundPixmap\fP)" 10
+This resource specifies the background Pixmap of the \fBemwm\fP
+decoration when the window is inactive (does not have the keyboard focus)\&.
+The default value is chosen based on the visual type of the screen\&.
+.IP "\fIbottomShadowColor\fP\ (class\  \fIForeground\fP)" 10
+This resource specifies the bottom shadow color\&. This color is used
+for the lower and right bevels of the window manager decoration\&. Any legal
+X color may be specified\&. The default value is chosen based on the visual
+type of the screen\&.
+.IP "\fIbottomShadowPixmap\fP\ (class\  \fIBottomShadowPixmap\fP)" 10
+This resource specifies the bottom shadow Pixmap\&. This Pixmap is used
+for the lower and right bevels of the window manager decoration\&. The default
+is chosen based on the visual type of the screen\&.
+.IP "\fIfontList\fP\ (class\  \fIFontList\fP)" 10
+This resource specifies the font used in the window manager decoration\&.
+The character encoding of the font should match the character encoding of
+the strings that are used\&. The default is "fixed\&."
+.IP "\fIforeground\fP\ (class\  \fIForeground\fP)" 10
+This resource specifies the foreground color\&. The default is chosen
+based on the visual type of the screen\&.
+.IP "\fIsaveUnder\fP\ (class\  \fISaveUnder\fP)" 10
+This is used to indicate whether "save unders" are used for \fBemwm\fP components\&. For this to have any effect, save unders must be
+implemented by the X server\&. If save unders are implemented, the X server
+saves the contents of windows obscured by windows that have the save under
+attribute set\&. If the \fIsaveUnder\fP resource is True, \fBemwm\fP will set the save under attribute on the window manager frame
+of any client that has it set\&. If \fIsaveUnder\fP is False,
+save unders will not be used on any window manager frames\&. The default value
+is False\&.
+.IP "\fItopShadowColor\fP\ (class\  \fIBackground\fP)" 10
+This resource specifies the top shadow color\&. This color is used for
+the upper and left bevels of the window manager decoration\&. The default is
+chosen based on the visual type of the screen\&.
+.IP "topShadowPixmap\ (\ class\  \fITopShadowPixmap)\fP" 10
+This resource specifies the top shadow Pixmap\&. This Pixmap is used for
+the upper and left bevels of the window manager decoration\&. The default is
+chosen based on the visual type of the screen\&.
+.PP
+The following component appearance resources that apply to frame and
+icons can be specified:
+.SS "Frame and Icon Components"
+.TS
+tab();
+lw(2.072144i) lw(1.653307i) lw(0.991984i) lw(0.782565i).
+NameClassValue TypeDefault
+activeBackgroundBackgroundcolorvaries\(dg
+activeBackgroundPixmapBackgroundPixmapstring\(dg\(dgvaries\(dg
+activeBottomShadowColorForegroundcolorvaries\(dg
+activeBottomShadowPixmapBottomShadowPixmapstring\(dg\(dgvaries\(dg
+activeForegroundForegroundcolorvaries\(dg
+activeTopShadowColorBackgroundcolorvaries\(dg
+activeTopShadowPixmapTopShadowPixmapstring\(dg\(dgvaries\(dg
+.TE
+.PP
+\(dgThe default is chosen based on the visual type of the screen\&.
+\(dg\(dgSee \fBXmInstallImage\fP(3)\&.
+.IP "\fIactiveBackground\fP\ (class\  \fIBackground\fP)" 10
+This resource specifies the background color of the \fBemwm\fP
+decoration when the window is active (has the keyboard focus)\&. The default
+is chosen based on the visual type of the screen\&.
+.IP "\fIactiveBackgroundPixmap\fP\ (class\  \fIActiveBackgroundPixmap\fP)" 10
+This resource specifies the background Pixmap of the \fBemwm\fP
+decoration when the window is active (has the keyboard focus)\&. The default
+is chosen based on the visual type of the screen\&.
+.IP "\fIactiveBottomShadowColor\fP\ (class\  \fIForeground\fP)" 10
+This resource specifies the bottom shadow color of the \fBemwm\fP decoration when the window is active (has the keyboard focus)\&.
+The default is chosen based on the visual type of the screen\&.
+.IP "\fIactiveBottomShadowPixmap\fP\ (class\  \fIBottomShadowPixmap\fP)" 10
+This resource specifies the bottom shadow Pixmap of the \fBemwm\fP decoration when the window is active (has the keyboard focus)\&.
+The default is chosen based on the visual type of the screen\&.
+.IP "\fIactiveForeground\fP\ (class\  \fIForeground\fP)" 10
+This resource specifies the foreground color of the \fBemwm\fP
+decoration when the window is active (has the keyboard focus)\&. The default
+is chosen based on the visual type of the screen\&.
+.IP "\fIactiveTopShadowColor\fP\ (class\  \fIBackground\fP)" 10
+This resource specifies the top shadow color of the \fBemwm\fP
+decoration when the window is active (has the keyboard focus)\&. The default
+is chosen based on the visual type of the screen\&.
+.IP "\fIactiveTopShadowPixmap\fP\ (class\  \fITopShadowPixmap\fP)" 10
+This resource specifies the top shadow Pixmap of the \fBemwm\fP
+decoration when the window is active (has the keyboard focus)\&. The default
+is chosen based on the visual type of the screen\&.
+.SS "General Appearance and Behavior Resources"
+.PP
+The syntax for specifying general appearance and behavior resources
+is \fIMwm*\fP\fBresource_id\fP
+.PP
+For example, \fIMwm*keyboardFocusPolicy\fP specifies
+the window manager policy for setting the keyboard focus to a particular client
+window\&.
+.PP
+The following general appearance and behavior resources can be specified:
+.SS "General Appearance and Behavior Resources"
+.TS
+tab();
+lw(1.528376i) lw(1.592955i) lw(1.054795i) lw(1.323875i).
+NameClassValue TypeDefault
+autoKeyFocusAutoKeyFocusT/FT
+autoRaiseDelayAutoRaiseDelaymillisec500
+bitmap-Bitmap-directory/usr/X11R6/include-
+DirectoryDirectory/X11/bitmaps
+clientAutoPlaceClientAutoPlaceT/FT
+colormapFocus-ColormapFocus-stringkeyboard
+PolicyPolicy
+configFileConfigFilefile$HOME/emwmrc
+deiconifyKeyFocusDeiconifyKeyFocusT/FT
+doubleClick-DoubleClick-millisec\&.multi-click
+TimeTimetime\(dg
+enableWarpenableWarpT/FT
+enforceKeyFocusEnforceKeyFocusT/FT
+frameStyleFrameStylestringrecessed
+iconAutoPlaceIconAutoPlaceT/FT
+iconClickIconClickT/FT
+interactivePlacementInteractivePlacementT/FT
+keyboardFocus-KeyboardFocus-stringexplicit
+PolicyPolicy
+lowerOnIconifyLowerOnIconifyT/FT
+moveThresholdMoveThresholdpixels4
+multiScreenMultiScreenT/FF
+passButtonsPassButtonsT/FF
+passSelectButtonPassSelectButtonT/FT
+positionIsFramePositionIsFrameT/FT
+positionOnScreenPositionOnScreenT/FT
+quitTimeoutQuitTimeoutmillisec\&.1000
+raiseKeyFocusRaiseKeyFocusT/FF
+refreshByClearingRefreshByClearingT/FT
+rootButtonClickRootButtonClickT/FF
+screensScreensstringvaries
+sessionClientDBSessionClientDBstring$HOME/\&.emwmclientdb
+showFeedbackShowFeedbackstringall
+startupKeyFocusStartupKeyFocusT/FT
+wMenuButtonClickWMenuButtonClickT/FT
+wMenuButtonClick2WMenuButtonClick2T/FT
+.TE
+.PP
+\(dgThe resource doubleClickTime is included for backward compatibility\&.
+Use of the Xt resource multiClickTime is preferred\&.
+.IP "\fIautoKeyFocus\fP\ (class\  \fIAutoKeyFocus\fP)" 10
+This resource is available only when the keyboard input focus policy
+is explicit\&. If \fIautoKeyFocus\fP is given a value of True,
+then when a window with the keyboard input focus is withdrawn from window
+management or is iconified, the focus is set to the previous window that had
+the focus\&. If the value given is False, there is no automatic setting of the
+keyboard input focus\&. It is recommended that both \fIautoKeyFocus\fP and \fIstartupKeyFocus\fP be True to work with
+tear off menus\&. The default value is True\&.
+.IP "\fIautoRaiseDelay\fP\ (class\  \fIAutoRaiseDelay\fP)" 10
+This resource is available only when the \fIfocusAutoRaise\fP
+resource is True and the keyboard focus policy is pointer\&. The \fIautoRaiseDelay\fP resource specifies the amount of time (in milliseconds)
+that \fBemwm\fP will wait before raising a window after it gets
+the keyboard focus\&. The default value of this resource is 500 (ms)\&.
+.IP "\fIbitmapDirectory\fP\ (class\  \fIBitmapDirectory\fP)" 10
+This resource identifies a directory to be searched for bitmaps referenced
+by \fBemwm\fP resources\&. This directory is searched if a bitmap
+is specified without an absolute pathname\&. The default value for this resource
+is \fB/usr/X11R6/include/X11/bitmaps\fP\&. The directory \fB/usr/X11R6/include/X11/bitmaps\fP
+represents the customary locations for this directory\&. The actual
+location of this directory may vary on some systems\&. If the bitmap is not
+found in the specified directory, \fBXBMLANGPATH\fP is searched\&.
+.IP "\fIclientAutoPlace\fP\ (class\  \fIClientAutoPlace\fP)" 10
+This resource determines the position of a window when the window has
+not been given a program- or user-specified position\&. With a value of True,
+windows are positioned with the top left corners of the frames offset horizontally
+and vertically\&. A value of False causes the currently configured position
+of the window to be used\&. In either case, \fBemwm\fP will attempt
+to place the windows totally on-screen\&. The default value is True\&.
+.IP "\fIcolormapFocusPolicy\fP\ (class\  \fIColormapFocusPolicy\fP)" 10
+This resource indicates the colormap focus policy that is to be used\&.
+If the resource value is explicit, a colormap selection action is done on
+a client window to set the colormap focus to that window\&. If the value is
+pointer, the client window containing the pointer has the colormap focus\&.
+If the value is keyboard, the client window that has the keyboard input focus
+has the colormap focus\&. The default value for this resource is keyboard\&.
+.IP "\fIconfigFile\fP\ (class\  \fIConfigFile\fP)" 10
+The resource value is the pathname for a \fBemwm\fP resource
+description file\&. If the pathname begins with "~/", \fBemwm\fP
+considers it to be relative to the user\&'s home directory (as specified by
+the \fBHOME\fP environment variable)\&.
+If the \fBLANG\fP environment variable
+is set, \fBemwm\fP looks for \fI$HOME/$LANG\fP/ \fBconfigFile\fP\&. If that file does not exist or if \fBLANG\fP is not set, \fBemwm\fP looks for
+\fB$HOME\fP/\fBconfigFile\fP\&. If the \fIconfigFile\fP pathname does not begin with "~/" or "/", \fBemwm\fP considers it to be relative to the current working directory\&. If
+the \fIconfigFile\fP resource is not specified
+or if that file does not exist, \fBemwm\fP uses several default
+paths to find a configuration file\&. The order of the search is shown below: \fB/usr/X11R6/lib/X11/$LANG/system\&.emwmrc\fP\(dg
+\fB/usr/X11R6/lib/X11/system\&.emwmrc\fP\(dg Paths marked with \&'\(dg\&' are
+implementation dependent\&.
+.IP "\fIdeiconifyKeyFocus\fP\ (class\  \fIDeiconifyKeyFocus\fP)" 10
+This resource applies only when the keyboard input focus policy is explicit\&.
+If a value of True is used, a window receives the keyboard input focus when
+it is normalized (deiconified)\&. True is the default value\&.
+.IP "\fIdoubleClickTime\fP\ (class\  \fIDoubleClickTime\fP)" 10
+This resource is used to set the maximum time (in ms) between the clicks
+(button presses) that make up a double-click\&. The use of this resource is
+deprecated\&. Use the Xt resource \fImultiClickTime\fP instead\&.
+The value of \fIdoubleClickTime\fP dynamically defaults to
+the value of \fImultiClickTime\fP\&.
+.IP "\fIenableWarp\fP\ (class\  \fIEnableWarp\fP)" 10
+The default value of this resource, True, causes \fBemwm\fP
+to warp the pointer to the center of the selected window during keyboard-controlled
+resize and move operations\&. Setting the value to False causes \fBemwm\fP to leave the pointer at its original place on the screen, unless
+the user explicitly moves it with the cursor keys or pointing device\&.
+.IP "\fIenforceKeyFocus\fP\ (class\  \fIEnforceKeyFocus\fP)" 10
+If this resource is given a value of True, the keyboard input focus
+is always explicitly set to selected windows even if there is an indication
+that they are "globally active" input windows\&. (An example of a globally active
+window is a scroll bar that can be operated without setting the focus to that
+client\&.) If the resource is False, the keyboard input focus is not explicitly
+set to globally active windows\&. The default value is True\&.
+.IP "\fIframeStyle\fP\ (class\  \fIframeStyle\fP)" 10
+If this resource is given a value of "slab", the the window manager
+frame is drawn such that the client area appears to be at the same height
+as the top of the window frame\&. If the resource is set to "recessed", the
+window frame is drawn such that the client area appears lower than the top
+of the window frame\&. The default value is "recessed"\&.
+.IP "\fIiconAutoPlace\fP\ (class\  \fIIconAutoPlace\fP)" 10
+This resource indicates whether the window manager arranges icons in
+a particular area of the screen or places each icon where the window was when
+it was iconified\&. The value True indicates that icons are arranged in a particular
+area of the screen, determined by the \fIiconPlacement\fP resource\&.
+The value False indicates that an icon is placed at the location of the window
+when it is iconified\&. The default is True\&.
+.IP "\fIiconClick\fP\ (class\  \fIIconClick\fP)" 10
+When this resource is given the value of True, the system menu is posted
+and left posted when an icon is clicked\&. The default value is True\&.
+.IP "\fIinteractivePlacement\fP\ (class\  \fIInteractivePlacement\fP)" 10
+This resource controls the initial placement of new windows on the screen\&.
+If the value is True, the pointer shape changes before a new window is placed
+on the screen to indicate to the user that a position should be selected for
+the upper-left hand corner of the window\&. If the value is False, windows are
+placed according to the initial window configuration attributes\&. The default
+value of this resource is False\&.
+.IP "\fIkeyboardFocusPolicy\fP\ (class\  \fIKeyboardFocusPolicy\fP)" 10
+If set to pointer, the keyboard focus policy is to have the keyboard
+focus set to the client window that contains the pointer (the pointer could
+also be in the client window decoration that \fBemwm\fP adds)\&.
+If set to explicit, the policy is to have the keyboard focus set to a client
+window when the user presses button 1 with the pointer on the client window
+or any part of the associated \fBemwm\fP decoration\&. The default
+value for this resource is explicit\&.
+.IP "\fIlowerOnIconify\fP\ (class\  \fILowerOnIconify\fP)" 10
+If this resource is given the default value of True, a window\&'s icon
+appears on the bottom of the window stack when the window is minimized (iconified)\&.
+A value of False places the icon in the stacking order at the same place as
+its associated window\&. The default value of this resource is True\&.
+.IP "\fImoveThreshold\fP\ (class\  \fIMoveThreshold\fP)" 10
+This resource is used to control the sensitivity of dragging operations
+that move windows and icons\&. The value of this resource is the number of pixels
+that the locator is moved with a button down before the move operation is
+initiated\&. This is used to prevent window/icon movement when you click or
+double-click and there is unintentional pointer movement with the button down\&.
+The default value of this resource is 4 (pixels)\&.
+.IP "\fImultiScreen\fP\ (class\  \fIMultiScreen\fP)" 10
+This resource, if True, causes \fBemwm\fP to manage all
+the screens on the display\&. If False, \fBemwm\fP manages only
+a single screen\&. The default value is False\&.
+.IP "\fIpassButtons\fP\ (class\  \fIPassButtons\fP)" 10
+This resource indicates whether or not button press events are passed
+to clients after they are used to do a window manager function in the client
+context\&. If the resource value is False, the button press is not passed to
+the client\&. If the value is True, the button press is passed to the client
+window\&. The window manager function is done in either case\&. The default value
+for this resource is False\&.
+.IP "\fIpassSelectButton\fP\ (class\  \fIPassSelectButton\fP)" 10
+This resource indicates whether or not to pass the select button press
+events to clients after they are used to do a window manager function in the
+client context\&. If the resource value is False, then the button press will
+not be passed to the client\&. If the value is True, the button press is passed
+to the client window\&. The window manager function is done in either case\&.
+The default value for this resource is True\&.
+.IP "\fIpositionIsFrame\fP\ (class\  \fIPositionIsFrame\fP)" 10
+This resource indicates how client window position information (from
+the \fIWM_NORMAL_HINTS\fP property and from configuration requests)
+is to be interpreted\&. If the resource value is True, the information is interpreted
+as the position of the \fBemwm\fP client window frame\&. If the
+value is False, it is interpreted as being the position of the client area
+of the window\&. The default value of this resource is True\&.
+.IP "\fIpositionOnScreen\fP\ (class\  \fIPositionOnScreen\fP)" 10
+This resource is used to indicate that windows should initially be placed
+(if possible) so that they are not clipped by the edge of the screen (if the
+resource value is True)\&. If a window is larger than the size of the screen,
+at least the upper-left corner of the window is on-screen\&. If the resource
+value is False, windows are placed in the requested position even if totally
+off-screen\&. The default value of this resource is True\&.
+.IP "\fIquitTimeout\fP\ (class\  \fIQuitTimeout\fP)" 10
+This resource specifies the amount of time (in milliseconds) that \fBemwm\fP will wait for a client to update the \fIWM_COMMAND\fP
+property after \fBemwm\fP has sent the \fBWM_SAVE_YOURSELF\fP message\&. The default value of this resource is 1000 (ms)\&. (Refer
+to the \fBf\&.kill\fP function description for additional information\&.)
+.IP "\fIraiseKeyFocus\fP\ (class\  \fIRaiseKeyFocus\fP)" 10
+This resource is available only when the keyboard input focus policy
+is explicit\&. When set to True, this resource specifies that a window raised
+by means of the \fBf\&.normalize_and_raise\fP function also receives
+the input focus\&. The default value of this resource is False\&.
+.IP "\fIrefreshByClearing\fP\ (class\  \fIRefreshByClearing\fP)" 10
+This resource determines the mechanism used to refresh a window (or
+the screen) when the \fBf\&.refresh_win\fP (\fBf\&.refresh\fP) function is executed\&. When set to True, an XClearArea is performed
+over the window for \fBf\&.refresh_win\fP\&. When set to False,
+a covering window is created and destroyed over the top of the window to be
+refreshed\&. If the function is \fBf\&.refresh\fP and this resource
+is set to True, then an XClearArea is performed over every window on the screen\&.
+If the resource is set to False, then one large window covering the entire
+screen is created and destroyed\&. The default value of this resource is True\&.
+.IP "\fIrootButtonClick\fP\ (class\  \fIRootButtonClick\fP)" 10
+The \fIrootButtonClick\fP resource controls whether the
+a click on the root window will post the root menu in a "sticky" mode\&. If
+this resource is set to True, a button click on the root window will post
+the menu bound to the button down event for that button in a "sticky" fashion\&.
+If this resource is set to False, then the same button click would only cause
+the menu to flash as it would be unposted once the button up event is seen\&.
+The criterion used to determine if it is a button click is if the pointer
+doesn\&'t move between the button down and button up events\&. The default value
+for this resource is True\&.
+.IP "\fIscreens\fP\ (class\  \fIScreens\fP)" 10
+This resource specifies the resource names to use for the screens managed
+by \fBemwm\fP\&. If \fBemwm\fP is managing a single
+screen, only the first name in the list is used\&. If \fBemwm\fP
+is managing multiple screens, the names are assigned to the screens in order,
+starting with screen 0\&. Screen 0 gets the first name, screen 1 the second
+name, and so on\&. The default screen names are 0, 1, and so on\&.
+.IP "\fIsessionClientDB\fP\ (class\  \fISessionClientDB\fP)" 10
+This resource identifies a file name to use as a root when saving state
+at the request of an XSMP session manager\&. When the session is saved, the window manager will then reuse
+the file name by automatically incrementing a suffix\&.
+.IP "\fIshowFeedback\fP\ (class\  \fIShowFeedback\fP)" 10
+This resource controls whether or not feedback windows or confirmation
+dialogs are displayed\&. A feedback window shows a client window\&'s initial
+placement and shows position and size during move and resize operations\&.
+Confirmation dialogs can be displayed for certain operations\&. The value for
+this resource is a list of names of the feedback options to be enabled or
+disabled; the names must be separated by a space\&. If an option is preceded
+by a minus sign, that option is excluded from the list\&. The \fBsign\fP of the first item in the list determines the initial set of options\&.
+If the sign of the first option is minus, \fBemwm\fP assumes
+all options are present and starts subtracting from that set\&. If the sign
+of the first decoration is plus (or not specified), \fBemwm\fP
+starts with no options and builds up a list from the resource\&.
+.PP
+The names of the feedback options are shown below:
+.TS
+tab();
+lw(1.097588i) lw(4.402412i).
+NameDescription
+allShow all feedback (Default value)\&.
+behaviorConfirm behavior switch\&.
+killConfirm on receipt of KILL signal\&.
+moveShow position during move\&.
+noneShow no feedback\&.
+placementT{
+Show position and size during initial placement\&.
+T}
+quitConfirm quitting \fBemwm\fP\&.
+resizeShow size during resize\&.
+restartConfirm \fBemwm\fP restart\&.
+.TE
+.PP
+The following command line illustrates the syntax for showFeedback:
+.PP
+.nf
+\f(CW\fIMwm*showFeedback: placement resize behavior restart\fP\fR
+.fi
+.PP
+.PP
+This resource specification provides feedback for initial client placement
+and resize, and enables the dialog boxes to confirm the restart and set behavior
+functions\&. It disables feedback for the move function\&. The default value for
+this resource is all\&.
+.IP "\fIstartupKeyFocus\fP\ (class\  \fIStartupKeyFocus\fP)" 10
+This resource is available only when the keyboard input focus policy
+is explicit\&. When given the default value of True, a window gets the keyboard
+input focus when the window is mapped (that is, initially managed by the window
+manager)\&. It is recommended that both \fIautoKeyFocus\fP and \fIstartupKeyFocus\fP be True to work with tear off menus\&. The default
+value is True\&.
+.IP "\fIwMenuButtonClick\fP\ (class\  \fIWMenuButtonClick\fP)" 10
+This resource indicates whether a click of the mouse when the pointer
+is over the window menu button posts and leaves posted the window menu\&. If
+the value given this resource is True, the menu remains posted\&. True is the
+default value for this resource\&.
+.IP "\fIwMenuButtonClick2\fP\ (class\  \fIWMenuButtonClick2\fP)" 10
+When this resource is given the default value of True, a double-click
+action on the window menu button does an \fIf\&.kill function\fP\&.
+.SS "Screen Specific Appearance and Behavior Resources"
+.PP
+The syntax for specifying screen specific resources is \fIMwm*\fP \fBscreen_name\fP\fI*\fP\fBresource_id\fP For example, \fIMwm*1*keyBindings\fP specifies
+the key bindings to use for screen "1"\&.
+.SS "Screen Specific Resources"
+.TS
+tab();
+lw(1.768627i) lw(1.790196i) lw(0.927451i) lw(1.013725i).
+NameClassValue TypeDefault
+buttonBindingsButtonBindingsstringDefaultButtonBindings
+cleanTextCleanTextT/FT
+fadeNormalIconFadeNormalIconT/FF
+feedbackGeometryFeedbackGeometrystringcenter on screen
+frameBorderWidthFrameBorderWidthpixelsvaries
+iconBoxGeometryIconBoxGeometrystring6x1+0-0
+iconBoxNameIconBoxNamestringiconbox
+iconBoxSBDisplayPolicyIconBoxSBDisplayPolicystringall
+iconBoxTitleIconBoxTitleXmStringIcons
+iconDecorationIconDecorationstringvaries
+iconImageMaximumIconImageMaximumwxh48x48
+iconImageMinimumIconImageMinimumwxh16x16
+iconPlacementIconPlacementstringleft bottom
+iconPlacementMarginIconPlacementMarginpixelsvaries
+keyBindingsKeyBindingsstringDefaultKeyBindings
+limitResizeLimitResizeT/FT
+moveOpaqueMoveOpaqueT/FF
+resizeBorderWidthResizeBorderWidthpixelsvaries
+resizeCursorsResizeCursorsT/FT
+transientDecorationTransientDecorationstringmenu title
+transientFunctionsTransientFunctionsstringT{
+-minimize-maximize
+T}
+useIconBoxUseIconBoxT/FF
+.TE
+.IP "\fIbuttonBindings\fP\ (class\  \fIButtonBindings\fP)" 10
+This resource identifies the set of button bindings for window management
+functions\&. The named set of button bindings is specified in the \fBemwm\fP resource description file\&. These button bindings are \fBmerged\fP with the built-in default bindings\&. The default value for
+this resource is "DefaultButtonBindings"\&.
+.IP "\fIcleanText\fP\ (class\  \fICleanText\fP)" 10
+This resource controls the display of window manager text in the client
+title and feedback windows\&. If the default value of True is used, the text
+is drawn with a clear (no stipple) background\&. This makes text easier to read
+on monochrome systems where a backgroundPixmap is specified\&. Only the stippling
+in the area immediately around the text is cleared\&. If False, the text is
+drawn directly on top of the existing background\&.
+.IP "\fIfadeNormalIcon\fP\ (class\  \fIFadeNormalIcon\fP)" 10
+If this resource is given a value of True, an icon is grayed out whenever
+it has been normalized (its window has been opened)\&. The default value is
+False\&.
+.IP "\fIfeedbackGeometry\fP\ (class\  \fIFeedbackGeometry\fP)" 10
+This resource sets the position of the move and resize feedback window\&.
+If this resource is not specified, the default is to place the feedback window
+at the center of the screen\&. The value of the resource is a standard window
+geometry string with the following syntax: [\fI=\fP]{ \fI+-\fP}\fBxoffset\fP{\fI+-\fP} \fByoffset\fP]
+.IP "\fIframeBorderWidth\fP\ (class\  \fIFrameBorderWidth\fP)" 10
+This resource specifies the width (in pixels) of a client window frame
+border without resize handles\&. The border width includes the 3-D shadows\&.
+The default value is based on the size and resolution of the screen\&.
+.IP "\fIiconBoxGeometry\fP\ (class\  \fIIconBoxGeometry\fP)" 10
+This resource indicates the initial position and size of the icon box\&.
+The value of the resource is a standard window geometry string with the following
+syntax: [\fI=\fP][\fBwidth\fP \fIx\fP\fBheight\fP][{\fI+-\fP}\fBxoffset\fP {\fI+-\fP}\fByoffset\fP] If the offsets
+are not provided, the iconPlacement policy is used to determine the initial
+placement\&. The units for width and height are columns and rows\&. The actual
+screen size of the icon box window depends on the iconImageMaximum (size)
+and \fIiconDecoration\fP resources\&. The default value for size
+is (6 * iconWidth + padding) wide by (1 * iconHeight + padding) high\&. The
+default value of the location is +0 -0\&.
+.IP "\fIiconBoxName\fP\ (class\  \fIIconBoxName\fP)" 10
+This resource specifies the name that is used to look up icon box resources\&.
+The default name is iconbox\&.
+.IP "\fIiconBoxSBDisplayPolicy\fP\ (class\  \fIIconBoxSBDisplayPolicy\fP)" 10
+This resource specifies the scroll bar display policy of the window
+manager in the icon box\&. The resource has three possible values: all, vertical,
+and horizontal\&. The default value, "all", causes both vertical and horizontal
+scroll bars always to appear\&. The value "vertical" causes a single vertical
+scroll bar to appear in the icon box and sets the orientation of the icon
+box to horizontal (regardless of the iconBoxGeometry specification)\&. The value
+"horizontal" causes a single horizontal scroll bar to appear in the icon box
+and sets the orientation of the icon box to vertical (regardless of the iconBoxGeometry
+specification)\&.
+.IP "\fIiconBoxTitle\fP\ (class\  \fIIconBoxTitle\fP)" 10
+This resource specifies the name that is used in the title area of the
+icon box frame\&. The default value is Icons\&.
+.IP "\fIiconDecoration\fP\ (class\  \fIIconDecoration\fP)" 10
+This resource specifies the general icon decoration\&. The resource value
+is label (only the label part is displayed) or image (only the image part
+is displayed) or label image (both the label and image parts are displayed)\&.
+A value of activelabel can also be specified to get a label (not truncated
+to the width of the icon) when the icon is selected\&. The default icon decoration
+for icon box icons is that each icon has a label part and an image part (label
+image)\&. The default icon decoration for stand alone icons is that each icon
+has an active label part, a label part, and an image part (activelabel label
+image)\&.
+.IP "\fIiconImageMaximum\fP\ (class\  \fIIconImageMaximum\fP)" 10
+This resource specifies the maximum size of the icon image\&. The resource
+value is \fBwidth\fP\fIx\fP \fBheight\fP (for example, 64x64)\&. The maximum supported size is 128x128\&.
+The default value of this resource is 50x50\&.
+.IP "\fIiconImageMinimum\fP\ (class\  \fIIconImageMinimum\fP)" 10
+This resource specifies the minimum size of the icon image\&. The resource
+value is \fBwidth\fP\fIx\fP \fBheight\fP (for example, 32x50)\&. The minimum supported size is 16x16\&.
+The default value of this resource is 16x16\&.
+.IP "\fIiconPlacement\fP\ (class\  \fIIconPlacement\fP)" 10
+This resource specifies the icon placement scheme to be used\&. The resource
+value has the following syntax:
+.IP "" 10
+\fBprimary_layout secondary_layout [tight]\fP
+.PP
+The layout values are one of the following:
+.TS
+tab();
+lw(0.796053i) lw(4.703947i).
+ValueDescription
+topLay the icons out top to bottom\&.
+bottomLay the icons out bottom to top\&.
+leftLay the icons out left to right\&.
+rightLay the icons out right to left\&.
+.TE
+.PP
+A horizontal (vertical) layout value should not be used for both the \fBprimary_layout\fP and the \fBsecondary_layout\fP (for
+example, don\&'t use top for the \fBprimary_layout\fP and bottom
+for the \fBsecondary_layout\fP)\&.
+.PP
+The \fBprimary_layout\fP indicates whether, when an icon
+placement is done, the icon is placed in a row or a column and the direction
+of placement\&. The \fBsecondary_layout\fP indicates where to place
+new rows or columns\&. For example, top right indicates that icons should be
+placed top to bottom on the screen and that columns should be added from right
+to left on the screen\&.
+.PP
+The default placement is left bottom (icons are placed left to right
+on the screen, with the first row on the bottom of the screen, and new rows
+added from the bottom of the screen to the top of the screen)\&. A \fBtight\fP value places icons with zero spacing in between icons\&. This
+value is useful for aesthetic reasons, as well as X-terminals with small screens\&.
+.IP "\fIiconPlacementMargin\fP\ (class\  \fIIconPlacementMargin\fP)" 10
+This resource sets the distance between the edge of the screen and the
+icons that are placed along the edge of the screen\&. The value should be greater
+than or equal to 0\&. A default value (see below) is used if the value specified
+is invalid\&. The default value for this resource is equal to the space between
+icons as they are placed on the screen (this space is based on maximizing
+the number of icons in each row and column)\&.
+.IP "\fIkeyBindings\fP\ (class\  \fIKeyBindings\fP)" 10
+This resource identifies the set of key bindings for window management
+functions\&. If specified, these key bindings \fBreplace\fP the
+built-in default bindings\&. The named set of key bindings is specified in \fBemwm\fP resource description file\&. The default value for this resource
+is "DefaultKeyBindings"\&.
+.IP "\fIlimitResize\fP\ (class\  \fILimitResize\fP)" 10
+If this resource is True, the user is not allowed to resize a window
+to greater than the maximum size\&. The default value for this resource is True\&.
+.IP "\fImoveOpaque\fP\ (class\  \fIMoveOpaque\fP)" 10
+This resource controls whether the actual window is moved or a rectangular
+outline of the window is moved\&. A default value of False displays a rectangular
+outline on moves\&.
+.IP "\fIresizeBorderWidth\fP\ (class\  \fIResizeBorderWidth\fP)" 10
+This resource specifies the width (in pixels) of a client window frame
+border with resize handles\&. The specified border width includes the 3-D shadows\&.
+The default value is based on the size and resolution of the screen\&.
+.IP "\fIresizeCursors\fP\ (class\  \fIResizeCursors\fP)" 10
+This is used to indicate whether the resize cursors are always displayed
+when the pointer is in the window size border\&. If True, the cursors are shown,
+otherwise the window manager cursor is shown\&. The default value is True\&.
+.IP "\fItransientDecoration\fP\ (class\  \fITransientDecoration\fP)" 10
+This controls the amount of decoration that \fBemwm\fP
+puts on transient windows\&. The decoration specification is exactly the same
+as for the \fIclientDecoration\fP (client specific) resource\&.
+Transient windows are identified by the \fIWM_TRANSIENT_FOR\fP
+property, which is added by the client to indicate a relatively temporary
+window\&. The default value for this resource is menu title (that is, transient
+windows have frame borders and a titlebar with a window menu button)\&.
+.IP "" 10
+An application can also specify which decorations \fBemwm\fP
+should apply to its windows\&. If it does so, \fBemwm\fP applies
+only those decorations indicated by both the application and the \fItransientDecoration\fP resource\&. Otherwise, \fBemwm\fP
+applies the decorations indicated by the \fItransientDecoration\fP
+resource\&. For more information see the description of \fBXmNemwmDecorations\fP on the \fBVendorShell\fP(3)
+reference page\&.
+.IP "\fItransientFunctions\fP\ (class\  \fITransientFunctions\fP)" 10
+This resource is used to indicate which window management functions
+are applicable (or not applicable) to transient windows\&. The function specification
+is exactly the same as for the \fIclientFunctions\fP (client
+specific) resource\&. The default value for this resource is -minimize -maximize\&.
+.IP "" 10
+An application can also specify which functions \fBemwm\fP
+should apply to its windows\&. If it does so, \fBemwm\fP applies
+only those functions indicated by both the application and the \fItransientFunctions\fP resource\&. Otherwise, \fBemwm\fP
+applies the functions indicated by the \fItransientFunctions\fP
+resource\&. For more information see the description of \fBXmNemwmFunctions\fP on the \fBVendorShell\fP(3) reference
+page\&.
+.IP "\fIuseIconBox\fP\ (class\  \fIUseIconBox\fP)" 10
+If this resource is given a value of True, icons are placed in an icon
+box\&. When an icon box is not used, the icons are placed on the root window
+(default value)\&.
+.SS "Client Specific Resources"
+.PP
+The syntax for specifying client specific resources is
+.PP
+\fIMwm*\fP\fBclient_name_or_class\fP \fI*\fP\fBresource_id\fP
+.PP
+For example, \fIMwm*mterm*windowMenu\fP is used to specify
+the window menu to be used with mterm clients\&. The syntax for specifying client
+specific resources for all classes of clients is
+.PP
+\fIMwm*\fP\fBresource_id\fP
+.PP
+Specific client specifications take precedence over the specifications
+for all clients\&. For example, \fIMwm*windowMenu\fP is used
+to specify the window menu to be used for all classes of clients that don\&'t
+have a window menu specified\&.
+.PP
+The syntax for specifying resource values for windows that have an unknown
+name and class (that is, windows that do not have a \fBWM_CLASS\fP
+property associated with them) is
+.PP
+\fIMwm*defaults*\fP\fBresource_id\fP
+.PP
+For example, \fIMwm*defaults*iconImage\fP is used to
+specify the icon image to be used for windows that have an unknown name and
+class\&.
+.PP
+The following client specific resources can be specified:
+.SS "Client Specific Resources"
+.TS
+tab();
+lw(1.999018i) lw(1.458743i) lw(0.918468i) lw(1.123772i).
+NameClassValue TypeDefault
+clientDecorationClientDecorationstringall\&.
+clientFunctionsClientFunctionsstringall\&.
+focusAutoRaiseFocusAutoRaiseT/Fvaries
+iconImageIconImagepathname(image)
+iconImage-Backgroundcoloricon background
+Background
+iconImageBottom-Foregroundcoloricon
+ShadowColorbottom shadow
+iconImageBottom-BottomShadow-coloricon bottom
+ShadowPixmapPixmapshadow pixmap
+iconImageForegroundForegroundcolorvaries
+iconImageTopShadowColorBackgroundcoloricon top
+shadow color
+iconImageTop-TopShadowPixmapcoloricon top
+ShadowPixmapshadow pixmap
+matteBackgroundBackgroundcolorbackground
+matteBottom-Foregroundcolorbottom
+ShadowColorshadow color
+matteBottom-BottomShadow-colorbottom
+ShadowPixmapPixmapshadow pixmap
+matteForegroundForegroundcolorforeground
+matteTopShadowColorBackgroundcolortop
+shadow color
+matteTopShadowPixmapTopShadowPixmapcolortop
+shadow pixmap
+matteWidthMatteWidthpixels0
+maximumClientSizeMaximumClientSizewxh
+vertical horizontalfill the screen
+useClientIconUseClientIconT/FT
+usePPositionUsePPositionstringnonzero
+windowMenuWindowMenustringDefaultWindowMenu
+.TE
+.IP "\fIclientDecoration\fP\ (class\  \fIClientDecoration\fP)" 10
+This resource controls the amount of window frame decoration\&. The resource
+is specified as a list of decorations to specify their inclusion in the frame\&.
+If a decoration is preceded by a minus sign, that decoration is excluded from
+the frame\&. The \fBsign\fP of the first item in the list determines
+the initial amount of decoration\&. If the sign of the first decoration is minus, \fBemwm\fP assumes all decorations are present and starts subtracting
+from that set\&. If the sign of the first decoration is plus (or not specified),
+then \fBemwm\fP starts with no decoration and builds up a list
+from the resource\&.
+.IP "" 10
+An application can also specify which decorations \fBemwm\fP
+should apply to its windows\&. If it does so, \fBemwm\fP applies
+only those decorations indicated by both the application and the \fIclientDecoration\fP resource\&. Otherwise, \fBemwm\fP applies
+the decorations indicated by the \fIclientDecoration\fP resource\&.
+For more information see the description of \fBXmNemwmDecorations\fP on the \fBVendorShell\fP(3) reference
+page\&.
+.TS
+tab();
+lw(0.989035i) lw(4.510965i).
+NameDescription
+allT{
+Include all decorations (default value)\&.
+T}
+borderWindow border\&.
+maximizeT{
+Maximize button (includes title bar)\&.
+T}
+minimizeT{
+Minimize button (includes title bar)\&.
+T}
+noneNo decorations\&.
+resizehT{
+Border resize handles (includes border)\&.
+T}
+menuT{
+Window menu button (includes title bar)\&.
+T}
+titleTitle bar (includes border)\&.
+.TE
+.PP
+Examples: \fIMwm*XClock\&.clientDecoration: -resizeh -maximize\fP This removes the resize handles and maximize button from XClock
+windows\&. \fIMwm*XClock\&.clientDecoration: menu minimize border\fP This does the same thing as above\&. Note that either \fImenu\fP or \fIminimize\fP implies
+\fItitle\fP\&.
+.IP "\fIclientFunctions\fP\ (class\  \fIClientFunctions\fP)" 10
+This resource is used to indicate which \fBemwm\fP functions
+are applicable (or not applicable) to the client window\&. The value for the
+resource is a list of functions\&. If the first function in the list has a minus
+sign in front of it, then \fBemwm\fP starts with all functions
+and subtracts from that set\&. If the first function in the list has a plus
+sign in front of it, then \fBemwm\fP starts with no functions
+and builds up a list\&. Each function in the list must be preceded by the appropriate
+plus or minus sign and separated from the next function by a space\&.
+.IP "" 10
+An application can also specify which functions \fBemwm\fP
+should apply to its windows\&. If it does so, \fBemwm\fP applies
+only those functions indicated by both the application and the \fIclientFunctions\fP resource\&. Otherwise, \fBemwm\fP applies
+the functions indicated by the \fIclientFunctions\fP resource\&.
+For more information see the description of \fBXmNemwmFunctions\fP on the \fBVendorShell\fP(3) reference
+page\&.
+.PP
+The following table lists the functions available for this resource:
+.TS
+tab();
+lw(0.928728i) lw(4.571272i).
+NameDescription
+allT{
+Include all functions (default value)\&.
+T}
+noneNo functions\&.
+resizef\&.resize\(dg\&.
+movef\&.move\(dg\&.
+minimizef\&.minimize\(dg\&.
+maximizef\&.maximize\(dg\&.
+closef\&.kill\(dg\&.
+.TE
+.PP
+\(dgSee \fBemwmrc\fP(4)\&.
+.IP "\fIfocusAutoRaise\fP\ (class\  \fIFocusAutoRaise\fP)" 10
+When the value of this resource is True, clients are raised when they
+get the keyboard input focus\&. If the value is False, the stacking of windows
+on the display is not changed when a window gets the keyboard input focus\&.
+The default value is True when the keyboardFocusPolicy is explicit and False
+when the keyboardFocusPolicy is pointer\&.
+.IP "\fIiconImage\fP\ (class\  \fIIconImage\fP)" 10
+This resource can be used to specify an icon image for a client (for
+example, "Mwm*myclock*iconImage")\&. The resource value is a pathname for a
+pixmap or bitmap file\&. The value of the (client specific) \fIuseClientIcon\fP resource is used to determine whether or not user supplied icon
+images are used instead of client supplied icon images\&. The default value
+is to display a built-in window manager icon image\&.
+.IP "\fIiconImageBackground\fP\ (class\  \fIBackground\fP)" 10
+This resource specifies the background color of the icon image that
+is displayed in the image part of an icon\&. The default value of this resource
+is the icon background color (that is, specified by "Mwm*background or Mwm*icon*background)\&.
+.IP "\fIiconImageBottomShadowColor\fP\ (class\  \fIForeground\fP)" 10
+This resource specifies the bottom shadow color of the icon image that
+is displayed in the image part of an icon\&. The default value of this resource
+is the icon bottom shadow color (that is, specified by Mwm*icon*bottomShadowColor)\&.
+.IP "\fIiconImageBottomShadowPixmap\fP\ (class\  \fIBottomShadowPixmap\fP)" 10
+This resource specifies the bottom shadow Pixmap of the icon image that
+is displayed in the image part of an icon\&. The default value of this resource
+is the icon bottom shadow Pixmap (that is, specified by Mwm*icon*bottomShadowPixmap)\&.
+.IP "\fIiconImageForeground\fP\ (class\  \fIForeground\fP)" 10
+This resource specifies the foreground color of the icon image that
+is displayed in the image part of an icon\&. The default value of this resource
+varies depending on the icon background\&.
+.IP "\fIiconImageTopShadowColor\fP\ (class\  \fIBackground\fP)" 10
+This resource specifies the top shadow color of the icon image that
+is displayed in the image part of an icon\&. The default value of this resource
+is the icon top shadow color (that is, specified by Mwm*icon*topShadowColor)\&.
+.IP "\fIiconImageTopShadowPixmap\fP\ (class\  \fITopShadowPixmap\fP)" 10
+This resource specifies the top shadow Pixmap of the icon image that
+is displayed in the image part of an icon\&. The default value of this resource
+is the icon top shadow pixmap (that is, specified by Mwm*icon*topShadowPixmap)\&.
+.IP "\fImatteBackground\fP\ \ (class\  \fIBackground\fP)" 10
+This resource specifies the background color of the matte, when \fImatteWidth\fP is positive\&. The default value of this resource is the
+client background color (that is, specified by "Mwm*background or Mwm*client*background)\&.
+.IP "\fImatteBottomShadowColor\fP\ (class\  \fIForeground\fP)" 10
+This resource specifies the bottom shadow color of the matte, when \fImatteWidth\fP is positive\&. The default value of this resource is the
+client bottom shadow color (that is, specified by Mwm*bottomShadowColor or
+Mwm*client*bottomShadowColor)\&.
+.IP "\fImatteBottomShadowPixmap\fP\ (class\  \fIBottomShadowPixmap\fP)" 10
+This resource specifies the bottom shadow Pixmap of the matte, when \fImatteWidth\fP is positive\&. The default value of this resource is the
+client bottom shadow pixmap (that is, specified by Mwm*bottomShadowPixmap
+or Mwm*client*bottomShadowPixmap)\&.
+.IP "\fImatteForeground\fP\ (class\  \fIForeground\fP)" 10
+This resource specifies the foreground color of the matte, when \fImatteWidth\fP is positive\&. The default value of this resource is the
+client foreground color (that is, specified by Mwm*foreground or Mwm*client*foreground)\&.
+.IP "\fImatteTopShadowColor\fP\ (class\  \fIBackground\fP)" 10
+This resource specifies the top shadow color of the matte, when \fImatteWidth\fP is positive\&. The default value of this resource is the
+client top shadow color (that is, specified by Mwm*topShadowColor or Mwm*client*topShadowColor)\&.
+.IP "\fImatteTopShadowPixmap\fP\ (class\  \fITopShadowPixmap\fP)" 10
+This resource specifies the top shadow pixmap of the matte, when \fImatteWidth\fP is positive\&. The default value of this resource is the
+client top shadow pixmap (that is, specified by "Mwm*topShadowPixmap or Mwm*client*topShadowPixmap)\&.
+.IP "\fImatteWidth\fP\ (class\  \fIMatteWidth\fP)" 10
+This resource specifies the width of the optional matte\&. The default
+value is 0, which effectively disables the matte\&.
+.IP "\fImaximumClientSize\fP\ (class\  \fIMaximumClientSize\fP)" 10
+This resource is either a size specification or a direction that indicates
+how a client window is to be maximized\&. The resource value can be specified
+as a size specification \fBwidth\fP\fIx\fP\fBheight\fP\&. The width and height are interpreted in
+the units that the client uses (for example, for terminal emulators this is
+generally characters)\&. Alternately, "vertical" or "horizontal" can be specified
+to indicate the direction in which the client maximizes\&.
+.IP "" 10
+If this resource is not specified, the maximum size from the \fIWM_NORMAL_HINTS\fP property is used if set\&. Otherwise the default
+value is the size where the client window with window management borders fills
+the screen\&. When the maximum client size is not determined by the \fImaximumClientSize\fP resource, the screen size 
+is used as a constraint on the maximum size\&.
+.IP "\fIuseClientIcon\fP\ (class\  \fIUseClientIcon\fP)" 10
+If the value given for this resource is True, a client-supplied icon
+image takes precedence over a user-supplied icon image\&. The default value
+is True, giving the client-supplied icon image higher precedence than the
+user-supplied icon image\&.
+.IP "\fIusePPosition\fP\ (class\  \fIUsePPosition\fP)" 10
+This resource specifies whether Mwm honors program specified position \fBPPosition\fP specified in the \fIWM_NORMAL_HINTS\fP property in the absence of an user specified position\&. Setting
+this resource to on, causes \fBemwm\fP to always honor program
+specified position\&. Setting this resource to off, causes \fBemwm\fP
+to always ignore program specified position\&. Setting this resource to the
+default value of nonzero cause \fBemwm\fP to honor program specified
+position other than (0,0)\&.
+.IP "\fIwindowMenu\fP\ (class\  \fIWindowMenu\fP)" 10
+This resource indicates the name of the menu pane that is posted when
+the window menu is popped up (usually by pressing button 1 on the window
+menu button on the client window frame)\&. Menu panes are specified in the \fBemwm\fP resource description file\&. Window menus can be customized on
+a client class basis by creating custom menus in your \fBemwmrc\fP
+file (see \fBemwmrc\fP(4) and specifying resources to activate
+the custom menus\&. The resources have the form \fIMwm*\fP \fBclient_name_or_class\fP\fI*windowMenu\fP\&. The default
+value of this resource is DefaultWindowMenu\&.
+.SS "Resource Description File"
+.PP
+The \fBemwm\fP resource description file is a supplementary
+resource file that contains resource descriptions that are referred to by
+entries in the resource manager property (see \fBxrdb\fP(1) and
+the defaults files (\fB\&.Xdefaults\fP, \fBapp-defaults/Mwm\fP )\&. It contains descriptions of resources that are to be used by \fBemwm\fP, and that cannot be easily encoded in the defaults files (a
+bitmap file is an analogous type of resource description file)\&. A particular \fBemwm\fP resource description file can be selected using the
+\fIconfigFile\fP resource\&.
+.PP
+The following types of resources can be described in the \fBemwm\fP resource description file:
+.IP "\fIButtons\fP" 10
+Window manager functions can be bound (associated) with button events\&.
+.IP "\fIKeys\fP" 10
+Window manager functions can be bound (associated) with key press events\&.
+.IP "\fIMenus\fP" 10
+Menu panes can be used for the window menu and other menus posted with
+key bindings and button bindings\&.
+.IP "" 10
+The \fBemwm\fP resource description file is described in \fBemwmrc\fP(4)\&.
+.SS "Environment"
+.PP
+The \fBemwm\fP window manager uses the environment variable \fBHOME\fP specifying the user\&'s home directory\&.
+.PP
+The \fBemwm\fP window manager uses the environment variable \fBLANG\fP specifying the user\&'s choice of language
+for the \fBemwm\fP message catalog and the \fBemwm\fP
+resource description file\&.
+.PP
+The \fBemwm\fP window uses the environment variable \fBXFILESEARCHPATH\fP, \fBXUSERFILESEARCHPATH\fP, \fBXAPPLRESDIR\fP, \fBXENVIRONMENT\fP, \fBLANG\fP, and \fBHOME\fP in determining search paths for resource defaults files\&.
+The \fBemwm\fP window manager may also us \fBXBMLANGPATH\fP to search for bitmap files\&.
+.PP
+The \fBemwm\fP window manager reads the \fB$HOME/\&.motifbind\fP
+file if it exists to install a virtual key bindings property on
+the root window\&. For more information on the content of the \fB\&.motifbind\fP file, see
+.PP
+The \fBemwm\fP window manager uses the environment variable
+\fBMWMSHELL\fP (or \fBSHELL\fP, \fIif\fP \fBMWMSHELL\fP is not set), specifying
+the shell to use when executing commands via the \fBf\&.exec\fP
+function\&.
+.SS "Files"
+.PP
+\fB/usr/X11R6/lib/X11/$LANG/system\&.mwmrc\fP
+.PP
+\fB/usr/X11R6/lib/X11/system\&.mwmrc\fP
+.PP
+\fB/usr/X11R6/lib/X11/app-defaults/Mwm\fP
+.PP
+\fB$HOME/Mwm\fP
+.PP
+\fB$HOME/$LANG/\&.mwmrc\fP
+.PP
+\fB$HOME/\&.mwmrc\fP
+.SS "RELATED INFORMATION"
+.PP
+\fBVendorShell\fP(3), \fBVirtualBindings\fP(3), \fBX\fP(1), \fBXmInstallImage\fP(3), \fBxrdb\fP(1)\&.
+...\" created by instant / docbook-to-man, Sun 22 Dec 1996, 20:15

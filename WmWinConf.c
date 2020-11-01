@@ -28,13 +28,6 @@
 static char rcsid[] = "$XConsortium: WmWinConf.c /main/8 1996/10/30 11:15:17 drk $"
 #endif
 #endif
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-
-/*
- * (c) Copyright 1987, 1988, 1989, 1990 HEWLETT-PACKARD COMPANY */
 
 /*
  * Included Files:
@@ -96,6 +89,7 @@ static char rcsid[] = "$XConsortium: WmWinConf.c /main/8 1996/10/30 11:15:17 drk
 #include "WmKeyFocus.h"
 #include "WmProtocol.h"
 #include "WmWinInfo.h"
+#include "WmXinerama.h"
 
 
 
@@ -290,8 +284,11 @@ void HandleClientFrameMove (ClientData *pcd, XEvent *pev)
 	    {
 		  keyMultiplier++;
 	    }
-
+#ifdef FIX_1611
+	    keysym = WmKeycodeToKeysym (DISPLAY, pev->xkey.keycode);
+#else
 	    keysym = XKeycodeToKeysym (DISPLAY, pev->xkey.keycode, 0);
+#endif
 	    control = (pev->xkey.state & ControlMask) != 0;
 	    tmpX = tmpY = 0;
 
@@ -704,7 +701,11 @@ Boolean HandleResizeKeyPress (ClientData *pcd, XEvent *pev)
 	  keyMult++;
     }
 
+#ifdef FIX_1611
+    keysym = WmKeycodeToKeysym (DISPLAY, pev->xkey.keycode);
+#else
     keysym = XKeycodeToKeysym (DISPLAY, pev->xkey.keycode, 0);
+#endif
     control = (pev->xkey.state & ControlMask) != 0;
 
     switch (keysym) {
@@ -886,7 +887,7 @@ Boolean HandleResizeKeyPress (ClientData *pcd, XEvent *pev)
     /*
      * Don't query pointer if enable warp is off.
      */
-    if (!wmGD.enableWarp ||
+    if (wmGD.enableWarp &&
 	XQueryPointer (DISPLAY, ROOT_FOR_CLIENT(pcd), &junk_win, &junk_win,
 	       &currentX, &currentY, &junk, &junk, (unsigned int *)&junk))
     {
@@ -1945,14 +1946,15 @@ void ProcessNewConfiguration (ClientData *pCD, int x, int y, unsigned int width,
     Boolean      originallyOnScreen = WindowIsOnScreen(pCD, &dx, &dy);
     Boolean newMax = False;
     Boolean toNewMax = False;
-
+	Boolean xineramaActive = False;
+	XineramaScreenInfo xsi;
+	
+	xineramaActive = GetXineramaScreenFromLocation(x,y,&xsi);
+	
     /*
      * Fix the configuration values to be compatible with the configuration
      * constraints for this class of windows.
      */
-
-    
-
     FixWindowConfiguration (pCD, &width, &height,
 				 (unsigned int) pCD->widthInc, 
 				 (unsigned int) pCD->heightInc);
@@ -2087,15 +2089,31 @@ void ProcessNewConfiguration (ClientData *pCD, int x, int y, unsigned int width,
 	    pCD->clientY = pCD->maxY;
 	}
     }
-    else {
+	else {
+	/*
+	 * Update client coordinates if necessary, also if Xinerama is active
+	 * client's maximized position and size needs to be updated according
+	 * to Xinerama screen the window resides on.
+	 */ 
 	if (x + xoff != pCD->clientX) {
 	    changedValues |= CWX;
 	    pCD->clientX = x + xoff;
+		if(xineramaActive && !toNewMax){
+			pCD->maxX = xsi.x_org + pCD->clientOffset.x;
+			pCD->oldMaxWidth = pCD->maxWidth;
+			pCD->maxWidth = xsi.width - pCD->clientOffset.x*2;
+		}
 	}
 
 	if (y + yoff != pCD->clientY) {
 	    changedValues |= CWY;
 	    pCD->clientY = y + yoff;
+		if(xineramaActive && !toNewMax){
+			pCD->maxY = xsi.y_org + pCD->clientOffset.y;
+			pCD->oldMaxHeight = pCD->maxHeight;
+			pCD->maxHeight = xsi.height -
+				(pCD->clientOffset.x + pCD->clientOffset.y);
+		}
 	}
     }
 
@@ -2172,13 +2190,6 @@ void ProcessNewConfiguration (ClientData *pCD, int x, int y, unsigned int width,
             }
 	}
 	SetFrameInfo (pCD);
-#ifdef PANELIST
-	if (pCD->dtwmBehaviors & DtWM_BEHAVIOR_SUBPANEL)
-	{
-	    /* turn off subpanel behavior if moved */
-	    pCD->dtwmBehaviors &= ~DtWM_BEHAVIOR_SUBPANEL;
-	}
-#endif /* PANELIST */
     }
 
     /*
@@ -4454,4 +4465,35 @@ Boolean HandleMarqueeKeyPress (WmScreenData *pSD, XEvent *pev)
     } /* end switch(keysym) */
 
 } /* END OF FUNCTION HandleResizeKeyPress */
+
 #endif /* WSM */
+
+/*************************************<->*************************************
+ *
+ *  WmKeycodeToKeysym ()
+ *
+ *
+ *  Description:
+ *  Used insted of depricated function of Xlib XKeycodeToKeysym.
+ *
+ *************************************<->***********************************/
+#ifdef FIX_1611
+KeySym WmKeycodeToKeysym(Display *display, KeyCode keycode)
+ { int keysyms_per_keycode = 0;
+   int min_keycode = 0;
+   int max_keycode = 0;
+   /* Allowable keycodes range */
+   XDisplayKeycodes(display, &min_keycode, &max_keycode);
+   KeySym keysym = NoSymbol;
+    
+   if ((keycode >= min_keycode) && (keycode <= max_keycode)) 
+     { KeySym *keysymTab = XGetKeyboardMapping(display, keycode, 1, &keysyms_per_keycode);
+       if ((keysymTab != NULL) && (keysyms_per_keycode > 0))
+         { keysym = keysymTab[0];
+           XFree(keysymTab);
+         }
+     }
+   return keysym;
+ }
+#endif /* FIX_1611 */
+

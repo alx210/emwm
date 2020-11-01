@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2
 */ 
-/*   $XConsortium: WmWinConf.h /main/5 1996/06/11 16:01:31 rswiston $ */
-/*
- * (c) Copyright 1987, 1988, 1989, 1990 HEWLETT-PACKARD COMPANY */
 
 
 extern void AdjustPos (int *pX, int *pY, unsigned int oWidth, 
@@ -89,4 +86,8 @@ extern Boolean HandleMarqueeKeyPress (WmScreenData *pSD, XEvent *pev);
 extern void WindowOutline (int x, int y, unsigned int width, 
 			 unsigned int height);
 #endif /* WSM */
+extern KeySym WmKeycodeToKeysym(Display *display, KeyCode keycode);
+
+/* FIXES */
+#define FIX_1611
 

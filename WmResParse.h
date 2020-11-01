@@ -23,18 +23,11 @@
 /* 
  * Motif Release 1.2
 */ 
-/*   $XConsortium: WmResParse.h /main/5 1996/06/11 16:00:58 rswiston $ */
-/*
- * (c) Copyright 1987, 1988, 1989, 1990 HEWLETT-PACKARD COMPANY */
 
 #include <stdio.h>
 
 
-#ifdef PANELIST
-extern void            ProcessWmFile (WmScreenData *pSD, Boolean bNested);
-#else /* PANELIST */
 extern void ProcessWmFile (WmScreenData *pSD);
-#endif /* PANELIST */
 extern void ProcessCommandLine (int argc,  char *argv[]);
 extern void ProcessMotifBindings (void);
 #ifdef WSM
@@ -100,22 +93,6 @@ extern void            ScanWhitespace(unsigned char  **linePP);
 #endif /* not WSM */
 extern void            ToLower (unsigned char  *string);
 extern void		SyncModifierStrings(void);
-#ifdef PANELIST
-extern void DeleteTempConfigFileIfAny (void);
-extern Boolean ParseWmFunctionArg (
-		unsigned char **linePP,
-		int ix, 
-		WmFunction wmFunc, 
-		void **ppArg,
-		String sClientName,
-		String sTitle);
-extern Boolean ParseWmFuncMaybeStrArg (unsigned char **linePP, 
-				       WmFunction wmFunction, String *pArgs);
-extern Boolean ParseWmFuncStrArg (unsigned char **linePP, 
-				       WmFunction wmFunction, String *pArgs);
-extern Boolean ParseWmFuncActionArg (unsigned char **linePP, 
-				  WmFunction wmFunction, String *pArgs);
-#endif /* PANELIST */
 #ifdef WSM
 #define ToLower(s)		(_DtWmParseToLower (s))
 #define GetNextLine()		(_DtWmParseNextLine (wmGD.pWmPB))

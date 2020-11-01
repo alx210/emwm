@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2.4
 */ 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 
 #ifdef REV_INFO
@@ -33,12 +30,6 @@
 static char rcsid[] = "$XConsortium: WmEvent.c /main/7 1996/11/20 15:27:47 rswiston $"
 #endif
 #endif
-/*
- * (c) Copyright 1987, 1988, 1989, 1990, 1993, 1994 HEWLETT-PACKARD COMPANY 
- * (c) Copyright 1993, 1994 International Business Machines Corp.
- * (c) Copyright 1993, 1994 Sun Microsystems, Inc.
- * (c) Copyright 1993, 1994 Novell, Inc.
- */
 
 /*
  * Included Files:
@@ -58,9 +49,6 @@ static char rcsid[] = "$XConsortium: WmEvent.c /main/7 1996/11/20 15:27:47 rswis
 #include "WmColormap.h"
 #include "WmFunction.h"
 #include "WmKeyFocus.h"
-#ifdef PANELIST
-#include "WmPanelP.h"  /* for typedef in WmManage.h */
-#endif /* PANELIST */
 #include "WmManage.h"
 #include "WmMenu.h"
 #ifdef WSM
@@ -69,12 +57,6 @@ static char rcsid[] = "$XConsortium: WmEvent.c /main/7 1996/11/20 15:27:47 rswis
 #endif /* WSM */
 #include "WmWinInfo.h"
 #include "WmWinState.h"
-#ifdef PANELIST
-#include "WmResNames.h"
-#include "WmResParse.h"
-#include "WmParse.h"
-#include "WmParseP.h"
-#endif /* PANELIST */
 
 #include <Xm/RowColumnP.h> /* for MS_LastManagedMenuTime */
 extern XmMenuState _XmGetMenuState();

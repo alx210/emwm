@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2
 */ 
-/*   $XConsortium: WmResNames.h /main/6 1996/06/11 16:00:36 rswiston $ */
-/*
- * (c) Copyright 1987, 1988, 1989, 1990, 1993 HEWLETT-PACKARD COMPANY */
 
 /*
  * Included Files:
@@ -142,17 +139,10 @@
 #define WmNshowNames			"showNames"
 #endif /* WSM */
 #define WmNstartupKeyFocus		"startupKeyFocus"
-#ifdef PANELIST
-#define WmNsubpanelDecoration		"subpanelDecoration"
-#define WmNsubpanelResources            "subpanelResources"
-#endif /* PANELIST */
 #define WmNsystemButtonClick		"wMenuButtonClick"
 #define WmNsystemButtonClick2		"wMenuButtonClick2"
 #define WmNtransientDecoration		"transientDecoration"
 #define WmNtransientFunctions		"transientFunctions"
-#ifdef PANELIST
-#define WmNuseFrontPanel		"useFrontPanel"
-#endif /* PANELIST */
 #define WmNuseIconBox			"useIconBox"
 #ifdef WSM
 #define WmNuseWindowOutline		"useWindowOutline"
@@ -162,6 +152,7 @@
 #endif /* MINIMAL_DT */
 #define WmNmoveOpaque                   "moveOpaque"
 #define WmNframeStyle			"frameStyle"
+#define WmNprimaryXineramaScreen	"primaryXineramaScreen"
 
 /* conponent appearance resources: */
 
@@ -353,17 +344,10 @@
 #define WmCShowNames			"ShowNames"
 #endif /* WSM */
 #define WmCStartupKeyFocus		"StartupKeyFocus"
-#ifdef PANELIST
-#define WmCSubpanelDecoration		"SubpanelDecoration"
-#define WmCSubpanelResources            "SubpanelResources"
-#endif /* PANELIST */
 #define WmCSystemButtonClick		"WMenuButtonClick"
 #define WmCSystemButtonClick2		"WMenuButtonClick2"
 #define WmCTransientDecoration		"TransientDecoration"
 #define WmCTransientFunctions		"TransientFunctions"
-#ifdef PANELIST
-#define WmCUseFrontPanel		"UseFrontPanel"
-#endif /* PANELIST */
 #define WmCUseIconBox			"UseIconBox"
 #ifdef WSM
 #define WmCUseWindowOutline		"UseWindowOutline"
@@ -377,6 +361,7 @@
 #define WmCWorkspaceList	        "WorkspaceList"
 #define WmCWorkspaceCount	        "WorkspaceCount"
 #endif /* WSM */
+#define WmCPrimaryXineramaScreen	"PrimaryXineramaScreen"
 
 /* component appearance resources: */
 
@@ -516,11 +501,4 @@
 #define CRS_ACCEL		(1L << 3)
 #define CRS_ANY			(CRS_BUTTON | CRS_KEY | CRS_MENU | CRS_ACCEL)
 
-#ifdef PANELIST
-#define WmNhelpDirectory		     "helpDirectory"
-
-#define WmCHelpDirectory		     "HelpDirectory"
-#endif /* PANELIST */
-#ifdef WSM
 /**************************    eof  ************************/
-#endif /* WSM */

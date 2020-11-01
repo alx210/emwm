@@ -20,20 +20,7 @@
  * to the Free Software Foundation, Inc., 51 Franklin Street, Fifth
  * Floor, Boston, MA 02110-1301 USA
  */
-/* $TOG: WmCmd.c /main/11 1997/03/20 11:15:26 dbl $
- *
- * (c) Copyright 1996 Digital Equipment Corporation.
- * (c) Copyright 1996 Hewlett-Packard Company.
- * (c) Copyright 1996 International Business Machines Corp.
- * (c) Copyright 1996 Sun Microsystems, Inc.
- * (c) Copyright 1996 Novell, Inc. 
- * (c) Copyright 1996 FUJITSU LIMITED.
- * (c) Copyright 1996 Hitachi.
- */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 
 #include <Xm/Xm.h>
@@ -48,6 +35,7 @@
 #include "WmWsm.h"
 #include "WmDebug.h"
 #include "WmWinConf.h"
+#include "WmFeedback.h"
 
 
 
@@ -138,7 +126,6 @@ FindDuplicateName(
      CmdTree  *menuTree,
      char     *name)
 {
-  CmdTree *tmp;
   CARD32  duplicateID;
 
   if (menuTree == NULL)
@@ -297,8 +284,6 @@ DefineCommand (
   CARD32  commandID, commandSet, selection, duplicateID;
   String  name, defaultLabel;
   Boolean found = False;
-  Window  owner;
-  XWindowAttributes attr;
 
   /*
    * check data to make sure somethings there.
@@ -374,7 +359,7 @@ IncludeCommand (
      int            fmt)
 {
   CARD32         inLine, commandID, selection, count;
-  Window        *windowIDs;
+  Window        *windowIDs = NULL;
   CmdTree       *tPtr, *pNext;
   int            i, win;
   unsigned long  activeContext = 0L;
@@ -501,7 +486,7 @@ EnableCommand (
      int            fmt)
 {
   CARD32         commandID, count;
-  Window        *windowIDs;
+  Window        *windowIDs = NULL;
   CmdTree       *tPtr, *pNext;
   int            i, win;
   unsigned long  activeContext = 0L;
@@ -623,7 +608,7 @@ DisableCommand (
      int            fmt)
 {
   CARD32         commandID, count;
-  Window        *windowIDs;
+  Window        *windowIDs = NULL;
   CmdTree       *tPtr, *pNext;
   int            i, win;
   unsigned long  activeContext = 0L;
@@ -745,7 +730,7 @@ RenameCommand (
      int            fmt)
 {
   CARD32         commandID, count;
-  Window        *windowIDs;
+  Window        *windowIDs = NULL;
   CmdTree       *tPtr, *pNext;
   int            i, win;
   unsigned long  activeContext = 0L;
@@ -869,7 +854,7 @@ RemoveCommand (
      int            fmt)
 {
   CARD32         commandID, count;
-  Window        *windowIDs;
+  Window        *windowIDs = NULL;
   CmdTree       *tPtr, *pNext;
   int            i, win;
   unsigned long  activeContext = 0L;
@@ -1029,10 +1014,9 @@ RemoveCommandsForClient (
   for (i = 0;  i < cmdKillListIndex;  i++)
     {
       CmdTree *tPtr, *pNext;
-      MenuSpec *pMS;
       WmScreenData *pSD = ACTIVE_PSD;
 
-      while (tPtr = FindCmd (cmdKillList[ i ], CCI_TREE_OF_SCR(scr)))
+      while ((tPtr = FindCmd (cmdKillList[ i ], CCI_TREE_OF_SCR(scr))))
 	{
 	  /* make sure ModifyClientCommandTree can't muck with cmdTree. */
 	  pNext = tPtr->next;
@@ -1470,11 +1454,12 @@ static void
 GetResizeInfo(ClientData *pcd, XtPointer reply, int dir)
 {
       int i;
-      GadgetRectangle east_resize, west_resize, gravity_resize, title;
+      GadgetRectangle east_resize = {0, {0, 0, 0, 0}}, west_resize = {0, {0, 0, 0, 0}}, gravity_resize, title;
       CARD32  upperBorderWidth, lowerBorderWidth;
       Window frameWin;
       int filledCount;
       Boolean titleFound = False;
+      
 
 
       filledCount = pcd->cTitleGadgets;
@@ -1961,7 +1946,6 @@ GetItemCheckInfo(ClientData *pcd, XtPointer reply)
   MenuSpec *menuSpec;
   int menuItemCount;
   int clientState;
-  int titleGadgetCount;
   int titleId, systemId, minimizeId, maximizeId, northwestId;
   int upperBorderWidth, lowerBorderWidth;
   Window menuWin;
@@ -2089,10 +2073,9 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
   CARD32 infoWanted;
   
   Window winId;  
-  XtPointer reply;
   int size;
 
-  int i, n, menuItemCount;
+  int n, menuItemCount = 0;
   MenuItem *menu_item;
 
 

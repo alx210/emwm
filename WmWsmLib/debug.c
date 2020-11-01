@@ -236,7 +236,7 @@ PrintWindowData(
      WSMWinData *win_data)
 {
     register int i;
-    char *type_str;
+    char *type_str = NULL;
 
     if (win_data->type == WSM_VALUE_DATA) {
 	sprintf(str, "%sName: %s, Type: Value, Value: %ld\n", tab_str,

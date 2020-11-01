@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2.3
 */
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
  
 #ifdef REV_INFO
@@ -33,8 +30,6 @@
 static char rcsid[] = "$XConsortium: WmImage.c /main/7 1996/11/14 13:50:30 rswiston $"
 #endif
 #endif
-/*
- * (c) Copyright 1987, 1988, 1989, 1990 HEWLETT-PACKARD COMPANY */
 
 /*
  * Included Files:
@@ -319,8 +314,9 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
     Pixmap       iconPixmap;
     GC           imageGC, topGC, botGC;
     XGCValues    gcv;
-#ifdef WSM
+
     unsigned long gc_mask;
+#ifdef WSM
     XmPixelSet   *pPS = NULL;
 #endif /* WSM */
     unsigned int imageWidth;
@@ -452,8 +448,18 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
 
     imageGC = XCreateGC (DISPLAY, iconPixmap, gc_mask, &gcv);
 #else /* WSM */
-    gcv.foreground = bg;	/* clear it first! */
-    gcv.background = bg;
+    gc_mask = GCForeground | GCBackground | GCGraphicsExposures;
+    if (mask)
+	{
+	    gcv.background = ICON_APPEARANCE(pCD).background;
+	    /* set fg to bg color to clear it first */
+	    gcv.foreground = ICON_APPEARANCE(pCD).background;
+	}
+    else 
+    {
+	gcv.foreground = bg;	/* clear it first! */
+	gcv.background = bg;
+    }
     gcv.graphics_exposures = False;
 
     imageGC = XCreateGC (DISPLAY, iconPixmap, (GCForeground|GCBackground),
@@ -484,22 +490,26 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
     dest_x = (imageWidth - width) / 2;
     dest_y = (imageHeight - height) / 2;
 
-#ifdef WSM
     if (mask)
     {
+#ifdef WSM
 	if (pPS != NULL)
 	{
 	    gcv.foreground = pPS->fg;
 	}
 	else
+#else /* WSM */
 	{
 	    gcv.foreground = ICON_APPEARANCE(pCD).foreground;
 	}
+#endif /* WSM */
     }
     else
     {
 	gcv.foreground = fg;
     }
+
+
     gc_mask = GCForeground;
     if (mask)
     {
@@ -515,10 +525,6 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
     } 
 
     XChangeGC (DISPLAY, imageGC, gc_mask, &gcv);
-#else /* WSM */
-    /* set the foreground */
-    XSetForeground (DISPLAY, imageGC, fg);
-#endif /* WSM */
 
     /* copy the bitmap to the pixmap */
 #ifndef DISALLOW_DEEP_ICONS

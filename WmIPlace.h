@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2
 */ 
-/*   $XConsortium: WmIPlace.h /main/4 1995/11/01 11:41:34 rswiston $ */
-/*
- * (c) Copyright 1987, 1988, 1989, 1990 HEWLETT-PACKARD COMPANY */
 
 extern void InitIconPlacement (WmWorkspaceData *pWS);
 extern int GetNextIconPlace (IconPlacementData *pIPD);

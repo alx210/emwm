@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2.4
 */ 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 
 #ifdef REV_INFO
@@ -33,12 +30,6 @@
 static char rcsid[] = "$TOG: WmInitWs.c /main/18 1999/09/20 15:18:22 mgreess $"
 #endif
 #endif
-/*
- * (c) Copyright 1987, 1988, 1989, 1990, 1993, 1994 HEWLETT-PACKARD COMPANY 
- * (c) Copyright 1993, 1994 International Business Machines Corp.
- * (c) Copyright 1993, 1994 Sun Microsystems, Inc.
- * (c) Copyright 1993, 1994 Novell, Inc.
- */
 
 /*
  * Included Files:
@@ -50,10 +41,6 @@ static char rcsid[] = "$TOG: WmInitWs.c /main/18 1999/09/20 15:18:22 mgreess $"
 #include "WmHelp.h"
 #endif /* WSM */
 #include "WmICCC.h"
-#ifdef PANELIST
-#define DTWM_NEED_FNTPL
-#include "WmIBitmap.h"
-#endif /* PANELIST */
 #ifndef NO_OL_COMPAT
 #include "WmOL.h"
 #endif /* NO_OL_COMPAT */
@@ -114,9 +101,6 @@ typedef struct
 #include "WmIPlace.h"
 #include "WmIconBox.h"
 #include "WmKeyFocus.h"
-#ifdef PANELIST
-#include "WmPanelP.h"  /* for typedef in WmManage.h */
-#endif /* PANELIST */
 #include "WmManage.h"
 #include "WmMenu.h"
 #ifdef WSM
@@ -134,6 +118,8 @@ typedef struct
 #include <stdlib.h>
 #endif /* WSM */
 #include "WmXSMP.h"
+#include "Xm/VirtKeysI.h"
+#include "WmXinerama.h"
 
 /*
  * Function Declarations:
@@ -162,9 +148,7 @@ Boolean VirtKeys4DIN(Display *dpy);
 #define UNSPECIFIED_SCREEN_NAME		"fbk"
 char        **dpy2Argv;    /* copy  for second display */
 int           dpy2Argc;
-#ifndef PANELIST
 WmScreenData *dtSD;       /* for the "DT screen" of the display */
-#endif /* PANELIST */
 #endif  /* WSM */
 /*
  * Global Variables:
@@ -212,7 +196,7 @@ InitMouseBinding(void)
 static void
 BuildLockMaskSequence(void)
 {
-    int i, j, k;
+    int j, k;
     unsigned int mask;
     unsigned int thisbit;
     Boolean bit_on;
@@ -271,7 +255,7 @@ BuildLockMaskSequence(void)
 	 * funny because we skip the case of all the
 	 * bits cleared.
 	 */
-	run = (0x1 << bit-1);	/* number of consecutive masks to set
+	run = (0x1 << (bit-1));	/* number of consecutive masks to set
 				   bits in */
 	bit_on = False;		/* are we setting bits or not? */
 
@@ -333,7 +317,7 @@ SetupLockingModifierMask(void)
     Display *dpy = wmGD.display;
     int pkcLockingMods[NUM_LOCKING_MODS];
 
-    int kcq, kc;
+    int kc;
 
     for (i=0; i<NUM_LOCKING_MODS; i++)
     {
@@ -439,12 +423,7 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 
     wmGD.errorFlag = False;
 #ifdef WSM
-#ifndef PANELIST
     dtSD = NULL; 
-#else /* PANELIST  */
-    wmGD.dtSD = NULL;
-    wmGD.iSlideUpsInProgress = 0;
-#endif /*PANELIST  */
 #endif  /* WSM */
 
     SetupWmSignalHandlers (0); /* dummy paramater */
@@ -550,7 +529,12 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
     InitWmDisplayEnv ();
 #endif
     ShowWaitState (TRUE);
-
+	
+	/*
+	 * Check for Xinerama support and initialize session data
+	 */
+	SetupXinerama();
+	
     /*
      * Initialize support for BMenu virtual mouse binding
      */
@@ -1031,13 +1015,7 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 	     * Process the window manager resource description file (.mwmrc):
 	     */
 
-#ifdef PANELIST
-	    ProcessWmFile (pSD, False /* not nested */);
-
-#else /* PANELIST */
 	    ProcessWmFile (pSD);
-#endif /* PANELIST */
-
 
 	    /*
 	     * Setup default resources for the system menu and key bindings:
@@ -1086,13 +1064,6 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 #endif /* WSM */
 
     }
-#ifdef PANELIST
-    /*
-     * Remove any temp config file we created if we needed to
-     * convert DT 2.0 syntax to DT 3.0
-     */
-    DeleteTempConfigFileIfAny();
-#endif /* PANELIST */
 #ifdef WSM
     /*
      * Point second display's resource data base
@@ -1207,65 +1178,7 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 		}
 
 
-XFlush (DISPLAY);
-
-
-
-                /* MapWorkspaceBox (); */
-
-#ifdef PANELIST
-		/*
-		 * Allocate front panel widgets
-		 */
-		if (wmGD.useFrontPanel &&  (pSD == wmGD.dtSD))
-		{
-		    Pixmap 	iconBitmap;
-		    Arg		al[5];
-		    int 	ac;
-		    Widget	wFpShell;
-		    WmPanelistObject  pPanelist;
-
-                    wmGD.dtSD->wPanelist =
-		       WmPanelistAllocate(pSD->screenTopLevelW1, 
-		                          (XtPointer) &wmGD, (XtPointer) pSD);
-
-		    pPanelist = (WmPanelistObject) pSD->wPanelist;
-
-		    if (pPanelist != NULL && O_Shell(pPanelist))
-		    {
-			/*
-			 * Make a default front panel icon image.
-			 */
-			iconBitmap = XCreateBitmapFromData (DISPLAY, 
-				    pSD->rootWindow, 
-				    (char *) fntpl_i_bm_bits, 
-				    fntpl_i_bm_width, 
-				    fntpl_i_bm_height);
-
-			ac = 0; 
-			XtSetArg (al[ac], XmNiconPixmap, iconBitmap); ac++; 
-			XtSetValues (O_Shell(pPanelist), al, ac);
-
-		    }
-		}
-
-		if (wmGD.useFrontPanel && pSD->wPanelist && 
-		    (pSD == wmGD.dtSD))
-		{
-		    /*
-		     * Make the front panel visible
-		     */
-		    WmPanelistShow (pSD->wPanelist);
-
-		    /*
-		     * Find special clients associated with the
-		     * front panel. This needs to be done after
-		     * WmPanelistShow where the data is set up.
-		     */
-		    ScanForPushRecallClients (pSD);
-		    ScanForEmbeddedClients (pSD);
-		}
-#endif /* PANELIST */
+		XFlush (DISPLAY);
 		
 		RestoreHelpDialogs(pSD);
 #else /* WSM */
@@ -1416,16 +1329,6 @@ InitWmScreen (WmScreenData *pSD, int sNum)
     pSD->woS = (Window) 0L;
     pSD->woE = (Window) 0L;
     pSD->woW = (Window) 0L;
-#endif /* WSM */
-#ifdef PANELIST
-    pSD->wPanelist = NULL;
-    pSD->pECD = NULL;
-    pSD->numPushRecallClients = 0;
-    pSD->numEmbeddedClients = 0;
-    pSD->pPRCD = NULL;
-    pSD->iconBoxControl = False;
-#endif /* PANELIST */
-#ifdef WSM
     pSD->displayResolutionType = _DtGetDisplayResolution(DISPLAY, sNum);
 
     /*

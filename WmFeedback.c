@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2.3
 */ 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 
 #ifdef REV_INFO
@@ -33,8 +30,6 @@
 static char rcsid[] = "$XConsortium: WmFeedback.c /main/6 1996/10/23 17:20:55 rswiston $"
 #endif
 #endif
-/*
- * (c) Copyright 1987, 1988, 1989, 1990 HEWLETT-PACKARD COMPANY */
 
 /*
  * Included Files:
@@ -65,13 +60,11 @@ static char rcsid[] = "$XConsortium: WmFeedback.c /main/6 1996/10/23 17:20:55 rs
 #include "WmFeedback.h"
 #include "WmFunction.h"
 #include "WmGraphics.h"
-#ifdef PANELIST
-#include "WmPanelP.h"  /* for typedef in WmManage.h */
-#endif /* PANELIST */
 #include "WmManage.h"
 #include "WmColormap.h"
 #include "stdio.h"
-
+#include "WmError.h"
+#include "WmXinerama.h"
 
 /*
  * Global Variables:
@@ -311,9 +304,16 @@ void ShowFeedbackWindow (WmScreenData *pSD, int x, int y, unsigned int width, un
     }
     else
     {
-	winX = (DisplayWidth(DISPLAY, pSD->screen) - pSD->fbWinWidth)/2;
-	winY = (DisplayHeight(DISPLAY, pSD->screen) -pSD->fbWinHeight)/2;
+	XineramaScreenInfo xsi;
+	
+	if(GetXineramaScreenFromLocation(x,y,&xsi)){
+		winX=xsi.x_org+(xsi.width - pSD->fbWinWidth)/2;
+		winY=xsi.y_org+(xsi.height - pSD->fbWinHeight)/2;
+	}else{
+		winX = (DisplayWidth(DISPLAY, pSD->screen) - pSD->fbWinWidth)/2;
+		winY = (DisplayHeight(DISPLAY, pSD->screen) -pSD->fbWinHeight)/2;
     }
+	}
 
     /* 
      * Put new text into the feedback strings
@@ -749,13 +749,12 @@ void ConfirmAction (WmScreenData *pSD, int nbr)
 {
     Arg           args[8];
     register int  n;
-    int           x, y;
+    Position      x, y;
     Dimension     width, height;
     Widget        dialogShellW = NULL;
     XmString	  messageString;
     static XmString	  defaultMessageString = NULL;
-
-
+	
     /*
      * If there is a system modal window, don't post another
      * one.  We need to think about a way to let a new system
@@ -771,6 +770,8 @@ void ConfirmAction (WmScreenData *pSD, int nbr)
     if (pSD->confirmboxW[nbr] == NULL)
     /* First time for this one */
     {
+		Bool have_xinerama;
+		XineramaScreenInfo xsi;
 #ifndef NO_MESSAGE_CATALOG
 	/*
 	 * Initialize messages
@@ -778,15 +779,23 @@ void ConfirmAction (WmScreenData *pSD, int nbr)
 	initMesg();
 #endif
 
+		have_xinerama=GetPreferredXineramaScreen(&xsi);
+	
+		if(have_xinerama){
+			x=(xsi.x_org+xsi.width/2);
+			y=(xsi.y_org+xsi.height/2);
+		}else{
+			x=(DisplayWidth (DISPLAY, pSD->screen)/2);
+			y=(DisplayHeight (DISPLAY, pSD->screen)/2);
+		}
+		
         /* 
          * Create a dialog popup shell with explicit keyboard policy.
          */
 
         n = 0;
-        XtSetArg(args[n], XmNx, (XtArgVal)
-	         (DisplayWidth (DISPLAY, pSD->screen)/2)); n++;
-        XtSetArg(args[n], XmNy, (XtArgVal)
-	         (DisplayHeight (DISPLAY, pSD->screen)/2)); n++;
+        XtSetArg(args[n], XmNx, x); n++;
+        XtSetArg(args[n], XmNy, y); n++;
         XtSetArg(args[n], XtNallowShellResize, (XtArgVal) TRUE);  n++;
         XtSetArg(args[n], XtNkeyboardFocusPolicy, (XtArgVal) XmEXPLICIT);  n++;
         XtSetArg(args[n], XtNdepth, 
@@ -881,8 +890,14 @@ void ConfirmAction (WmScreenData *pSD, int nbr)
         XtSetArg(args[n], XmNwidth, &width); n++;
         XtGetValues (dialogShellW, (ArgList) args, n);
 
-        x = (DisplayWidth (DISPLAY, pSD->screen) - ((int) width))/2;
-        y = (DisplayHeight (DISPLAY, pSD->screen) - ((int) height))/2;
+		if(have_xinerama){
+			x=(xsi.x_org+(xsi.width - (int)width)/2);
+			y=(xsi.y_org+(xsi.height - (int)height)/2);
+		}else{
+	        x = (DisplayWidth (DISPLAY, pSD->screen) - ((int) width))/2;
+    	    y = (DisplayHeight (DISPLAY, pSD->screen) - ((int) height))/2;
+		}
+	
         n = 0;
         XtSetArg(args[n], XmNx, (XtArgVal) x); n++;
         XtSetArg(args[n], XmNy, (XtArgVal) y); n++;

@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2.1
 */ 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 
 #ifdef REV_INFO
@@ -33,8 +30,6 @@
 static char rcsid[] = "$XConsortium: WmCDecor.c /main/7 1996/06/20 09:38:16 rswiston $"
 #endif
 #endif
-/*
- * (c) Copyright 1987,1988,1989,1990,1991,1993 HEWLETT-PACKARD COMPANY */
 
 /*
  * Included Files:
@@ -567,9 +562,9 @@ void GenerateFrameDisplayLists (ClientData *pcd)
     int insideBevel, inset, diffBevel;
     unsigned int nTitleBevel, sTitleBevel, eTitleBevel, wTitleBevel;
     unsigned int meTitleBevel, inWidth;
-    int x, y, xAdj, yAdj;
+    int x, y, xAdj = 0, yAdj = 0;
     unsigned int width, height;
-    RList *prlTop, *prlBot;
+    RList *prlTop = NULL, *prlBot = NULL;
 
     int jX, jY;
     unsigned int jW, jH;
@@ -752,13 +747,6 @@ void GenerateFrameDisplayLists (ClientData *pcd)
 	}
 	else 
 	{
-#ifdef PANELIST
-            if((pcd->dtwmBehaviors & DtWM_BEHAVIOR_PANEL) &&
-               (pcd->clientDecoration == WM_DECOR_BORDER))
-            {
-                insideBevel = 0;
-            }
-#endif /* PANELIST */
 	    BevelRectangle (pcd->pclientBottomShadows, 	/* inside */
 			    pcd->pclientTopShadows, 
 			    (int)(pcd->frameInfo.lowerBorderWidth-insideBevel), 
@@ -2277,18 +2265,6 @@ ShowInactiveClientFrame (ClientData *pcd)
 void RegenerateClientFrame (ClientData *pcd)
 {
     unsigned long decor = pcd->decor;
-#ifdef PANELIST
-    /* 
-     * If an embedded client, there is no frame.
-     */
-    if (pcd->pECD)
-    {
-	if (!pcd->clientFrameWin)
-	{
-	    return;
-	}
-    }
-#endif /* PANELIST */
 
     /* recompute frame information */
     SetFrameInfo (pcd);

@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2
 */ 
-/*   $XConsortium: WmCEvent.h /main/4 1995/11/01 11:34:01 rswiston $ */
-/*
- * (c) Copyright 1987, 1988, 1989, 1990 HEWLETT-PACKARD COMPANY */
 
 
 extern void CheckButtonPressBuiltin (XButtonEvent *buttonEvent, 

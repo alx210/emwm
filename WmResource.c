@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2.3
 */ 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 
 #ifdef REV_INFO
@@ -33,12 +30,6 @@
 static char rcsid[] = "$TOG: WmResource.c /main/14 1997/04/15 10:30:02 dbl $"
 #endif
 #endif
-/*
- * (c) Copyright 1987, 1988, 1989, 1990, 1993, 1994 HEWLETT-PACKARD COMPANY 
- * (c) Copyright 1993, 1994 International Business Machines Corp.
- * (c) Copyright 1993, 1994 Sun Microsystems, Inc.
- * (c) Copyright 1993, 1994 Novell, Inc.
- */
 
 /*
  * Included Files:
@@ -1021,17 +1012,6 @@ XtResource wmGlobalResources[] =
 	XtRImmediate,
 	(XtPointer)True
     },
-#if defined(PANELIST)
-    {
-	WmNuseFrontPanel,
-	WmCUseFrontPanel,
-	XtRBoolean,
-	sizeof (Boolean),
-        XtOffsetOf(WmGlobalData, useFrontPanel),
-	XtRImmediate,
-	(XtPointer)True
-    },
-#endif /* PANELIST */
 #ifdef WSM
     {
 	WmNhelpDirectory,
@@ -1351,6 +1331,17 @@ XtResource wmScreenResources[] =
 	XtRImmediate,
 	(XtPointer) BIGSIZE
     },
+	
+	{
+	WmNprimaryXineramaScreen,
+	WmCPrimaryXineramaScreen,
+	XtRInt,
+	sizeof(int),
+	XtOffsetOf (WmScreenData, primaryXineramaScreen),
+	XtRImmediate,
+	(XtPointer)0
+	},	
+	
 #ifndef WSM
 
     {
@@ -1413,8 +1404,8 @@ XtResource wmScreenResources[] =
 	XtRImmediate,
 	(XtPointer)True
     },
-
-    {
+    
+	{
 	WmNmaximumMaximumSize,
 	WmCMaximumMaximumSize,
 	WmRSize,
@@ -1423,7 +1414,7 @@ XtResource wmScreenResources[] =
 	XtRString,
 	"0x0"
     },
-
+	
     {
 	WmNresizeBorderWidth,
 	WmCFrameBorderWidth,
@@ -1475,28 +1466,6 @@ XtResource wmScreenResources[] =
 	XtRImmediate,
 	(XtPointer)(WM_FUNC_ALL & ~(MWM_FUNC_MAXIMIZE | MWM_FUNC_MINIMIZE))
     },
-
-#ifdef PANELIST
-    {
-	WmNsubpanelDecoration,
-	WmCSubpanelDecoration,
-	WmRClientDecor,
-	sizeof (int),
-	XtOffsetOf (WmScreenData, subpanelDecoration),
-	XtRImmediate,
-	(XtPointer)(WM_DECOR_SYSTEM)
-    },
-
-    {
-	WmNsubpanelResources,
-	WmCSubpanelResources,
-	XtRString,
-	sizeof (String),
-	XtOffsetOf (WmScreenData, subpanelResources),
-	XtRString,
-	(XtPointer)NULL
-    },
-#endif /* PANELIST */
 
     {
 	WmNuseIconBox,
@@ -3277,9 +3246,6 @@ SetStdGlobalResourceValues (void)
     wmGD.startupKeyFocus = True;
     wmGD.systemButtonClick = True;
     wmGD.systemButtonClick2 = True;
-#if defined(PANELIST)
-    wmGD.useFrontPanel=False;
-#endif /* PANELIST */
 
 } /* END OF FUNCTION SetStdGlobalResourceValues */
 
@@ -4432,7 +4398,7 @@ MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean make
 
     if (! XmeRenderTableGetDefaultFont(pAData->fontList, &(pAData->font)))
     {
-	sprintf((char *)wmGD.tmpBuffer, ((char *)GETMESSAGE(62, 23, "failed to load font: %.100s\0")), (char*) pAData->fontList);
+	sprintf((char *)wmGD.tmpBuffer, ((char *)GETMESSAGE(62, 23, "failed to load font: %.100s")), (char*) pAData->fontList);
 	Warning((char *)wmGD.tmpBuffer);
 	ExitWM(WM_ERROR_EXIT_VALUE);
     }
@@ -6256,9 +6222,11 @@ SetupDefaultResources (pSD)
 WmScreenData *pSD;
 
 {
+#ifdef NO_MESSAGE_CATALOG
+	MenuSpec *menuSpec;
+#endif
     KeySpec *nextKeySpec;
     String keyBindings;
-    MenuSpec *menuSpec;
 
 
 /*

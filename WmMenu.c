@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2.3
 */ 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 
 #ifdef REV_INFO
@@ -33,12 +30,6 @@
 static char rcsid[] = "$XConsortium: WmMenu.c /main/15 1996/11/20 15:20:17 rswiston $"
 #endif
 #endif
-/*
- * (c) Copyright 1987, 1988, 1989, 1990 HEWLETT-PACKARD COMPANY */
-/*
- * (c) Copyright 1987, 1988 DIGITAL EQUIPMENT CORPORATION */
-/*
- * (c) Copyright 1988 MASSACHUSETTS INSTITUTE OF TECHNOLOGY */
 
 /*
  * Included Files:
@@ -484,7 +475,7 @@ MakeMenuSpec (String menuName, CARD32 commandID)
 static MenuItem *
 DuplicateMenuItems (MenuItem *menuItems)
 {
-    MenuItem *newMenuItem = (MenuItem *) NULL, *returnMenuItem, *curMenuItem;
+    MenuItem *newMenuItem = (MenuItem *) NULL, *returnMenuItem = NULL, *curMenuItem;
     
     for (curMenuItem = menuItems;
 	 curMenuItem != (MenuItem *) NULL;
@@ -523,18 +514,6 @@ DuplicateMenuItems (MenuItem *menuItems)
 	    || (curMenuItem->wmFunction == F_Circle_Down)
 #ifdef WSM
 	    || (curMenuItem->wmFunction == F_Set_Context)
-# ifdef PANELIST
-	    /*
-	     * NOTE: For now, in dtwm this function is used only
-	     * to copy the FrontPanel menu.  So, we know that
-	     * curMenuItem->wmFuncArgs isn't going anywhere,
-	     * so it's safe to simply point at it.  If at some
-	     * point it becomes possible that curMenuItem->wmFuncArgs
-	     * can go away, we'll need to make a (deep) copy of
-	     * the WmActionArg.  11/20/96
-	     */
-	    || (curMenuItem->wmFunction == F_Action)
-# endif /* PANELIST */
 #endif /* WSM */
 	    )
 	  newMenuItem->wmFuncArgs = curMenuItem->wmFuncArgs;
@@ -848,8 +827,8 @@ static MenuItem *MakeMenuItemFromTemplate (MenuItem *template, String name,
 static MenuItem *MakeClientCommandMenuItem (String label, String funcArgs)
 {
     return(MakeMenuItem(label, F_InvokeCommand, funcArgs,
-			(KeySym) NULL, (unsigned int)0,
-			(KeyCode) NULL, (String)NULL));
+			(KeySym)(unsigned)NULL, (unsigned int)0,
+			(KeyCode)(unsigned)NULL, (String)NULL));
 }
 
 
@@ -2001,7 +1980,7 @@ static void SearchForOtherMatches (WmScreenData *pSD, ClientData *pCD,
 		    }
 		    else
 		    {
-			sprintf(new_funcargs, "%d %ld %ld", tree->commandID,
+			sprintf(new_funcargs, "%d %ld %ld", (int)tree->commandID,
 				pCD->client, selection);
 			inLine_function = F_InvokeCommand;
 		    }
@@ -2256,7 +2235,7 @@ static void InsertTreeOnClient (WmScreenData *pSD, ClientData *pCD,
 	{
 	    /* Store away the push button information so it can be 
 	       created later. */
-	    sprintf(funcarg_buf, "%d %ld %ld", tree->commandID, 
+	    sprintf(funcarg_buf, "%d %ld %ld", (int)tree->commandID, 
 		    (pCD == NULL ? None : pCD->client), selection);
 
 	    /* If the menuSpec is global and we are supposed to be

@@ -45,6 +45,8 @@ static void ReplyReceived(
 Widget, XtPointer, Atom *, Atom *, XtPointer, unsigned long *, int *
 );
 
+extern Time GetTimestamp (Display *dpy);
+
 /*	Function Name: WSMSendMessage
  *	Description: Sends a message to WSM or WM on the screen
  *                   and display specified.

@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2.3
 */ 
-/*   $XConsortium: WmBitmap.h /main/3 1995/11/01 11:32:01 rswiston $ */
-/*
- * (c) Copyright 1987, 1988, 1989, 1990 HEWLETT-PACKARD COMPANY */
 
 /*
  * Global Variables And Definitions:

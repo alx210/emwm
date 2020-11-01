@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2.4
 */ 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 
 #ifdef REV_INFO
@@ -33,12 +30,6 @@
 static char rcsid[] = "$TOG: WmIconBox.c /main/7 1999/05/20 16:35:12 mgreess $"
 #endif
 #endif
-/*
- * (c) Copyright 1987, 1988, 1989, 1990, 1993, 1994 Hewlett-Packard Company
- * (c) Copyright 1993, 1994 International Business Machines Corp.
- * (c) Copyright 1993, 1994 Sun Microsystems, Inc.
- * (c) Copyright 1993, 1994 Novell, Inc.
- */
 
 /*
  * Included Files:
@@ -89,9 +80,6 @@ static char rcsid[] = "$TOG: WmIconBox.c /main/7 1999/05/20 16:35:12 mgreess $"
 #include "WmIDecor.h"
 #include "WmIPlace.h"
 #include "WmImage.h"
-#ifdef PANELIST
-#include "WmPanelP.h"  /* for typedef in WmManage.h */
-#endif /* PANELIST */
 #include "WmManage.h"
 #include "WmMenu.h"
 #include "WmResParse.h"
@@ -1784,135 +1772,6 @@ void UnmapIconBoxes (WmWorkspaceData *pWS)
 
 } /* END OF FUNCTION UnmapIconBoxes */
 #endif /* WSM */
-
-#if defined(PANELIST)
-
-/******************************<->*************************************
- *
- *  IconBoxShowing ()
- *
- *  Description:
- *  -----------
- *  Returns True if an icon box tied to a front panel button is
- *  showing.
- *
- *  Inputs:
- *  ------
- *  pWS = pointer to workspace data
- *  pCW = pointer to control window data (for front panel button )
- * 
- *  Outputs:
- *  -------
- *  Return = True if icon box is up, False if it's invisible
- *
- *  Comments:
- *  --------
- * 
- ******************************<->***********************************/
-
-    
-#ifdef PANELIST
-Boolean
-IconBoxShowing (WmWorkspaceData *pWS)
-#else /* PANELIST */
-Boolean
-IconBoxShowing (WmWorkspaceData *pWS, ControlWindowStruct *pCW)
-#endif /* PANELIST */
-{
-    Boolean rval = False;
-    int wsIndex =  GetCurrentWorkspaceIndex (pWS->pSD); 
-    
-#ifdef PANELIST
-    if (pWS->pIconBox &&
-	ClientInWorkspace (pWS, pWS->pIconBox->pCD_iconBox))
-    {
-	rval = True;
-    }
-#else /* PANELIST */
-    if (pWS->pIconBox &&
-	ClientInWorkspace (pWS, pWS->pIconBox->pCD_iconBox) &&
-	(pCW->pWsStatus[wsIndex].wsClientStatus == CLIENT_WINDOW_OPEN))
-    {
-	rval = True;
-    }
-#endif /* PANELIST */
-
-    return (rval);
-    
-} /* END OF FUNCTION IconBoxShowing */
-
-
-
-/******************************<->*************************************
- *
- *  IconBoxPopUp (pWS, pCW, up)
- *
- *  Description:
- *  -----------
- *  Sets the state of the icon box attached to a front panel control.
- *
- *  Inputs:
- *  ------
- *  pWS = pointer to workspace data
- *  pCW = pointer to control window data (for front panel button )
- *  up = flag, if True, pop the icon box up; if False, hide it.
- * 
- *  Outputs:
- *  -------
- *  None
- *
- *  Comments:
- *  --------
- * 
- ******************************<->***********************************/
-    
-#ifdef PANELIST
-void
-IconBoxPopUp (WmWorkspaceData *pWS, Boolean up)
-#else /* PANELIST */
-void
-IconBoxPopUp (WmWorkspaceData *pWS, 
-    ControlWindowStruct *pCW, Boolean up)
-#endif /* PANELIST */
-{
-    
-    IconBoxData *pibd;
-    int wsIndex =  GetCurrentWorkspaceIndex (pWS->pSD); 
-    
-    if (pWS->pIconBox)
-    {
-	pibd = pWS->pIconBox;
-	
-        while (pibd)
-        {
-	    if (up)
-	    {
-		if (ClientInWorkspace(pWS, pibd->pCD_iconBox))
-		{
-		    F_Raise (NULL, pibd->pCD_iconBox, (XEvent *)NULL);
-		}
-		else
-		{ 
-		    AddClientToWorkspaces (pibd->pCD_iconBox, 
-					   &pWS->id, 1);
-		    return;
-		}
-	    }
-	    else if (!up && ClientInWorkspace (pWS, pibd->pCD_iconBox))
-	    {
-		RemoveClientFromWorkspaces (pibd->pCD_iconBox,
-					    &pWS->id, 1);
-		return;
-	    }		    
-	    pibd = pibd->pNextIconBox;
-	}
-	
-    }
-    
-} /* END OF FUNCTION IconBoxPopUp */
-#endif /* PANELIST */
-
-
 
 
 /******************************<->*************************************

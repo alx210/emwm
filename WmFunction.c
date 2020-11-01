@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2.4
 */ 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 
 #ifdef REV_INFO
@@ -33,12 +30,6 @@
 static char rcsid[] = "$TOG: WmFunction.c /main/19 1998/04/20 13:00:48 mgreess $"
 #endif
 #endif
-/*
- * (c) Copyright 1987, 1988, 1989, 1990, 1993, 1994 HEWLETT-PACKARD COMPANY 
- * (c) Copyright 1993, 1994 International Business Machines Corp.
- * (c) Copyright 1993, 1994 Sun Microsystems, Inc.
- * (c) Copyright 1993, 1994 Novell, Inc.
- */
 
 #define FIX_1350    1
 
@@ -75,11 +66,6 @@ extern pid_t vfork();
 #include <Dt/Message.h>
 #include <Dt/Help.h>
 #endif /* WSM */
-#ifdef PANELIST
-#include <Dt/DtStrDefs.h>
-#include "WmPanelP.h"
-#include "WmSignal.h"
-#endif /* PANELIST */
 
 /*
  * include extern functions
@@ -112,6 +98,7 @@ extern pid_t vfork();
 #include "WmWinList.h"
 #include "WmWinState.h"
 #include "WmXSMP.h"
+#include "WmCmd.h"
 
 #include <Xm/RowColumnP.h> /* for MS_LastManagedMenuTime */
 extern XmMenuState _XmGetMenuState();
@@ -515,18 +502,6 @@ void Do_Lower (ClientData *pCD, ClientListEntry *pStackEntry, int flags)
     Boolean bLeaderRestacked;
 #endif /* WSM */
 
-#ifdef PANELIST
-    if (pCD->pECD)
-    {
-	/*
-	 * Window has been reparented into the front panel. 
-	 * Don't follow through on window stacking change.
-	 */
-	return;
-    }
-    else 
-#else /* PANELIST */
-#endif /* PANELIST */
 #ifdef WSM
     if (ClientInWorkspace(pWS, pCD)  && 
 	(!pStackEntry || ClientInWorkspace (pWS, pStackEntry->pCD)))
@@ -1024,17 +999,6 @@ Boolean F_Exec (String args, ClientData *pCD, XEvent *event)
 	putenv(wmGD.pActiveSD->displayString);
       }
     
-#ifdef PANELIST
-    if (wmGD.dtSD)
-    {
-	/*
-	 * Start the busy indicator, waiting for a pushbutton window
-	 * for the given duration
-	 */
-       WmFrontPanelSetBusy (True);
-    }
-#endif /* PANELIST */
-
 #ifndef WSM
     /* For now use only for non WSM code.  May integrate to WSM later. */
     /*
@@ -1113,12 +1077,12 @@ Boolean F_Exec (String args, ClientData *pCD, XEvent *event)
 		directory, then we must call execlp and not execl
 		*/
 		shellname = shell;
-		execlp (shell, shellname, "-c", args, 0);
+		execlp (shell, shellname, "-c", args, NULL);
 	    }
 	    else
 	    {
 		shellname++;
-		execl (shell, shellname, "-c", args, 0);
+		execl (shell, shellname, "-c", args, NULL);
 	    }
 	}
 
@@ -1127,9 +1091,9 @@ Boolean F_Exec (String args, ClientData *pCD, XEvent *event)
 	 * Try /bin/sh .
 	 */
 #ifdef SVR4
-        execl ("/usr/bin/sh", "sh", "-c", args, 0);
+        execl ("/usr/bin/sh", "sh", "-c", args, NULL);
 #else
-        execl ("/bin/sh", "sh", "-c", args, 0);
+        execl ("/bin/sh", "sh", "-c", args, NULL);
 #endif
 
 
@@ -1272,9 +1236,6 @@ void Do_Quit_Mwm (Boolean diedOnRestart)
 		    }
 		    pNextEntry = pNextEntry->prevSibling;
 		}
-#if defined(PANELIST)
-	        UnParentControls (&wmGD.Screens[scr], False);
-#endif /* PANELIST */
 
 #ifndef WSM
 		XDeleteProperty(DISPLAY, wmGD.Screens[scr].rootWindow,
@@ -1322,7 +1283,7 @@ void Do_Quit_Mwm (Boolean diedOnRestart)
 
 void ReBorderClient (ClientData *pCD, Boolean reMapClient)
 {
-    int x, y;
+    int x = 0, y = 0;
     int xoff, yoff;
     XWindowChanges windowChanges;
 
@@ -1928,12 +1889,6 @@ F_Goto_Workspace (String args, ClientData *pCD, XEvent *event)
 Boolean
 F_Help (String args, ClientData *pCD, XEvent *event)
 {
-#ifdef PANELIST
-    Boolean rval;
-
-    rval = WmDtHelp(args);
-    return (rval);
-#endif /* PANELIST */    
     
 
 }  /* END OF FUNCTION F_Help */
@@ -1964,18 +1919,6 @@ F_Help (String args, ClientData *pCD, XEvent *event)
 Boolean
 F_Help_Mode (String args, ClientData *pCD, XEvent *event)
 {
-#ifdef PANELIST
-    /*
-     * Help mode event processing interferes
-     * with slide up windows. Don't continue
-     * if windows are sliding.
-     */
-    if (wmGD.iSlideUpsInProgress == 0)
-    {
-	(void) WmDtHelpMode();
-    }
-    return (False);
-#endif /* PANELIST */    
 
 }  /* END OF FUNCTION F_Help_Mode */
 
@@ -2138,225 +2081,6 @@ Boolean F_Prev_Key (String args, ClientData *pCD, XEvent *event)
     return (True);
 
 } /* END OF FUNCTION F_Prev_Key */
-
-#ifdef PANELIST
-
-/***********************<->*************************************
- *
- *  F_Post_FpMenu (args, pCD, event)
- *
- *
- *  Description:
- *  -----------
- *  This is the window manager function handler for posting
- *  the Front Panel window menu.
- *
- *  Inputs:
- *  ------
- *  args = arguments (none)
- *
- *  pCD = pointer to the FP ClientData
- *
- *  event = X button press that invoked the function
- *
- ******************************<->***********************************/
-
-Boolean
-F_Post_FpMenu (String args, ClientData *pCD, XEvent *event)
-{
-    static MenuSpec *fpMenuSpec = (MenuSpec *)NULL;
-
-    if (event->type != ButtonPress)
-	return False;
-
-    if (!fpMenuSpec)
-    {
-	WmScreenData *pSD = (pCD) ? PSD_FOR_CLIENT(pCD) : ACTIVE_PSD;
-	MenuSpec *oldSpec;
-	Widget tmpWidget;
-	char *newMenuName;
-
-	newMenuName = pCD ? pCD->systemMenu : "DtPanelMenu";
-
-	for (oldSpec = pSD->menuSpecs;
-	     oldSpec != (MenuSpec *)NULL;
-	     oldSpec = oldSpec->nextMenuSpec)
-	{
-	    if (oldSpec->name && (strcmp(oldSpec->name, newMenuName) == 0))
-		break;
-	}
-	if (!oldSpec)
-	    return False;
-
-	fpMenuSpec = DuplicateMenuSpec(oldSpec);
-
-	/*
-	 * TEMPORARILY modify pSD so the new menu will be
-	 * created on DISPLAY1 instead of DISPLAY.
-	 */
-	fpMenuSpec->nextMenuSpec = pSD->menuSpecs;
-	pSD->menuSpecs = fpMenuSpec;
-	tmpWidget = pSD->screenTopLevelW;
-	pSD->screenTopLevelW = pSD->screenTopLevelW1;
-
-	(void)MAKE_MENU (pSD, pCD, newMenuName,
-			 F_CONTEXT_NORMAL, F_CONTEXT_NORMAL,
-			 (MenuItem *) NULL, FALSE);
-
-	/* Restore pSD */
-	pSD->screenTopLevelW = tmpWidget;
-	pSD->menuSpecs = fpMenuSpec->nextMenuSpec;
-    }
-
-    PostMenu (fpMenuSpec, pCD, event->xbutton.x_root, event->xbutton.y_root,
-	      event->xbutton.button, F_CONTEXT_NORMAL, POST_AT_XY, event);
-
-    _XmGetMenuState(XtParent(fpMenuSpec->menuWidget))
-	->MS_LastManagedMenuTime = event->xbutton.time;
-
-    return False;
-}
-
-
-/***********************<->*************************************
- *
- *  F_Push_Recall (args, pCD, event)
- *
- *
- *  Description:
- *  -----------
- *  This is the window manager function handler for invoking/topping
- *  push_recall clients.
- *
- *
- *  Inputs:
- *  ------
- *  args = arguments
- *
- *  pCD = pointer to the ClientData 
- *
- *  event = X event that invoked the function (key, button, or menu/NULL)
- *
- *
- *  Outputs:
- *  -------
- *  RETURN = if True then further button binding/function processing can
- *           be done for the event that caused this function to be called.
- *
- *  Comments:
- *  -------
- ******************************<->***********************************/
-
-Boolean
-F_Push_Recall (String args, ClientData *pCD, XEvent *event)
-{
-    WmPushRecallArg *pPRP;
-    WmScreenData *pSD;
-    WmFpPushRecallClientData *pPRCD;
-
-    pPRP = (WmPushRecallArg *) args;
-    pSD = (pCD) ? PSD_FOR_CLIENT(pCD) : ACTIVE_PSD;
-
-    if (pPRP->ixReg  < pSD->numPushRecallClients)
-    {
-	/* get slot for this client */
-	pPRCD = &(pSD->pPRCD[pPRP->ixReg]);
-
-	/*
-	 * If the client is already running, then top it in this workspace,
-	 * else invoke the function to start it.
-	 */
-	if (pPRCD->pCD)
-	{
-	    /* Client is managed already. */ 
-	    if (!(ClientInWorkspace (pSD->pActiveWS, pPRCD->pCD)))
-	    {
-		WorkspaceID *wsRemoveList;
-		int sizeRemoveList;
-
-		/* 
-		 * Move client to current workspace 
-		 */
-	        wsRemoveList = GetListOfOccupiedWorkspaces (pPRCD->pCD, 
-					&sizeRemoveList);
-		RemoveClientFromWorkspaces (pPRCD->pCD, wsRemoveList,
-                                        sizeRemoveList);
-		XtFree ((char *)wsRemoveList);
-		AddClientToWorkspaces (pPRCD->pCD, &(pSD->pActiveWS->id), 1);
-		SetClientWsIndex(pPRCD->pCD);
-		SetClientState(pPRCD->pCD, 
-	            pPRCD->pCD->clientState & ~UNSEEN_STATE, CurrentTime);
-	    }
-
-	    /* Make this client visible */
-#ifdef WSM
-		    wmGD.bSuspendSecondaryRestack = True;
-#endif /* WSM */
-	    F_Normalize_And_Raise (NULL, pPRCD->pCD, event);
-#ifdef WSM
-		    wmGD.bSuspendSecondaryRestack = False;
-#endif /* WSM */
-	}
-	else 
-	{
-	    struct timeval tvNow;
-	    struct timezone tz;
-	    Boolean bWaiting = False;
-
-	    if (pPRCD->tvTimeout.tv_sec != 0)
-	    {
-		gettimeofday (&tvNow, &tz);
-
-		if ((pPRCD->tvTimeout.tv_sec > tvNow.tv_sec) ||
-		    ((pPRCD->tvTimeout.tv_sec == tvNow.tv_sec) &&
-		     (pPRCD->tvTimeout.tv_usec > tvNow.tv_usec)))
-		{
-		    /* still waiting for client to start */
-		    bWaiting = True;
-		}
-	    }
-
-	    if (!bWaiting)
-	    {
-		long clientTimeout;
-		Arg al[5];
-		int ac;
-		WmPanelistObject  pPanelist;
-
-		pPanelist = (WmPanelistObject) pSD->wPanelist;
-
-		/* invoke the function to start the client */
-		pPRP->wmFunc ( pPRP->pArgs, pCD, event);
-
-		if (pPanelist && panel.busy_light_data)
-		{
-		    /* set timeout value */
-		    ac = 0;
-		    XtSetArg (al[ac], 
-			XmNclientTimeoutInterval, &clientTimeout);	ac++; 
-		    XtGetValues (panel.busy_light_data->icon, (ArgList)al, ac);
-		}
-
-		/*
-		 * ClientTimeout is in milliseconds, timeval values
-		 * are in seconds and microseconds.
-		 */
-		gettimeofday (&(pPRCD->tvTimeout), &tz);
-
-		pPRCD->tvTimeout.tv_sec += clientTimeout / 1000;
-		pPRCD->tvTimeout.tv_usec += 
-		    (clientTimeout % 1000) * 1000;
-
-		pPRCD->tvTimeout.tv_sec += pPRCD->tvTimeout.tv_usec / 1000000;
-		pPRCD->tvTimeout.tv_usec %= 1000000;
-	    }
-	}
-    }
-
-    return (True);
-
-} /* END OF FUNCTION F_Push_Recall */
-#endif /* PANELIST */
 
 
 /*************************************<->*************************************
@@ -2736,33 +2460,6 @@ Boolean F_Normalize (String args, ClientData *pCD, XEvent *event)
 
 Boolean F_Normalize_And_Raise (String args, ClientData *pCD, XEvent *event)
 {
-#ifdef PANELIST
-    WmScreenData 	*pSD;
-    WmWorkspaceData 	*pWS;
-
-    if (args)
-    {
-	if (pCD) 
-	    pSD = PSD_FOR_CLIENT (pCD);
-	else
-	    pSD = ACTIVE_PSD;
-
-	pWS =  pSD->pActiveWS;
-
-	if (pSD->useIconBox && 
-	    wmGD.useFrontPanel && 
-	    pSD->iconBoxControl &&
-	    (!strcmp(args, WmNiconBox)))
-	{
-	    /* 
-	     * There's an icon box in the front panel and this is a 
-	     * request to pop up the icon box.
-	     */
-	    IconBoxPopUp (pWS, True);
-	    return (False);
-	}
-    }
-#endif /* PANELIST */
     if (pCD)
     {
         if (pCD->clientState == MINIMIZED_STATE)
@@ -3000,7 +2697,6 @@ Boolean F_Pack_Icons (String args, ClientData *pCD, XEvent *event)
 Boolean F_Post_RMenu (String args, ClientData *pCD, XEvent *event)
 {
     MenuSpec    *rootMenu;
-    unsigned int button = NoButton;
     int          x, y;
     long         flags = POST_AT_XY;
     Window       rwin, cwin;
@@ -3177,37 +2873,6 @@ Boolean F_Kill (String args, ClientData *pCD, XEvent *event)
 	Boolean do_save_yourself =
 		pCD->protocolFlags & PROTOCOL_WM_SAVE_YOURSELF;
 
-#ifdef PANELIST
-	if (pCD->dtwmBehaviors & DtWM_BEHAVIOR_SUBPANEL)
-	{
-	    Widget 		wPanel;
-	    
-	    /*
-	     * Get the widget for the subpanel
-	     * (Should be only child of the shell!)
-	     */
-	    wPanel = WmPanelistWindowToSubpanel (DISPLAY1, pCD->client);
-            if (wPanel)
-	    {
-		SlideSubpanelBackIn (pCD, wPanel);
-	    }
-	    return (False);
-	}
-        if (pCD->clientFlags & ICON_BOX)
-	{
-	    /*
-	     * When the front panel is used with the icon box,
-	     * "Close" hides the icon box into the front panel.
-	     */
-	    if ((wmGD.useFrontPanel) &&
-		(pCD->pSD->iconBoxControl) &&
-		(IconBoxShowing(pCD->pSD->pActiveWS)))
-	    {
-		IconBoxPopUp (pCD->pSD->pActiveWS, False);
-	    }
-	}
-	else
-#endif /* PANELIST */
 	if (!do_delete_window && !do_save_yourself)
 	{
 	    XKillClient (DISPLAY, pCD->client);
@@ -3524,9 +3189,6 @@ void RestartWm (long startupFlags)
 		}
 		pNextEntry = pNextEntry->prevSibling;
 	    }
-#if defined(PANELIST)
-	    UnParentControls (&wmGD.Screens[scr], True);
-#endif /* PANELIST */
 	}
 	
     }
@@ -3673,107 +3335,6 @@ void DeFrameClient (ClientData *pCD)
     }
 
 } /* END OF FUNCTION DeFrameClient */
-
-#if defined(PANELIST)
-
-/******************************<->*************************************
- *
- *  F_Toggle_Front_Panel (args, pCD, event)
- *
- *
- *  Description:
- *  -----------
- *  This is the window manager function handler for toggling the
- *  front panel off and on.
- ******************************<->***********************************/
-
-Boolean
-F_Toggle_Front_Panel (String args, ClientData *pCD, XEvent *event)
-{
-
-    WmPanelistObject  pPanelist;
-
-    if (pCD)
-    {
-        pPanelist = (WmPanelistObject) pCD->pSD->wPanelist;
-    }
-    else
-    {
-        pPanelist = (WmPanelistObject) ACTIVE_PSD->wPanelist;
-    }
-
-    pCD = NULL;
-    if (pPanelist)
-    {
-	(void) XFindContext (DISPLAY, XtWindow(O_Shell(pPanelist)),
-			    wmGD.windowContextType, (caddr_t *)&pCD);
-    }
-
-
-    if (pCD)
-    {
-	if (pCD->clientState & MINIMIZED_STATE)
-	{
-	    SetClientState (pCD, NORMAL_STATE, 
-		    GetFunctionTimestamp ((XButtonEvent *)event));
-	}
-	else
-	{
-	    SetClientState (pCD, MINIMIZED_STATE, 
-		    GetFunctionTimestamp ((XButtonEvent *)event));
-	}
-    }
-
-    return(True);
-} /* END OF FUNCTION F_Toggle_Front_Panel */
-
-
-/******************************<->*************************************
- *
- *  Boolean F_Version (String args, ClientData *pCD, XEvent *event)
- *
- *  Description:
- *  -----------
- *  Invoke the help on version dialogue.
- *
- *  Inputs:
- *  ------
- *  args - incoming values
- *  pCD  - associated client data structure
- *  event - what triggered this call
- * 
- *  Outputs:
- *  -------
- *  Return - True if the call occurs; false otherwise.
- *
- *  Comments:
- *  --------
- *
- ******************************<->***********************************/
-Boolean
-F_Version (String args, ClientData *pCD, XEvent *event)
-{
-
-    WmPanelistObject  pPanelist;
-
-    if (pCD)
-    {
-        pPanelist = (WmPanelistObject) pCD->pSD->wPanelist;
-    }
-    else
-    {
-        pPanelist = (WmPanelistObject) ACTIVE_PSD->wPanelist;
-    }
-
-    if (pPanelist)
-    {
-	WmDtHelpOnVersion (O_Shell (pPanelist));
-    }
-
-    return (True);
-
-}  /* END OF FUNCTION F_Version */
-#endif /* PANELIST */
 
 
 /******************************<->*************************************
@@ -4007,18 +3568,6 @@ void Do_Raise (ClientData *pCD, ClientListEntry *pStackEntry, int flags)
     Boolean bLeaderRestacked;
 #endif /* WSM */
 
-#ifdef PANELIST
-    if (pCD->pECD)
-    {
-	/*
-	 * Window has been reparented into the front panel. 
-	 * Don't follow through on window stacking change.
-	 */
-	return;
-    }
-    else 
-#else /* PANELIST */
-#endif /* PANELIST */
 #ifdef WSM
     if (ClientInWorkspace(pWS, pCD)  && 
 	(!pStackEntry || ClientInWorkspace (pWS, pStackEntry->pCD)))
@@ -4645,7 +4194,7 @@ Boolean F_InvokeCommand (String args, ClientData *pCD, XEvent *event)
 
     if (args == (String) NULL) return(FALSE);
 
-    if (sscanf(args, "%d %d %ld", &commandID, &clientWindow,
+    if (sscanf(args, "%d %d %ld", (int *)&commandID, (int *)&clientWindow,
 	       &notifySelection) != 3)
       return(FALSE);
 

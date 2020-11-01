@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2.3
 */ 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 
 #ifdef REV_INFO
@@ -33,8 +30,6 @@
 static char rcsid[] = "$XConsortium: WmCDInfo.c /main/4 1995/11/01 11:32:15 rswiston $"
 #endif
 #endif
-/*
- * (c) Copyright 1987, 1988, 1989, 1990 HEWLETT-PACKARD COMPANY */
 
 /*
  * Included Files:
@@ -186,13 +181,6 @@ unsigned int UpperBorderWidth (ClientData *pcd)
     else if (decoration & MWM_DECOR_BORDER)
     {
 	uswidth = FRAME_BORDER_WIDTH(pcd);
-#ifdef PANELIST
-	if((pcd->clientFlags & FRONT_PANEL_BOX) &&
-	   (uswidth > 0))
-	{
-	    uswidth -= 1;
-	}
-#endif /* PANELIST */
     }
     else if ((decoration & MWM_DECOR_TITLE) ||
 	     (pcd->matteWidth > 0))

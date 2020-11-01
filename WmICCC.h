@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2.4
 */ 
-/*   $XConsortium: WmICCC.h /main/3 1995/11/01 11:40:07 rswiston $ */
-/*
- * (c) Copyright 1987, 1988, 1989, 1990 HEWLETT-PACKARD COMPANY */
 
 /*
  * Included Files:

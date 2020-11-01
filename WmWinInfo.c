@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2.3
 */
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
  
 #ifdef REV_INFO
@@ -33,8 +30,6 @@
 static char rcsid[] = "$TOG: WmWinInfo.c /main/18 1999/02/04 15:17:25 mgreess $"
 #endif
 #endif
-/*
- * (c) Copyright 1987, 1988, 1989, 1990 HEWLETT-PACKARD COMPANY */
 
 
 /*
@@ -50,9 +45,6 @@ static char rcsid[] = "$TOG: WmWinInfo.c /main/18 1999/02/04 15:17:25 mgreess $"
 
 #include <Xm/Xm.h>
 #include <X11/Xlocale.h>
-#ifdef PANELIST
-#include "WmPanelP.h"
-#endif /* PANELIST */
 
 #define makemult(a, b) ((b==1) ? (a) : (((int)((a) / (b))) * (b)) )
 
@@ -80,11 +72,7 @@ static char rcsid[] = "$TOG: WmWinInfo.c /main/18 1999/02/04 15:17:25 mgreess $"
 #include "WmPresence.h"
 #endif /* WSM */
 #include "WmXSMP.h"
-
-#ifdef PANELIST
-static void AdjustSlideOutGeometry (ClientData *pCD);
-static void FixSubpanelEmbeddedClientGeometry (ClientData *pCD);
-#endif /* PANELIST */
+#include "WmXinerama.h"
 
 #ifndef NO_MESSAGE_CATALOG
 # define LOCALE_MSG GETMESSAGE(70, 7, "[XmbTextPropertyToTextList]:\n     Locale (%.100s) not supported. (Check $LANG).")
@@ -160,11 +148,6 @@ GetClientInfo (WmScreenData *pSD, Window clientWindow, long manageFlags)
     pCD->pIconBox = NULL;
 #endif /* WSM */
     pCD->thisIconBox = NULL;
-#ifdef PANELIST
-    pCD->pECD = NULL;
-    pCD->pPRCD = NULL;
-    pCD->pSOR = NULL;
-#endif /* PANELIST */
     pCD->wmUnmapCount = 0;
     pCD->transientFor = (Window)0L;
     pCD->transientLeader = NULL;
@@ -654,18 +637,6 @@ int i;
 #ifdef WSM
 	    pCD->dtwmFunctions &= ~DtWM_FUNCTION_OCCUPY_WS;
 #endif /* WSM */
-#ifdef PANELIST
-	    if (wmGD.useFrontPanel && pCD->pSD->iconBoxControl) 
-	    { 
-		/*
-		 * If there's a front panel button for the icon
-		 * box, then use it to "hide" the box on "close"
-		 */
-		pCD->clientFunctions &= ~MWM_FUNC_MINIMIZE;
-		pCD->clientFunctions |= MWM_FUNC_CLOSE;
-	    }
-#else /* PANELIST */
-#endif /* PANELIST */
         }
 
 
@@ -1513,10 +1484,21 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
     int                 diff;
     unsigned long       decoration;
     unsigned int        boxdim, tmpMin;
-    unsigned int	oldWidthInc, oldHeightInc;
-    unsigned int	oldBaseWidth, oldBaseHeight;
-    unsigned int	incWidth, incHeight;
+    unsigned int	oldWidthInc = 0, oldHeightInc = 0;
+    unsigned int	oldBaseWidth = 0, oldBaseHeight = 0;
+    unsigned int	incWidth = 0, incHeight = 0;
+	XineramaScreenInfo xsi;
+	unsigned int dispWidth, dispHeight;
+	
 
+	if(GetXineramaScreenFromLocation(pCD->clientX,pCD->clientY,&xsi)){
+		dispWidth = xsi.width;
+		dispHeight = xsi.height;
+	}else{
+		dispWidth = DisplayWidth (DISPLAY, SCREEN_FOR_CLIENT(pCD));
+		dispHeight = DisplayHeight (DISPLAY, SCREEN_FOR_CLIENT(pCD));
+	}
+	
     /*
      * Use a custom verion of the Xlib routine to get WM_NORMAL_HINTS.
      * A custom version is necessary to handle the different versions
@@ -1738,8 +1720,7 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 	if (IS_MAXIMIZE_HORIZONTAL(pCD))
 	{
 	    /* go to min (full screen width, max maximum width) */
-	    pCD->maxWidth = DisplayWidth (DISPLAY, SCREEN_FOR_CLIENT(pCD)) -
-				          (2 * pCD->clientOffset.x);
+	    pCD->maxWidth = dispWidth - (2 * pCD->clientOffset.x);
 
 	    /*
 	     * Hack to set max client to the current client height, maxHeight
@@ -1761,8 +1742,7 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 	    if (pNormalHints->max_width < 0)
 	    {
 	        /* go to min (full screen width, max maximum width) */
-		pCD->maxWidth = DisplayWidth (DISPLAY, SCREEN_FOR_CLIENT(pCD)) -
-				          (2 * pCD->clientOffset.x);
+		pCD->maxWidth = dispWidth - (2 * pCD->clientOffset.x);
 	    }
 	    else
 	    {
@@ -1772,18 +1752,8 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 	/* Don't reset maxWidth if it has been set earlier */
 	else if (!IS_MAXIMIZE_VERTICAL(pCD))
 	{
-	    if (firstTime)
-	    {
 		/* go to min (full screen width, max maximum width) */
-		pCD->maxWidth = DisplayWidth (DISPLAY,
-					      SCREEN_FOR_CLIENT(pCD)) -
-						(2 * pCD->clientOffset.x);
-	    }
-	    else
-	    {
-		/* reset the maxHeight before further processing */
-		pCD->maxWidth = pCD->maxWidthLimit;
-	    }
+		pCD->maxWidth = dispWidth - (2 * pCD->clientOffset.x);
 	}
 	else
 	{
@@ -1807,11 +1777,12 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 	}
 	if (pCD->maxWidth > MAX_MAX_SIZE(pCD).width)
 	{
-	    pCD->maxWidth = MAX_MAX_SIZE(pCD).width;
+		if(MAX_MAX_SIZE(pCD).width < dispWidth)
+	    	pCD->maxWidth = MAX_MAX_SIZE(pCD).width;
+		else
+			pCD->maxWidth = dispWidth - (2 * pCD->clientOffset.x);
 	}
     }
-
-
 
     /*
      * Process the maximum height.
@@ -1824,9 +1795,8 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 	if (IS_MAXIMIZE_VERTICAL(pCD))
 	{
 	    /* go to min (full screen height, max maximum height) */
-	    pCD->maxHeight = DisplayHeight (DISPLAY, SCREEN_FOR_CLIENT(pCD)) -
-			     (pCD->clientOffset.x +
-			      pCD->clientOffset.y);
+	    pCD->maxHeight = dispHeight -
+			(pCD->clientOffset.x + pCD->clientOffset.y);
 	    /*
 	     * Hack to set max client to the current client width, maxWidth
 	     * will be kept up to date whenever the window is reconfigured
@@ -1847,10 +1817,8 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 	    if (pNormalHints->max_height < 0)
 	    {
 	        /* go to min (full screen height, max maximum height) */
-	        pCD->maxHeight = DisplayHeight (
-				 DISPLAY, SCREEN_FOR_CLIENT(pCD)) -
-				 (pCD->clientOffset.x +
-				  pCD->clientOffset.y);
+	        pCD->maxHeight = dispHeight -
+				(pCD->clientOffset.x + pCD->clientOffset.y);
 	    }
 	    else
 	    {
@@ -1860,19 +1828,9 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 	/* Don't reset maxHeight if it has been set above */
 	else if (!IS_MAXIMIZE_HORIZONTAL(pCD))
 	{
-	    if (firstTime)
-	    {
 		/* go to min (full screen height, max maximum height) */
-		pCD->maxHeight = DisplayHeight (DISPLAY,
-						SCREEN_FOR_CLIENT(pCD)) -
-						  (pCD->clientOffset.x +
-						   pCD->clientOffset.y);
-	    }
-	    else
-	    {
-		/* reset the maxHeight before further processing */
-		pCD->maxHeight = pCD->maxHeightLimit;
-	    }
+		pCD->maxHeight = dispHeight -
+			(pCD->clientOffset.x + pCD->clientOffset.y);
 	}
 	else
 	{
@@ -1896,10 +1854,14 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 	}
 	if (pCD->maxHeight > MAX_MAX_SIZE(pCD).height)
 	{
-	    pCD->maxHeight = MAX_MAX_SIZE(pCD).height;
+		if(MAX_MAX_SIZE(pCD).height < dispHeight)
+	    	pCD->maxHeight = MAX_MAX_SIZE(pCD).height;
+		else
+			pCD->maxHeight = dispHeight -
+				(pCD->clientOffset.x + pCD->clientOffset.y);
 	}
     }
-
+	
     /*
      * Make sure not to exceed the maximumMaximumSize (width and height)
      */
@@ -1913,8 +1875,8 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
     {
 	pCD->maxHeight = MAX_MAX_SIZE(pCD).height;
     }
-
-    /*
+    
+	/*
      * Get the initial aspect ratios, if available.  Only use them if:
      *
      *   minAspect.y > 0
@@ -2055,12 +2017,11 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
     if (IS_MAXIMIZE_VERTICAL(pCD))
     {
 	/* go to min (full screen width, max maximum width) */
-	pCD->maxWidthLimit = DisplayWidth (DISPLAY, SCREEN_FOR_CLIENT(pCD)) -
-			    (2 * pCD->clientOffset.x);
+	pCD->maxWidthLimit = dispWidth - (2 * pCD->clientOffset.x);
     }
     else
     {
-	pCD->maxWidthLimit = pCD->maxWidth;
+	pCD->maxWidthLimit = MAX_MAX_SIZE(pCD).width;
     }
 
     pCD->maxWidth -= ((pCD->maxWidth - pCD->baseWidth) % pCD->widthInc);
@@ -2082,13 +2043,12 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
     if (IS_MAXIMIZE_HORIZONTAL(pCD))
     {
 	/* go to min (full screen height, max maximum height) */
-	pCD->maxHeightLimit = DisplayHeight (DISPLAY, SCREEN_FOR_CLIENT(pCD)) -
-			     (pCD->clientOffset.x +
-			      pCD->clientOffset.y);
+	pCD->maxHeightLimit = dispHeight -
+		(pCD->clientOffset.x + pCD->clientOffset.y);
     }
     else
     {
-	pCD->maxHeightLimit = pCD->maxHeight;
+	pCD->maxHeightLimit = MAX_MAX_SIZE(pCD).height;
     }
 
     pCD->maxHeight -= ((pCD->maxHeight - pCD->baseHeight) % pCD->heightInc);
@@ -2167,17 +2127,17 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
     {
 	if (!pCD->maximumClientSize.width)
 	{
-	    if (pCD->clientWidth > pCD->pSD->maximumMaximumSize.width)
+	    if (pCD->clientWidth > MAX_MAX_SIZE(pCD).width)
 	    {
-		pCD->clientWidth = pCD->pSD->maximumMaximumSize.width;
+		pCD->clientWidth = MAX_MAX_SIZE(pCD).width;
 	    }
 	}
 
 	if (!pCD->maximumClientSize.height)
 	{
-	    if (pCD->clientHeight > pCD->pSD->maximumMaximumSize.height)
+	    if (pCD->clientHeight > MAX_MAX_SIZE(pCD).width)
 	    {
-		pCD->clientHeight = pCD->pSD->maximumMaximumSize.height;
+		pCD->clientHeight = MAX_MAX_SIZE(pCD).width;
 	    }
 	}
 
@@ -2370,12 +2330,7 @@ ProcessWmWindowTitle (ClientData *pCD, Boolean firstTime)
      * If this is a tear-off menu, then make sure title text is not clipped
      */
 
-#ifdef PANELIST
-    if ((pCD->window_status & MWM_TEAROFF_WINDOW) ||
-        (pCD->dtwmBehaviors & DtWM_BEHAVIOR_SUBPANEL))
-#else /* PANELIST */
     if (pCD->window_status & MWM_TEAROFF_WINDOW)
-#endif /* PANELIST */
     {
 	unsigned int boxdim = TitleBarHeight (pCD);
 	unsigned long decor = pCD->decor;
@@ -2391,9 +2346,6 @@ ProcessWmWindowTitle (ClientData *pCD, Boolean firstTime)
 	 * Calculations derived from GetTextBox() and GetFramePartInfo()
 	 */
 	minWidth = XmStringWidth(fontList, pCD->clientTitle) +
-#ifdef PANELIST
-	    ((pCD->dtwmBehaviors & DtWM_BEHAVIOR_SUBPANEL) ? 4 : 0) +
-#endif /* PANELIST */
 			    ((decor & MWM_DECOR_MENU) ? boxdim : 0) +
 			    ((decor & MWM_DECOR_MINIMIZE) ? boxdim : 0) +
 			    ((decor & MWM_DECOR_MAXIMIZE) ? boxdim : 0) +
@@ -2404,108 +2356,9 @@ ProcessWmWindowTitle (ClientData *pCD, Boolean firstTime)
 	{
 	    pCD->minWidth = minWidth;
 	}
-#ifdef PANELIST
-	if ((pCD->dtwmBehaviors & DtWM_BEHAVIOR_SUBPANEL) &&
-            (pCD->clientWidth < pCD->minWidth))
-	{
-	    FixSubpanelEmbeddedClientGeometry (pCD);
-	}
-#endif /* PANELIST */
     }
 
 } /* END OF FUNCTION ProcessWmWindowTitle */
-
-#ifdef PANELIST
-
-/*************************************<->*************************************
- *
- *  FixSubpanelEmbeddedClientGeometry ( pCD )
- *
- *
- *  Description:
- *  -----------
- *  This function adjusts the embedded clients in a subpanel if the 
- *  geometry of the subpanel is adjusted.
- *
- *
- *  Inputs:
- *  ------
- *  pCD		- pointer to client data structure
- *
- * 
- *  Outputs:
- *  -------
- *
- *  Comment:
- *  -------
- *  Only handles change in width right now.
- *
- *************************************<->***********************************/
-
-static void 
-FixSubpanelEmbeddedClientGeometry (ClientData *pCD)
-{
-    WmScreenData *pSD = PSD_FOR_CLIENT(pCD);
-    Widget wSubpanel;
-    Arg    al[5];
-    int    ac;
-
-    /*
-     * Get the widget for the subpanel
-     */
-    wSubpanel = WmPanelistWindowToSubpanel (DISPLAY1, pCD->client);
-
-    if (pSD->wPanelist && wSubpanel)
-    {
-	WmFpEmbeddedClientData  *pECD; 
-	int i;
-
-	/*
-	 * set new shell width to minimum width
-	 */
-	if (pCD->clientWidth < pCD->minWidth)
-	{
-	    ac = 0;
-	    XtSetArg (al[ac], XmNwidth, pCD->minWidth);	ac++;
-	    XtSetValues (wSubpanel, al, ac);
-	}
-
-	/*
-	 * Cause update of client geometries.
-	 */
-/*	WmPanelistSetClientGeometry (pSD->wPanelist);   */
-
-	/*
-	 * Update all affected reparented controls.
-	 */
-
-	for (i=0; i<pSD->numEmbeddedClients; i++)
-	{
-	    pECD =  &(((WmFpEmbeddedClientData *) pSD->pECD)[i]);
-
-	    if (pECD->pCD)
-	    {
-		ClientData *pCD2 = pECD->pCD;
-
-		if ((pCD2->clientWidth !=  pECD->width) ||
-		    (pCD2->clientHeight != pECD->height) ||
-		    (pCD2->clientX != pECD->x) ||
-		    (pCD2->clientY != pECD->y))
-		{
-		    pCD2->clientX = pECD->x;
-		    pCD2->clientY = pECD->y;
-		    pCD2->clientWidth = pECD->width;
-		    pCD2->clientHeight = pECD->height;
-
-		    XMoveResizeWindow (DISPLAY1, pCD2->client, 
-			pECD->x, pECD->y, pECD->width, pECD->height);
-		}
-	    }
-	}
-    }
-} /* END OF FUNCTION FixEmbeddedClientGeometry */
-
-#endif /* PANELIST */
 
 
 /*************************************<->*************************************
@@ -3054,24 +2907,6 @@ InitClientPlacement (ClientData *pCD, long manageFlags)
     /*
      * Do PositionOnScreen processing:
      */
-
-
-#ifdef WSM
-#ifdef PANELIST
-    if (pCD->dtwmBehaviors & DtWM_BEHAVIOR_SUBPANEL)
-    {
-	if (pCD->dtwmBehaviors & DtWM_BEHAVIOR_SUB_RESTORED)
-	{
-	    SetFrameInfo (pCD);   
-	}
-	else
-	{
-	    AdjustSlideOutGeometry (pCD);
-	}
-    }
-    else
-#endif /* PANELIST */
-#endif /* WSM */
     if (((wmGD.positionOnScreen) && !interactivelyPlaced) &&
 	(!(pCD->clientFlags & (SM_X | SM_Y))))
     {
@@ -3127,97 +2962,6 @@ InitClientPlacement (ClientData *pCD, long manageFlags)
 
 } /* END OF FUNCTION InitClientPlacement */
 
-#ifdef PANELIST
-
-/******************************<->*************************************
- *
- * void AdjustSlideOutGeometry (pCD)
- *
- *  Description:
- *  -----------
- *  Adjusts the geometry of the slide out panel
- *
- *  Inputs:
- *  ------
- *  pCD = pointer to a client data of slide out
- * 
- *  Outputs:
- *  -------
- *
- *  Comments:
- *  --------
- *  Subpanel is to appear above or below the front panel, centered
- *  on the vertical axis of the spawning control.
- ******************************<->***********************************/
-static void 
-AdjustSlideOutGeometry ( ClientData *pCD)
-{
-    ClientData  *pCD_FP = NULL;
-    WmPanelistObject  pPanelist;
-
-    pCD->slideDirection = SLIDE_NORTH;	/* assume up for now */
-    pPanelist = (WmPanelistObject) pCD->pSD->wPanelist;
-    (void) XFindContext (DISPLAY, XtWindow(O_Shell(pPanelist)),
-		  wmGD.windowContextType, (caddr_t *)&pCD_FP);
-
-    if (pCD_FP)
-    {
-	/*
-	* Adjust slide up position if coming from front
-	* panel. 
-	* (Assumes no nesting of panels !!!)
-	* (Assumes horizontal oriented front panel!!!)
-	*/
-	if (pCD->transientLeader == pCD_FP)
-	{
-	    /* 
-	     * Subpanel should be sort-of centered already,
-	     * adjust by width of window manager frame.
-	     */
-	    pCD->clientX -= pCD->frameInfo.lowerBorderWidth;
-
-	    /* 
-	     * Adjust to slide up above front panel.
-	     */
-	    pCD->clientY = pCD_FP->frameInfo.y - 
-			 pCD->frameInfo.lowerBorderWidth -
-			 pCD->clientHeight + 3;
-
-/*  RICK -- added the (+ 3)  */
-
-
-	    if (pCD->clientY < 0)
-	    {
-		/*
-		 * Adjust to slide down below front panel.
-		 */
-	        pCD->clientY = pCD_FP->frameInfo.y +
-			     pCD_FP->frameInfo.height +
-			     pCD->frameInfo.titleBarHeight +
-			     pCD->frameInfo.upperBorderWidth - 3;
-	        pCD->slideDirection = SLIDE_SOUTH;
-/*  RICK -- added the (- 3)  */
-	    }
-
-	    if ((pCD->clientY + pCD->clientHeight +
-		   pCD->frameInfo.lowerBorderWidth) > 
-		XDisplayHeight (DISPLAY, pCD->pSD->screen))
-	    {
-	       /*
-		* If the bottom of the slide-up is off the bottom
-		* of the screen, then don't slide, just pop it up.
-		*/
-	       pCD->slideDirection = SLIDE_NOT;
-	    }
-
-	    PlaceFrameOnScreen (pCD, &pCD->clientX, &pCD->clientY,
-		    pCD->clientWidth, pCD->clientHeight);
-        }
-	SetFrameInfo (pCD);
-    }
-}
-#endif  /* PANELIST */
-
 
 /*************************************<->*************************************
  *
@@ -3261,16 +3005,29 @@ PlaceFrameOnScreen (ClientData *pCD, int *pX, int *pY, int w, int h)
     int frameHeight;
     int screenHeight;
     int screenWidth;
-
+	int xOrg;
+	int yOrg;
+	XineramaScreenInfo xsi;
 
     clientOffsetX = pCD->clientOffset.x;
     clientOffsetY = pCD->clientOffset.y;
-    frameX = *pX - clientOffsetX;
-    frameY = *pY - clientOffsetY;
     frameWidth = w + (2 * clientOffsetX);
     frameHeight = h + clientOffsetX + clientOffsetY;
-    screenWidth = DisplayWidth (DISPLAY, SCREEN_FOR_CLIENT(pCD));
-    screenHeight = DisplayHeight (DISPLAY, SCREEN_FOR_CLIENT(pCD));
+
+	if(GetXineramaScreenFromLocation(pCD->clientX,pCD->clientY,&xsi)){
+		screenWidth = xsi.width;
+		screenHeight = xsi.height;
+		xOrg = xsi.x_org;
+		yOrg = xsi.y_org;
+	}else{
+	    screenWidth = DisplayWidth (DISPLAY, SCREEN_FOR_CLIENT(pCD));
+    	screenHeight = DisplayHeight (DISPLAY, SCREEN_FOR_CLIENT(pCD));
+		xOrg = 0;
+		yOrg = 0;
+	}
+
+    frameX = *pX - (clientOffsetX + xOrg);
+    frameY = *pY - (clientOffsetY + yOrg);
 
     if ((frameX + frameWidth) > screenWidth)
     {
@@ -3289,8 +3046,8 @@ PlaceFrameOnScreen (ClientData *pCD, int *pX, int *pY, int w, int h)
         frameY = 0;
     }
 
-    *pX = frameX + clientOffsetX;
-    *pY = frameY + clientOffsetY;
+    *pX = frameX + clientOffsetX + xOrg;
+    *pY = frameY + clientOffsetY + yOrg;
 
 } /* END OF FUNCTION PlaceFrameOnScreen */
 
@@ -3329,10 +3086,15 @@ PlaceIconOnScreen (ClientData *pCD, int *pX, int *pY)
     int screenHeight;
     int iconX;
     int iconY;
-
-
-    screenWidth = DisplayWidth (DISPLAY, SCREEN_FOR_CLIENT(pCD));
-    screenHeight = DisplayHeight (DISPLAY, SCREEN_FOR_CLIENT(pCD));
+	XineramaScreenInfo xsi;
+	
+	if(GetXineramaScreenFromLocation(pCD->clientX,pCD->clientY,&xsi)){
+		screenWidth = xsi.width;
+		screenHeight = xsi.height;
+	}else{
+		screenWidth = DisplayWidth (DISPLAY, SCREEN_FOR_CLIENT(pCD));
+		screenHeight = DisplayHeight (DISPLAY, SCREEN_FOR_CLIENT(pCD));
+	}
     iconX = *pX;
     iconY = *pY;
 
@@ -3681,6 +3443,9 @@ FindClientPlacement (ClientData *pCD)
     int borderWidth = 0;
     Boolean offScreenX;
     Boolean offScreenY;
+	XineramaScreenInfo xsi;
+	int scrOriginX = 0;
+	int scrOriginY = 0;
 
 
     if (!clientPlacementInitialized)
@@ -3704,8 +3469,16 @@ FindClientPlacement (ClientData *pCD)
 
     frameWidth = pCD->clientWidth + (2 * pCD->clientOffset.x);
     frameHeight = pCD->clientHeight + pCD->clientOffset.y + pCD->clientOffset.x;
-    screenWidth = DisplayWidth (DISPLAY, SCREEN_FOR_CLIENT(pCD));
-    screenHeight = DisplayHeight (DISPLAY, SCREEN_FOR_CLIENT(pCD));
+
+	if(GetActiveXineramaScreen(&xsi)){
+		screenWidth = xsi.width;
+		screenHeight = xsi.height;
+		scrOriginX = xsi.x_org;
+		scrOriginY = xsi.y_org;
+	}else{
+		screenWidth = DisplayWidth (DISPLAY, SCREEN_FOR_CLIENT(pCD));
+		screenHeight = DisplayHeight (DISPLAY, SCREEN_FOR_CLIENT(pCD));
+	}
 
     while (!placed)
     {
@@ -3796,8 +3569,8 @@ FindClientPlacement (ClientData *pCD)
      * The window has been placed, now update the placement information.
      */
 
-    pCD->clientX = clientPlacementX;
-    pCD->clientY = clientPlacementY;
+    pCD->clientX = clientPlacementX + scrOriginX;
+    pCD->clientY = clientPlacementY + scrOriginY;
     clientPlacementX += clientPlacementOffset;
 
     if (clientPlacementX >= screenWidth)
@@ -3993,18 +3766,6 @@ ProcessMwmHints (ClientData *pCD)
 	{
 	    pCD->clientFunctions = WM_FUNC_ALL;
 	}
-#ifdef PANELIST
-        if (pCD->dtwmBehaviors & DtWM_BEHAVIOR_SUBPANEL)
-	{
-	    pCD->clientFunctions &= WM_FUNC_SUBPANEL_DEFAULT;   
-	    pCD->dtwmFunctions &= ~DtWM_FUNCTION_OCCUPY_WS;
-	}
-        else if (pCD->dtwmBehaviors & DtWM_BEHAVIOR_PANEL)
-	{
-	    pCD->clientFunctions &= WM_FUNC_PANEL_DEFAULT;   
-	    pCD->dtwmFunctions &= ~DtWM_FUNCTION_OCCUPY_WS;
-	}
-#endif /* PANELIST */
     }
 
     if (pCD->clientDecoration & WM_DECOR_DEFAULT)
@@ -4017,16 +3778,6 @@ ProcessMwmHints (ClientData *pCD)
 	{
 	    pCD->clientDecoration = WM_DECOR_ALL;
 	}
-#ifdef PANELIST
-        if (pCD->dtwmBehaviors & DtWM_BEHAVIOR_SUBPANEL)
-	{
-	    pCD->clientDecoration = pCD->pSD->subpanelDecoration;
-	}
-        else if (pCD->dtwmBehaviors & DtWM_BEHAVIOR_PANEL)
-	{
-	    pCD->clientDecoration &= WM_DECOR_PANEL_DEFAULT;   
-	}
-#endif /* PANELIST */
     }
 
 

@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2
 */ 
-/*   $XConsortium: WmKeyFocus.h /main/4 1995/11/01 11:43:42 rswiston $ */
-/*
- * (c) Copyright 1987, 1988, 1989, 1990 HEWLETT-PACKARD COMPANY */
 
 
 extern void AutoResetKeyFocus (ClientData *pcdNoFocus, Time focusTime);

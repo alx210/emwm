@@ -23,9 +23,6 @@
 /* 
  * Motif Release 1.2
 */
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
  
 #ifdef REV_INFO
@@ -33,8 +30,6 @@
 static char rcsid[] = "$XConsortium: WmCPlace.c /main/5 1996/08/09 15:18:04 rswiston $"
 #endif
 #endif
-/*
- * (c) Copyright 1987, 1988, 1989, 1990 HEWLETT-PACKARD COMPANY */
 
 /*
  * Included Files:
@@ -308,7 +303,11 @@ void HandlePlacementKeyEvent (ClientData *pcd, XKeyEvent *pev)
     }
 
     /* convert event data to useful key data */
+#ifdef FIX_1611
+    keysym = WmKeycodeToKeysym(DISPLAY, pev->keycode);
+#else 
     keysym = XKeycodeToKeysym (DISPLAY, pev->keycode, 0);
+#endif    
     control = (pev->state & ControlMask) != 0;
     big_inc = DisplayWidth(DISPLAY, ACTIVE_PSD->screen) / 20;
 

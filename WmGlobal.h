@@ -1,10 +1,6 @@
 #ifndef _WmGlobal_h
 #define _WmGlobal_h
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 
 /* 
  * Motif
@@ -31,13 +27,6 @@
 /* 
  * Motif Release 1.2.4
 */ 
-/*   $XConsortium: WmGlobal.h /main/16 1996/10/30 11:55:23 drk $ */
-/*
- * (c) Copyright 1987,1988,1989,1990,1992,1993,1994 HEWLETT-PACKARD COMPANY 
- * (c) Copyright 1993, 1994 International Business Machines Corp.
- * (c) Copyright 1993, 1994 Sun Microsystems, Inc.
- * (c) Copyright 1993, 1994 Novell, Inc.
- */
 
 /* ANSI C definitions,  This should be the first thing in WmGlobal.h */
 #ifdef __STDC__
@@ -68,9 +57,6 @@
 #include <Dt/Wsm.h>
 #include <Dt/WsmP.h>
 #include "WmParse.h"
-#ifdef PANELIST
-#include <Dt/Action.h>
-#endif /* PANELIST */
 #endif /* WSM */
 
 #if defined(sun) && defined(ALLPLANES)
@@ -349,20 +335,10 @@ extern Pixel		FPselectcolor;
 #define WM_DECOR_RESIZE		(WM_DECOR_RESIZEH)
 #define WM_DECOR_ALL		(WM_DECOR_TITLEBAR | WM_DECOR_RESIZEH)
 
-#ifdef PANELIST
-#define WM_DECOR_PANEL_DEFAULT	WM_DECOR_BORDER
-#endif /* PANELIST */
-
 /* icon box definitions */
 #define ICON_BOX_FUNCTIONS	(MWM_FUNC_RESIZE | MWM_FUNC_MOVE |\
 				 MWM_FUNC_MINIMIZE | MWM_FUNC_MAXIMIZE)
 
-#ifdef PANELIST
-/* accessory panel definitions */
-#define WM_FUNC_PANEL_DEFAULT	(MWM_FUNC_MOVE | MWM_FUNC_MINIMIZE)
-#define WM_FUNC_SUBPANEL_DEFAULT (MWM_FUNC_MOVE | MWM_FUNC_MINIMIZE|\
-				MWM_FUNC_CLOSE)
-#endif /* PANELIST */
 #ifdef WSM
 /* workspace controller definitions */
 #define CONTROL_BOX_FUNCTIONS	(MWM_FUNC_MOVE)
@@ -730,30 +706,6 @@ typedef struct _WsPresenceData
 #define NUM_WSP_WIDGETS 	11
 
 typedef struct _WsPresenceData *PtrWsPresenceData;
-
-
-#ifdef PANELIST
-/*
- * Specific data for top level help dialog 
- */
-
-typedef struct _WsDtHelpData
-{
-    XmString		title;			/* resource */
-    Widget		shell;
-    Widget		dialog;
-    Widget		errorDialog;
-    Position            xPos;
-    Position            yPos;
-    Boolean             restored;
-    Boolean		onScreen;
-    Boolean             userDismissed;
-    Boolean		bMapped;
-    struct _ClientData 	*pCDforClient;
-} WsDtHelpData;
-
-typedef struct _WsDtHelpData *PtrWsDtHelpData;
-#endif /*  PANELIST */
 
 
 /*************************************<->*************************************
@@ -1286,9 +1238,6 @@ typedef struct _WmScreenData
     Widget	utmShell;		/* DrawingArea used for UTM */
 #endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
     Widget      confirmboxW[4];
-#ifdef PANELIST
-    Widget	wPanelist;		/* panel object */
-#endif /* PANELIST */
 #ifdef WSM
     WsPresenceData	presence;	/* workspace presence dialog*/
     Widget	switcherW;		/* workspace switcher */
@@ -1302,13 +1251,7 @@ typedef struct _WmScreenData
 #ifdef WSM
     int displayResolutionType;
 #endif /* WSM */
-#ifdef PANELIST
-    struct _WmFpEmbeddedClientData  *pECD; /* clients living in front panel */
-    int		numEmbeddedClients;
-    struct _WmFpPushRecallClientData  *pPRCD; /* push_recall clients */
-    int		numPushRecallClients;
-#endif /* PANELIST */
-
+	int		primaryXineramaScreen;
     /* wm state info: */
 
     unsigned long clientCounter;
@@ -1412,11 +1355,6 @@ typedef struct _WmScreenData
     int		transientDecoration;		/* resource */
     int		transientFunctions;		/* resource */
     Boolean	useIconBox;			/* resource */
-#ifdef PANELIST
-    int		subpanelDecoration;		/* resource */
-    String      subpanelResources;              /*to restore subpanels */
-    Boolean	iconBoxControl;			/* FP control for icon box */
-#endif /* PANELIST */
     Boolean     moveOpaque;                     /* move window not outlines */
 
 #ifdef WSM
@@ -1569,45 +1507,6 @@ typedef struct _WmBackdropData *PtrBackdropData;
 
 #define DEFAULT_BACKDROP_DIR CDE_INSTALLATION_TOP "/backdrops"
 
-#ifdef PANELIST
-/*
- * direction for slide-out panels
- */
-typedef enum _SlideDirection
-{
-    SLIDE_NOT, SLIDE_NORTH, SLIDE_EAST, SLIDE_SOUTH, SLIDE_WEST
-} SlideDirection;
-
-/* 
- * Slide out record for subpanels
- */
-typedef struct _SlideOutRec 
-{
-    struct _ClientData	*pCD;
-    Window		coverWin;
-    Dimension		incWidth;
-    Dimension		incHeight;
-    Dimension		currWidth;
-    Dimension		currHeight;
-    Position		currX;
-    Position		currY;
-    unsigned int	interval;
-    SlideDirection	direction;
-    Boolean		mapping;
-    Widget		wSubpanel;
-} SlideOutRec;
-
-/*
- * Data structure for arguments to f.action
- */
-typedef struct _WmActionArg {
-    String	  actionName;
-    int		  numArgs;
-    DtActionArg * aap;
-    String	  szExecParms;
-} WmActionArg;
-
-#endif /* PANELIST */
 #endif /* WSM */
  
 
@@ -1724,10 +1623,6 @@ typedef struct _ClientData
     long	focusPriority;
     unsigned long clientID;
     int		wmUnmapCount;
-#ifdef PANELIST
-    struct _WmFpEmbeddedClientData  *pECD; /* embedded client data */
-    struct _WmFpPushRecallClientData  *pPRCD; /* embedded client data */
-#endif /* PANELIST */
 #ifdef WSM
     Atom *	paInitialProperties;	/* initial window properties */
     int		numInitialProperties;	/* number of initial properties */
@@ -1909,10 +1804,6 @@ typedef struct _ClientData
     long	dtwmFunctions;		/* _DT_WM_HINTS */
     long	dtwmBehaviors;		/* _DT_WM_HINTS */	
     Window	attachWindow;		/* _DT_WM_HINTS */
-#ifdef PANELIST
-    SlideDirection	slideDirection;	/* slide-up direction */
-    SlideOutRec	*pSOR;			/* slide-out record */
-#endif /* PANELIST */
 #endif /* WSM */
 #ifndef NO_SHAPE
     short       wShaped;                /* this window has a bounding shape */
@@ -1969,10 +1860,6 @@ typedef struct _ClientData *PtrClientData;
 #define ICON_BOX                        (1L << 11)  /* one of our icon boxes */
 #define CONFIRM_BOX                     (1L << 12)  /* a confirmation box */
 
-#ifdef PANELIST
-#define FRONT_PANEL_BOX                 (1L << 14)  /* a DT 3.0 front panel */
-#define GOT_DT_WM_HINTS		(1L << 15)
-#endif /* PANELIST */
 #ifdef WSM
 #define SM_LAUNCHED                     (1L << 17) /* launched by dtsession */
 #endif /* WSM */
@@ -2184,6 +2071,7 @@ typedef struct _WmGlobalData
     Atom	xa_MWM_MENU;
     Atom	xa_MWM_INFO;
     Atom	xa_MWM_OFFSET;
+    Atom	xa_MWM_CLIENT_LIST;
 
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
     Atom       *xa_WM;
@@ -2306,21 +2194,10 @@ typedef struct _WmGlobalData
     Boolean	systemButtonClick;		/* resource */
     Boolean	systemButtonClick2;		/* resource */
     Boolean	useLargeCursors;
-#if  defined(PANELIST)
-    Boolean	useFrontPanel;			/* resource */
-#endif /* PANELIST */
 #ifdef WSM
     String      helpDirectory;		        /* resource */
     Window	requestContextWin;		/* for WmRequest f.fcns */
 #endif /* WSM */
-#ifdef MINIMAL_DT
-    Boolean     dtLite;                        /* resource */
-    Boolean     blinkOnExec;                    /* resource */
-#endif /* MINIMAL_DT */
-#ifdef PANELIST
-    WmScreenData *dtSD; /* screen for front panel */
-    int         iSlideUpsInProgress;
-#endif /*PANELIST  */
     Boolean	waitForClicks;			/* resource */
     FrameStyle	frameStyle;			/* resource */
 #ifdef WSM
@@ -2373,7 +2250,10 @@ typedef struct _WmGlobalData
 #define ACTIVE_ROOT	(wmGD.pActiveSD->rootWindow)
 #define ACTIVE_ICON_TEXT_WIN (wmGD.pActiveSD->activeIconTextWin)
 
-#define NOLOCKMOD(state)  ((state) & ~wmGD.lockingModMask)
+/* According to the xkb protocol bits 13 and 14 are interpreted as a  */
+/* two-bit unsigned numeric value and report the state keyboard group */
+#define NOLOCKMOD(state)  ((state) & ~wmGD.lockingModMask & ~(3 << 13))
+
 #ifdef WSM
 /* absent map behavior policy values (absentMapBehavior): */
 #define AMAP_BEHAVIOR_ADD       0
