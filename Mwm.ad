@@ -1,0 +1,73 @@
+!
+! Motif
+!
+! Copyright (c) 1987-2012, The Open Group. All rights reserved.
+!
+! These libraries and programs are free software; you can
+! redistribute them and/or modify them under the terms of the GNU
+! Lesser General Public License as published by the Free Software
+! Foundation; either version 2 of the License, or (at your option)
+! any later version.
+!
+! These libraries and programs are distributed in the hope that
+! they will be useful, but WITHOUT ANY WARRANTY; without even the
+! implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+! PURPOSE. See the GNU Lesser General Public License for more
+! details.
+!
+! You should have received a copy of the GNU Lesser General Public
+! License along with these librararies and programs; if not, write
+! to the Free Software Foundation, Inc., 51 Franklin Street, Fifth
+! Floor, Boston, MA 02110-1301 USA
+!
+!
+! HISTORY
+!
+!   $XConsortium: Mwm.ad /main/9 1995/07/14 09:21:50 drk $
+!
+!  app-defaults RESOURCE SPECIFICATIONS FOR Mwm
+!		(mwm has precedence over Mwm)
+!
+
+!!
+!! NOTE: In Mwm 1.1.1 and newer, the resources 'buttonBindings' and
+!!	 'keyBindings' should not be defined in the Mwm app-defaults file.
+!!	 The defaults are set internally in Mwm to 'DefaultButtonBindings' and
+!!	 'DefaultKeyBindings' respectively.
+!!
+!!	 Users and system admin need only define the default button and key
+!!	 bindings in the appropriate mwm config file (ie. .mwmrc or
+!!	 system.mwmrc).
+!!
+!!	 The 'windowMenu' resource defaults to 'DefaultWindowMenu', and
+!!	 in Mwm 1.2 there is a default root menu that is defined as
+!!	 'DefaultRootMenu'.
+!!
+
+!Mwm*moveThreshold:		3
+
+!
+! component appearance resources 
+!
+
+!!
+!! NOTE: In Mwm 1.2, the resources 'resizeBorderWidth' and 'frameBorderWidth'
+!!	 are calculated dynamically depending on the size and resolution of
+!!	 the screen.  In general, you should not have to set these resources
+!!	 in the Mwm app-defaults file.
+!!
+
+! FONT stuff
+Mwm*fontList:			variable
+
+! Use smaller fixed font for icons
+Mwm*icon*fontList:		fixed
+
+!! Client decorations for common clients - SAMPLES
+!Mwm*XClock*clientDecoration:		border
+!Mwm*XLoad*clientDecoration:		border
+!Mwm*XBiff*clientDecoration:		border
+
+!
+!  END OF RESOURCE SPECIFICATIONS
+!

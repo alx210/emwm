@@ -1,0 +1,39 @@
+/* $XConsortium: README /main/2 1996/07/15 13:55:30 drk $ */
+Motif 1.1 Window Manager Status (11 May 90)
+
+*** Mwm 1.1 BETA + +   Notes ***
+
+This snapshot of mwm is composed of files that have changed since betaPlus.
+
+
+The following are new since the last tape:
+
+    * Mwm now checks that an icon is visible before posting
+	a menu for an icon in the icon box.  This needs more
+	tuning.
+
+    * Opaque moves can now be canceled safely
+
+    * Mwm now restores client X borders on quit and restart.
+	Unfortunately this has introduced a bug on restart
+	with regard to the window position when 
+	positionIsFrame: True.
+	This will be fixed soon.
+
+    * Mwm now removes a terminal separator on a menu if
+	the last menu button is disabled via clientFunctions.
+
+    * Active label flashing bug in pointer mode is fixed
+
+    * Misc bug fixes
+
+
+=================================
+File list for mwm beta + + 
+
+WmCEvent.c	WmCPlace.c	WmFeedback.c
+WmFunction.c	WmIDecor.c	WmIconBox.c
+WmInitWs.c	WmManage.c	WmMenu.c
+WmWinConf.c	WmWinInfo.c	WmWinState.c
+
+WmIconBox.h	WmResource.h
