@@ -61,6 +61,7 @@ static char rcsid[] = "$XConsortium: WmCEvent.c /main/10 1996/08/09 15:05:39 rsw
 #ifdef WSM
 #include "WmWrkspace.h"
 #endif /* WSM */
+#include "WmEwmh.h"
 
 
 /*
@@ -668,6 +669,7 @@ Boolean HandleEventsOnClientWindow (ClientData *pCD, XEvent *pEvent)
 	     */
 		
 	    HandleCPropertyNotify (pCD, (XPropertyEvent *)pEvent);
+		HandleEwmhCPropertyNotify(pCD, (XPropertyEvent *)pEvent);
 	    doXtDispatchEvent = False;
 	    break;
 	}
@@ -679,6 +681,7 @@ Boolean HandleEventsOnClientWindow (ClientData *pCD, XEvent *pEvent)
 	     */
 
 	    HandleClientMessage (pCD, (XClientMessageEvent *)pEvent);
+		HandleEwmhClientMessage(pCD, (XClientMessageEvent *)pEvent);
 	    break;
 	}
 

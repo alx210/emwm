@@ -1,0 +1,6 @@
+EMWM is a fork of the MWM that shipped with Motif 2.2.1. The idea behind this is
+to add support for recent X features and standards, while keeping it simple.
+
+It should build and work on any recent Linux and FreeBSD at least. Install X11
+and Motif development packages, tweak the Makefile if necessary, PREFIX and
+MWMRCDIR variables in particular. Run 'make' and 'make install' as root.

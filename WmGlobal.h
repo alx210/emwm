@@ -215,9 +215,6 @@ extern Pixel		FPselectcolor;
 #define RESTART_ACTION		2
 #define QUIT_MWM_ACTION		3
 
-/* extract text height in pixels from a (XFontStruct *) */
-#define TEXT_HEIGHT(pfs) (((pfs)->ascent)+((pfs)->descent))
-
 /* icon frame shadow widths */
 #ifdef WSM
 #define ICON_EXTERNAL_SHADOW_WIDTH	(wmGD.iconExternalShadowWidth)
@@ -989,8 +986,8 @@ typedef struct _RList
 
 typedef struct _AppearanceData
 {
-    XmFontList	fontList;			/* resource */
-    XFontStruct	*font;
+	XmRenderTable renderTable;	/* resource */
+	unsigned int fontHeight;
 #ifndef NO_MULTIBYTE
     unsigned int	titleHeight;		/* title bar's height */
 #endif
@@ -1302,8 +1299,8 @@ typedef struct _WmScreenData
     unsigned long fbStyle;
     unsigned int fbWinWidth;
     unsigned int fbWinHeight;
-    char fbLocation[20];
-    char fbSize[20];
+    XmString fbLocation;
+    XmString fbSize;
     int fbLocX;
     int fbLocY;
     int fbSizeX;
@@ -1740,13 +1737,16 @@ typedef struct _ClientData
     int		clientHeight;			/* normal window height */
     XPoint	clientOffset;			/* frame to client window */
     XmString	clientTitle;			/* WM_NAME field */
+    XmString	ewmhClientTitle;		/* _NET_WM_NAME */
     Window	clientFrameWin;			/* top-level, frame window */
     Window	clientStretchWin[STRETCH_COUNT];/* for resizing border */
     Window	clientTitleWin;			/* for title bar */
     Window	clientBaseWin;			/* for matte & reparenting */
     int		xBorderWidth;			/* original X border width */
     FrameInfo	frameInfo;			/* frame geometry data */
+    Boolean	fullScreen;
 
+	
     /* client window frame graphic data: */
 
     RList	*pclientTopShadows;		/* top shadow areas */
@@ -1776,6 +1776,7 @@ typedef struct _ClientData
 
     long	iconFlags;
     XmString	iconTitle;			/* WM_ICON_NAME field */
+    XmString	ewmhIconTitle;		/* _NET_WM_ICON_NAME */
 #ifndef WSM
     int		iconX;				/* WM_HINTS field */
     int		iconY;				/* WM_HINTS field */
@@ -1785,6 +1786,7 @@ typedef struct _ClientData
     Pixmap	iconPixmap;			/* WM_HINTS field */
     Pixmap	iconMask;			/* WM_HINTS field */
     Window	iconWindow;			/* WM_HINTS field */
+    Pixmap	ewmhIconPixmap;		/* _NET_WM_ICON */
 
     RList	*piconTopShadows;		/* these change to 	*/
     						/* to reflect the 	*/
@@ -2387,13 +2389,20 @@ extern Const char	_75_foreground[];
 extern Const char	_50_foreground[];
 extern Const char	_25_foreground[];
 
-
-extern char *_DtGetMessage(char *filename, int set, int n, char *s);
+/*
+ * Undocumented Xme stuff from XmP.h
+ */
+extern void XmRenderTableGetDefaultFontExtents(
+                        XmRenderTable rendertable,
+                        int *height,
+                        int *ascent,
+                        int *descent) ;
 
 /*
  * macro to get message catalog strings
  */
 #ifndef NO_MESSAGE_CATALOG
+extern char *_DtGetMessage(char *filename, int set, int n, char *s);
 # ifdef __ultrix
 #  define _CLIENT_CAT_NAME "dtwm.cat"
 # else  /* __ultrix */

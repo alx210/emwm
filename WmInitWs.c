@@ -120,6 +120,7 @@ typedef struct
 #include "WmXSMP.h"
 #include "Xm/VirtKeysI.h"
 #include "WmXinerama.h"
+#include "WmEwmh.h"
 
 /*
  * Function Declarations:
@@ -529,11 +530,6 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
     InitWmDisplayEnv ();
 #endif
     ShowWaitState (TRUE);
-	
-	/*
-	 * Check for Xinerama support and initialize session data
-	 */
-	SetupXinerama();
 	
     /*
      * Initialize support for BMenu virtual mouse binding
@@ -1095,10 +1091,15 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
     sAttributes.override_redirect = True;
     XChangeWindowAttributes (DISPLAY, XtWindow (wmGD.topLevelW),
 		CWOverrideRedirect, &sAttributes);
-
+	
+	/* Check for Xinerama support and initialize session data */
+	SetupXinerama();
 
     /* setup window manager inter-client communications conventions handling */
     SetupWmICCC ();
+
+    /* Initialize EWMH support */
+    SetupWmEwmh();
 
     /*
      * Use the WM_SAVE_YOURSELF protocol
@@ -1274,8 +1275,8 @@ InitWmScreen (WmScreenData *pSD, int sNum)
     pSD->fbStyle = FB_OFF;
     pSD->fbWinWidth = 0;
     pSD->fbWinHeight = 0;
-    pSD->fbLocation[0] = '\0';
-    pSD->fbSize[0] = '\0';
+    pSD->fbLocation = NULL;
+    pSD->fbSize = NULL;
     pSD->fbLocX = 0;
     pSD->fbLocY = 0;
     pSD->fbSizeX = 0;
@@ -2344,33 +2345,23 @@ void InitNlsStrings (void)
 void
 InitWmDisplayEnv (void)
 {
-    char *pDisplayName;
-    char buffer[256];
-    char displayName[256];
+    char *displayName;
+    char *buffer;
+    size_t buf_size;
 
-    pDisplayName = DisplayString (DISPLAY);
-    
-    /*
-     * Construct displayString for this string.  
-     */
-    strcpy(displayName, pDisplayName);
-    sprintf(buffer, "DISPLAY=%s",displayName);
-    
-    /*		
-     * Allocate space for the display string
-     */
-    if ((wmGD.displayString =
-	 (String)XtMalloc ((unsigned int) (strlen(buffer) + 1))) == NULL)
-    {
-	wmGD.displayString = NULL;
+    displayName = DisplayString (DISPLAY);
+ 
+	buf_size = strlen(displayName)+10;
+    buffer = (String)XtMalloc(buf_size);
+    if(!buffer){
+		wmGD.displayString = NULL;
         Warning (((char *)GETMESSAGE(40, 9, 
 				     "Insufficient memory for displayString")));
-    }
-    else
-    {
-	strcpy(wmGD.displayString, buffer);
+	} else {
+		snprintf(buffer, buf_size,"DISPLAY=%s",displayName);
+		wmGD.displayString = buffer;
 #ifdef WSM
-	putenv(wmGD.displayString);
+		putenv(wmGD.displayString);
 #endif /* WSM */
     }
     

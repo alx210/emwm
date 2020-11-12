@@ -1112,11 +1112,11 @@ void WmDrawString (Display *dpy, Drawable d, GC gc, int x, int y, char *string, 
  *			
  *************************************<->***********************************/
 #ifdef WSM
-void WmDrawXmString (Display *dpy, Window w, XmFontList xmfontlist, 
+void WmDrawXmString (Display *dpy, Window w, XmRenderTable xmrendertable, 
 		     XmString xmstring, GC gc, Position x, Position y, 
 		     Dimension width,  XRectangle *pbox, Boolean bCenter)
 #else /* WSM */
-void WmDrawXmString (Display *dpy, Window w, XmFontList xmfontlist, 
+void WmDrawXmString (Display *dpy, Window w, XmRenderTable xmrendertable, 
 		     XmString xmstring, GC gc, Position x, Position y, 
 		     Dimension width,  XRectangle *pbox)
 #endif /* WSM */
@@ -1127,9 +1127,8 @@ void WmDrawXmString (Display *dpy, Window w, XmFontList xmfontlist,
 #else /* WSM */
     int alignment = XmALIGNMENT_BEGINNING;
 #endif /* WSM */
-    
 
-    textWidth = XmStringWidth(xmfontlist, xmstring);
+    textWidth = XmStringWidth(xmrendertable, xmstring);
 
 #ifdef WSM
     alignment = bCenter ? XmALIGNMENT_CENTER : XmALIGNMENT_BEGINNING;
@@ -1150,15 +1149,16 @@ void WmDrawXmString (Display *dpy, Window w, XmFontList xmfontlist,
     
     if (ACTIVE_PSD->cleanText)
     {
-	XmStringDrawImage(dpy, w, xmfontlist, xmstring, gc, x, y, width, 
+	XmStringDrawImage(dpy, w, xmrendertable, xmstring, gc, x, y, width, 
 			  alignment, XmSTRING_DIRECTION_L_TO_R, 
 			  pbox);
     }
     else
     {
-	XmStringDraw (dpy, w, xmfontlist, xmstring, gc, x, y, width, 
+	XmStringDraw (dpy, w, xmrendertable, xmstring, gc, x, y, width, 
 		      alignment, XmSTRING_DIRECTION_L_TO_R, pbox);
     }
+    XSetClipMask(dpy,gc,None);
 } /* END OF FUNCTION WmDrawXmString */
 
 #ifdef WSM

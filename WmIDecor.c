@@ -571,7 +571,7 @@ void IconExposureProc (ClientData *pcd, Boolean expose)
 	}
 	else
 	{
-	    image = pcd->iconPixmap;
+	    image = pcd->ewmhIconPixmap?pcd->ewmhIconPixmap:pcd->iconPixmap;
 	}
 
 	if (image)
@@ -644,7 +644,7 @@ void IconExposureProc (ClientData *pcd, Boolean expose)
 		    {
 			width += 2;
 			height += 2;
-		    } 
+		    }
 	            XCopyArea (DISPLAY, image, 
 				ICON_FRAME_WIN(pcd), 
 				iconGC, 0, 0, width, height, 
@@ -673,17 +673,14 @@ void IconExposureProc (ClientData *pcd, Boolean expose)
 		    dest_x = ICON_INNER_X_OFFSET + ICON_INTERNAL_SHADOW_WIDTH;
 		    dest_y = ICON_INNER_Y_OFFSET + ICON_INTERNAL_SHADOW_WIDTH;
 		}
+
 		XCopyArea (DISPLAY, image, 
 			    ICON_FRAME_WIN(pcd), 
 			    iconGC, 0, 0, width, height, 
 			    dest_x, dest_y);
-
-
 	    }
-
 	}
     }
-
 
 } /* END OF FUNCTION IconExposureProc */
 
@@ -767,7 +764,7 @@ void GetIconTitleBox (ClientData *pcd, XRectangle *pBox)
 			- ICON_IMAGE_LEFT_PAD
 			- ICON_EXTERNAL_SHADOW_WIDTH;
 
-	pBox->height = TEXT_HEIGHT(ICON_APPEARANCE(pcd).font);
+	pBox->height = ICON_APPEARANCE(pcd).fontHeight;
 
     }
     else if ((P_ICON_BOX(pcd)) && (pcd->clientState == MINIMIZED_STATE))
@@ -789,7 +786,7 @@ void GetIconTitleBox (ClientData *pcd, XRectangle *pBox)
 			+ ((wmGD.frameStyle == WmSLAB) ? 2 : 0) 
 			- ICON_IMAGE_LEFT_PAD;
 
-	pBox->height = TEXT_HEIGHT(ICON_APPEARANCE(pcd).font);
+	pBox->height = ICON_APPEARANCE(pcd).fontHeight;
 
 	if (wmGD.frameStyle == WmSLAB)
 	{
@@ -820,7 +817,7 @@ void GetIconTitleBox (ClientData *pcd, XRectangle *pBox)
 
 	pBox->width = ICON_WIDTH(pcd) - 2 * ICON_EXTERNAL_SHADOW_WIDTH - 
 		  WM_TOP_TITLE_PADDING - WM_BOTTOM_TITLE_PADDING;
-	pBox->height = TEXT_HEIGHT(ICON_APPEARANCE(pcd).font);
+	pBox->height = ICON_APPEARANCE(pcd).fontHeight;
 
     }
 
@@ -891,12 +888,12 @@ void DrawIconTitle (ClientData *pcd)
 
     /* paint the text */
 #ifdef WSM
-    WmDrawXmString(DISPLAY, ICON_FRAME_WIN(pcd), ICON_APPEARANCE(pcd).fontList,
-		   pcd->iconTitle, iconGC, 
+    WmDrawXmString(DISPLAY, ICON_FRAME_WIN(pcd), ICON_APPEARANCE(pcd).renderTable,
+		   pcd->ewmhIconTitle?pcd->ewmhIconTitle:pcd->iconTitle, iconGC, 
 		   textBox.x, textBox.y, textBox.width, &textBox, True);
 #else /* WSM */
-    WmDrawXmString(DISPLAY, ICON_FRAME_WIN(pcd), ICON_APPEARANCE(pcd).fontList,
-		   pcd->iconTitle, iconGC, 
+    WmDrawXmString(DISPLAY, ICON_FRAME_WIN(pcd), ICON_APPEARANCE(pcd).renderTable,
+		   pcd->ewmhIconTitle?pcd->ewmhIconTitle:pcd->iconTitle, iconGC, 
 		   textBox.x, textBox.y, textBox.width, &textBox);
 #endif /* WSM */
 
@@ -984,14 +981,14 @@ void RedisplayIconTitle (ClientData *pcd)
 	/* in with the new */
 #ifdef WSM
 	WmDrawXmString(DISPLAY, ICON_FRAME_WIN(pcd), 
-		       ICON_APPEARANCE(pcd).fontList,
-		       pcd->iconTitle, iconGC, 
+		       ICON_APPEARANCE(pcd).renderTable,
+		       pcd->ewmhIconTitle?pcd->ewmhIconTitle:pcd->iconTitle, iconGC, 
 		       textBox.x, textBox.y, textBox.width, &textBox,
 		       True);
 #else /* WSM */
 	WmDrawXmString(DISPLAY, ICON_FRAME_WIN(pcd), 
-		       ICON_APPEARANCE(pcd).fontList,
-		       pcd->iconTitle, iconGC, 
+		       ICON_APPEARANCE(pcd).renderTable,
+		       pcd->ewmhIconTitle?pcd->ewmhIconTitle:pcd->iconTitle, iconGC, 
 		       textBox.x, textBox.y, textBox.width, &textBox);
 #endif /* WSM */
 
@@ -1062,7 +1059,7 @@ void GetIconDimensions (WmScreenData *pSD, unsigned int *pWidth, unsigned int *p
 
 	    *pLabelHeight = ICON_EXTERNAL_SHADOW_WIDTH            +
 			    WM_TOP_TITLE_PADDING                  +
-			    TEXT_HEIGHT(pSD->iconAppearance.font) +
+			    pSD->iconAppearance.fontHeight +
 			    WM_BOTTOM_TITLE_PADDING               +
 			    ICON_EXTERNAL_SHADOW_WIDTH;
 	    break;
@@ -1103,7 +1100,7 @@ void GetIconDimensions (WmScreenData *pSD, unsigned int *pWidth, unsigned int *p
 
 	    *pLabelHeight = ICON_INTERNAL_SHADOW_WIDTH            +
 			    WM_TOP_TITLE_PADDING                  +
-			    TEXT_HEIGHT(pSD->iconAppearance.font) +
+			    pSD->iconAppearance.fontHeight +
 			    WM_BOTTOM_TITLE_PADDING               +
 			    ICON_EXTERNAL_SHADOW_WIDTH;
 	    if (wmGD.frameStyle == WmSLAB)
@@ -1193,7 +1190,7 @@ void InitIconSize (WmScreenData *pSD)
     switch (pSD->iconDecoration & (ICON_IMAGE_PART | ICON_LABEL_PART)) 
     {
 	case ICON_LABEL_PART:
-	    iconShrinkHeight = TEXT_HEIGHT(pSD->iconAppearance.font);
+	    iconShrinkHeight = pSD->iconAppearance.fontHeight;
 	    break;
 
 	case ICON_IMAGE_PART:
@@ -1822,12 +1819,12 @@ void PaintActiveIconText (ClientData *pcd, Boolean erase)
 
 #ifdef WSM
     WmDrawXmString(DISPLAY, pcd->pSD->activeIconTextWin, 
-		   ICON_APPEARANCE(pcd).fontList,
+		   ICON_APPEARANCE(pcd).renderTable,
 		   pcd->iconTitle, iconGC, 
 		   textBox.x, textBox.y, textBox.width, &textBox, True);
 #else /* WSM */
     WmDrawXmString(DISPLAY, pcd->pSD->activeIconTextWin, 
-		   ICON_APPEARANCE(pcd).fontList,
+		   ICON_APPEARANCE(pcd).renderTable,
 		   pcd->iconTitle, iconGC, 
 		   textBox.x, textBox.y, textBox.width, &textBox);
 #endif /* WSM */
@@ -1882,7 +1879,8 @@ void ShowActiveIconText (ClientData *pcd)
 
 	/* set up geometry for the window */
 
-	XmStringExtent (ICON_APPEARANCE(pcd).fontList, pcd->iconTitle,
+	XmStringExtent (ICON_APPEARANCE(pcd).renderTable,
+		pcd->ewmhIconTitle?pcd->ewmhIconTitle:pcd->iconTitle,
 			&dWidth, &dHeight);
 
 	activeIconTextHeight =  (unsigned int) dHeight + 
@@ -2065,8 +2063,9 @@ void MoveActiveIconText (ClientData *pcd)
     if (pcd->pSD->activeIconTextWin && wmGD.activeIconTextDisplayed) {
 	/* set up geometry for the window */
 
-	XmStringExtent (ICON_APPEARANCE(pcd).fontList, pcd->iconTitle,
-			&dWidth, &dHeight);
+	XmStringExtent (ICON_APPEARANCE(pcd).renderTable,
+		pcd->ewmhIconTitle?pcd->ewmhIconTitle:pcd->iconTitle,
+		&dWidth, &dHeight);
 
 	activeIconTextHeight =  (unsigned int) dHeight +
 	          WM_BOTTOM_TITLE_PADDING +

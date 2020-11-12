@@ -114,12 +114,7 @@ Pixmap MakeClientIconPixmap (
   unsigned int  bitmapHeight;
   unsigned int  border;
   unsigned int  depth;
-  WmScreenData *pSD;
-
-  if (pCD)
-    pSD = pCD->pSD;
-  else
-    pSD = wmGD.pActiveSD;
+  WmScreenData *pSD = pCD?pCD->pSD:wmGD.pActiveSD;
     
   /*
    * Get pixmap attributes and ensure that it is usable.

@@ -90,6 +90,7 @@ static char rcsid[] = "$XConsortium: WmWinConf.c /main/8 1996/10/30 11:15:17 drk
 #include "WmProtocol.h"
 #include "WmWinInfo.h"
 #include "WmXinerama.h"
+#include "WmEwmh.h"
 
 
 
@@ -1949,6 +1950,7 @@ void ProcessNewConfiguration (ClientData *pCD, int x, int y, unsigned int width,
 	Boolean xineramaActive = False;
 	XineramaScreenInfo xsi;
 	
+	if(pCD->fullScreen)	ConfigureEwmhFullScreen(pCD,False);
 	xineramaActive = GetXineramaScreenFromLocation(x,y,&xsi);
 	
     /*

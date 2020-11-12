@@ -65,7 +65,6 @@ unsigned int TitleTextHeight (ClientData *pcd)
 {
     unsigned int ttextheight;
 
-#ifndef NO_MULTIBYTE
     if (DECOUPLE_TITLE_APPEARANCE(pcd))
     {
 	ttextheight = CLIENT_TITLE_APPEARANCE(pcd).titleHeight;
@@ -74,34 +73,7 @@ unsigned int TitleTextHeight (ClientData *pcd)
     {
 	ttextheight = CLIENT_APPEARANCE(pcd).titleHeight;
     }
-#else
 
-    XFontStruct	*font;
-
-    if (DECOUPLE_TITLE_APPEARANCE(pcd))
-    {
-	font = CLIENT_TITLE_APPEARANCE(pcd).font;
-    }
-    else 
-    {
-	font = CLIENT_APPEARANCE(pcd).font;
-    }
-
-    if (font)
-    {
-	ttextheight = TEXT_HEIGHT(font) + WM_TITLE_BAR_PADDING;
-    }
-    else
-    {
-	/* 
-	 * Failed to load any font! (probably due to error in 
-	 * font path, toolkit, or resource converter. Set to
-	 * arbitrary value for robustness.
-	 *
-	 */
-	ttextheight = 16; 
-    }
-#endif
     return (ttextheight);
 }
 

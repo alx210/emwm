@@ -244,11 +244,11 @@ void ShowFeedbackWindow (WmScreenData *pSD, int x, int y, unsigned int width, un
     unsigned long        mask = 0;
     XSetWindowAttributes win_attribs;
     XWindowChanges       win_changes;
-    int                  direction, ascent, descent;
-    XCharStruct          xcsLocation;
     int                  winX, winY;
     int                  tmpX, tmpY;
-
+    static XmString      defaultPositionString = NULL;
+    static int           ascent, descent, fheight;
+    static Dimension     swidth, sheight;
     if ( (pSD->fbStyle = style) == FB_OFF)
 	return;
 
@@ -261,29 +261,33 @@ void ShowFeedbackWindow (WmScreenData *pSD, int x, int y, unsigned int width, un
      * Derive the size and position of the window from the text extents
      * Set starting position of each string 
      */
-    XTextExtents(pSD->feedbackAppearance.font, DEFAULT_POSITION_STRING, 
-		 strlen(DEFAULT_POSITION_STRING), &direction, &ascent, 
-		 &descent, &xcsLocation);
+	if(!defaultPositionString){
+		defaultPositionString = XmStringCreateLocalized(DEFAULT_POSITION_STRING);
+		XmRenderTableGetDefaultFontExtents(pSD->feedbackAppearance.renderTable,
+			&fheight,&ascent,&descent);
+		XmStringExtent(pSD->feedbackAppearance.renderTable,
+			defaultPositionString,&swidth,&sheight);
+	}
     
-    pSD->fbWinWidth = xcsLocation.width + 4*FEEDBACK_BEVEL;
+    pSD->fbWinWidth = swidth + 4*FEEDBACK_BEVEL;
 
     switch (pSD->fbStyle) 
     {
 	case FB_SIZE:
-	    pSD->fbSizeY = 2*FEEDBACK_BEVEL + ascent;
-	    pSD->fbWinHeight = (ascent + descent) + 4*FEEDBACK_BEVEL;
+	    pSD->fbSizeY = 2*FEEDBACK_BEVEL;
+	    pSD->fbWinHeight = sheight + 4*FEEDBACK_BEVEL;
 	    break;
 
 	case FB_POSITION:
-	    pSD->fbLocY = 2*FEEDBACK_BEVEL + ascent;
-	    pSD->fbWinHeight = (ascent + descent) + 4*FEEDBACK_BEVEL;
+	    pSD->fbLocY = 2*FEEDBACK_BEVEL;
+	    pSD->fbWinHeight = sheight + 4*FEEDBACK_BEVEL;
 	    break;
 
 	default:
 	case (FB_SIZE | FB_POSITION):
-	    pSD->fbLocY = 2*FEEDBACK_BEVEL + ascent;
-	    pSD->fbSizeY = pSD->fbLocY + ascent + descent;
-	    pSD->fbWinHeight = 2*(ascent + descent) + 4*FEEDBACK_BEVEL;
+	    pSD->fbLocY = 2*FEEDBACK_BEVEL;
+	    pSD->fbSizeY = pSD->fbLocY + sheight;
+	    pSD->fbWinHeight = 2*sheight + 4*FEEDBACK_BEVEL;
 	    break;
     }
 
@@ -466,17 +470,25 @@ void PaintFeedbackWindow (WmScreenData *pSD)
 	 */
 	if (pSD->fbStyle & FB_POSITION) 
 	{
-	    WmDrawString (DISPLAY, pSD->feedbackWin, 
+	    XmStringDraw (DISPLAY, pSD->feedbackWin, 
+	    	 pSD->feedbackAppearance.renderTable,
+	    	 pSD->fbLocation,
 			 pSD->feedbackAppearance.inactiveGC,
-			 pSD->fbLocX, pSD->fbLocY, 
-			 pSD->fbLocation, strlen(pSD->fbLocation));
+			 pSD->fbLocX, pSD->fbLocY,
+			 pSD->fbWinWidth,
+			 XmALIGNMENT_CENTER,
+			 XmSTRING_DIRECTION_L_TO_R,NULL);
 	}
 	if (pSD->fbStyle & FB_SIZE) 
 	{
-	    WmDrawString (DISPLAY, pSD->feedbackWin, 
+	    XmStringDraw (DISPLAY, pSD->feedbackWin, 
+	    	 pSD->feedbackAppearance.renderTable,
+	    	 pSD->fbSize,
 			 pSD->feedbackAppearance.inactiveGC,
-			 pSD->fbSizeX, pSD->fbSizeY, 
-			 pSD->fbSize, strlen(pSD->fbSize));
+			 pSD->fbSizeX, pSD->fbSizeY,
+			 pSD->fbWinWidth,
+			 XmALIGNMENT_CENTER,
+			 XmSTRING_DIRECTION_L_TO_R,NULL);
 	}
     }
 }
@@ -608,25 +620,25 @@ void UpdateFeedbackInfo (WmScreenData *pSD, int x, int y, unsigned int width, un
  *************************************<->***********************************/
 void UpdateFeedbackText (WmScreenData *pSD, int x, int y, unsigned int width, unsigned int height)
 {
-    int         direction, ascent, descent;
-    XCharStruct xcs;
+	Dimension  swidth, sheight;
+	char       buffer[20];
 
     if (pSD->fbStyle & FB_POSITION) 
     {
-	sprintf (pSD->fbLocation, "(%4d,%-4d)", x, y);
-	XTextExtents(pSD->feedbackAppearance.font, pSD->fbLocation,
-		 strlen(pSD->fbLocation), &direction, &ascent, 
-		 &descent, &xcs);
-	pSD->fbLocX = (pSD->fbWinWidth - xcs.width)/2;
+	snprintf (buffer,20, "(%4d,%-4d)", x, y);
+	if(pSD->fbLocation) XmStringFree(pSD->fbLocation);
+	pSD->fbLocation = XmStringCreateLocalized(buffer);
+	XmStringExtent(pSD->feedbackAppearance.renderTable,
+		pSD->fbLocation,&swidth, &sheight);
     }
 
     if (pSD->fbStyle & FB_SIZE) 
     {
-	sprintf (pSD->fbSize,     "%4dx%-4d", width, height);
-	XTextExtents(pSD->feedbackAppearance.font, pSD->fbSize,
-		 strlen(pSD->fbSize), &direction, &ascent, 
-		 &descent, &xcs);
-	pSD->fbSizeX = (pSD->fbWinWidth - xcs.width)/2;
+	snprintf (buffer,20,     "%4dx%-4d", width, height);
+	if(pSD->fbSize) XmStringFree(pSD->fbSize);
+	pSD->fbSize = XmStringCreateLocalized(buffer);
+	XmStringExtent(pSD->feedbackAppearance.renderTable,
+		pSD->fbSize, &swidth, &sheight);
     }
 }
 

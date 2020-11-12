@@ -97,13 +97,14 @@ void _WmATopShadowColorDefault (Widget widget, int offset, XrmValue *value);
 void _WmATopShadowPixmapDefault (Widget widget, int offset, XrmValue *value);
 void _WmFocusAutoRaiseDefault (Widget widget, int offset, XrmValue *value);
 void _WmMultiClickTimeDefault (Widget widget, int offset, XrmValue *value);
+void _WmRenderTableDefault (Widget widget, int offset, XrmValue *value);
 void ProcessWmResources (void);
 void ProcessGlobalScreenResources (void);
 void SetStdGlobalResourceValues (void);
 void ProcessScreenListResource (void);
 void ProcessAppearanceResources (WmScreenData *pSD);
 void MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean makeActiveResources);
-void GetAppearanceGCs (WmScreenData *pSD, Pixel fg, Pixel bg, XFontStruct *font, Pixmap bg_pixmap, Pixel ts_color, Pixmap ts_pixmap, Pixel bs_color, Pixmap bs_pixmap, GC *pGC, GC *ptsGC, GC *pbsGC);
+void GetAppearanceGCs (WmScreenData *pSD, Pixel fg, Pixel bg, Pixmap bg_pixmap, Pixel ts_color, Pixmap ts_pixmap, Pixel bs_color, Pixmap bs_pixmap, GC *pGC, GC *ptsGC, GC *pbsGC);
 void ProcessScreenResources (WmScreenData *pSD, unsigned char *screenName);
 void ProcessWorkspaceResources (WmWorkspaceData *pWS);
 void ProcessClientResources (ClientData *pCD);
@@ -2241,15 +2242,14 @@ XtResource wmClientResourcesM[] =
 
 XtResource wmAppearanceResources[] =
 {
-
     {
-	XmNfontList,
-	XmCFontList,
-	XmRFontList,
-	sizeof (XmFontList),
-	XtOffsetOf (AppearanceData, fontList),
-	XtRString,
-	"fixed"
+	XmNrenderTable,
+	XmCRenderTable,
+	XmRRenderTable,
+	sizeof (XmRenderTable),
+	XtOffsetOf (AppearanceData, renderTable),
+	XtRImmediate,
+	(XtPointer)NULL
     },
 
     {
@@ -2444,7 +2444,6 @@ XtResource wmAppearanceResources[] =
  *  value = default resource value and size
  * 
  *************************************<->***********************************/
-
 void 
 _WmIconImageFDefault (Widget widget, int offset, XrmValue *value)
 {
@@ -4242,7 +4241,7 @@ ProcessAppearanceResources (WmScreenData *pSD)
     _defaultBackground = _defaultColor1;
     _defaultActiveBackground = _defaultColor2;
     _pAppearanceData = &(pSD->clientAppearance);
-
+	
     (void)XtGetSubresources (pSD->screenTopLevelW, 
 	      (XtPointer) &(pSD->clientAppearance),
 	      WmNclient, WmCClient, wmAppearanceResources, 
@@ -4251,13 +4250,11 @@ ProcessAppearanceResources (WmScreenData *pSD)
     CheckForNoDither (&(pSD->clientAppearance));
 #endif /* WSM */
 
-
     /*
      * Process the client resource values:
      */
 
     /* make background, top and bottom shadow pixmaps */
-
     MakeAppearanceResources (pSD, &(pSD->clientAppearance), True);
 
 
@@ -4391,27 +4388,27 @@ void
 MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean makeActiveResources)
 {
     Pixel foreground;
+	int fontHeight;
+	int fontAscent;
+	int fontDescent;
 
-    /*
-     * Extract a font from the font list.
-     */
-
-    if (! XmeRenderTableGetDefaultFont(pAData->fontList, &(pAData->font)))
-    {
-	sprintf((char *)wmGD.tmpBuffer, ((char *)GETMESSAGE(62, 23, "failed to load font: %.100s")), (char*) pAData->fontList);
-	Warning((char *)wmGD.tmpBuffer);
-	ExitWM(WM_ERROR_EXIT_VALUE);
-    }
-
-#ifndef NO_MULTIBYTE
-    /*
-     *  Calculate title bar's height and store it in pAData.
-     */
-    pAData->titleHeight = (pAData->font)->ascent + (pAData->font)->descent
-        + WM_TITLE_BAR_PADDING;
-#endif
-
-
+	if(!pAData->renderTable){
+		XmRendition rendition;
+		Arg args[4];
+		Cardinal n = 0;
+		
+		XtSetArg(args[n],XmNfontType,XmFONT_IS_XFT); n++;
+		XtSetArg(args[n],XmNfontName,"Sans"); n++;
+		XtSetArg(args[n],XmNfontSize,8); n++;
+		rendition = XmRenditionCreate(pSD->screenTopLevelW,XmFONTLIST_DEFAULT_TAG,args,n);
+		pAData->renderTable = XmRenderTableAddRenditions(NULL,&rendition,1,XmMERGE_NEW);
+	}
+	
+	XmRenderTableGetDefaultFontExtents(pAData->renderTable,
+		&fontHeight,&fontAscent,&fontDescent);
+	
+	pAData->fontHeight = fontHeight;
+	pAData->titleHeight = fontHeight + WM_TITLE_BAR_PADDING;
     /*
      * Make standard (inactive) appearance resources.
      */
@@ -4501,7 +4498,6 @@ MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean make
     GetAppearanceGCs (pSD,
 		      pAData->foreground,
 		      pAData->background,
-		      pAData->font,
 		      pAData->backgroundPixmap,
 		      pAData->topShadowColor,
 		      pAData->topShadowPixmap,
@@ -4591,7 +4587,6 @@ MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean make
     GetAppearanceGCs (pSD,
 		      pAData->activeForeground,
 		      pAData->activeBackground,
-		      pAData->font,
 		      pAData->activeBackgroundPixmap,
 		      pAData->activeTopShadowColor,
 		      pAData->activeTopShadowPixmap,
@@ -4600,7 +4595,6 @@ MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean make
 		      &(pAData->activeGC),
 		      &(pAData->activeTopShadowGC),
 		      &(pAData->activeBottomShadowGC));
-
 
 } /* END OF FUNCTION MakeAppearanceResources */
 
@@ -4647,20 +4641,19 @@ MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean make
  *************************************<->***********************************/
 
 void 
-GetAppearanceGCs (WmScreenData *pSD, Pixel fg, Pixel bg, XFontStruct *font, Pixmap bg_pixmap, Pixel ts_color, Pixmap ts_pixmap, Pixel bs_color, Pixmap bs_pixmap, GC *pGC, GC *ptsGC, GC *pbsGC)
+GetAppearanceGCs (WmScreenData *pSD, Pixel fg, Pixel bg, Pixmap bg_pixmap, Pixel ts_color, Pixmap ts_pixmap, Pixel bs_color, Pixmap bs_pixmap, GC *pGC, GC *ptsGC, GC *pbsGC)
 {
     XGCValues gcv;
-    XtGCMask  mask;
+    unsigned long  mask;
 
 
     /*
      * Get base GC
      */
 
-    mask = GCForeground | GCBackground | GCFont;
+    mask = GCForeground | GCBackground;
     gcv.foreground = fg;
     gcv.background = bg;
-    gcv.font = font->fid;
 
     if (bg_pixmap)
     {
@@ -6393,7 +6386,7 @@ Boolean SimilarAppearanceData (AppearanceData *pAD1, AppearanceData *pAD2)
     Boolean rval;
 
 #ifdef notdef
-    if ((pAD1->fontList == pAD2->fontList) &&
+    if ((pAD1->renderTable == pAD2->renderTable) &&
 	(pAD1->background == pAD2->background) &&
 	(pAD1->foreground == pAD2->foreground) &&
 	(pAD1->backgroundPStr == pAD2->backgroundPStr) &&
@@ -6419,7 +6412,7 @@ Boolean SimilarAppearanceData (AppearanceData *pAD1, AppearanceData *pAD2)
      * !!! Should find out why all the Pixmap resources are unset !!!
      */
 
-    if ((pAD1->fontList == pAD2->fontList) &&
+    if ((pAD1->renderTable == pAD2->renderTable) &&
 	(pAD1->background == pAD2->background) &&
 	(pAD1->foreground == pAD2->foreground) &&
 	(pAD1->backgroundPStr == pAD2->backgroundPStr) &&

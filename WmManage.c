@@ -1174,6 +1174,13 @@ void WithdrawWindow (ClientData *pCD)
     }
 #endif /* WSM */
 
+	/*
+	 * Free up EWMH data
+	 */
+	if(pCD->ewmhClientTitle) XmStringFree(pCD->ewmhClientTitle);
+	if(pCD->ewmhIconTitle) XmStringFree(pCD->ewmhIconTitle);
+	if(pCD->ewmhIconPixmap) XFreePixmap(DISPLAY,pCD->ewmhIconPixmap);
+
     if (pCD->smClientID)
 	XFree (pCD->smClientID);
 

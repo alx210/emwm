@@ -73,6 +73,7 @@ static char rcsid[] = "$TOG: WmWinInfo.c /main/18 1999/02/04 15:17:25 mgreess $"
 #endif /* WSM */
 #include "WmXSMP.h"
 #include "WmXinerama.h"
+#include "WmEwmh.h"
 
 #ifndef NO_MESSAGE_CATALOG
 # define LOCALE_MSG GETMESSAGE(70, 7, "[XmbTextPropertyToTextList]:\n     Locale (%.100s) not supported. (Check $LANG).")
@@ -128,7 +129,7 @@ GetClientInfo (WmScreenData *pSD, Window clientWindow, long manageFlags)
      * Allocate and initialize a client data structure:
      */
 
-    if (!(pCD = (ClientData *)XtMalloc (sizeof (ClientData))))
+    if (!(pCD = (ClientData *)XtCalloc (1,sizeof (ClientData))))
     {
 	/* unable to allocate space */
 	Warning (((char *)GETMESSAGE(70, 1, "Insufficient memory for client data")));
@@ -412,7 +413,6 @@ GetClientInfo (WmScreenData *pSD, Window clientWindow, long manageFlags)
 	ProcessMwmMessages (pCD);
     }
 
-
     /*
      * Make or find a system menu for the client.
      */
@@ -435,6 +435,11 @@ GetClientInfo (WmScreenData *pSD, Window clientWindow, long manageFlags)
 
     InitCColormapData (pCD);
 
+	/*
+	 * Process Extended Window Manager Hints (it wants a valid colormap in pCD)
+	 */
+	ProcessEwmh(pCD);
+    
 
     /* successful return */
 
@@ -2334,18 +2339,18 @@ ProcessWmWindowTitle (ClientData *pCD, Boolean firstTime)
     {
 	unsigned int boxdim = TitleBarHeight (pCD);
 	unsigned long decor = pCD->decor;
-	XmFontList  fontList;
+	XmRenderTable  renderTable;
 	int minWidth;
 
 	if (DECOUPLE_TITLE_APPEARANCE(pCD))
-	    fontList = CLIENT_TITLE_APPEARANCE(pCD).fontList;
+	    renderTable = CLIENT_TITLE_APPEARANCE(pCD).renderTable;
 	else
-	    fontList = CLIENT_APPEARANCE(pCD).fontList;
+	    renderTable = CLIENT_APPEARANCE(pCD).renderTable;
 
 	/*
 	 * Calculations derived from GetTextBox() and GetFramePartInfo()
 	 */
-	minWidth = XmStringWidth(fontList, pCD->clientTitle) +
+	minWidth = XmStringWidth(renderTable, pCD->clientTitle) +
 			    ((decor & MWM_DECOR_MENU) ? boxdim : 0) +
 			    ((decor & MWM_DECOR_MINIMIZE) ? boxdim : 0) +
 			    ((decor & MWM_DECOR_MAXIMIZE) ? boxdim : 0) +
