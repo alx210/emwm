@@ -250,7 +250,7 @@ Pixmap MakeNamedIconPixmap (ClientData *pCD, String iconName)
 			   NULL, &depth, NULL, NULL, NULL, NULL,
 			   &width, &height);
       
-	  pixmap = MakeIconPixmap (pCD, pixmap, XmUNSPECIFIED_PIXMAP,
+	  pixmap = MakeIconPixmap (pCD, pixmap, None,
 				   width, height, depth);
 	}
     }
@@ -262,7 +262,7 @@ Pixmap MakeNamedIconPixmap (ClientData *pCD, String iconName)
 
   if (!iconName || (!PIXMAP_IS_VALID( pixmap )))
     {
-      pixmap = MakeIconPixmap (pCD, pCD->pSD->builtinIconPixmap, XmUNSPECIFIED_PIXMAP,
+      pixmap = MakeIconPixmap (pCD, pCD->pSD->builtinIconPixmap, None,
 			       iImage_width, iImage_height, 1);
     }
   
