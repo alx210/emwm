@@ -33,12 +33,17 @@ static int g_nxsi=0;
  */
 void SetupXinerama(void)
 {
-	if(!XineramaIsActive(DISPLAY) ||
-		(g_xsi=XineramaQueryScreens(DISPLAY,&g_nxsi))==NULL){
-		is_active=False;
-		return; 
+	int major_opcode, first_event, first_error;
+	if(XQueryExtension(DISPLAY,"XINERAMA",
+		&major_opcode,&first_event,&first_error)) {
+
+		if(!XineramaIsActive(DISPLAY) ||
+			(g_xsi=XineramaQueryScreens(DISPLAY,&g_nxsi))==NULL){
+			is_active=False;
+			return; 
+		}
+		is_active=True;
 	}
-	is_active=True;
 }
 
 /*
@@ -51,7 +56,8 @@ Bool GetXineramaScreenFromLocation(int x, int y, XineramaScreenInfo *xsi)
 
 	if(!is_active) return False;
 	
-	if(x < 0) x=0; if(y < 0) y=0;
+	if(x < 0) x=0;
+	if(y < 0) y=0;
 
 	for(i=0; i < g_nxsi; i++){
 		if((x >= g_xsi[i].x_org && x <= (g_xsi[i].x_org+g_xsi[i].width)) &&
