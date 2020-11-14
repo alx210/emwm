@@ -39,6 +39,7 @@
 #include "WmProtocol.h"
 #include "WmWinInfo.h"
 #include "WmWinList.h"
+#include "WmEwmh.h"
 
 
 
@@ -226,7 +227,6 @@ void SetKeyboardFocus (ClientData *pCD, long focusFlags)
     currentFocus = wmGD.keyboardFocus;
     ACTIVE_PSD->focusPriority++;
 
-
     /*
      * If the keyboard input focus policy is "explicit" then reset the
      * selection button event handling.
@@ -323,7 +323,9 @@ void SetKeyboardFocus (ClientData *pCD, long focusFlags)
     {
 	pCD->focusPriority = ACTIVE_PSD->focusPriority;
 	SetFocusIndication (pCD);
+    SetEwmhActiveWindow(pCD);
     }
+    
 
 } /* END OF FUNCTION SetKeyboardFocus */
 

@@ -32,6 +32,8 @@
 #include "WmCDInfo.h"
 #include "WmCDecor.h"
 #include "WmXinerama.h"
+#include "WmKeyFocus.h"
+#include "WmIDecor.h"
 #include "WmEwmh.h"
 
 #ifdef DEBUG
@@ -42,13 +44,14 @@
 
 static void* FetchWindowProperty(Window wnd, Atom prop,
 	Atom req_type, unsigned long *size);
-static Pixmap GetEwmhIconPixmap(const ClientData *pCD);
+static Pixmap GetIconPixmap(const ClientData *pCD);
+static void UpdateFrameExtents(ClientData *pCD);
 
 enum ewmh_atom {
 	_NET_SUPPORTED, _NET_SUPPORTING_WM_CHECK,
 	_NET_REQUEST_FRAME_EXTENTS, _NET_WM_NAME, 
 	_NET_WM_ICON_NAME, _NET_WM_STATE, _NET_WM_STATE_FULLSCREEN,
-	_NET_WM_ICON, _NET_FRAME_EXTENTS, _NET_ACTIVE_WINDOW,
+	_NET_WM_ICON, _NET_FRAME_EXTENTS, _NET_WM_ACTIVE_WINDOW,
 	
 	_NUM_EWMH_ATOMS
 };
@@ -58,7 +61,7 @@ static char *ewmh_atom_names[_NUM_EWMH_ATOMS]={
 	"_NET_SUPPORTED", "_NET_SUPPORTING_WM_CHECK",
 	"_NET_REQUEST_FRAME_EXTENTS", "_NET_WM_NAME",
 	 "_NET_WM_ICON_NAME", "_NET_WM_STATE", "_NET_WM_STATE_FULLSCREEN",
-	"_NET_WM_ICON", "_NET_FRAME_EXTENTS", "_NET_ACTIVE_WINDOW"
+	"_NET_WM_ICON", "_NET_FRAME_EXTENTS", "_NET_WM_ACTIVE_WINDOW"
 };
 
 /* Initialized in SetupEwhm() */
@@ -99,51 +102,39 @@ void SetupWmEwmh(void)
 }
 
 /*
- * Sets the _NET_FRAME_EXTENTS property on client
- */
-void UpdateEwmhFrameExtents(ClientData *pCD)
-{
-	Cardinal data[4]; /* left, right, top, bottom */
-	
-	data[0] = data[1] = data[3] = LowerBorderWidth(pCD);
-	data[2] = TitleBarHeight(pCD);
-	XChangeProperty(DISPLAY,pCD->client,ewmh_atoms[_NET_FRAME_EXTENTS],
-		XA_CARDINAL,32,PropModeReplace,(unsigned char*)data,
-		sizeof(data)/sizeof(Cardinal));
-}
-
-/*
  * Called by GetClientInfo to set up initial EWMH data for new clients
  */
 void ProcessEwmh(ClientData *pCD)
 {
 	char *sz;
 	Pixmap icon;
+	unsigned long size = 0;
 	
 	sz = FetchWindowProperty(pCD->client,
-		ewmh_atoms[_NET_WM_NAME],XA_UTF8_STRING,NULL);
-	if(sz){
+		ewmh_atoms[_NET_WM_NAME],XA_UTF8_STRING,&size);
+	if(size){
 		if(pCD->ewmhClientTitle) XmStringFree(pCD->ewmhClientTitle);
 		pCD->ewmhClientTitle = XmStringCreateLocalized(sz);
-		XFree(sz);
 	}	
-
+	if(sz) XFree(sz);
 
 	sz = FetchWindowProperty(pCD->client,
-		ewmh_atoms[_NET_WM_ICON_NAME],XA_UTF8_STRING,NULL);
-	if(sz){
+		ewmh_atoms[_NET_WM_ICON_NAME],XA_UTF8_STRING,&size);
+	if(size){
 		if(pCD->ewmhIconTitle) XmStringFree(pCD->ewmhIconTitle);
 		pCD->ewmhIconTitle = XmStringCreateLocalized(sz);
-		XFree(sz);
+	}else if(pCD->ewmhClientTitle){
+		pCD->ewmhIconTitle = XmStringCopy(pCD->ewmhClientTitle);
 	}
-
+	if(sz) XFree(sz);
+	
 	if(pCD->ewmhIconPixmap) XFreePixmap(DISPLAY,pCD->ewmhIconPixmap);
-	if((icon = GetEwmhIconPixmap(pCD))){
+	if((icon = GetIconPixmap(pCD))){
 		pCD->ewmhIconPixmap = MakeClientIconPixmap(pCD,icon,None);
 		XFreePixmap(DISPLAY,icon);
 	}
 
-	UpdateEwmhFrameExtents(pCD);
+	UpdateFrameExtents(pCD);
 }
 
 /*
@@ -152,34 +143,43 @@ void ProcessEwmh(ClientData *pCD)
  */
 void HandleEwmhCPropertyNotify(ClientData *pCD, XPropertyEvent *evt)
 {
+	unsigned long size = 0;
+	
 	if(evt->atom == ewmh_atoms[_NET_WM_NAME]) {
 		char *sz = FetchWindowProperty(pCD->client,
-			ewmh_atoms[_NET_WM_NAME],XA_UTF8_STRING,NULL);
-		if(sz){
+			ewmh_atoms[_NET_WM_NAME],XA_UTF8_STRING,&size);
+		if(size){
 			if(pCD->ewmhClientTitle) XmStringFree(pCD->ewmhClientTitle);
 			pCD->ewmhClientTitle = XmStringCreateLocalized(sz);
-			XFree(sz);
-		}	
+			DrawWindowTitle(pCD,True);
+		}
+		if(sz) XFree(sz);
 	}
 	else if(evt->atom == ewmh_atoms[_NET_WM_ICON_NAME]) {
 		char *sz = FetchWindowProperty(pCD->client,
-			ewmh_atoms[_NET_WM_ICON_NAME],XA_UTF8_STRING,NULL);
-		if(sz){
+			ewmh_atoms[_NET_WM_ICON_NAME],XA_UTF8_STRING,&size);
+		if(size){
 			if(pCD->ewmhIconTitle) XmStringFree(pCD->ewmhIconTitle);
 			pCD->ewmhIconTitle = XmStringCreateLocalized(sz);
-			XFree(sz);
-		}	
+			RedisplayIconTitle(pCD);
+		}else if(pCD->ewmhClientTitle){
+			pCD->ewmhIconTitle = XmStringCopy(pCD->ewmhClientTitle);
+			RedisplayIconTitle(pCD);
+		}
+		if(sz) XFree(sz);
 	}
 	else if(evt->atom == ewmh_atoms[_NET_WM_ICON]) {
 		Pixmap icon;
 		if(pCD->ewmhIconPixmap) XFreePixmap(DISPLAY,pCD->ewmhIconPixmap);
-		if((icon = GetEwmhIconPixmap(pCD))){
+		if((icon = GetIconPixmap(pCD))){
 			pCD->ewmhIconPixmap = MakeClientIconPixmap(pCD,icon,None);
 			XFreePixmap(DISPLAY,icon);
+			XClearArea(DISPLAY,ICON_FRAME_WIN(pCD),IB_MARGIN_WIDTH,
+				IB_MARGIN_HEIGHT,ICON_WIDTH(pCD),ICON_HEIGHT(pCD),True);
 		}
 	}
 	else if(evt->atom == ewmh_atoms[_NET_REQUEST_FRAME_EXTENTS]) {
-		UpdateEwmhFrameExtents(pCD);
+		UpdateFrameExtents(pCD);
 	}
 }
 
@@ -201,7 +201,9 @@ void HandleEwmhClientMessage(ClientData *pCD, XClientMessageEvent *evt)
 				set = (action == add)?True:False;
 			
 			ConfigureEwmhFullScreen(pCD,set);
-		}	
+		}
+	} else if(evt->message_type == ewmh_atoms[_NET_WM_ACTIVE_WINDOW]) {
+		SetKeyboardFocus(pCD,REFRESH_LAST_FOCUS);
 	}
 }
 
@@ -253,8 +255,8 @@ void ConfigureEwmhFullScreen(ClientData *pCD, Boolean set)
 	}else{
 		pCD->clientFunctions = pCD->normalClientFunctions;
 		XMoveResizeWindow(DISPLAY,pCD->clientBaseWin,
-			pCD->clientOffset.x,pCD->clientOffset.y,
-			pCD->clientWidth, pCD->clientHeight);
+			BaseWindowX(pCD),BaseWindowY(pCD),
+			BaseWindowWidth(pCD),BaseWindowHeight(pCD));
 		if (pCD->maxConfig){
 			XResizeWindow (DISPLAY, pCD->client,
 				pCD->maxWidth, pCD->maxHeight);
@@ -273,12 +275,38 @@ void ConfigureEwmhFullScreen(ClientData *pCD, Boolean set)
 }
 
 /*
+ * Sets the _NET_WM_ACTIVE_WINDOW property on client's root
+ */
+void SetEwmhActiveWindow(ClientData *pCD)
+{
+	XChangeProperty(DISPLAY,ROOT_FOR_CLIENT(pCD),
+		ewmh_atoms[_NET_WM_ACTIVE_WINDOW],XA_WINDOW,32,PropModeReplace,
+		(unsigned char*)&pCD->client,1);
+}
+
+/*
+ * Sets the _NET_FRAME_EXTENTS property on client
+ */
+static void UpdateFrameExtents(ClientData *pCD)
+{
+	unsigned long data[4]; /* left, right, top, bottom */
+	
+	data[0] = data[1] = data[3] = (pCD->decor & MWM_DECOR_BORDER)?
+			LowerBorderWidth(pCD):0;
+	data[2] = (pCD->decor & MWM_DECOR_TITLE)?TitleBarHeight(pCD):
+			((pCD->decor & MWM_DECOR_BORDER)?LowerBorderWidth(pCD):0);
+
+	XChangeProperty(DISPLAY,pCD->client,ewmh_atoms[_NET_FRAME_EXTENTS],
+		XA_CARDINAL,32,PropModeReplace,(unsigned char*)data,4);
+}
+
+/*
  * Retrieves RGBA image data from the _NET_WM_ICON property. 
  * For True/DirectColor visuals, if an icon of appropriate size (larger or
  * equal to MWM icon size) is available it will be converted to a pixmap.
  * Returns a valid pixmap on success, or None.
  */
-static Pixmap GetEwmhIconPixmap(const ClientData *pCD)
+static Pixmap GetIconPixmap(const ClientData *pCD)
 {
 	unsigned long *prop_data;
 	unsigned long *rgb_data;
@@ -318,6 +346,10 @@ static Pixmap GetEwmhIconPixmap(const ClientData *pCD)
 	prop_data = FetchWindowProperty(pCD->client,
 		ewmh_atoms[_NET_WM_ICON],XA_CARDINAL,&prop_data_size);
 	if(!prop_data) return None;
+	if(!prop_data_size){
+		XFree(prop_data);
+		return None;
+	}
 	
 	/* loop trough available images looking for usable size */
 	fptr.i = prop_data;
@@ -340,7 +372,7 @@ static Pixmap GetEwmhIconPixmap(const ClientData *pCD)
 		rgb_width = fptr.i[0];
 		rgb_height = fptr.i[1];
 	};
-	rgb_data = fptr.i;
+	rgb_data = fptr.i + 2; /* fptr is at width/height */
 	
 	dest_img = XCreateImage(DISPLAY,visual,depth,ZPixmap,0,NULL,
 		icon_width,icon_height, XBitmapPad(DISPLAY),0);
@@ -367,7 +399,7 @@ static Pixmap GetEwmhIconPixmap(const ClientData *pCD)
 	/* scale and alpha-blend RGBA to XImage, then  make a pixmap out of it */
 	dx = (float)rgb_width / dest_img->width;
 	dy = (float)rgb_height / dest_img->height;
-	
+
 	for(y = 0; y < dest_img->height; y++){
 		for(x = 0; x < dest_img->width; x++){
 			unsigned int r[4],g[4],b[4],a[4];
@@ -454,9 +486,9 @@ static void* FetchWindowProperty(Window wnd, Atom prop,
 	Atom ret_type;
 	int ret_fmt;
 	
-	XGetWindowProperty(DISPLAY,wnd,prop,0,BUFSIZ,
+	if(XGetWindowProperty(DISPLAY,wnd,prop,0,BUFSIZ,
 		False,req_type,&ret_type,&ret_fmt,&ret_items,
-		&ret_bytes_left,(unsigned char**)&result);
+		&ret_bytes_left,(unsigned char**)&result) != Success ) return NULL;
 	
 	if(ret_type!=req_type){
 		if(result) XFree(result);
@@ -465,9 +497,9 @@ static void* FetchWindowProperty(Window wnd, Atom prop,
 	
 	if(ret_bytes_left){
 		XFree(result);
-		XGetWindowProperty(DISPLAY,wnd,prop,0,BUFSIZ+ret_bytes_left+1,
+		if(XGetWindowProperty(DISPLAY,wnd,prop,0,BUFSIZ+ret_bytes_left+1,
 			False,req_type,&ret_type,&ret_fmt,&ret_items,
-			&ret_bytes_left,(unsigned char**)&result);
+			&ret_bytes_left,(unsigned char**)&result) != Success) return NULL;
 
 	}
 
