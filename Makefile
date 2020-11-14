@@ -1,7 +1,7 @@
 # EMWM Makefile
 
 PREFIX = /usr
-MWMRCDIR = $(PREFIX)/lib/X11
+MWMRCDIR = $(PREFIX)/etc/X11/mwm
 
 INCDIRS = -I./Xm -I/usr/local/include 
 LIBDIRS = -L/usr/local/lib
@@ -11,8 +11,8 @@ DEFINES = -DLARGECURSORS -DR2_COMPAT -DUNMAP_ON_RESTART \
 	-DMWMRCDIR='"$(MWMRCDIR)"'
 
 SYSLIBS =  -lXm -lXt -lXext -lXinerama -lXft -lX11
-# CFLAGS := -O2 -Wall $(INCDIRS) $(DEFINES)
-CFLAGS := -O0 -g -Wall $(INCDIRS) $(DEFINES) -DDEBUG
+CFLAGS := -O2 -Wall $(INCDIRS) $(DEFINES)
+# CFLAGS := -O0 -g -Wall $(INCDIRS) $(DEFINES) -DDEBUG
 
 mwm_objs = \
 	WmCDInfo.o	WmCDecor.o	WmCEvent.o\
