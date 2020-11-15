@@ -1,54 +1,6 @@
-'\" t
-...\" emwm.sgm /main/13 1996/09/25 11:30:27 cdedoc $
-.de P!
-.fl
-\!!1 setgray
-.fl
-\\&.\"
-.fl
-\!!0 setgray
-.fl			\" force out current output buffer
-\!!save /psv exch def currentpoint translate 0 0 moveto
-\!!/showpage{}def
-.fl			\" prolog
-.sy sed -e 's/^/!/' \\$1\" bring in postscript file
-\!!psv restore
-.
-.de pF
-.ie     \\*(f1 .ds f1 \\n(.f
-.el .ie \\*(f2 .ds f2 \\n(.f
-.el .ie \\*(f3 .ds f3 \\n(.f
-.el .ie \\*(f4 .ds f4 \\n(.f
-.el .tm ? font overflow
-.ft \\$1
-..
-.de fP
-.ie     !\\*(f4 \{\
-.	ft \\*(f4
-.	ds f4\"
-'	br \}
-.el .ie !\\*(f3 \{\
-.	ft \\*(f3
-.	ds f3\"
-'	br \}
-.el .ie !\\*(f2 \{\
-.	ft \\*(f2
-.	ds f2\"
-'	br \}
-.el .ie !\\*(f1 \{\
-.	ft \\*(f1
-.	ds f1\"
-'	br \}
-.el .tm ? font underflow
-..
-.ds f1\"
-.ds f2\"
-.ds f3\"
-.ds f4\"
-.ta 8n 16n 24n 32n 40n 48n 56n 64n 72n 
-.TH "emwm" "user cmd"
+.TH EMWM 1
 .SH "NAME"
-\fBemwm\fP \(em The Motif
+\fBemwm\fP \(em The Enhanced Motif
 Window Manager
 .SH "SYNOPSIS"
 .PP
@@ -59,10 +11,6 @@ The \fBemwm\fP window manager provides
 functions that facilitate control (by the user and the programmer)
 of elements of window state such as placement, size, icon/normal display,
 and input-focus ownership\&.
-.PP
-The stand-alone window manager is not an integral part
-of CDE and does not support communication with other components in the CDE
-environment, such as the Style Manager and the Session Manager\&.
 .SS "Options"
 .IP "\fI-display\fP\ \fBdisplay\fP" 10
 This option specifies the display to use; see \fBX\fP(1)\&.
@@ -358,7 +306,7 @@ and \fBf\&.raise_lower\fP\&.
 The window manager is an X Session Management Protocol aware client\&. It responds to SaveYourself
 (and other associated messages) by saving the geometries of its clients to a state file\&. 
 \fBemwm\fP can then be restarted by the XSMP session manager\&.
-The default location for the state file is \fB$HOME/\&.emwmclientdb\fP\&.
+The default location for the state file is \fB$HOME/\&.mwmclientdb\fP\&.
 This location can be overriden with the resource \fBsessionClientDB\fP\&.
 .SS "X Resources"
 .PP
@@ -366,7 +314,7 @@ The \fBemwm\fP command is configured from its resource
 database\&. This database is built from the following sources\&. They are listed
 in order of precedence, low to high:
 .PP
-\fB/usr/X11R6/lib/X11/app-defaults/Mwm\fP
+\fB/usr/etc/X11/app-defaults/Mwm\fP
 .PP
 \fB$HOME/Mwm\fP
 .PP
@@ -376,7 +324,7 @@ in order of precedence, low to high:
 .PP
 \fBemwm\fP command line options
 .PP
-The file names \fB/usr/X11R6/lib/X11/app-defaults/Mwm\fP and \fB$HOME/Mwm\fP represent customary locations for these files\&. The actual
+The file names \fB/usr/etc/X11/app-defaults/Mwm\fP and \fB$HOME/Mwm\fP represent customary locations for these files\&. The actual
 location of the system-wide class resource file may depend on the \fBXFILESEARCHPATH\fP environment variable and the
 current language environment\&. The actual location of the user-specific class
 resource file may depend on the \fBXUSERFILESEARCHPATH\fP and \fBXAPPLRESDIR\fP
@@ -387,11 +335,12 @@ specific types of resources\&. These include files that contain bitmaps, fonts,
 and \fBemwm\fP specific resources such as menus and behavior
 specifications (for example, button and key bindings)\&.
 .PP
-\fIMwm\fP is the resource class name of \fBemwm\fP and \fBemwm\fP is the default resource name used by \fBemwm\fP to look up resources\&. the \fI-screens\fP
-command line option specifies resource names, such as "emwm_b+w" and "emwm_color"\&.)
-In the following discussion of resource specification, "Mwm" and "emwm" (and
-the aliased \fBemwm\fP resource names) can be used interchangeably,
-but "emwm" takes precedence over "Mwm"\&.
+For compatibility, \fIMwm\fP is the resource class name of
+\fBemwm\fP and \fBmwm\fP is the default resource name used by \fBemwm\fP to look
+up resources\&. The \fI-screens\fP command line option specifies resource names,
+such as "mwm_b+w" and "mwm_color"\&.) In the following discussion of resource
+specification, "Mwm" and "mwm" (and the aliased \fBmwm\fP resource names) can be
+used interchangeably, but "mwm" takes precedence over "Mwm"\&.
 .PP
 The \fBemwm\fP command uses the following types of resources:
 .IP "\fBComponent Appearance Resources:\fP" 10
@@ -481,7 +430,7 @@ backgroundBackgroundcolorvaries\(dg
 backgroundPixmapBackgroundPixmapstring\(dg\(dgvaries\(dg
 bottomShadowColorForegroundcolorvaries\(dg
 bottomShadowPixmapForegroundstring\(dg\(dgvaries\(dg
-fontListFontListT{
+ListRenderTableT{
 string\(dg\(dg\(dg
 T}"fixed"
 foregroundForegroundcolorvaries\(dg
@@ -510,10 +459,10 @@ type of the screen\&.
 This resource specifies the bottom shadow Pixmap\&. This Pixmap is used
 for the lower and right bevels of the window manager decoration\&. The default
 is chosen based on the visual type of the screen\&.
-.IP "\fIfontList\fP\ (class\  \fIFontList\fP)" 10
+.IP "\fIrenderTable\fP\ (class\  \fIRenderTable\fP)" 10
 This resource specifies the font used in the window manager decoration\&.
 The character encoding of the font should match the character encoding of
-the strings that are used\&. The default is "fixed\&."
+the strings that are used\&. The default is Xft "Sans\&."
 .IP "\fIforeground\fP\ (class\  \fIForeground\fP)" 10
 This resource specifies the foreground color\&. The default is chosen
 based on the visual type of the screen\&.
@@ -595,12 +544,12 @@ lw(1.528376i) lw(1.592955i) lw(1.054795i) lw(1.323875i).
 NameClassValue TypeDefault
 autoKeyFocusAutoKeyFocusT/FT
 autoRaiseDelayAutoRaiseDelaymillisec500
-bitmap-Bitmap-directory/usr/X11R6/include-
+bitmap-Bitmap-directory/usr/include
 DirectoryDirectory/X11/bitmaps
 clientAutoPlaceClientAutoPlaceT/FT
 colormapFocus-ColormapFocus-stringkeyboard
 PolicyPolicy
-configFileConfigFilefile$HOME/emwmrc
+configFileConfigFilefile$HOME/mwmrc
 deiconifyKeyFocusDeiconifyKeyFocusT/FT
 doubleClick-DoubleClick-millisec\&.multi-click
 TimeTimetime\(dg
@@ -624,7 +573,7 @@ raiseKeyFocusRaiseKeyFocusT/FF
 refreshByClearingRefreshByClearingT/FT
 rootButtonClickRootButtonClickT/FF
 screensScreensstringvaries
-sessionClientDBSessionClientDBstring$HOME/\&.emwmclientdb
+sessionClientDBSessionClientDBstring$HOME/\&.mwmclientdb
 showFeedbackShowFeedbackstringall
 startupKeyFocusStartupKeyFocusT/FT
 wMenuButtonClickWMenuButtonClickT/FT
@@ -650,7 +599,7 @@ the keyboard focus\&. The default value of this resource is 500 (ms)\&.
 This resource identifies a directory to be searched for bitmaps referenced
 by \fBemwm\fP resources\&. This directory is searched if a bitmap
 is specified without an absolute pathname\&. The default value for this resource
-is \fB/usr/X11R6/include/X11/bitmaps\fP\&. The directory \fB/usr/X11R6/include/X11/bitmaps\fP
+is \fB/usr/include/X11/bitmaps\fP\&. The directory \fB/usr/include/X11/bitmaps\fP
 represents the customary locations for this directory\&. The actual
 location of this directory may vary on some systems\&. If the bitmap is not
 found in the specified directory, \fBXBMLANGPATH\fP is searched\&.
@@ -678,8 +627,8 @@ is set, \fBemwm\fP looks for \fI$HOME/$LANG\fP/ \fBconfigFile\fP\&. If that file
 \fB$HOME\fP/\fBconfigFile\fP\&. If the \fIconfigFile\fP pathname does not begin with "~/" or "/", \fBemwm\fP considers it to be relative to the current working directory\&. If
 the \fIconfigFile\fP resource is not specified
 or if that file does not exist, \fBemwm\fP uses several default
-paths to find a configuration file\&. The order of the search is shown below: \fB/usr/X11R6/lib/X11/$LANG/system\&.emwmrc\fP\(dg
-\fB/usr/X11R6/lib/X11/system\&.emwmrc\fP\(dg Paths marked with \&'\(dg\&' are
+paths to find a configuration file\&. The order of the search is shown below: \fB/usr/etc/X11/$LANG/mwm/system\&.mwmrc\fP\(dg
+\fB/usr/etc/X11/mwm/system\&.emwmrc\fP\(dg Paths marked with \&'\(dg\&' are
 implementation dependent\&.
 .IP "\fIdeiconifyKeyFocus\fP\ (class\  \fIDeiconifyKeyFocus\fP)" 10
 This resource applies only when the keyboard input focus policy is explicit\&.
@@ -1026,6 +975,9 @@ to greater than the maximum size\&. The default value for this resource is True\
 This resource controls whether the actual window is moved or a rectangular
 outline of the window is moved\&. A default value of False displays a rectangular
 outline on moves\&.
+.IP "\fIprimaryXineramaScreen\fP\ (class\ \fIPrimaryXineramaScreen\fP)" 10
+This resource specifies the index of a Xinerama screen that is preferred when
+placing newly mapped application windows and modal dialog boxes.
 .IP "\fIresizeBorderWidth\fP\ (class\  \fIResizeBorderWidth\fP)" 10
 This resource specifies the width (in pixels) of a client window frame
 border with resize handles\&. The specified border width includes the 3-D shadows\&.
@@ -1284,7 +1236,7 @@ image takes precedence over a user-supplied icon image\&. The default value
 is True, giving the client-supplied icon image higher precedence than the
 user-supplied icon image\&.
 .IP "\fIusePPosition\fP\ (class\  \fIUsePPosition\fP)" 10
-This resource specifies whether Mwm honors program specified position \fBPPosition\fP specified in the \fIWM_NORMAL_HINTS\fP property in the absence of an user specified position\&. Setting
+This resource specifies whether emwm honors program specified position \fBPPosition\fP specified in the \fIWM_NORMAL_HINTS\fP property in the absence of an user specified position\&. Setting
 this resource to on, causes \fBemwm\fP to always honor program
 specified position\&. Setting this resource to off, causes \fBemwm\fP
 to always ignore program specified position\&. Setting this resource to the
@@ -1294,7 +1246,7 @@ position other than (0,0)\&.
 This resource indicates the name of the menu pane that is posted when
 the window menu is popped up (usually by pressing button 1 on the window
 menu button on the client window frame)\&. Menu panes are specified in the \fBemwm\fP resource description file\&. Window menus can be customized on
-a client class basis by creating custom menus in your \fBemwmrc\fP
+a client class basis by creating custom menus in your \fBmwmrc\fP
 file (see \fBemwmrc\fP(4) and specifying resources to activate
 the custom menus\&. The resources have the form \fIMwm*\fP \fBclient_name_or_class\fP\fI*windowMenu\fP\&. The default
 value of this resource is DefaultWindowMenu\&.
@@ -1316,7 +1268,7 @@ Window manager functions can be bound (associated) with key press events\&.
 Menu panes can be used for the window menu and other menus posted with
 key bindings and button bindings\&.
 .IP "" 10
-The \fBemwm\fP resource description file is described in \fBemwmrc\fP(4)\&.
+The \fBemwm\fP resource description file is described in \fBmwmrc\fP(4)\&.
 .SS "Environment"
 .PP
 The \fBemwm\fP window manager uses the environment variable \fBHOME\fP specifying the user\&'s home directory\&.
@@ -1338,18 +1290,17 @@ the shell to use when executing commands via the \fBf\&.exec\fP
 function\&.
 .SS "Files"
 .PP
-\fB/usr/X11R6/lib/X11/$LANG/system\&.mwmrc\fP
+\fB/usr/etc/X11/$LANG/mwm/system\&.mwmrc\fP
 .PP
-\fB/usr/X11R6/lib/X11/system\&.mwmrc\fP
+\fB/usr/etc/X11/mwm/system\&.mwmrc\fP
 .PP
-\fB/usr/X11R6/lib/X11/app-defaults/Mwm\fP
+\fB/usr/etc/X11/app-defaults/Mwm\fP
 .PP
 \fB$HOME/Mwm\fP
 .PP
 \fB$HOME/$LANG/\&.mwmrc\fP
 .PP
 \fB$HOME/\&.mwmrc\fP
-.SS "RELATED INFORMATION"
+.SS "SEE ALSO"
 .PP
 \fBVendorShell\fP(3), \fBVirtualBindings\fP(3), \fBX\fP(1), \fBXmInstallImage\fP(3), \fBxrdb\fP(1)\&.
-...\" created by instant / docbook-to-man, Sun 22 Dec 1996, 20:15
