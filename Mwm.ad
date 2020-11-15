@@ -1,4 +1,3 @@
-!
 ! Motif
 !
 ! Copyright (c) 1987-2012, The Open Group. All rights reserved.
@@ -19,11 +18,6 @@
 ! License along with these librararies and programs; if not, write
 ! to the Free Software Foundation, Inc., 51 Franklin Street, Fifth
 ! Floor, Boston, MA 02110-1301 USA
-!
-!
-! HISTORY
-!
-!   $XConsortium: Mwm.ad /main/9 1995/07/14 09:21:50 drk $
 !
 !  app-defaults RESOURCE SPECIFICATIONS FOR Mwm
 !		(mwm has precedence over Mwm)
@@ -46,10 +40,6 @@
 
 !Mwm*moveThreshold:		3
 
-!
-! component appearance resources 
-!
-
 !!
 !! NOTE: In Mwm 1.2, the resources 'resizeBorderWidth' and 'frameBorderWidth'
 !!	 are calculated dynamically depending on the size and resolution of
@@ -57,11 +47,34 @@
 !!	 in the Mwm app-defaults file.
 !!
 
-! FONT stuff
-Mwm*fontList:			variable
+!! Xft fonts
+Mwm*renderTable: variable
+Mwm*renderTable.variable.fontType: FONT_IS_XFT
+Mwm*renderTable.variable.fontName: Liberation Sans
+Mwm*renderTable.variable.fontSize: 10
 
-! Use smaller fixed font for icons
-Mwm*icon*fontList:		fixed
+!! Title bar font style
+Mwm*title.renderTable: title
+Mwm*renderTable.title.fontType: FONT_IS_XFT
+Mwm*renderTable.title.fontName: Liberation Sans
+Mwm*renderTable.title.fontSize: 10
+Mwm*renderTable.title.fontStyle: Bold
+
+!! Icon label font style
+Mwm*icon.renderTable: icon
+Mwm*renderTable.icon.fontType: FONT_IS_XFT
+Mwm*renderTable.icon.fontName: Liberation Sans
+Mwm*renderTable.icon.fontSize: 10
+Mwm*renderTable.icon.fontStyle: Italic
+
+!! If bitmap fonts are preferred
+!Mwm*renderTable.variable.fontType: FONT_IS_FONT
+!Mwm*renderTable.variable.fontName: -adobe-helvetica-medium-r-normal-*-12-*-*-*-*-*-*-*
+
+!! Window decoration colors
+Mwm*client*background: #808080
+Mwm*client*activeBackground: #A59F80
+Mwm*icon*activeBackground: #4C719E
 
 !! Client decorations for common clients - SAMPLES
 !Mwm*XClock*clientDecoration:		border

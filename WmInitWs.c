@@ -160,6 +160,20 @@ extern char * pWarningStringFile;
 extern char * pWarningStringLine;
 #endif
 
+char *mwmFallbackRes[] = {
+	"*renderTable: variable",
+	"*variable.fontType: FONT_IS_XFT",
+	"*variable.fontName: Sans",
+	"*variable.fontSize: 9",
+	"*enableThinThickness: True",
+	"*enableEtchedInMenu: True",
+	"*enableMenuInCascade: True",
+	"*enableMultiKeyBindings: True",
+	"*enableToggleColor: True",
+	"*enableToggleVisual: True",
+	NULL
+};
+
 /*
  * InitMouseBinding
  *
@@ -487,9 +501,9 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
      */   
 
     XtToolkitInitialize();
-
     wmGD.mwmAppContext = XtCreateApplicationContext();
     AddWmResourceConverters ();
+	XtAppSetFallbackResources(wmGD.mwmAppContext,mwmFallbackRes);
     wmGD.display = XtOpenDisplay (wmGD.mwmAppContext,
 				  NULL,
 				  wmGD.mwmName,

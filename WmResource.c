@@ -482,7 +482,7 @@ char builtinSystemMenu[];
 char defaultRootMenuName[] = "DefaultRootMenu";
 char builtinRootMenuName[] = "_MwmRootMenu_";
 #ifndef MCCABE
-#define BUILTINROOTMENU "DefaultRootMenu\n\
+#define BUILTINROOTMENU "_MwmRootMenu_\n\
 {\n\
 	\"Root Menu\"		f.title\n\
 	\"New Window\"		f.exec \"xterm &\"\n\
@@ -492,6 +492,7 @@ char builtinRootMenuName[] = "_MwmRootMenu_";
 	\"Pack Icons\"		f.pack_icons\n\
 	 no-label		f.separator\n\
 	\"Restart...\"		f.restart\n\
+	\"Quit...\"		f.quit_mwm\n\
 }";
 char builtinRootMenu[] = BUILTINROOTMENU
 #else /* MCCABE */
@@ -612,7 +613,6 @@ Const char MENU_ITEM_PART[] = "menu";
 #define BITMAPDIR "/usr/include/X11/bitmaps/"
 #endif
 
-
 /*************************************<->*************************************
  *
  *  wmGlobalResources
