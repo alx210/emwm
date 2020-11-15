@@ -20,16 +20,6 @@
  * to the Free Software Foundation, Inc., 51 Franklin Street, Fifth
  * Floor, Boston, MA 02110-1301 USA
 */ 
-/* 
- * Motif Release 1.2.3
-*/ 
-
-
-#ifdef REV_INFO
-#ifndef lint
-static char rcsid[] = "$TOG: WmProperty.c /main/7 1997/12/02 10:00:00 bill $"
-#endif
-#endif
 
 /*
  * Included Files:

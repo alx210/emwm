@@ -20,10 +20,6 @@
  * to the Free Software Foundation, Inc., 51 Franklin Street, Fifth
  * Floor, Boston, MA 02110-1301 USA
 */ 
-/* 
- * Motif Release 1.2
-*/ 
-
 
 extern RList *AllocateRList (unsigned int amt);
 extern void BevelDepressedRectangle (RList *prTop, RList *prBot, int x, 

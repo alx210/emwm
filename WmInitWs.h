@@ -20,9 +20,6 @@
  * to the Free Software Foundation, Inc., 51 Franklin Street, Fifth
  * Floor, Boston, MA 02110-1301 USA
 */ 
-/* 
- * Motif Release 1.2.2
-*/ 
 
 extern void InitWmGlobal (int argc, char *argv [], char *environ []);
 extern void InitWmScreen (WmScreenData *pSD, int sNum);

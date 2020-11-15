@@ -20,16 +20,6 @@
  * to the Free Software Foundation, Inc., 51 Franklin Street, Fifth
  * Floor, Boston, MA 02110-1301 USA
 */ 
-/* 
- * Motif Release 1.2.3
-*/ 
-
-
-#ifdef REV_INFO
-#ifndef lint
-static char rcsid[] = "$XConsortium: WmKeyFocus.c /main/5 1996/05/17 12:53:16 rswiston $"
-#endif
-#endif
 
 /*
  * Included Files:

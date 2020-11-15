@@ -23,9 +23,6 @@
  * to the Free Software Foundation, Inc., 51 Franklin Street, Fifth
  * Floor, Boston, MA 02110-1301 USA
 */ 
-/* 
- * Motif Release 1.2.2
-*/ 
 
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
 # define MAKE_MENU(pSD, pCD, mName, iC, aC, moreItems, sysMenu) \

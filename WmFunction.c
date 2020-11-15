@@ -20,16 +20,6 @@
  * to the Free Software Foundation, Inc., 51 Franklin Street, Fifth
  * Floor, Boston, MA 02110-1301 USA
 */ 
-/* 
- * Motif Release 1.2.4
-*/ 
-
-
-#ifdef REV_INFO
-#ifndef lint
-static char rcsid[] = "$TOG: WmFunction.c /main/19 1998/04/20 13:00:48 mgreess $"
-#endif
-#endif
 
 #define FIX_1350    1
 

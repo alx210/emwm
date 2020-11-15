@@ -20,9 +20,6 @@
  * to the Free Software Foundation, Inc., 51 Franklin Street, Fifth
  * Floor, Boston, MA 02110-1301 USA
 */ 
-/* 
- * Motif Release 1.2.3
-*/ 
 
 extern SizeHints * GetNormalHints (ClientData *pCD);
 extern void ProcessWmProtocols (ClientData *pCD);

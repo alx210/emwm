@@ -20,10 +20,6 @@
  * to the Free Software Foundation, Inc., 51 Franklin Street, Fifth
  * Floor, Boston, MA 02110-1301 USA
 */ 
-/* 
- * Motif Release 1.2
-*/ 
-
 
 extern void AutoResetKeyFocus (ClientData *pcdNoFocus, Time focusTime);
 extern void ClearFocusIndication (ClientData *pCD, Boolean refresh);

@@ -20,16 +20,6 @@
  * to the Free Software Foundation, Inc., 51 Franklin Street, Fifth
  * Floor, Boston, MA 02110-1301 USA
 */ 
-/* 
- * Motif Release 1.2
-*/
-
- 
-#ifdef REV_INFO
-#ifndef lint
-static char rcsid[] = "$XConsortium: WmCPlace.c /main/5 1996/08/09 15:18:04 rswiston $"
-#endif
-#endif
 
 /*
  * Included Files:
