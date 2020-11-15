@@ -282,7 +282,6 @@ void QuitWmSignalHandler (int dummy)
 
 void ChildProcSignalHandler (int dummy)
 {
-   pid_t pid;
    int status;
    void (*intStat) ();
    void (*quitStat) ();
@@ -290,7 +289,7 @@ void ChildProcSignalHandler (int dummy)
    intStat = (void (*)())signal (SIGINT, SIG_IGN);
    quitStat = (void (*)())signal (SIGQUIT, SIG_IGN);
 
-   pid = wait(&status);
+   wait(&status);
    signal(SIGCHLD, ChildProcSignalHandler); 
 
    signal (SIGINT, intStat);

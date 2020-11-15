@@ -816,9 +816,7 @@ static MenuItem *MakeMenuItemFromTemplate (MenuItem *template, String name,
 
 static MenuItem *MakeClientCommandMenuItem (String label, String funcArgs)
 {
-    return(MakeMenuItem(label, F_InvokeCommand, funcArgs,
-			(KeySym)(unsigned)NULL, (unsigned int)0,
-			(KeyCode)(unsigned)NULL, (String)NULL));
+    return(MakeMenuItem(label, F_InvokeCommand, funcArgs,0,0,0,NULL));
 }
 
 
@@ -2172,8 +2170,7 @@ static void InsertTreeOnClient (WmScreenData *pSD, ClientData *pCD,
 	    if (newMenuSpec == (MenuSpec *) NULL)
 	    {
 		newMenuSpec = MakeMenuSpec(funcarg_buf,
-					   tree == NULL ? (CARD32)NULL
-					                : tree->commandID);
+					   tree == NULL ? 0:tree->commandID);
 		if (duplicate_globals) newMenuSpec->clientLocal = TRUE;
 		else 		       newMenuSpec->clientLocal = FALSE;
 
