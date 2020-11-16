@@ -1810,12 +1810,12 @@ void PaintActiveIconText (ClientData *pcd, Boolean erase)
 #ifdef WSM
     WmDrawXmString(DISPLAY, pcd->pSD->activeIconTextWin, 
 		   ICON_APPEARANCE(pcd).renderTable,
-		   pcd->iconTitle, iconGC, 
+		   pcd->ewmhIconTitle?pcd->ewmhIconTitle:pcd->iconTitle, iconGC, 
 		   textBox.x, textBox.y, textBox.width, &textBox, True);
 #else /* WSM */
     WmDrawXmString(DISPLAY, pcd->pSD->activeIconTextWin, 
 		   ICON_APPEARANCE(pcd).renderTable,
-		   pcd->iconTitle, iconGC, 
+		   pcd->ewmhIconTitle?pcd->ewmhIconTitle:pcd->iconTitle, iconGC, 
 		   textBox.x, textBox.y, textBox.width, &textBox);
 #endif /* WSM */
 
