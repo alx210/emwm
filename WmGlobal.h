@@ -2237,6 +2237,10 @@ typedef struct _WmGlobalData
 #if defined(sun) && defined(ALLPLANES)
     Bool	allplanes;		/* is SUN_ALLPLANES available? */
 #endif /* defined(sun) && defined(ALLPLANES) */
+	    
+    Boolean xrandr_present;
+    int xrandr_base_evt;
+    int xrandr_base_err;
 } WmGlobalData;
 
 /* quick references to global data: */

@@ -32,6 +32,11 @@
 void SetupXinerama(void);
 
 /*
+ * Called on xrandr screen change events
+ */
+void UpdateXineramaInfo(void);
+
+/*
  * Retrieves xinerama screen info from given coordinates.
  * Returns True on success, False if xinerama is inactive or on error.
  */

@@ -29,7 +29,7 @@
 #include "WmICCC.h"
 
 #include <X11/Xatom.h>
-
+#include <X11/extensions/Xrandr.h>
 /*
  * include extern functions
  */
@@ -53,6 +53,7 @@
 #include "WmWrkspace.h"
 #endif /* WSM */
 #include "WmEwmh.h"
+#include "WmXinerama.h"
 
 
 /*
@@ -498,8 +499,14 @@ Boolean HandleEventsOnSpecialWindows (XEvent *pEvent)
 #ifdef WSM
     WmScreenData *pSD;
 #endif /* WSM */
-
-
+	
+	/* Check for Xrandr screen change event; update configuration */
+	if(wmGD.xrandr_present && pEvent->type == 
+		wmGD.xrandr_base_evt + RRScreenChangeNotify) {
+		XRRUpdateConfiguration(pEvent);
+		UpdateXineramaInfo();
+	}
+	
     /*
      * The window is not a root window or a client frame window.  Check for
      * a special window manager window.  Have the toolkit dispatch the event

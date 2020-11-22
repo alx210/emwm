@@ -10,7 +10,7 @@ DEFINES = -DLARGECURSORS -DR2_COMPAT -DUNMAP_ON_RESTART \
 	-DNO_OL_COMPAT -DNO_MESSAGE_CATALOG \
 	-DMWMRCDIR='"$(MWMRCDIR)"'
 
-SYSLIBS =  -lXm -lXt -lXext -lXinerama -lXft -lX11
+SYSLIBS =  -lXm -lXt -lXext -lXrandr -lXinerama -lXft -lX11
 CFLAGS := -O2 -Wall $(INCDIRS) $(DEFINES)
 # CFLAGS := -O0 -g -Wall $(INCDIRS) $(DEFINES) -DDEBUG
 
@@ -45,7 +45,7 @@ emwm: $(mwm_objs) $(wsm_objs)
 .PHONY: depend clean install
 
 depend:
-	$(CC) -MM $(CFLAGS) $(mwm_objs:.o=.c) $(wsm_objs:.o=.c) > $@
+	$(CC) -MM $(INCDIRS) $(mwm_objs:.o=.c) $(wsm_objs:.o=.c) > $@
 
 clean:
 	-rm -f $(mwm_objs) $(wsm_objs) emwm

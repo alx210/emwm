@@ -25,6 +25,7 @@
 #include <X11/extensions/Xinerama.h>
 
 static Boolean is_active=False;
+static Boolean is_present=False;
 static XineramaScreenInfo *g_xsi=NULL;
 static int g_nxsi=0;
 
@@ -34,8 +35,8 @@ static int g_nxsi=0;
 void SetupXinerama(void)
 {
 	int major_opcode, first_event, first_error;
-	if(XQueryExtension(DISPLAY,"XINERAMA",
-		&major_opcode,&first_event,&first_error)) {
+	if((is_present = XQueryExtension(DISPLAY,"XINERAMA",
+		&major_opcode,&first_event,&first_error))) {
 
 		if(!XineramaIsActive(DISPLAY) ||
 			(g_xsi=XineramaQueryScreens(DISPLAY,&g_nxsi))==NULL){
@@ -44,6 +45,24 @@ void SetupXinerama(void)
 		}
 		is_active=True;
 	}
+}
+
+/*
+ * Called on xrandr screen change events
+ */
+void UpdateXineramaInfo(void)
+{
+	if(!is_present) return;
+	
+	if(g_xsi) XFree(g_xsi);
+	g_xsi = NULL;
+	
+	if(!XineramaIsActive(DISPLAY) ||
+		(g_xsi=XineramaQueryScreens(DISPLAY,&g_nxsi))==NULL){
+		is_active=False;
+		return; 
+	}
+	is_active = True;
 }
 
 /*

@@ -71,6 +71,7 @@ typedef struct
 #endif
 #endif
 #include <X11/Xlibint.h>
+#include <X11/extensions/Xrandr.h>
 
 /*
  * include extern functions
@@ -152,9 +153,9 @@ extern char * pWarningStringLine;
 
 char *mwmFallbackRes[] = {
 	"*renderTable: variable",
-	"*variable.fontType: FONT_IS_XFT",
-	"*variable.fontName: Sans",
-	"*variable.fontSize: 9",
+	"*renderTable.variable.fontType: FONT_IS_XFT",
+	"*renderTable.variable.fontName: Sans",
+	"*renderTable.variable.fontSize: 9",
 	"*enableThinThickness: True",
 	"*enableEtchedInMenu: True",
 	"*enableMenuInCascade: True",
@@ -1104,7 +1105,16 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 
     /* Initialize EWMH support */
     SetupWmEwmh();
-
+	
+	/* Initialize Xrandr and set up for screen change notifications */
+	if(XRRQueryExtension(DISPLAY,&wmGD.xrandr_base_evt,&wmGD.xrandr_base_err)){
+		wmGD.xrandr_present = True;
+		XRRSelectInput(DISPLAY,XtWindow(wmGD.topLevelW),
+			RRScreenChangeNotifyMask);
+	} else {
+		wmGD.xrandr_present = False;
+	}
+	
     /*
      * Use the WM_SAVE_YOURSELF protocol
      * for notification of when to save ourself
