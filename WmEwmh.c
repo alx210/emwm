@@ -215,14 +215,12 @@ void ConfigureEwmhFullScreen(ClientData *pCD, Boolean set)
 	int yorg = 0;
 	int swidth;
 	int sheight;
-	Boolean xinerama = False;
 	XineramaScreenInfo xsi;
 	int i;
 	
-	pCD->fullScreen = set;
-	
-	xinerama = GetXineramaScreenFromLocation(pCD->clientX,pCD->clientY,&xsi);
-	if(xinerama){
+	if(set == pCD->fullScreen) return;
+
+	if(GetXineramaScreenFromLocation(pCD->clientX,pCD->clientY,&xsi)){
 		xorg = xsi.x_org;
 		yorg = xsi.y_org;
 		swidth = xsi.width;
@@ -235,18 +233,24 @@ void ConfigureEwmhFullScreen(ClientData *pCD, Boolean set)
 	if(set){
 		Atom state;
 		
+		pCD->normalClientFunctions = pCD->clientFunctions;
+		pCD->clientFunctions = pCD->clientFunctions & 
+			(~(MWM_FUNC_RESIZE|MWM_FUNC_MOVE|MWM_FUNC_MAXIMIZE));
+
 		XUnmapWindow(DISPLAY,pCD->clientTitleWin);
 		for(i = 0; i < STRETCH_COUNT; i++){
 			XUnmapWindow(DISPLAY,pCD->clientStretchWin[i]);
 		}
 		XMoveResizeWindow(DISPLAY,pCD->clientFrameWin,xorg,yorg,swidth,sheight);
-		XMoveResizeWindow(DISPLAY,pCD->clientBaseWin,xorg,yorg,swidth,sheight);
+		XMoveResizeWindow(DISPLAY,pCD->clientBaseWin,0,0,swidth,sheight);
 		XResizeWindow(DISPLAY,pCD->client,swidth,sheight);
 		
 		state = ewmh_atoms[_NET_WM_STATE_FULLSCREEN];
 		XChangeProperty(DISPLAY,pCD->client,ewmh_atoms[_NET_WM_STATE],
 			XA_ATOM,32,PropModeReplace,(unsigned char*)&state,1);
+
 	}else{
+		pCD->clientFunctions = pCD->normalClientFunctions;
 		XMoveResizeWindow(DISPLAY,pCD->clientBaseWin,
 			pCD->clientOffset.x,pCD->clientOffset.y,
 			pCD->clientWidth, pCD->clientHeight);
@@ -264,6 +268,7 @@ void ConfigureEwmhFullScreen(ClientData *pCD, Boolean set)
 		}
 		XDeleteProperty(DISPLAY,pCD->client,ewmh_atoms[_NET_WM_STATE]);
 	}
+	pCD->fullScreen = set;
 }
 
 /*

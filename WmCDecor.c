@@ -48,6 +48,7 @@
 #include "WmIconBox.h"
 #include "WmMenu.h"
 #include "WmWinInfo.h"
+#include "WmXinerama.h"
 
 
 /*
@@ -191,6 +192,11 @@ void FrameExposureProc (ClientData *pcd)
     GC topGC, botGC;
     Window win = pcd->clientFrameWin;
 
+    if(pcd->fullScreen) {
+		XClearWindow(DISPLAY,win);
+		return;
+    }
+    
     /* use "active" GCs if we have keyboard focus */
 
     if (pcd == wmGD.keyboardFocus) {
@@ -1916,6 +1922,14 @@ void ComputeGadgetRectangles (ClientData *pcd)
 void GetSystemMenuPosition (ClientData *pcd, int *px, int *py, 
 			    unsigned int height, Context context)
 {
+	XineramaScreenInfo xsi;
+	int dispBottom;
+
+	if(GetXineramaScreenFromLocation(pcd->clientX,pcd->clientY,&xsi)){
+		dispBottom = xsi.y_org + xsi.height;
+	}else{
+		dispBottom = XDisplayHeight(DISPLAY,pcd->pSD->screen);
+	}
 
     if ((pcd->clientState == MINIMIZED_STATE) ||
         ((pcd->clientState != MINIMIZED_STATE) &&
@@ -1983,8 +1997,13 @@ void GetSystemMenuPosition (ClientData *pcd, int *px, int *py,
 	 * If it would then hit the top of the screen turn of the hotspot
 	 *   processing.
 	 */
-
-	if ((pcd->decor & MWM_DECOR_TITLE) &&
+	
+	if(pcd->fullScreen)
+	{
+		*px = 0;
+		*py = 0;
+	} 
+	else if ((pcd->decor & MWM_DECOR_TITLE) &&
 	    !(pcd->decor & (MWM_DECOR_RESIZEH | MWM_DECOR_BORDER)))
 	{
 	    *px = pcd->frameInfo.x;
@@ -1996,8 +2015,7 @@ void GetSystemMenuPosition (ClientData *pcd, int *px, int *py,
 	    *py = pcd->frameInfo.y + pcd->frameInfo.upperBorderWidth + 
 		  pcd->frameInfo.titleBarHeight;
 	}
-	if (*py + height >= DisplayHeight (DISPLAY, 
-		  SCREEN_FOR_CLIENT(pcd)))
+	if (*py + height >= dispBottom)
 	{
 	    if ((pcd->decor & MWM_DECOR_TITLE) &&
 		!(pcd->decor & (MWM_DECOR_RESIZEH | MWM_DECOR_BORDER)))

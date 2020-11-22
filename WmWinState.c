@@ -47,7 +47,7 @@
 #ifdef WSM
 #include "WmWrkspace.h"
 #endif /* WSM */
-
+#include "WmEwmh.h"
 
 /*
  * Function Declarations:
@@ -107,6 +107,8 @@ void SetClientStateWithEventMask (ClientData *pCD, int newState, Time setTime, u
     Boolean notShowing = (newState & UNSEEN_STATE);
 #endif /* WSM */
 
+	if(pCD->fullScreen) ConfigureEwmhFullScreen(pCD,False);
+	
     currentState = pCD->clientState;
     if (currentState == newState)
     {

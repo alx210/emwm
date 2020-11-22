@@ -1741,7 +1741,8 @@ typedef struct _ClientData
     Window	clientBaseWin;			/* for matte & reparenting */
     int		xBorderWidth;			/* original X border width */
     FrameInfo	frameInfo;			/* frame geometry data */
-    Boolean	fullScreen;
+	Boolean	fullScreen;				/* EWMH full screen flag */
+	int		normalClientFunctions;	/* non full screen clientFunctions */
 
 	
     /* client window frame graphic data: */

@@ -89,6 +89,7 @@ extern pid_t vfork();
 #include "WmWinState.h"
 #include "WmXSMP.h"
 #include "WmCmd.h"
+#include "WmEwmh.h"
 
 #include <Xm/RowColumnP.h> /* for MS_LastManagedMenuTime */
 extern XmMenuState _XmGetMenuState();
@@ -2517,8 +2518,11 @@ Boolean F_Restore (String args, ClientData *pCD, XEvent *event)
 	 * If current state is MAXIMIZED state then just go to NORMAL state,
 	 * otherwise (you are in MINIMIZED state) return to previous state.
 	 */
-
-	if (pCD->clientState == MAXIMIZED_STATE)
+	if (pCD->fullScreen)
+	{
+		ConfigureEwmhFullScreen(pCD,False);
+	}
+	else if (pCD->clientState == MAXIMIZED_STATE)
 	{
 	    SetClientStateWithEventMask (pCD, NORMAL_STATE,
 			    GetFunctionTimestamp ((XButtonEvent *)event),
@@ -2756,8 +2760,11 @@ Boolean F_Post_SMenu (String args, ClientData *pCD, XEvent *event)
 	 * Determine whether the keyboard is posting the menu and post
 	 * the menu at an appropriate place.
          */
-
-	if (pCD->clientState == NORMAL_STATE)
+	if(pCD->fullScreen)
+	{
+		menuContext = F_CONTEXT_MAXIMIZE;
+	}
+	else if (pCD->clientState == NORMAL_STATE)
 	{
 	    menuContext = F_CONTEXT_NORMAL;
 	}
