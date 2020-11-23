@@ -2,6 +2,7 @@
 
 PREFIX = /usr
 MWMRCDIR = $(PREFIX)/etc/X11/mwm
+MANDIR = $(PREFIX)/share/man
 
 INCDIRS = -I./Xm -I/usr/local/include 
 LIBDIRS = -L/usr/local/lib
@@ -52,7 +53,7 @@ clean:
 
 install:
 	install -m 775 emwm $(PREFIX)/bin/emwm
-	install -m 664 emwm.1 $(PREFIX)/man/man1/emwm.1
+	install -m 664 emwm.1 $(MANDIR)/man1/emwm.1
 	install -m 664 $(rc_data) $(MWMRCDIR)/$(rc_data)
 
 include depend
