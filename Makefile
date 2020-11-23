@@ -43,7 +43,7 @@ emwm: $(mwm_objs) $(wsm_objs)
 	$(CC) $(LIBDIRS) -o $@ $(mwm_objs) $(wsm_objs) $(SYSLIBS)
 
 
-.PHONY: depend clean install
+.PHONY: clean install
 
 depend:
 	$(CC) -MM $(INCDIRS) $(mwm_objs:.o=.c) $(wsm_objs:.o=.c) > $@
@@ -53,7 +53,9 @@ clean:
 
 install:
 	install -m 775 emwm $(PREFIX)/bin/emwm
+	install -m 775 -d $(MANDIR)/man1
 	install -m 664 emwm.1 $(MANDIR)/man1/emwm.1
+	install -m 775 -d $(MWMRCDIR)
 	install -m 664 $(rc_data) $(MWMRCDIR)/$(rc_data)
 
 include depend
