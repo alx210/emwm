@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
 #include "WmGlobal.h"
@@ -369,18 +370,48 @@ static Pixmap GetEwmhIconPixmap(const ClientData *pCD)
 	
 	for(y = 0; y < dest_img->height; y++){
 		for(x = 0; x < dest_img->width; x++){
-			unsigned int r,g,b;
-			float a;
+			unsigned int r[4],g[4],b[4],a[4];
+			float na;
 			unsigned long pixel;
 			
-			fptr.i = rgb_data + 
-				((unsigned int)(y * dy) * rgb_width + (unsigned int)(x * dx));
-			a = (float)fptr.b[3] / 256;
-			r = ((float)fptr.b[2] * a + (float)bg.red * (1.0 - a));
-			g = ((float)fptr.b[1] * a + (float)bg.green * (1.0 - a));
-			b = ((float)fptr.b[0] * a + (float)bg.blue * (1.0 - a));
-			
-			pixel = (r << red_shift) | (g << green_shift) | (b << blue_shift);
+			/* typically the image will be about 2x the size we want, hence
+			 * doing some basic bi-linear interpolation should suffice */
+			fptr.i = rgb_data + (unsigned int)
+				(floorf(y * dy) * rgb_width + floorf(x * dx));
+			a[0] = fptr.b[3];
+			r[0] = fptr.b[2];
+			g[0] = fptr.b[1];
+			b[0] = fptr.b[0];
+			fptr.i = rgb_data + (unsigned int)
+				(floorf(y * dy) * rgb_width + ceilf(x * dx));
+			a[1] = fptr.b[3];
+			r[1] = fptr.b[2];
+			g[1] = fptr.b[1];
+			b[1] = fptr.b[0];
+			fptr.i = rgb_data + (unsigned int)
+				(ceilf(y * dy) * rgb_width + floorf(x * dx));
+			a[2] = fptr.b[3];
+			r[2] = fptr.b[2];
+			g[2] = fptr.b[1];
+			b[2] = fptr.b[0];
+			fptr.i = rgb_data + (unsigned int)
+				(ceilf(y * dy) * rgb_width + ceilf(x * dx));
+			a[3] = fptr.b[3];
+			r[3] = fptr.b[2];
+			g[3] = fptr.b[1];
+			b[3] = fptr.b[0];
+
+			na = (float)((a[0] + a[1] + a[2] + a[3]) / 4) / 256;
+			r[0] = (r[0] + r[1] + r[2] + r[3]) / 4;
+			g[0] = (g[0] + g[1] + g[2] + g[3]) / 4;
+			b[0] = (b[0] + b[1] + b[2] + b[3]) / 4;
+
+			r[0] = ((float)r[0] * na + (float)bg.red * (1.0 - na));
+			g[0] = ((float)g[0] * na + (float)bg.green * (1.0 - na));
+			b[0] = ((float)b[0] * na + (float)bg.blue * (1.0 - na));
+
+			pixel = (r[0] << red_shift) |
+				(g[0] << green_shift) |(b[0] << blue_shift);
 			
 			XPutPixel(dest_img,x,y,pixel);
 		}
