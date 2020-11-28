@@ -1,8 +1,9 @@
 # EMWM Makefile
 
 PREFIX = /usr
-MWMRCDIR = $(PREFIX)/etc/X11/mwm
+MWMRCDIR = $(PREFIX)/share/X11/mwm
 MANDIR = $(PREFIX)/share/man
+APPLRESDIR = $(PREFIX)/share/X11/app-defaults
 
 INCDIRS = -I./Xm -I/usr/local/include 
 LIBDIRS = -L/usr/local/lib
@@ -26,18 +27,17 @@ mwm_objs = \
 	WmWinConf.o	WmWinInfo.o	WmWinList.o\
 	WmWinState.o	WmWsm.o		WmXSMP.o\
 	WmCmd.o 	WmImage.o	WmInitWs.o\
-	WmMenu.o	WmProtocol.o WmXinerama.o \
+	WmMenu.o	WmProtocol.o	WmXinerama.o \
 	WmEwmh.o
 
 wsm_objs = \
 	WmWsmLib/debug.o WmWsmLib/disp.o\
 	WmWsmLib/free.o WmWsmLib/pack.o\
-	WmWsmLib/recv.o	WmWsmLib/send.o\
+	WmWsmLib/recv.o WmWsmLib/send.o\
 	WmWsmLib/util.o WmWsmLib/utm_send.o
 
 msg_cat = Mwm.msg
 rc_data = system.mwmrc
-
 
 emwm: $(mwm_objs) $(wsm_objs)
 	$(CC) $(LIBDIRS) -o $@ $(mwm_objs) $(wsm_objs) $(SYSLIBS)
@@ -56,6 +56,10 @@ install:
 	install -m 775 -d $(MANDIR)/man1
 	install -m 664 emwm.1 $(MANDIR)/man1/emwm.1
 	install -m 775 -d $(MWMRCDIR)
-	install -m 664 $(rc_data) $(MWMRCDIR)/$(rc_data)
+	if ! [ -f $(MWMRCDIR)/$(rc_data) ]; then \
+	install -m 664 $(rc_data) $(MWMRCDIR)/$(rc_data); fi
+	install -m 775 -d $(APPLRESDIR)
+	if ! [ -f $(APPLRESDIR)/Mwm ]; then \
+	install -m 664 Mwm.ad $(APPLRESDIR)/Mwm; fi
 
 include depend
