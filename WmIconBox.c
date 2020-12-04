@@ -1422,13 +1422,9 @@ void SetGeometry (WmWorkspaceData *pWS, ClientData *pCD, IconBoxData *pIBD)
 
     PlaceFrameOnScreen (pCD, &pCD->clientX, &pCD->clientY, pCD->clientWidth,
         pCD->clientHeight);
-    pCD->clientX -= (wmGD.positionIsFrame
-			? pCD->clientOffset.x
-			: 0);
+    pCD->clientX -= pCD->clientOffset.x;
 			
-    pCD->clientY -=  (wmGD.positionIsFrame
-			? pCD->clientOffset.y
-			: 0);
+    pCD->clientY -= pCD->clientOffset.y;
 
 
     i=0; 

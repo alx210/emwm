@@ -36,12 +36,6 @@
 #include "WmIDecor.h"
 #include "WmEwmh.h"
 
-#ifdef DEBUG
-#define dbg_printf(...) fprintf(stderr,__VA_ARGS__)
-#else
-#define dbg_printf(...) ((void)0)
-#endif
-
 static void* FetchWindowProperty(Window wnd, Atom prop,
 	Atom req_type, unsigned long *size);
 static Pixmap GetIconPixmap(const ClientData *pCD);
@@ -293,8 +287,8 @@ static void UpdateFrameExtents(ClientData *pCD)
 	
 	data[0] = data[1] = data[3] = (pCD->decor & MWM_DECOR_BORDER)?
 			LowerBorderWidth(pCD):0;
-	data[2] = (pCD->decor & MWM_DECOR_TITLE)?TitleBarHeight(pCD):
-			((pCD->decor & MWM_DECOR_BORDER)?LowerBorderWidth(pCD):0);
+	data[2] = ((pCD->decor & MWM_DECOR_TITLE)?TitleBarHeight(pCD):0) +
+			((pCD->decor & MWM_DECOR_BORDER)?UpperBorderWidth(pCD):0);
 
 	XChangeProperty(DISPLAY,pCD->client,ewmh_atoms[_NET_FRAME_EXTENTS],
 		XA_CARDINAL,32,PropModeReplace,(unsigned char*)data,4);

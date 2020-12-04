@@ -70,5 +70,7 @@ extern void ProcessButtonGrabOnClient (ClientData *pCD,
 				       Boolean replayEvent);
 extern void DetermineActiveScreen (XEvent *pEvent);
 extern Boolean WmDispatchClientEvent (XEvent *event);
+extern void AdjustCoordinatesToGravity(ClientData *pCD, int gravity, 
+	int *px, int *py, unsigned int *pwidth, unsigned int *pheight);
 
 #define SetActiveScreen(psd) (ACTIVE_PSD=(psd), wmGD.queryScreen=False)

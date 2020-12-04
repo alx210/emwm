@@ -931,18 +931,7 @@ Boolean HandleResizeKeyPress (ClientData *pcd, XEvent *pev)
  *************************************<->***********************************/
 void DoFeedback (ClientData *pcd, int x, int y, unsigned int width, unsigned int height, unsigned long newStyle, Boolean resizing)
 {
-    int cx = x;
-    int cy = y;
     unsigned int cwidth, cheight;
-
-    /* compute client window coordinates from frame coordinates */
-    FrameToClient (pcd, &cx, &cy, &width, &height);
-
-    /* use frame (not client) position if user wishes it */
-    if (wmGD.positionIsFrame) {
-	cx = x;
-	cy = y;
-    }
 
     /* If resizing, make sure configuration is valid. */
     if (resizing)
@@ -962,10 +951,10 @@ void DoFeedback (ClientData *pcd, int x, int y, unsigned int width, unsigned int
 		/ pcd->heightInc;
 
     if (newStyle) {
-	ShowFeedbackWindow (pcd->pSD, cx, cy, cwidth, cheight, newStyle);
+	ShowFeedbackWindow (pcd->pSD, x, y, cwidth, cheight, newStyle);
     }
     else {
-	UpdateFeedbackInfo (pcd->pSD, cx, cy, cwidth, cheight);
+	UpdateFeedbackInfo (pcd->pSD, x, y, cwidth, cheight);
     }
 } /* END OF FUNCTION DoFeedback  */
 
@@ -2042,17 +2031,14 @@ void ProcessNewConfiguration (ClientData *pCD, int x, int y, unsigned int width,
 	}
     }
 
-#ifndef CONFIG_RELATIVE_TO_CLIENT
     /*
-     * If positionIsFrame or user initiated configuration request,
-     * then adjust client position to by frame_width and frame_height.
+     * Adjust client position for user initiated requests.
      */
-    if (wmGD.positionIsFrame || (!clientRequest))
+    if (!clientRequest)
     {
 	xoff = pCD->clientOffset.x;
 	yoff = pCD->clientOffset.y;
     }
-#endif
 
     /*
      * Changes in position update maximum geometry on maximized windows

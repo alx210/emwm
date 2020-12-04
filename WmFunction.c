@@ -1303,17 +1303,9 @@ void ReBorderClient (ClientData *pCD, Boolean reMapClient)
 	    }
 	    else
 	    {
-		if(wmGD.positionIsFrame)
-		{
 		    CalculateGravityOffset (pCD, &xoff, &yoff);
 		    x = pCD->clientX - xoff;
 		    y = pCD->clientY - yoff;
-		}
-		else
-		{
-		    x = pCD->clientX;
-		    y = pCD->clientY;
-		}
 	    }
 	    XUnmapWindow(DISPLAY, pCD->clientFrameWin);
 	    XReparentWindow (DISPLAY, pCD->client, 
@@ -3282,17 +3274,9 @@ void DeFrameClient (ClientData *pCD)
         }
         else
         {
-	    if(wmGD.positionIsFrame)
-	    {
 		CalculateGravityOffset (pCD, &xoff, &yoff);
 		x = pCD->clientX - xoff;
 		y = pCD->clientY - yoff;
-	    }
-	    else
-	    {
-		x = pCD->clientX;
-		y = pCD->clientY;
-	    }
         }
 
 #ifndef UNMAP_ON_RESTART

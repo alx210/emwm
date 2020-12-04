@@ -2220,7 +2220,6 @@ Boolean HandleCFocusOut (ClientData *pCD, XFocusChangeEvent *focusChangeEvent)
  *  configureRequest = a pointer to a ConfigureRequest event
  *
  *************************************<->***********************************/
-
 void HandleCConfigureRequest (ClientData *pCD, XConfigureRequestEvent *configureRequest)
 {
     unsigned int mask = configureRequest->value_mask;
@@ -2240,41 +2239,27 @@ void HandleCConfigureRequest (ClientData *pCD, XConfigureRequestEvent *configure
     if ((configureRequest->window == pCD->client) &&
 	(mask & (CWX | CWY | CWWidth | CWHeight | CWBorderWidth)))
     {
-	if (pCD->maxConfig) {
-	    ProcessNewConfiguration (pCD,
-		(mask & CWX) ? configureRequest->x : pCD->maxX,
-		(mask & CWY) ? configureRequest->y : pCD->maxY,
-		(unsigned int) ((mask & CWWidth) ? 
-		    configureRequest->width : pCD->maxWidth),
-		(unsigned int) ((mask & CWHeight) ? 
-		    configureRequest->height : pCD->maxHeight),
-		True /*client request*/);
-	}
-	else {
-	    int xOff, yOff;
+		int cx = (mask & CWX) ? configureRequest->x :
+			(pCD->maxConfig ? pCD->maxX : pCD->clientX);
 
-	    /* CDExc21094 - ProcessNewConfiguration() offsets the */
-	    /* x and y positions passed in; in order to keep them */
-	    /* the same, we offset them in the opposite direction. */
-	    if (wmGD.positionIsFrame)
-	    {
-		xOff = pCD->clientOffset.x;
-		yOff = pCD->clientOffset.y;
-	    }
-	    else
-	    {
-		xOff = yOff = 0;
-	    }
+		int cy = (mask & CWY) ? configureRequest->y :
+			(pCD->maxConfig ? pCD->maxY : pCD->clientY);
 
-	    ProcessNewConfiguration (pCD,
-		(mask & CWX) ? configureRequest->x : pCD->clientX - xOff,
-		(mask & CWY) ? configureRequest->y : pCD->clientY - yOff,
-		(unsigned int) ((mask & CWWidth) ? 
-		    configureRequest->width : pCD->clientWidth),
-		(unsigned int) ((mask & CWHeight) ? 
-		    configureRequest->height : pCD->clientHeight),
-		True /*client request*/);
-	}
+		unsigned int width = (mask & CWWidth) ? 
+			configureRequest->width : pCD->clientWidth;
+
+		unsigned int height = (mask & CWHeight) ?
+			configureRequest->height : pCD->clientHeight;
+
+		if(pCD->windowGravity != StaticGravity){
+			if(!(mask & CWX)) cx -= pCD->clientOffset.x;
+			if(!(mask & CWY)) cy -= pCD->clientOffset.y;
+		}
+
+		AdjustCoordinatesToGravity(pCD, pCD->windowGravity,
+			&cx, &cy, &width, &height);
+
+	    ProcessNewConfiguration (pCD, cx, cy, width, height, True);
     }
 
     if (mask & CWStackMode)
@@ -2348,8 +2333,75 @@ void HandleCConfigureRequest (ClientData *pCD, XConfigureRequestEvent *configure
 
 } /* END OF FUNCTION HandleCConfigureRequest */
 
+/*
+ * Takes ConfigureRequest coordinates and dimensions and outputs client
+ * window coordinates computed according to the gravity constant specified.
+ * Ensures that the returned window position is not offscreen.
+ */
+void AdjustCoordinatesToGravity(ClientData *pCD, int gravity, int *px, int *py,
+	unsigned int *pwidth, unsigned int *pheight)
+{
+	int dpy_width, dpy_height;
+	unsigned int cw = pCD->maxConfig ? pCD->maxWidth : pCD->clientWidth;
+	unsigned int ch = pCD->maxConfig ? pCD->maxHeight : pCD->clientHeight;
 
-
+	switch(gravity){
+		case StaticGravity:
+		/* keep x */ 
+		break;
+		case NorthWestGravity:
+		case SouthWestGravity:
+		case WestGravity:
+		*px += pCD->clientOffset.x;
+		break;
+		case NorthGravity:
+		case SouthGravity:
+		case CenterGravity:
+		*px -= ((*pwidth) - cw) / 2 - pCD->clientOffset.x;
+		break;
+		case NorthEastGravity:
+		case EastGravity:
+		case SouthEastGravity:
+		*px -= ((*pwidth) - cw) - pCD->clientOffset.x;
+		break;
+	}
+
+	switch(gravity){
+		case StaticGravity:
+		/* keep y */
+		break;
+		case NorthWestGravity:
+		case NorthGravity:
+		case NorthEastGravity:
+		*py += pCD->clientOffset.y;
+		break;
+		case EastGravity:
+		case WestGravity:
+		case CenterGravity:
+		*py -= ((*pheight) - ch) / 2 - pCD->clientOffset.y;
+		break;
+		case SouthEastGravity:
+		case SouthGravity:
+		case SouthWestGravity:
+		*py -= ((*pheight) - ch) - pCD->clientOffset.y;
+		break;
+	}
+
+	/* Make sure at least the menu box is visible */
+	dpy_width = XDisplayWidth(DISPLAY,SCREEN_FOR_CLIENT(pCD));
+	dpy_height = XDisplayHeight(DISPLAY,SCREEN_FOR_CLIENT(pCD));
+
+	if((*px - pCD->clientOffset.x) < 0)
+		*px = pCD->clientOffset.x;
+	else if(*px > dpy_width)
+		*px = dpy_width - pCD->frameInfo.titleBarHeight;
+
+	if((*py - pCD->clientOffset.y) < 0)
+		*py = pCD->clientOffset.y;
+	else if(*py  > dpy_height)
+		*py = dpy_height;
+}
+
 /*************************************<->*************************************
  *
  *  HandleCColormapNotify (pCD, colorEvent)
@@ -2526,7 +2578,6 @@ void HandleCColormapNotify (ClientData *pCD, XColormapEvent *colorEvent)
 } /* END OF FUNCTION HandleCColormapNotify */
 
 
-
 /*************************************<->*************************************
  *
  *  HandleClientMessage (pCD, clientEvent)
@@ -2581,7 +2632,7 @@ void HandleClientMessage (ClientData *pCD, XClientMessageEvent *clientEvent)
 
 
 #ifndef NO_SHAPE
-
+
 /*************************************<->*************************************
  *
  *  HandleCShapeNotify (pCD, shapeEvent)
@@ -2614,7 +2665,7 @@ HandleCShapeNotify (ClientData *pCD,  XShapeEvent *shapeEvent)
 } /* END OF FUNCTION HandleCShapeNotify */
 #endif /* NO_SHAPE */
 
-
+
 /*************************************<->*************************************
  *
  *  GetParentWindow (window)
@@ -2660,7 +2711,7 @@ Window GetParentWindow (Window window)
 
 } /* END OF FUNCTION GetParentWindow */
 
-
+
 /*************************************<->*************************************
  *
  *  DetermineActiveScreen (pEvent)
@@ -2713,7 +2764,7 @@ void DetermineActiveScreen (XEvent *pEvent)
 
 } /* END OF FUNCTION DetermineActiveScreen */
 
-
+
 /*************************************<->*************************************
  *
  *  GetScreenForWindow (win)

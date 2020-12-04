@@ -2179,7 +2179,6 @@ typedef struct _WmGlobalData
     Boolean     passButtonsCheck; /* used to override passButtons */
     Boolean	passButtons;			/* resource */
     Boolean	passSelectButton;		/* resource */
-    Boolean	positionIsFrame;		/* resource */
     Boolean	positionOnScreen;		/* resource */
     int		quitTimeout;			/* resource */
     Boolean     raiseKeyFocus;                  /* resource */

@@ -566,7 +566,6 @@ moveThresholdMoveThresholdpixels4
 multiScreenMultiScreenT/FF
 passButtonsPassButtonsT/FF
 passSelectButtonPassSelectButtonT/FT
-positionIsFramePositionIsFrameT/FT
 positionOnScreenPositionOnScreenT/FT
 quitTimeoutQuitTimeoutmillisec\&.1000
 raiseKeyFocusRaiseKeyFocusT/FF
@@ -713,13 +712,6 @@ client context\&. If the resource value is False, then the button press will
 not be passed to the client\&. If the value is True, the button press is passed
 to the client window\&. The window manager function is done in either case\&.
 The default value for this resource is True\&.
-.IP "\fIpositionIsFrame\fP\ (class\  \fIPositionIsFrame\fP)" 10
-This resource indicates how client window position information (from
-the \fIWM_NORMAL_HINTS\fP property and from configuration requests)
-is to be interpreted\&. If the resource value is True, the information is interpreted
-as the position of the \fBemwm\fP client window frame\&. If the
-value is False, it is interpreted as being the position of the client area
-of the window\&. The default value of this resource is True\&.
 .IP "\fIpositionOnScreen\fP\ (class\  \fIPositionOnScreen\fP)" 10
 This resource is used to indicate that windows should initially be placed
 (if possible) so that they are not clipped by the edge of the screen (if the

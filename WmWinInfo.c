@@ -2881,14 +2881,12 @@ InitClientPlacement (ClientData *pCD, long manageFlags)
     }
 
     /*
-     * Do PositionIsFrame processing:
      * Use window gravity to allow the user to specify the window 
      * position on the screen  without having to know the dimensions 
      * of the decoration that mwm is adding.
      */
 
-    if ((wmGD.positionIsFrame) &&
-	!interactivelyPlaced && !autoPlaced)
+    if (!interactivelyPlaced && !autoPlaced)
     {
 	CalculateGravityOffset (pCD, &xoff, &yoff);
 	if (!(pCD->clientFlags & SM_X))

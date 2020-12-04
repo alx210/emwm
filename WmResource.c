@@ -891,16 +891,6 @@ XtResource wmGlobalResources[] =
     },
 
     {
-	WmNpositionIsFrame,
-	WmCPositionIsFrame,
-	XtRBoolean,
-	sizeof (Boolean),
-        XtOffsetOf(WmGlobalData, positionIsFrame),
-	XtRImmediate,
-	(XtPointer)True
-    },
-
-    {
 	WmNpositionOnScreen,
 	WmCPositionOnScreen,
 	XtRBoolean,
@@ -1139,16 +1129,6 @@ XtResource wmStdGlobalResources[] =
         XtOffsetOf(WmGlobalData, moveThreshold),
 	XtRImmediate,
 	(XtPointer)4
-    },
-
-    {
-	WmNpositionIsFrame,
-	WmCPositionIsFrame,
-	XtRBoolean,
-	sizeof (Boolean),
-        XtOffsetOf(WmGlobalData, positionIsFrame),
-	XtRImmediate,
-	(XtPointer)True
     },
 
     {

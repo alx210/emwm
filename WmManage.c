@@ -356,9 +356,7 @@ ManageWindow (WmScreenData *pSD, Window clientWindow, long manageFlags)
      *   3. There is a client offset to report.
      */
     if ((pCD->protocolFlags & PROTOCOL_MWM_OFFSET) &&
-	(wmGD.positionIsFrame) && 
-	((pCD->clientOffset.x != 0) ||
-	 (pCD->clientOffset.y != 0)))
+	((pCD->clientOffset.x != 0) || (pCD->clientOffset.y != 0)))
     { 
 	SendClientOffsetMessage (pCD);
     }
@@ -966,19 +964,11 @@ void WithdrawWindow (ClientData *pCD)
 	}
 	else
 	{
-	    int xoff, yoff;
-	    
-	    if(wmGD.positionIsFrame)
-            {
-	      CalculateGravityOffset (pCD, &xoff, &yoff);
-	      x = pCD->clientX - xoff;
-	      y = pCD->clientY - yoff;
-	    }
-	    else
-	      {
-	    x = pCD->clientX;
-	    y = pCD->clientY;
-	    }
+		int xoff, yoff;
+		
+		CalculateGravityOffset (pCD, &xoff, &yoff);
+		x = pCD->clientX - xoff;
+		y = pCD->clientY - yoff;
 	}
 
 	XUnmapWindow (DISPLAY, pCD->client);
