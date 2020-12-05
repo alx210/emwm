@@ -34,6 +34,10 @@
 #include "WmXinerama.h"
 #include "WmKeyFocus.h"
 #include "WmIDecor.h"
+#include "WmCEvent.h"
+#include "WmWinConf.h"
+#include "WmFunction.h"
+#include "WmProtocol.h"
 #include "WmEwmh.h"
 
 static void* FetchWindowProperty(Window wnd, Atom prop,
@@ -42,20 +46,22 @@ static Pixmap GetIconPixmap(const ClientData *pCD);
 static void UpdateFrameExtents(ClientData *pCD);
 
 enum ewmh_atom {
-	_NET_SUPPORTED, _NET_SUPPORTING_WM_CHECK,
-	_NET_REQUEST_FRAME_EXTENTS, _NET_WM_NAME, 
-	_NET_WM_ICON_NAME, _NET_WM_STATE, _NET_WM_STATE_FULLSCREEN,
-	_NET_WM_ICON, _NET_FRAME_EXTENTS, _NET_WM_ACTIVE_WINDOW,
-	
+	_NET_SUPPORTED, _NET_SUPPORTING_WM_CHECK, _NET_CLOSE_WINDOW,
+	_NET_REQUEST_FRAME_EXTENTS, _NET_MOVERESIZE_WINDOW, 
+	_NET_FRAME_EXTENTS, _NET_ACTIVE_WINDOW,
+	_NET_WM_NAME, _NET_WM_ICON_NAME, _NET_WM_STATE,
+	_NET_WM_STATE_FULLSCREEN, _NET_WM_ICON,
+
 	_NUM_EWMH_ATOMS
 };
 
 /* These must be in sync with enum ewmh_atom */
 static char *ewmh_atom_names[_NUM_EWMH_ATOMS]={
-	"_NET_SUPPORTED", "_NET_SUPPORTING_WM_CHECK",
-	"_NET_REQUEST_FRAME_EXTENTS", "_NET_WM_NAME",
-	 "_NET_WM_ICON_NAME", "_NET_WM_STATE", "_NET_WM_STATE_FULLSCREEN",
-	"_NET_WM_ICON", "_NET_FRAME_EXTENTS", "_NET_WM_ACTIVE_WINDOW"
+	"_NET_SUPPORTED", "_NET_SUPPORTING_WM_CHECK", "_NET_CLOSE_WINDOW",
+	"_NET_REQUEST_FRAME_EXTENTS", "_NET_MOVERESIZE_WINDOW", 
+	"_NET_FRAME_EXTENTS", "_NET_ACTIVE_WINDOW",
+	"_NET_WM_NAME", "_NET_WM_ICON_NAME", "_NET_WM_STATE",
+	"_NET_WM_STATE_FULLSCREEN", "_NET_WM_ICON"
 };
 
 /* Initialized in SetupEwhm() */
@@ -196,8 +202,42 @@ void HandleEwmhClientMessage(ClientData *pCD, XClientMessageEvent *evt)
 			
 			ConfigureEwmhFullScreen(pCD,set);
 		}
-	} else if(evt->message_type == ewmh_atoms[_NET_WM_ACTIVE_WINDOW]) {
+	} 
+	else if(evt->message_type == ewmh_atoms[_NET_ACTIVE_WINDOW]) {
 		SetKeyboardFocus(pCD,REFRESH_LAST_FOCUS);
+	}
+	else if(evt->message_type == ewmh_atoms[_NET_CLOSE_WINDOW]){
+		F_Kill(NULL, pCD, NULL);
+	}
+	else if(evt->message_type == ewmh_atoms[_NET_MOVERESIZE_WINDOW]){
+		int gravity = (evt->data.l[0] & 0x00FFl);
+		int mask = (evt->data.l[0] & 0x0F00l) >> 8;
+		int src = (evt->data.l[0] & 0xF000l) >> 12;
+
+		if(!(mask & (CWX|CWY|CWWidth|CWHeight)) && src == 1){
+			SendConfigureNotify(pCD);
+			return;
+		}
+
+		int cx = (mask & CWX) ? evt->data.l[1] :
+			(pCD->maxConfig ? pCD->maxX : pCD->clientX);
+
+		int cy = (mask & CWY) ? evt->data.l[2] :
+			(pCD->maxConfig ? pCD->maxY : pCD->clientY);
+
+		unsigned int width = (mask & CWWidth) ? 
+			evt->data.l[3] : pCD->clientWidth;
+		unsigned int height = (mask & CWHeight) ?
+			evt->data.l[4] : pCD->clientHeight;
+
+		if(pCD->windowGravity != StaticGravity){
+			if(!(mask & CWX)) cx -= pCD->clientOffset.x;
+			if(!(mask & CWY)) cy -= pCD->clientOffset.y;
+		}
+
+		AdjustCoordinatesToGravity(pCD, gravity?gravity:pCD->windowGravity,
+			&cx, &cy, &width, &height);
+		ProcessNewConfiguration (pCD, cx, cy, width, height, True);
 	}
 }
 
@@ -274,7 +314,7 @@ void ConfigureEwmhFullScreen(ClientData *pCD, Boolean set)
 void SetEwmhActiveWindow(ClientData *pCD)
 {
 	XChangeProperty(DISPLAY,ROOT_FOR_CLIENT(pCD),
-		ewmh_atoms[_NET_WM_ACTIVE_WINDOW],XA_WINDOW,32,PropModeReplace,
+		ewmh_atoms[_NET_ACTIVE_WINDOW],XA_WINDOW,32,PropModeReplace,
 		(unsigned char*)&pCD->client,1);
 }
 
