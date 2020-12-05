@@ -204,7 +204,7 @@ void HandleEwmhClientMessage(ClientData *pCD, XClientMessageEvent *evt)
 		}
 	} 
 	else if(evt->message_type == ewmh_atoms[_NET_ACTIVE_WINDOW]) {
-		SetKeyboardFocus(pCD,REFRESH_LAST_FOCUS);
+		F_Focus_Key(NULL,pCD,NULL);
 	}
 	else if(evt->message_type == ewmh_atoms[_NET_CLOSE_WINDOW]){
 		F_Kill(NULL, pCD, NULL);
