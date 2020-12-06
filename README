@@ -1,6 +1,18 @@
-EMWM is a fork of the MWM that shipped with Motif 2.2.1. The idea behind this is
-to add support for recent X features and standards, while keeping it simple.
+EMWM is a lightweight window manager for X11. It is derived from MWM, adding
+support for UTF-8, Xinerama and Extended Window Manager Hints.
 
-It should build and work on any recent Linux and FreeBSD at least. Install X11
-and Motif development packages, tweak the Makefile if necessary, PREFIX and
-MWMRCDIR variables in particular. Run 'make' and 'make install' as root.
+Libraries and Headers required for building:
+
+libx11 
+libxt
+libxext
+libxft
+libxrandr
+libxinerama
+libxm (open-motif/motif)
+
+EMWM is built with an ordinary makefile. Following variables may need to be
+overridden depending on system/user preferences:
+PREFIX (defaults to /usr), MANDIR, MWMRCDIR, APPLRESDIR
+
+Run 'make', then 'make install' as root.
