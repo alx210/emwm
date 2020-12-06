@@ -95,7 +95,11 @@ extern int firstTime;
 
 void SetClientState (ClientData *pCD, int newState, Time setTime)
 {
+	int oldState = pCD->clientState;
+	
 	SetClientStateWithEventMask(pCD, newState, setTime, (unsigned int)0);
+	if(pCD->clientState != oldState) UpdateEwmhClientState(pCD);
+	
 } /* END OF FUNCTION SetClientState */
 
 void SetClientStateWithEventMask (ClientData *pCD, int newState, Time setTime, unsigned int event_mask)

@@ -48,9 +48,11 @@ static void UpdateFrameExtents(ClientData *pCD);
 enum ewmh_atom {
 	_NET_SUPPORTED, _NET_SUPPORTING_WM_CHECK, _NET_CLOSE_WINDOW,
 	_NET_REQUEST_FRAME_EXTENTS, _NET_MOVERESIZE_WINDOW, 
-	_NET_FRAME_EXTENTS, _NET_ACTIVE_WINDOW,
+	_NET_FRAME_EXTENTS, _NET_ACTIVE_WINDOW, _NET_CLIENT_LIST,
 	_NET_WM_NAME, _NET_WM_ICON_NAME, _NET_WM_STATE,
-	_NET_WM_STATE_FULLSCREEN, _NET_WM_ICON,
+	_NET_WM_STATE_FULLSCREEN, _NET_WM_STATE_MAXIMIZED_VERT,
+	_NET_WM_STATE_MAXIMIZED_HORZ, _NET_WM_STATE_HIDDEN,
+	_NET_WM_STATE_MODAL, _NET_WM_ICON,
 
 	_NUM_EWMH_ATOMS
 };
@@ -59,9 +61,11 @@ enum ewmh_atom {
 static char *ewmh_atom_names[_NUM_EWMH_ATOMS]={
 	"_NET_SUPPORTED", "_NET_SUPPORTING_WM_CHECK", "_NET_CLOSE_WINDOW",
 	"_NET_REQUEST_FRAME_EXTENTS", "_NET_MOVERESIZE_WINDOW", 
-	"_NET_FRAME_EXTENTS", "_NET_ACTIVE_WINDOW",
+	"_NET_FRAME_EXTENTS", "_NET_ACTIVE_WINDOW", "_NET_CLIENT_LIST",
 	"_NET_WM_NAME", "_NET_WM_ICON_NAME", "_NET_WM_STATE",
-	"_NET_WM_STATE_FULLSCREEN", "_NET_WM_ICON"
+	"_NET_WM_STATE_FULLSCREEN", "_NET_WM_STATE_MAXIMIZED_VERT",
+	"_NET_WM_STATE_MAXIMIZED_HORZ", "_NET_WM_STATE_HIDDEN",
+	"_NET_WM_STATE_MODAL", "_NET_WM_ICON"
 };
 
 /* Initialized in SetupEwhm() */
@@ -268,8 +272,6 @@ void ConfigureEwmhFullScreen(ClientData *pCD, Boolean set)
 	}
 	
 	if(set){
-		Atom state;
-		
 		pCD->normalClientFunctions = pCD->clientFunctions;
 		pCD->clientFunctions = pCD->clientFunctions & 
 			(~(MWM_FUNC_RESIZE|MWM_FUNC_MOVE|MWM_FUNC_MAXIMIZE));
@@ -281,11 +283,9 @@ void ConfigureEwmhFullScreen(ClientData *pCD, Boolean set)
 		XMoveResizeWindow(DISPLAY,pCD->clientFrameWin,xorg,yorg,swidth,sheight);
 		XMoveResizeWindow(DISPLAY,pCD->clientBaseWin,0,0,swidth,sheight);
 		XResizeWindow(DISPLAY,pCD->client,swidth,sheight);
-		
-		state = ewmh_atoms[_NET_WM_STATE_FULLSCREEN];
-		XChangeProperty(DISPLAY,pCD->client,ewmh_atoms[_NET_WM_STATE],
-			XA_ATOM,32,PropModeReplace,(unsigned char*)&state,1);
 
+		pCD->fullScreen = True;
+		UpdateEwmhClientState(pCD);
 	}else{
 		pCD->clientFunctions = pCD->normalClientFunctions;
 		XMoveResizeWindow(DISPLAY,pCD->clientBaseWin,
@@ -303,9 +303,10 @@ void ConfigureEwmhFullScreen(ClientData *pCD, Boolean set)
 		for(i = 0; i < STRETCH_COUNT; i++){
 			XMapWindow(DISPLAY,pCD->clientStretchWin[i]);
 		}
-		XDeleteProperty(DISPLAY,pCD->client,ewmh_atoms[_NET_WM_STATE]);
+
+		pCD->fullScreen = False;
+		UpdateEwmhClientState(pCD);
 	}
-	pCD->fullScreen = set;
 }
 
 /*
@@ -332,6 +333,74 @@ static void UpdateFrameExtents(ClientData *pCD)
 
 	XChangeProperty(DISPLAY,pCD->client,ewmh_atoms[_NET_FRAME_EXTENTS],
 		XA_CARDINAL,32,PropModeReplace,(unsigned char*)data,4);
+}
+
+/*
+ * Sets the _NET_CLIENT_LIST property on pSD's root window.
+ */
+void UpdateEwmhClientList(WmScreenData *pSD)
+{
+	ClientListEntry *e = pSD->clientList;
+	Window *wlist;
+	unsigned int n = 0;
+	
+	if(!e){
+		XChangeProperty(DISPLAY,pSD->rootWindow,
+			ewmh_atoms[_NET_CLIENT_LIST],
+			XA_WINDOW,32,PropModeReplace,NULL,0);
+		return;
+	}
+	
+	while(e) {
+		if(e->type != MINIMIZED_STATE) n++;
+		e = e->nextSibling;
+	}
+	
+	wlist = malloc(sizeof(Window) * n);
+	if(!wlist){
+		Warning("Failed to allocate memory for _NET_CLIENT_LIST\n");
+		return;
+	}
+
+	e = pSD->clientList;
+	n = 0;
+	while(e) {
+		if(e->type != MINIMIZED_STATE){
+			wlist[n] = e->pCD->client;
+			n++;
+		}
+		e = e->nextSibling;
+	}
+	XChangeProperty(DISPLAY,pSD->rootWindow, ewmh_atoms[_NET_CLIENT_LIST],
+		XA_WINDOW,32,PropModeReplace,(unsigned char*)wlist,n);
+
+	free(wlist);
+}
+
+/*
+ * Sets _NET_WM_STATE according to client's current state
+ */
+void UpdateEwmhClientState(ClientData *pCD)
+{
+	Atom state[4];
+	unsigned int i = 0;
+
+	if(pCD->fullScreen){
+		state[i++] = ewmh_atoms[_NET_WM_STATE_FULLSCREEN];
+	}
+	else if(pCD->clientState == MAXIMIZED_STATE){
+		state[i++] = ewmh_atoms[_NET_WM_STATE_MAXIMIZED_HORZ];
+		state[i++] = ewmh_atoms[_NET_WM_STATE_MAXIMIZED_VERT];
+	}
+	else if(pCD->clientState == MINIMIZED_STATE){
+		state[i++] = ewmh_atoms[_NET_WM_STATE_HIDDEN];
+	}
+
+	if(pCD->inputMode == MWM_INPUT_PRIMARY_APPLICATION_MODAL)
+		state[i++] = ewmh_atoms[_NET_WM_STATE_MODAL];
+
+	XChangeProperty(DISPLAY,pCD->client,ewmh_atoms[_NET_WM_STATE],
+		XA_ATOM,32,PropModeReplace,(unsigned char*)state,i);
 }
 
 /*

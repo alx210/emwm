@@ -47,6 +47,7 @@
 #include "WmEvent.h"
 #include "WmICCC.h"
 #include "WmProperty.h"
+#include "WmEwmh.h"
 
 
 
@@ -315,7 +316,7 @@ void AddEntryToList (WmWorkspaceData *pWS, ClientListEntry *pEntry, Boolean onTo
 	    }
 	}
     }
-
+	UpdateEwmhClientList(pSD);
 } /* END OF FUNCTION AddEntryToList */
 
 
@@ -503,6 +504,7 @@ void DeleteClientFromList (WmWorkspaceData *pWS, ClientData *pCD)
 	    pSD->lastClient = pCD->clientEntry.prevSibling;
 	}
     }
+	UpdateEwmhClientList(pSD);
 
 } /* END OF FUNCTION DeleteClientFromList */
 
