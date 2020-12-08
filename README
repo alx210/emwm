@@ -6,7 +6,6 @@ Libraries and Headers required for building:
 libx11 
 libxt
 libxext
-libxft
 libxrandr
 libxinerama
 libxm (open-motif/motif)

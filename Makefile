@@ -12,7 +12,7 @@ DEFINES = -DLARGECURSORS -DUNMAP_ON_RESTART \
 	-DNO_OL_COMPAT -DNO_MESSAGE_CATALOG \
 	-DMWMRCDIR='"$(MWMRCDIR)"'
 
-SYSLIBS =  -lm -lXm -lXt -lXext -lXrandr -lXinerama -lXft -lX11
+SYSLIBS =  -lm -lXm -lXt -lXext -lXrandr -lXinerama -lX11
 CFLAGS := -O2 -Wall $(INCDIRS) $(DEFINES)
 # CFLAGS := -O0 -g -Wall $(INCDIRS) $(DEFINES) -DDEBUG
 
