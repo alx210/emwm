@@ -2229,7 +2229,6 @@ void HandleCConfigureRequest (ClientData *pCD, XConfigureRequestEvent *configure
     ClientData *pcdSibling;
     ClientListEntry *pStackEntry;
 
-
     /*
      * Call ProcessNewConfiguration to handle window moving and resizing.
      * Send ConfigureNotify event (based on ICCCM conventions).
@@ -2239,27 +2238,56 @@ void HandleCConfigureRequest (ClientData *pCD, XConfigureRequestEvent *configure
     if ((configureRequest->window == pCD->client) &&
 	(mask & (CWX | CWY | CWWidth | CWHeight | CWBorderWidth)))
     {
-		int cx = (mask & CWX) ? configureRequest->x :
-			(pCD->maxConfig ? pCD->maxX : pCD->clientX);
+		if(pCD->fullScreen){
+			XConfigureEvent evt;
+			XineramaScreenInfo xsi;
 
-		int cy = (mask & CWY) ? configureRequest->y :
-			(pCD->maxConfig ? pCD->maxY : pCD->clientY);
+			evt.type = ConfigureNotify;
+			evt.display = DISPLAY;
+			evt.border_width = configureRequest->border_width;
+			evt.event = pCD->client;
+			evt.window = pCD->client;
+			evt.above = None;
+			evt.override_redirect = False;
 
-		unsigned int width = (mask & CWWidth) ? 
-			configureRequest->width : pCD->clientWidth;
+			if(GetXineramaScreenFromLocation(pCD->clientX,pCD->clientY,&xsi)){
+				evt.x = xsi.x_org + evt.border_width;
+				evt.y = xsi.y_org + evt.border_width;
+				evt.width = xsi.width - evt.border_width * 2;
+				evt.height = xsi.height - evt.border_width * 2;
+			} else {
+				evt.x = evt.border_width;
+				evt.y = evt.border_width ;
+				evt.width = XDisplayWidth(
+					DISPLAY,pCD->pSD->screen) - evt.border_width * 2;
+				evt.height = XDisplayHeight(
+					DISPLAY,pCD->pSD->screen) - evt.border_width * 2;
+			}
+			XSendEvent(DISPLAY, pCD->client, False,
+				StructureNotifyMask, (XEvent*)&evt);
+		} else {
+			int cx = (mask & CWX) ? configureRequest->x :
+				(pCD->maxConfig ? pCD->maxX : pCD->clientX);
 
-		unsigned int height = (mask & CWHeight) ?
-			configureRequest->height : pCD->clientHeight;
+			int cy = (mask & CWY) ? configureRequest->y :
+				(pCD->maxConfig ? pCD->maxY : pCD->clientY);
 
-		if(pCD->windowGravity != StaticGravity){
-			if(!(mask & CWX)) cx -= pCD->clientOffset.x;
-			if(!(mask & CWY)) cy -= pCD->clientOffset.y;
+			unsigned int width = (mask & CWWidth) ? 
+				configureRequest->width : pCD->clientWidth;
+
+			unsigned int height = (mask & CWHeight) ?
+				configureRequest->height : pCD->clientHeight;
+
+			if(pCD->windowGravity != StaticGravity){
+				if(!(mask & CWX)) cx -= pCD->clientOffset.x;
+				if(!(mask & CWY)) cy -= pCD->clientOffset.y;
+			}
+
+			AdjustCoordinatesToGravity(pCD, pCD->windowGravity,
+				&cx, &cy, &width, &height);
+
+			ProcessNewConfiguration (pCD, cx, cy, width, height, True);
 		}
-
-		AdjustCoordinatesToGravity(pCD, pCD->windowGravity,
-			&cx, &cy, &width, &height);
-
-	    ProcessNewConfiguration (pCD, cx, cy, width, height, True);
     }
 
     if (mask & CWStackMode)

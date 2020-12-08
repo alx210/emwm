@@ -1931,7 +1931,6 @@ void ProcessNewConfiguration (ClientData *pCD, int x, int y, unsigned int width,
 	Boolean xineramaActive = False;
 	XineramaScreenInfo xsi;
 	
-	if(pCD->fullScreen)	ConfigureEwmhFullScreen(pCD,False);
 	xineramaActive = GetXineramaScreenFromLocation(x,y,&xsi);
 	
     /*
