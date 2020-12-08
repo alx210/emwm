@@ -1536,63 +1536,19 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
          * configuration. Mwm 1.1 always uses the current conventions.
          */
 
-#ifdef R2_COMPAT
-    /* 
-     * Maintain R2 compatiblity code for CND product xnm
-     */
-        if ((pNormalHints->icccVersion == ICCC_R2) &&
-            (flags & (US_POSITION | P_POSITION)) &&
-	    !(manageFlags & MANAGEW_WM_RESTART))
-        {
-	    if (!(pCD->clientFlags & SM_X))
-		pCD->clientX = pNormalHints->x;
-	    if (!(pCD->clientFlags & SM_Y))
-		pCD->clientY = pNormalHints->y;
-        }
-        else
-        {
-	    if (!(pCD->clientFlags & SM_X))
-		pCD->clientX = wmGD.windowAttributes.x;
-	    if (!(pCD->clientFlags & SM_Y))
-		pCD->clientY = wmGD.windowAttributes.y;
-        }
-#else /* R2_COMPAT */
 	if (!(pCD->clientFlags & SM_X))
 	    pCD->clientX = wmGD.windowAttributes.x;
 	if (!(pCD->clientFlags & SM_Y))
 	    pCD->clientY = wmGD.windowAttributes.y;
-#endif  /* R2_COMPAT */
 
 	/*
 	 * Use current conventions for initial window dimensions.
 	 */
 
-#ifdef R2_COMPAT
-    /* 
-     * Maintain R2 compatiblity code for CND product xnm
-     */
-	if ((pNormalHints->icccVersion == ICCC_R2) &&
-	    (flags & (US_SIZE | P_SIZE)) &&
-	    !(manageFlags & MANAGEW_WM_RESTART))
-	{
-	    if (!(pCD->clientFlags & SM_WIDTH))
-		pCD->clientWidth = pNormalHints->width;
-	    if (!(pCD->clientFlags & SM_HEIGHT))
-		pCD->clientHeight = pNormalHints->height;
-	}
-	else
-	{
-	    if (!(pCD->clientFlags & SM_WIDTH))
-		pCD->clientWidth = wmGD.windowAttributes.width;
-	    if (!(pCD->clientFlags & SM_HEIGHT))
-		pCD->clientHeight = wmGD.windowAttributes.height;
-	}
-#else /* R2_COMPAT */
 	if (!(pCD->clientFlags & SM_WIDTH))
 	    pCD->clientWidth = wmGD.windowAttributes.width;
 	if (!(pCD->clientFlags & SM_HEIGHT))
 	    pCD->clientHeight = wmGD.windowAttributes.height;
-#endif /* R2_COMPAT */
     }
 
     /*
