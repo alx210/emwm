@@ -133,9 +133,14 @@ void ProcessEwmh(ClientData *pCD)
 	if(sz) XFree(sz);
 	
 	if(pCD->ewmhIconPixmap) XFreePixmap(DISPLAY,pCD->ewmhIconPixmap);
-	if((icon = GetIconPixmap(pCD))){
-		pCD->ewmhIconPixmap = MakeClientIconPixmap(pCD,icon,None);
-		XFreePixmap(DISPLAY,icon);
+	pCD->ewmhIconPixmap = None;
+	
+	if(pCD->useClientIcon || !pCD->iconImage){
+		/* client's icon preferred, or no user icon supplied */
+		if((icon = GetIconPixmap(pCD))){
+			pCD->ewmhIconPixmap = MakeClientIconPixmap(pCD,icon,None);
+			XFreePixmap(DISPLAY,icon);
+		}
 	}
 
 	UpdateFrameExtents(pCD);
@@ -175,11 +180,15 @@ void HandleEwmhCPropertyNotify(ClientData *pCD, XPropertyEvent *evt)
 	else if(evt->atom == ewmh_atoms[_NET_WM_ICON]) {
 		Pixmap icon;
 		if(pCD->ewmhIconPixmap) XFreePixmap(DISPLAY,pCD->ewmhIconPixmap);
-		if((icon = GetIconPixmap(pCD))){
-			pCD->ewmhIconPixmap = MakeClientIconPixmap(pCD,icon,None);
-			XFreePixmap(DISPLAY,icon);
-			XClearArea(DISPLAY,ICON_FRAME_WIN(pCD),IB_MARGIN_WIDTH,
-				IB_MARGIN_HEIGHT,ICON_WIDTH(pCD),ICON_HEIGHT(pCD),True);
+		pCD->ewmhIconPixmap = None;
+		
+		if(pCD->useClientIcon || !pCD->iconImage){
+			if((icon = GetIconPixmap(pCD))){
+				pCD->ewmhIconPixmap = MakeClientIconPixmap(pCD,icon,None);
+				XFreePixmap(DISPLAY,icon);
+				XClearArea(DISPLAY,ICON_FRAME_WIN(pCD),IB_MARGIN_WIDTH,
+					IB_MARGIN_HEIGHT,ICON_WIDTH(pCD),ICON_HEIGHT(pCD),True);
+			}
 		}
 	}
 	else if(evt->atom == ewmh_atoms[_NET_REQUEST_FRAME_EXTENTS]) {
