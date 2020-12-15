@@ -161,9 +161,7 @@ void SetupCButtonBindings (Window window, ButtonSpec *buttonSpecs)
 Boolean WmDispatchClientEvent (XEvent *event)
 {
     ClientData * pCD = NULL;
-#ifndef	IBM_169380
     ClientData **cmap_window_data = NULL;
-#endif
     Boolean dispatchEvent = False;
 
     /*
@@ -171,15 +169,10 @@ Boolean WmDispatchClientEvent (XEvent *event)
      * an icon or a client window frame.
      */
 
-#ifndef IBM_169380
     if ((XFindContext (DISPLAY, event->xany.window, wmGD.windowContextType,
             (caddr_t *)&pCD)) &&
         (XFindContext (DISPLAY, event->xany.window, wmGD.cmapWindowContextType,
             (caddr_t *)&cmap_window_data)))
-#else
-    if (XFindContext (DISPLAY, event->xany.window, wmGD.windowContextType,
-	    (caddr_t *)&pCD))
-#endif
     {
 	/*
 	 *  Set active screen if we're not sure. 
@@ -197,7 +190,6 @@ Boolean WmDispatchClientEvent (XEvent *event)
 	return (HandleEventsOnSpecialWindows (event));
     }
 
-#ifndef IBM_169380
     if (cmap_window_data)
     /*
      * Event is on a subwindow that is specified in one or more toplevel
@@ -224,7 +216,6 @@ Boolean WmDispatchClientEvent (XEvent *event)
         if (!pCD)
             pCD = cmap_window_data[0];
     }
-#endif
 
     /*
      *  Set active screen if this is not a FocusOut event.
@@ -2452,9 +2443,7 @@ void AdjustCoordinatesToGravity(ClientData *pCD, int gravity, int *px, int *py,
 void HandleCColormapNotify (ClientData *pCD, XColormapEvent *colorEvent)
 {
     int i;
-#ifndef	IBM_169380
     ClientData  **cmap_window_data;
-#endif
     Boolean newClientColormap = False;
 
 
@@ -2491,20 +2480,13 @@ void HandleCColormapNotify (ClientData *pCD, XColormapEvent *colorEvent)
 	 * with the window.
 	 */
 
-#ifndef IBM_169380
-        if ((pCD->clientCmapCount == 0) && (colorEvent->window == pCD->client))
-#endif
-	if (pCD->clientCmapCount == 0)
+    if ((pCD->clientCmapCount == 0) && (colorEvent->window == pCD->client))
 	{
 	    /* no subwindow colormaps; change top-level window colormap */
-#ifdef  IBM_169380
-	    if (colorEvent->window == pCD->client)
-	    {
-#endif
-	        if (colorEvent->colormap == None)
-	        {
-	            /* use the workspace colormap */
-	            pCD->clientColormap = 
+        if (colorEvent->colormap == None)
+        {
+	        /* use the workspace colormap */
+            pCD->clientColormap = 
 			ACTIVE_PSD->workspaceColormap;
 		}
 		else
@@ -2512,82 +2494,50 @@ void HandleCColormapNotify (ClientData *pCD, XColormapEvent *colorEvent)
 	            pCD->clientColormap = colorEvent->colormap;
 		}
 		newClientColormap = True;
-#ifdef  IBM_169380
-	    }
-#endif
 	}
 
-#ifndef	IBM_169380
-        if (!XFindContext (DISPLAY, colorEvent->window,
-            wmGD.cmapWindowContextType, (caddr_t *)&cmap_window_data))
-        {
-            /*
-             * The WM_COLORMAP_WINDOWS property of a toplevel window may
-             * specify colorEvent->window.  If so, we must update the
-             * colormap information it holds in clientCmapList.
-             */
-            ClientData  *any_pCD;
-            int         j;
+    if (!XFindContext (DISPLAY, colorEvent->window,
+        wmGD.cmapWindowContextType, (caddr_t *)&cmap_window_data))
+    {
+        /*
+         * The WM_COLORMAP_WINDOWS property of a toplevel window may
+         * specify colorEvent->window.  If so, we must update the
+         * colormap information it holds in clientCmapList.
+         */
+        ClientData  *any_pCD;
+        int         j;
 
-            for (j = 0; cmap_window_data[j] != NULL; j++)
+        for (j = 0; cmap_window_data[j] != NULL; j++)
+        {
+            any_pCD = cmap_window_data[j];
+            for (i = 0; i < any_pCD->clientCmapCount; i++)
             {
-                any_pCD = cmap_window_data[j];
-                for (i = 0; i < any_pCD->clientCmapCount; i++)
+                if (any_pCD->cmapWindows[i] == colorEvent->window)
                 {
-                    if (any_pCD->cmapWindows[i] == colorEvent->window)
+                    if (colorEvent->colormap == None)
                     {
-                        if (colorEvent->colormap == None)
-                        {
-                            /* use the workspace colormap */
-                            any_pCD->clientCmapList[i] =
-                                ACTIVE_PSD->workspaceColormap;
-                        }
-                        else
-                        {
-                            any_pCD->clientCmapList[i] = colorEvent->colormap;
-                        }
-                        if (i == any_pCD->clientCmapIndex)
-                        {
-                            any_pCD->clientColormap =
-                                any_pCD->clientCmapList[i];
-                            if (any_pCD == pCD)
-                            {
-                                newClientColormap = True;
-                            }
-                        }
-                        break;
+                        /* use the workspace colormap */
+                        any_pCD->clientCmapList[i] =
+                            ACTIVE_PSD->workspaceColormap;
                     }
+                    else
+                    {
+                        any_pCD->clientCmapList[i] = colorEvent->colormap;
+                    }
+                    if (i == any_pCD->clientCmapIndex)
+                    {
+                        any_pCD->clientColormap =
+                            any_pCD->clientCmapList[i];
+                        if (any_pCD == pCD)
+                        {
+                            newClientColormap = True;
+                        }
+                    }
+                    break;
                 }
             }
         }
-#else
-	else
-	{
-	    /* there are subwindow colormaps */
-	    for (i = 0; i < pCD->clientCmapCount; i++)
-	    {
-		if (pCD->cmapWindows[i] == colorEvent->window)
-		{
-		    if (colorEvent->colormap == None)
-		    {
-			/* use the workspace colormap */
-			pCD->clientCmapList[i] = 
-			    ACTIVE_PSD->workspaceColormap;
-		    }
-		    else
-		    {
-			pCD->clientCmapList[i] = colorEvent->colormap;
-		    }
-		    if (i == pCD->clientCmapIndex)
-		    {
-			newClientColormap = True;
-			pCD->clientColormap = pCD->clientCmapList[i];
-		    }
-		    break;
-		}
-	    }
-	}
-#endif	/* IBM_169380 */
+    }
 
 	if ((ACTIVE_PSD->colormapFocus == pCD) && newClientColormap &&
 	    ((pCD->clientState == NORMAL_STATE) ||

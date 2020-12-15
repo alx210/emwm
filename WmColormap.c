@@ -341,12 +341,7 @@ void ResetColormapData (ClientData *pCD, Window *pWindows, int count)
 	{
 	    if (pCD->cmapWindows[i] != pCD->client)
 	    {
-#ifndef	IBM_169380
-		RemoveColormapWindowReference(pCD, pCD->cmapWindows[i]);
-#else
-		XDeleteContext (DISPLAY, pCD->cmapWindows[i],
-		    wmGD.windowContextType);
-#endif
+			RemoveColormapWindowReference(pCD, pCD->cmapWindows[i]);
 	    }
 	}
 
@@ -357,11 +352,9 @@ void ResetColormapData (ClientData *pCD, Window *pWindows, int count)
 	XtFree ((char *)(pCD->cmapWindows));
 	XtFree ((char *)(pCD->clientCmapList));
 	pCD->clientCmapCount = 0;
-#ifndef OLD_COLORMAP /* colormap */
 	XtFree ((char  *)(pCD->clientCmapFlags));
 	pCD->clientCmapFlags = 0;		/* DEBUG: */
 	pCD->clientCmapFlagsInitialized = 0;
-#endif
     }
 
     if (count)
@@ -374,19 +367,14 @@ void ResetColormapData (ClientData *pCD, Window *pWindows, int count)
 	{
 	    if (pWindows[i] != pCD->client)
 	    {
-#ifndef	IBM_169380
-		AddColormapWindowReference(pCD, pWindows[i]);
-#else
-		XSaveContext (DISPLAY, pWindows[i], wmGD.windowContextType,
-		    (caddr_t)pCD);
-#endif
+			AddColormapWindowReference(pCD, pWindows[i]);
 	    }
 	}
     }
 
 } /* END OF FUNCTION ResetColormapData */
 
-#ifndef IBM_169380
+
 /*************************************<->*************************************
  *
  *  AddColormapWindowReference (pCD, window)
@@ -498,7 +486,6 @@ void RemoveColormapWindowReference (ClientData *pCD, Window window)
         }
     }
 }
-#endif	/* IBM_169380 */
 
 /*******************************************************************************
  **

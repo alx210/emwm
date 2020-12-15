@@ -441,9 +441,8 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 
     wmGD.windowContextType = XUniqueContext ();
     wmGD.screenContextType = XUniqueContext ();
-#ifndef	IBM_169380
     wmGD.cmapWindowContextType = XUniqueContext ();
-#endif
+
 #ifdef WSM
     wmGD.mwmWindowContextType = XUniqueContext ();
 #endif /* WSM */

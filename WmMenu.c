@@ -3396,9 +3396,7 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 #endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
     StrList    *stringsToFree = NULL, *sPtr;
     XmString    tmpstr;
-#ifndef	IBM_151913
     Screen     *scr;
-#endif
 
 
     /* check for bad input values. */
@@ -3796,7 +3794,7 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 
 	            /*
 	             * Set up the function callback.
-		     * A following title will have both separators.
+	             * A following title will have both separators.
 	             */
 
 	            XtAddCallback (children[n], XmNactivateCallback,
@@ -3850,11 +3848,10 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 	topMenuSpec->height = (unsigned int) menuHeight;
     }
 
-#ifndef	IBM_151913
     /*
      * Check if the menu that's been created is higher than the screen.
      * If it is, force it to wrap.  Taken straight from the 1.1 fix.
-    */
+     */
 
     i = 0;
     XtSetArg (args[i], XtNheight, &menuHeight);  i++;
@@ -3868,7 +3865,6 @@ Widget CreateMenuWidget (WmScreenData *pSD,
         XtSetArg (args[i], XmNheight, scr->height); i++;
         XtSetValues (menuW, (ArgList)args, i);
     }
-#endif	/* IBM_151913 */
 
     /* free the string that may have been created earlier. */
     for (sPtr = stringsToFree; sPtr != NULL; )

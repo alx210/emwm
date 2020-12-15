@@ -495,12 +495,7 @@ ManageWindow (WmScreenData *pSD, Window clientWindow, long manageFlags)
 	{
 	    if (pCD->cmapWindows[i] != pCD->client)
 	    {
-#ifndef	IBM_169380
-		AddColormapWindowReference(pCD, pCD->cmapWindows[i]);
-#else
-	        XSaveContext (DISPLAY, pCD->cmapWindows[i],
-		    wmGD.windowContextType, (caddr_t)pCD);
-#endif
+			AddColormapWindowReference(pCD, pCD->cmapWindows[i]);
 	    }
 	}
     }
@@ -1116,19 +1111,12 @@ void WithdrawWindow (ClientData *pCD)
 	{
 	    if (pCD->cmapWindows[i] != pCD->client)
 	    {
-#ifndef	IBM_169380
-		RemoveColormapWindowReference(pCD, pCD->cmapWindows[i]);
-#else
-		XDeleteContext (DISPLAY, pCD->cmapWindows[i],
-		    wmGD.windowContextType);
-#endif
+			RemoveColormapWindowReference(pCD, pCD->cmapWindows[i]);
 	    }
 	}
 	XtFree ((char *) (pCD->cmapWindows));
 	XtFree ((char *) (pCD->clientCmapList));
-#ifndef OLD_COLORMAP /* colormap */
 	XtFree ((char  *) (pCD->clientCmapFlags));
-#endif
     }
 
 #ifdef WSM
