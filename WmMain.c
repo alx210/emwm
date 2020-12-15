@@ -103,7 +103,6 @@ main (int argc, char *argv [], char *environ [])
 
     setlocale(LC_ALL, "");
 
-#ifndef NO_MULTIBYTE
 #ifdef WSM
     /*
      * Set up environment variables for this HP DT client
@@ -120,7 +119,7 @@ main (int argc, char *argv [], char *environ [])
      }
 #endif /* WSM */
     XtSetLanguageProc (NULL, (XtLanguageProc)NULL, NULL);
-#endif
+
 #ifdef WSM
     /*  
      * Get Identity

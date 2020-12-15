@@ -44,10 +44,7 @@
 #include <ctype.h>
 
 #include <X11/Xlocale.h>
-
-#ifndef NO_MULTIBYTE
 #include <stdlib.h>
-#endif
 
 #ifdef MOTIF_ONE_DOT_ONE
 #include <stdio.h>
@@ -1570,7 +1567,6 @@ unsigned int PeekAhead(unsigned char *currentChar,
 {
     Boolean		done = False;
     unsigned int 	tmpLev = 1;
-#ifndef NO_MULTIBYTE
     unsigned int	chlen;
 
     while (((chlen = mblen ((char *)currentChar, MB_CUR_MAX)) > 0) &&
@@ -1593,26 +1589,6 @@ unsigned int PeekAhead(unsigned char *currentChar,
 	    }
 	}
     }
-#else
-    while((*currentChar != NULL) && (done == False) &&
-	  ((*currentChar == '"') || (*currentChar == '\\')))
-    {
-	currentChar++;
-	if((*currentChar != NULL) &&
-	   ((*currentChar == '"') || (*currentChar == '\\')))
-	{
-	    tmpLev++;
-	    if(*currentChar == '"')
-	    {
-		done = True;
-	    }
-	    else
-	    {
-		currentChar++;
-	    }
-	}
-    }
-#endif /*NO_MULTIBYTE*/
 
     /*
      * Figure out if this is truly a new level of nesting - else ignore it
@@ -1633,7 +1609,6 @@ unsigned int PeekAhead(unsigned char *currentChar,
 #endif /* WSM */
 
 
-
 #ifdef MOTIF_ONE_DOT_ONE
 /*************************************<->*************************************
  *
@@ -1687,7 +1662,6 @@ void GetHomeDirName(String  fileName)
 }
 #endif
 
-
 /*************************************<->*************************************
  *
  *  SyncModifierStrings (fileName)
@@ -1746,8 +1720,6 @@ void SyncModifierStrings(void)
     XFreeModifiermap(map);
 }
 
-
-
 /*************************************<->*************************************
  *
  *  ProcessWmFile ()
@@ -2832,11 +2804,7 @@ static void StoreExclusion (MenuSpec *menuSpec, String string)
 
 Boolean IsClientCommand (String string)
 {
-    if ((
-#ifndef NO_MULTIBYTE
-	 mblen ((char *)string, MB_CUR_MAX) == 1 &&
-#endif
-	 *string == '<') ||
+    if ((mblen ((char *)string, MB_CUR_MAX) == 1 &&	 *string == '<') ||
 	(strncmp(string, "-><", 3) == 0) ||
 	(strncmp(string, "=<", 2) == 0)  ||
 	(strncmp(string, "=><", 3) == 0) ||
@@ -2946,12 +2914,10 @@ static Boolean ParseClientCommand (unsigned char **linePP, MenuSpec *menuSpec,
 	token = PRS_NO_STATE;
 	while (token == PRS_NO_STATE)
 	{
-#ifndef NO_MULTIBYTE
 	    if (mblen ((char *)stream, MB_CUR_MAX) > 1) {
 	      token = PRS_ERROR;
 	      continue;
 	    }
-#endif
 
 	    switch (*stream)
 	    {
@@ -2964,12 +2930,12 @@ static Boolean ParseClientCommand (unsigned char **linePP, MenuSpec *menuSpec,
 	      case '-':
 		/* This should be a cascade-force modifier */
 		++stream;
-#ifndef NO_MULTIBYTE
+
 		if (mblen ((char *)stream, MB_CUR_MAX) > 1) {
 		  token = PRS_ERROR;
 		  continue;
 		}
-#endif
+
 		if (*stream == '>')
 		{
 		    ++stream; token = PRS_MODIFIER;
@@ -2981,12 +2947,12 @@ static Boolean ParseClientCommand (unsigned char **linePP, MenuSpec *menuSpec,
 		   a combination separators and cascade-force
 		   modifier */
 		++stream;
-#ifndef NO_MULTIBYTE
+
 		if (mblen ((char *)stream, MB_CUR_MAX) > 1) {
 		  token = PRS_ERROR;
 		  continue;
 		}
-#endif
+
 		if (*stream == '>') ++stream;
 		token = PRS_MODIFIER;
 		*use_separators = TRUE;
@@ -3005,61 +2971,43 @@ static Boolean ParseClientCommand (unsigned char **linePP, MenuSpec *menuSpec,
 
 		/* This should be the beginning of a reference. First
 		   skip any leading whitespace. */
-#ifndef NO_MULTIBYTE
 		if (mblen ((char *)stream, MB_CUR_MAX) > 1) {
 		  token = PRS_ERROR;
 		  continue;
 		}
-#endif
-		while (
-#ifndef NO_MULTIBYTE
-		       mblen ((char *)stream, MB_CUR_MAX) == 1 &&
-#endif
-		       (*stream == ' ' || *stream == '\t')) 
-		  ++stream;
+		while (mblen ((char *)stream, MB_CUR_MAX) == 1 &&
+		       (*stream == ' ' || *stream == '\t')) ++stream;
 
-#ifndef NO_MULTIBYTE
 		if (mblen ((char *)stream, MB_CUR_MAX) > 1) {
 		  token = PRS_ERROR;
 		  continue;
 		}
-#endif
+
 		/* Now check for a reference name wild card or a
 		   full reference name */
 		if (*stream == '*')
 		  ++stream;
 		else
 		{
-		    while (
-#ifndef NO_MULTIBYTE
-			   mblen ((char *)stream, MB_CUR_MAX) == 1 &&
-#endif
+		    while (mblen ((char *)stream, MB_CUR_MAX) == 1 &&
 			   (isalnum(*stream) || *stream == ' ' ||
-			    *stream == '\t'  || *stream == '_' ))
-		      ++stream;
+			    *stream == '\t'  || *stream == '_' )) ++stream;
 		}
 		
-#ifndef NO_MULTIBYTE
 		if (mblen ((char *)stream, MB_CUR_MAX) > 1) {
 		  token = PRS_ERROR;
 		  continue;
 		}
-#endif
 
 		/* Now skip past any trailing white space */
-		while (
-#ifndef NO_MULTIBYTE
-		       mblen ((char *)stream, MB_CUR_MAX) == 1 &&
-#endif
-		       (*stream == ' ' || *stream == '\t'))
-		  ++stream;
+		while (mblen ((char *)stream, MB_CUR_MAX) == 1 &&
+		       (*stream == ' ' || *stream == '\t'))  ++stream;
 
-#ifndef NO_MULTIBYTE
 		if (mblen ((char *)stream, MB_CUR_MAX) > 1) {
 		  token = PRS_ERROR;
 		  continue;
 		}
-#endif
+
 		/* At this point, we should be looking at the close
 		   of the reference */
 		if (*stream == '>')
@@ -3296,7 +3244,6 @@ static void ParseWmMnemonic (unsigned char **linePP, MenuItem *menuItem)
         lineP++;
         mnemonic = GetString(&lineP);
 
-#ifndef NO_MULTIBYTE
 	if (menuItem->labelType == XmSTRING &&
 	    mnemonic != NULL &&
 	    (ks = XStringToKeysym((char *)mnemonic)) != NoSymbol &&
@@ -3304,16 +3251,6 @@ static void ParseWmMnemonic (unsigned char **linePP, MenuItem *menuItem)
 	{
 	    menuItem->mnemonic = ks;
 	}
-#else
-        if ((mnemonic != NULL) &&
-            (*mnemonic != '\0') &&
-            (menuItem->labelType == XmSTRING) &&
-	    (strchr (menuItem->label, *mnemonic) != NULL))
-        /* valid mnemonic */
-        {
-            menuItem->mnemonic = *mnemonic;
-        }
-#endif
 	else
 	{
             PWarning (((char *)GETMESSAGE(60, 14, "Invalid mnemonic specification")));
@@ -3460,20 +3397,14 @@ static Boolean ParseWmAccelerator (unsigned char **linePP, MenuItem *menuItem)
 static void ParseMenuItemName (unsigned char **linePP, MenuItem *menuItem)
 {
     unsigned char *lineP, *endquote;
-#ifndef NO_MULTIBYTE
     int chlen;
-#endif
 
     /* Skip past any whitespace */
     ScanWhitespace (linePP);
     lineP = *linePP;
 
     /* Look for a double quote */
-    if (
-#ifndef NO_MULTIBYTE
-	mblen ((char *)lineP, MB_CUR_MAX) == 1 &&
-#endif
-	*lineP == '"')
+    if (mblen ((char *)lineP, MB_CUR_MAX) == 1 && *lineP == '"')
     {
 	/* Move past the first quote. */
 	++lineP;
@@ -3481,7 +3412,6 @@ static void ParseMenuItemName (unsigned char **linePP, MenuItem *menuItem)
 	endquote = lineP;
 
 	/* Search for closing quote */
-#ifndef NO_MULTIBYTE
 	while (*endquote != '\0' &&
 	       (chlen = mblen ((char *)endquote, MB_CUR_MAX)) > 0 && 
 	       (chlen > 1 || *endquote != '"'))
@@ -3492,12 +3422,6 @@ static void ParseMenuItemName (unsigned char **linePP, MenuItem *menuItem)
 	    endquote += chlen;
 	}
 	if (chlen < 0) return; /* invalid character */
-#else
-	while (*endquote != '\0' && *endquote != '"') {
-	  if (*endquote == '\n' || *endquote == '\0') return;
-	  endquote++;
-	}
-#endif
 
 	/* Well, we have a valid menu item name. Store it in the 
 	   client command name field. Don't include the double quotes. */
@@ -3511,15 +3435,9 @@ static void ParseMenuItemName (unsigned char **linePP, MenuItem *menuItem)
     {
 	/* If there was no double quote, then just advance to the end
 	   of the line. */
-#ifndef NO_MULTIBYTE
 	while (*lineP != '\0' && 
 	       ((chlen = mblen ((char *)lineP, MB_CUR_MAX)) > 1 ||
-		*lineP != '\n'))
-	  lineP += chlen > 0 ? chlen : 1;
-#else
-	while (*lineP != '\0' && *lineP != '\n')
-	  lineP++;
-#endif
+		    *lineP != '\n')) lineP += chlen > 0 ? chlen : 1;
 	*linePP = lineP;
     }
 }
@@ -3787,13 +3705,11 @@ static Boolean ParseWmFuncStrArg (unsigned char **linePP,
 {
     unsigned char *string;
     unsigned int  len;
-#ifndef NO_MULTIBYTE
     char *p;
     wchar_t last;
     char delim;
     wchar_t wdelim;
     int lastlen;
-#endif
 
     if ((string = GetString (linePP)) != NULL)
     /* nonNULL string argument */
@@ -3810,7 +3726,6 @@ static Boolean ParseWmFuncStrArg (unsigned char **linePP,
          *  Insure that an argument for F_Exec ends in '&' .
          */
 
-#ifndef NO_MULTIBYTE
 	if (wmFunction == F_Exec)
 	{
 	    lastlen = 0;
@@ -3830,13 +3745,6 @@ static Boolean ParseWmFuncStrArg (unsigned char **linePP,
 		*p   = '\0';
 	    }
 	}
-#else
-        if ((wmFunction == F_Exec) && ((*pArgs)[len - 1] != '&'))
-        {
-	    (*pArgs)[len] = '&';
-	    (*pArgs)[len + 1] = '\0';
-        }
-#endif
     }
     else
     /* NULL string argument */
@@ -4930,14 +4838,11 @@ GetNextLine (void)
 {
     register unsigned char	*string;
     int				len;
-
-#ifndef NO_MULTIBYTE
     int   chlen;
     wchar_t last;
     wchar_t wdelim;
     char delim;
     int lastlen;
-#endif
 
     if (cfileP != NULL)
     /* read fopened file */
@@ -4945,8 +4850,6 @@ GetNextLine (void)
 	if ((string = (unsigned char *) 
 		      fgets ((char *)line, MAXLINE, cfileP)) != NULL)
 	{
-#ifndef NO_MULTIBYTE
-
 	    lastlen = 0;
 	    while (*string &&
 		   ((len = mblen((char *)string, MB_CUR_MAX)) > 0))
@@ -4977,28 +4880,13 @@ GetNextLine (void)
 		while (lastlen == 1 && last == wdelim);
 	    }
 	    string = line;
-#else
-	    len = strlen((char *)string) - 2;
-	    if ((len > 0) && string[len] == '\\')
-	    {
-		do {
-		    string = &string[len];
-		    if (fgets((char *)string, 
-		 	      MAXLINE - (string-line), cfileP) == NULL)
-		       break;
-		    len = strlen((char *)string) - 2;
-		    linec++;
-		} while ((len >= 0) && string[len] == '\\');
-		string = line;
-	    }
-#endif
 	}
     }
     else if ((parseP != NULL) && (*parseP != '\0'))
     /* read parse string */
     {
 	string = line;
-#ifndef NO_MULTIBYTE
+
 #ifdef FIX_1127
 	chlen = mblen((char *)parseP, MB_CUR_MAX);
 	if(chlen==-1) string = NULL;
@@ -5013,14 +4901,7 @@ GetNextLine (void)
 	    {
 	        *(string++) = *(parseP++);
 	    }
-        }
-#else
-	while ((*parseP != '\0') && (*parseP != '\n'))
-	/* copy all but end-of-line and newlines to line buffer */
-	{
-	    *(string++) = *(parseP++);
     }
-#endif
 	if (string)
 	    *string = '\0';
 	if (*parseP == '\n')
@@ -5039,7 +4920,6 @@ GetNextLine (void)
 } /* END OF FUNCTION GetNextLine */
 #endif /* WSM */
 
-
 #ifdef WSM
 /*************************************<->*************************************
  *
@@ -5123,7 +5003,6 @@ unsigned char *GetString (unsigned char **linePP)
 #ifdef WSM
     unsigned int  level = 0, checkLev, i, quoteLevel[10];
 #endif /* WSM */
-#ifndef NO_MULTIBYTE
     int            chlen;
 
     /* get rid of leading white space */
@@ -5250,103 +5129,7 @@ unsigned char *GetString (unsigned char **linePP)
 		    lnwsP++;
 		}
 	    }
-        }
-#else
-
-    /* get rid of leading white space */
-    ScanWhitespace (&lineP);
-
-#ifdef WSM
-    /* Return NULL if line is empty, whitespace, or begins with a comment. */
-    if ((lineP == NULL || *lineP == '\0') ||
-	(!SmBehavior && (*lineP == '#')))
-#else /* WSM */
-    /* Return NULL if line is empty, whitespace, or begins with a comment. */
-    if ((lineP == NULL) || (*lineP == '\0') || (*lineP == '#'))
-#endif /* WSM */
-    {
-        *linePP = lineP;
-        return (NULL);
-    }
-
-    if (*lineP == '"')
-    /* Quoted string */
-    {
-#ifdef WSM
-	quoteLevel[level] = 1;	
-#endif /* WSM */
-	/*
-	 * Start beyond double quote and find the end of the quoted string.
-	 * '\' quotes the next character.
-	 * Otherwise,  matching double quote or NULL terminates the string.
-	 *
-	 * We use lnwsP to point to the last non-whitespace character in the
-	 * quoted string.  When we have found the end of the quoted string,
-	 * increment lnwsP and if lnwsP < endP, write NULL into *lnwsP.
-	 * This removes any trailing whitespace without overwriting the 
-	 * matching quote, needed later.  If the quoted string was all 
-	 * whitespace, then this will write a NULL at the beginning of the 
-	 * string that will be returned -- OK.
-	 */
-	lnwsP = lineP++;                /* lnwsP points to first '"' */
-	curP = endP = lineP;            /* other pointers point beyond */
-
-        while ((*endP = *curP) && (*endP != '"'))
-	/* haven't found matching quote yet */
-        {
-	    /* point curP to next character */
-	    curP++;
-	    if ((*endP == '\\') && (*curP != '\0'))
-	    /* shift quoted nonNULL character down and curP ahead */
-	    {
-#ifdef WSM
-		if (SmBehavior)
-		{
-		    /*
-		     * Check to see if this is a quoted quote - if it is
-		     * strip off a level - if not - it's sacred leave it alone
-		     */
-		    checkLev = PeekAhead((curP - 1), quoteLevel[level]);
-		    if(checkLev > 0)
-		    {
-			if(quoteLevel[level] <= checkLev)
-			{
-			    level--;
-			}
-			else
-			{
-			    level++;
-			    quoteLevel[level] = checkLev;
-			}
-			
-			for(i = 0;i < (checkLev - 2);i++)
-			{
-			    *endP++ = *curP++;curP++;
-			}
-			*endP = *curP++;
-		    }
-		}
-		else 
-		{
-#endif /* WSM */
-		*endP = *curP++;
-#ifdef WSM
-		}
-#endif /* WSM */
-            }
-	    if (isspace (*endP))
-	    /* whitespace character:  leave lnwsP unchanged. */
-	    {
-	        endP++;
-	    }
-	    else
-	    /* non-whitespace character:  point lnwsP to it. */
-	    {
-	        lnwsP = endP++;
-	    }
-        }
-#endif
-
+     }
 	/*
 	 *  Found matching quote or NULL.  
 	 *  NULL out any trailing whitespace.
@@ -5369,7 +5152,6 @@ unsigned char *GetString (unsigned char **linePP)
 	 */
         curP = endP = lineP;
 
-#ifndef NO_MULTIBYTE
 #ifdef WSM
         while ((*endP = *curP) &&
                ((chlen = mblen ((char *)curP, MB_CUR_MAX)) > 0) &&
@@ -5404,24 +5186,6 @@ unsigned char *GetString (unsigned char **linePP)
 		}
 	    }
         }
-#else
-#ifdef WSM
-        while ((*endP = *curP) && !isspace (*endP) && 
-					(SmBehavior || (*endP != '#')))
-#else /* WSM */
-        while ((*endP = *curP) && !isspace (*endP) && (*endP != '#'))
-#endif /* WSM */
-        {
-	    /* point curP to next character */
-	    curP++;
-	    if ((*endP == '\\') && (*curP != '\0'))
-	    /* shift quoted nonNULL character down and curP ahead */
-	    {
-		*endP = *curP++;
-            }
-	    endP++;
-        }
-#endif
     }
 
     /*
@@ -6100,14 +5864,11 @@ static Boolean ParseKeySym (unsigned char **linePP, unsigned int closure,
     unsigned char *startP;
     char           keySymName[MAX_KEYSYM_STRLEN+1];
     int            len;
-#ifndef NO_MULTIBYTE
     int            chlen;
-#endif
 
     ScanWhitespace (&lineP);
     startP = lineP;
 
-#ifndef NO_MULTIBYTE
     while (*lineP &&
 	   ((chlen = mblen ((char *)lineP, MB_CUR_MAX)) > 0) &&
            ((chlen > 1) ||
@@ -6116,24 +5877,13 @@ static Boolean ParseKeySym (unsigned char **linePP, unsigned int closure,
 	/* Skip next character */
         lineP += chlen;
     }
-#else
-    while (*lineP && !isspace (*lineP) && *lineP != ',' && *lineP != ':' )
-    {
-	/* Skip next character */
-        lineP++;
-    }
-#endif
 
     len = min (lineP - startP, MAX_KEYSYM_STRLEN);
     (void) strncpy (keySymName, (char *)startP, len);
     keySymName[len] = '\0';
 
-#ifndef NO_MULTIBYTE
     if ((*detail = XStringToKeysym(keySymName)) == NoSymbol &&
 	 (mblen (keySymName, MB_CUR_MAX) == 1))
-#else
-    if ((*detail = XStringToKeysym(keySymName)) == NoSymbol)
-#endif
     {
         if (!isdigit (keySymName[0]) ||
             ((*detail = StrToNum ((unsigned char *)&keySymName[0])) == -1))
@@ -6335,7 +6085,6 @@ static unsigned int StrToOct(unsigned char *str)
 
 void ScanAlphanumeric (unsigned char **linePP)
 {
-#ifndef NO_MULTIBYTE
     int            chlen;
 
     while (*linePP &&
@@ -6344,12 +6093,6 @@ void ScanAlphanumeric (unsigned char **linePP)
     {
         (*linePP) += chlen;
     }
-#else
-    while (*linePP && isalnum (**linePP))
-    {
-        (*linePP)++;
-    }
-#endif
 
 } /* END OF FUNCTION ScanAlphanumeric */
 
@@ -6384,11 +6127,7 @@ void ScanAlphanumeric (unsigned char **linePP)
 
 void ScanWhitespace(unsigned char  **linePP)
 {
-#ifndef NO_MULTIBYTE
     while (*linePP && (mblen ((char *)*linePP, MB_CUR_MAX) == 1) && isspace (**linePP))
-#else
-    while (*linePP && isspace (**linePP))
-#endif
     {
         (*linePP)++;
     }
@@ -6427,7 +6166,6 @@ void ScanWhitespace(unsigned char  **linePP)
 void ToLower (unsigned char  *string)
 {
     unsigned char *pch = string;
-#ifndef NO_MULTIBYTE
     int            chlen;
 
     while (*pch && ((chlen = mblen ((char *)pch, MB_CUR_MAX)) > 0))
@@ -6438,16 +6176,6 @@ void ToLower (unsigned char  *string)
 	}
 	pch += chlen;
     }
-#else
-    while (*pch != '\0')
-    {
-        if (isupper (*pch))
-	{
-	    *pch = tolower(*pch);
-	}
-	pch++;
-    }
-#endif
 
 } /* END OF FUNCTION ToLower */
 #endif  /* WSM */
@@ -6574,9 +6302,7 @@ static void InitKeySubs (
     unsigned char *pch0;
     unsigned char *pch1;
     int len;
-#ifndef NO_MULTIBYTE
     int		chlen;
-#endif 
 
     pch0 = (unsigned char *)GETMESSAGE(60, 40, "");
 
@@ -6611,8 +6337,7 @@ static void InitKeySubs (
 
 	/* get "from" string */
 	pch1 = pch0;
-#ifndef NO_MULTIBYTE
-        while (*pch1 && ((chlen = mblen ((char *)pch1, MB_CUR_MAX)) > 0))
+    while (*pch1 && ((chlen = mblen ((char *)pch1, MB_CUR_MAX)) > 0))
 	{
 	    if ((chlen == 1) && (*pch1 == ' '))
 	    {
@@ -6620,9 +6345,6 @@ static void InitKeySubs (
 	    }
 	    pch1 += chlen;
 	}
-#else /* NO_MULTIBYTE */
-	while (*pch1 && (*pch1 != ' ')) pch1++;
-#endif /* NO_MULTIBYTE */
 	pKS->lenFrom = pch1 - pch0;
 	if (pKS->lenFrom < 1) 
 	{
@@ -6639,8 +6361,7 @@ static void InitKeySubs (
 	ScanWhitespace (&pch1);
 	pch0 = pch1;
 
-#ifndef NO_MULTIBYTE
-        while (*pch1 && ((chlen = mblen ((char *)pch1, MB_CUR_MAX)) > 0))
+    while (*pch1 && ((chlen = mblen ((char *)pch1, MB_CUR_MAX)) > 0))
 	{
 	    if ((chlen == 1) && (*pch1 == ' '))
 	    {
@@ -6648,9 +6369,6 @@ static void InitKeySubs (
 	    }
 	    pch1 += chlen;
 	}
-#else /* NO_MULTIBYTE */
-	while (*pch1 && (*pch1 != ' ')) pch1++;
-#endif /* NO_MULTIBYTE */
 
 	len = pch1 - pch0;
 	if (len < 1)
@@ -6707,9 +6425,7 @@ static void InitKeySubs (
 static void ProcessAccelText (unsigned char *startP, unsigned char *endP,
 			      unsigned char *destP)
 {
-#ifndef NO_MULTIBYTE
     int   chlen;
-#endif
 #ifdef WSM
     static Boolean	bAccelInit = False;
     static KeySub	*pKeySub;
@@ -6742,7 +6458,6 @@ static void ProcessAccelText (unsigned char *startP, unsigned char *endP,
 	pchFirst = startP;
 #endif /* WSM */
 
-#ifndef NO_MULTIBYTE
         while (*startP &&
 	       (((chlen = mblen ((char *)startP, MB_CUR_MAX)) > 1)
 		|| isalnum (*startP)))
@@ -6757,16 +6472,6 @@ static void ProcessAccelText (unsigned char *startP, unsigned char *endP,
 #endif /* WSM */
 	    }
 	}
-#else
-        while (isalnum (*startP))
-        {
-#ifdef WSM
-	        startP++;
-#else /* WSM */
-	    *destP++ = *startP++;
-#endif /* WSM */
-	}
-#endif
 #ifdef WSM
 	/* find substitution */
 	pchSub = NULL;
@@ -6807,11 +6512,7 @@ static void ProcessAccelText (unsigned char *startP, unsigned char *endP,
     startP++;  /* skip '<' */
     while (*startP != '>')
     {
-#ifndef NO_MULTIBYTE
         startP += mblen ((char *)startP, MB_CUR_MAX);
-#else
-        startP++;
-#endif
     }
     startP++;  /* skip '>' */
 
@@ -7229,11 +6930,8 @@ GetNetworkFileName (char *pchFile)
 		host_part = NULL;
 	    }
 
-	    if (
-#ifndef NO_MULTIBYTE
-	        (mblen(file_part, MB_CUR_MAX) == 1) && 
+	    if ((mblen(file_part, MB_CUR_MAX) == 1) && 
 		(mblen(file_part+1, MB_CUR_MAX) == 1) &&
-#endif
 		(*file_part == '~') &&
 		(*(file_part+1) == '/'))
 	    {
@@ -7292,11 +6990,8 @@ GetNetworkFileName (char *pchFile)
 
     if (sReturn == NULL)
     {
-	if (
-#ifndef NO_MULTIBYTE
-	    (mblen(pchFile, MB_CUR_MAX) == 1) && 
+	if ((mblen(pchFile, MB_CUR_MAX) == 1) && 
 	    (mblen(pchFile+1, MB_CUR_MAX) == 1) &&
-#endif
 	    (*pchFile == '~') &&
 	    (*(pchFile+1) == '/'))
 	{
