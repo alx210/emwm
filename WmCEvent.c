@@ -815,17 +815,11 @@ void HandleCPropertyNotify (ClientData *pCD, XPropertyEvent *propertyEvent)
 		    /*
 		     * The client window has the colormap focus, install the
 		     * colormap.
-		     */
-#ifndef OLD_COLORMAP /* colormap */
-		    /*
 		     * We just changed the colormaps list,
 		     * so we need to re-run the whole thing.
 		     */
 		    pCD->clientCmapFlagsInitialized = 0;
 		    ProcessColormapList (ACTIVE_PSD, pCD);
-#else /* OSF original */
-		    WmInstallColormap (ACTIVE_PSD, pCD->clientColormap);
-#endif
 		}
 	    }
 	    break;
@@ -835,7 +829,7 @@ void HandleCPropertyNotify (ClientData *pCD, XPropertyEvent *propertyEvent)
 } /* END OF FUNCTION HandleCPropertyNotify */
 
 
-
+
 /*************************************<->*************************************
  *
  *  HandleCButtonPress (pCD, buttonEvent)
@@ -905,13 +899,6 @@ Boolean HandleCButtonPress (ClientData *pCD, XButtonEvent *buttonEvent)
               (buttonEvent->time == baseWinTime)))
 	{
 
-#ifndef MOTIF_ONE_DOT_ONE
-	    /*
-	     * Motif 1.2, ignore replayed events UNPOST_AND_REPLAY events
-	     * generated from the menu system (time stamps are exactly
-	     * the same for the replayed event)
-	     */
-
 	    if (wmGD.clickData.time == buttonEvent->time)
 	    {
 		dispatchEvent = False;
@@ -920,9 +907,6 @@ Boolean HandleCButtonPress (ClientData *pCD, XButtonEvent *buttonEvent)
 	    {
 		ProcessClickBPress (buttonEvent, pCD, context, subContext);
 	    }
-#else
-	    ProcessClickBPress (buttonEvent, pCD, context, subContext);
-#endif
 
 	    if (CheckForButtonAction (buttonEvent, context, subContext, pCD) 
 		&& pCD)
@@ -1058,7 +1042,7 @@ void ProcessButtonGrabOnClient (ClientData *pCD, XButtonEvent *buttonEvent, Bool
 } /* END OF FUNCTION ProcessButtonGrabOnClient */
 
 
-
+
 /*************************************<->*************************************
  *
  *  CheckButtonPressBuiltin (buttonEvent, context, subContext, partContext, pCD)

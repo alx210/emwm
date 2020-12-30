@@ -4130,9 +4130,7 @@ void UnpostMenu (MenuSpec *menuSpec)
      */
     {
         XtUnmanageChild (menuSpec->menuWidget);
-#ifndef OLD_COLORMAP
         ForceColormapFocus (ACTIVE_PSD, ACTIVE_PSD->colormapFocus);
-#endif
     }
 
 } /* END OF FUNCTION UnpostMenu */
@@ -4226,9 +4224,7 @@ static void UnmapCallback (Widget w, XtPointer client_data,
 	PopGadgetOut(wmGD.gadgetClient, FRAME_SYSTEM);
     }
 
-#ifndef OLD_COLORMAP
     ForceColormapFocus (ACTIVE_PSD, ACTIVE_PSD->colormapFocus);
-#endif
     PullExposureEvents();
 
 } /* END OF FUNCTION UnmapCallback */

@@ -804,9 +804,7 @@ void ProcessWmColormapWindows (ClientData *pCD)
     XWindowAttributes wAttributes;
     ClientData *pcd;
     XSetWindowAttributes sAttributes;
-#ifndef OLD_COLORMAP /* colormaps */
     int *pCmapFlags;
-#endif
 
 
     /*
@@ -832,25 +830,20 @@ void ProcessWmColormapWindows (ClientData *pCD)
 	 * WM_COLORMAP_WINDOWS exists and is a valid type.
 	 */
 
-        if (!(pWindows = (Window *)XtMalloc ((nitems * sizeof (Window)) + 1)) ||
-            !(pColormaps = (Colormap *)XtMalloc ((nitems*sizeof(Colormap)) + 1)))
+        if (!(pWindows = (Window *)XtCalloc (nitems + 1, sizeof (Window))) ||
+            !(pColormaps = (Colormap *)XtCalloc (nitems + 1, sizeof(Colormap))))
         {
 	    /* unable to allocate space */
 	    Warning (((char *)GETMESSAGE(54, 3, "Insufficient memory for window management data")));
-	    if (pWindows)
-	    {
-		XtFree ((char *)pWindows);
-	    }
+	    if (pWindows) XtFree ((char *)pWindows);
+
         }
-#ifndef OLD_COLORMAP /* colormap */
-	/* Is the above OSF code a bug -- allocates one extra byte, rather */
-	/* than one extra element, for the top window if needed? */
-	else if ( ! (pCmapFlags = (int *)XtCalloc(nitems+1,sizeof(int)))) {
-			/* unable to allocate space */
-			Warning (((char *)GETMESSAGE(54, 4, "Insufficient memory for window manager flags")));
-			XtFree ((char *)pWindows); XtFree ((char *)pColormaps);
-	}
-#endif
+		else if ( ! (pCmapFlags = (int *)XtCalloc(nitems+1,sizeof(int)))) {
+				/* unable to allocate space */
+				Warning (((char *)GETMESSAGE(54, 4, "Insufficient memory for window manager flags")));
+				XtFree ((char *)pWindows); XtFree ((char *)pColormaps);
+		}
+
 	else
 	{
 	    /*
@@ -931,9 +924,7 @@ void ProcessWmColormapWindows (ClientData *pCD)
 		pCD->cmapWindows = pWindows;
 		pCD->clientCmapList = pColormaps;
 		pCD->clientCmapIndex = 0;
-#ifndef OLD_COLORMAP /* colormap */
 		pCD->clientCmapFlags = pCmapFlags;
-#endif
 	    }
 	    else
 	    {
@@ -945,9 +936,7 @@ void ProcessWmColormapWindows (ClientData *pCD)
 		pCD->clientCmapCount = 0;
 		XtFree ((char *)pWindows);
 		XtFree ((char *)pColormaps);
-#ifndef OLD_COLORMAP /* colormap */
 		XtFree((char *)pCmapFlags);
-#endif
 	    }
 	}
     }

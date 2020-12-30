@@ -1077,16 +1077,11 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
 	 * unexpectedly.
 	 */
 
-#ifndef CONFIG_RELATIVE_TO_CLIENT
-
 	tmpX = resizeX;
 	tmpY = resizeY;
 
 	/* Use dummy x,y so we don't add frame offset to client location */
 	FrameToClient (pcd, &tmpX, &tmpY, &resizeWidth, &resizeHeight);
-#else
-	FrameToClient (pcd, &resizeX, &resizeY, &resizeWidth, &resizeHeight);
-#endif
 
 	tmpWidth = resizeWidth;
 	tmpHeight = resizeHeight;
@@ -1281,13 +1276,8 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
 	else {	/* assume normal window frame */
 	    /* reconfigure the window(s) */
 	    ProcessNewConfiguration (pcd, 
-#ifndef CONFIG_RELATIVE_TO_CLIENT
 				     moveX,
 				     moveY,
-#else
-				     moveX + offsetX,
-				     moveY + offsetY,
-#endif
 				     (unsigned int) 
 					 (moveWidth - 2*offsetX),
 				     (unsigned int) 
@@ -1410,50 +1400,6 @@ void MoveOpaque (ClientData *pcd, int x, int y,
 /* number of points to flash outline (draw then erase) */
 #define SEGS_PER_FLASH	(2*SEGS_PER_DRAW)
 
-
-/*************************************<->*************************************
- *
- *  DrawSegments (dpy, win, gc, outline, nsegs)
- *
- *  Description:
- *  -----------
- *  Draw segments using either using normal X or using the ALLPLANES
- *  extension, depending on #ifdef ALLPLANES and whether the server actually
- *  supports the extension.  This is a thin wrapper around the Xlib
- *  XDrawSegments() call.
- *
- *  Inputs:
- *  ------
- *  dpy		- the X display
- *  win		- the window on which to draw
- *  gc		- the gc to use, typically whose function is GXxor
- *  outline	- array of segments
- *  nsegs	- number of segments in the outline array
- * 
- *  Outputs:
- *  -------
- *  (none)
- *
- *  Comments:
- *  --------
- *  Note: no GC is used when drawing with the ALLPLANES extension;
- *  therefore, the GC parameter is ignored in that case.
- * 
- *************************************<->***********************************/
-
-
-static void
-DrawSegments (Display *dpy, Window win, GC gc, XSegment *outline, int nsegs)
-{
-#if defined(sun) && defined(ALLPLANES)
-	if (wmGD.allplanes)
-	    XAllPlanesDrawSegments(dpy, win, outline, nsegs);
-	else
-#endif /* defined(sun) && defined(ALLPLANES) */
-	    XDrawSegments(dpy, win, gc, outline, nsegs);
-} /* END OF FUNCTION  DrawSegments */
-
-
 /*************************************<->*************************************
  *
  *  MoveOutline (x, y, width, height)
@@ -1548,12 +1494,12 @@ void FlashOutline (int x, int y, unsigned int width, unsigned int height)
      * Flash the outline at least once, then as long as there's 
      * nothing else going on
      */
-    DrawSegments(DISPLAY, ACTIVE_ROOT, ACTIVE_PSD->xorGC,
+    XDrawSegments(DISPLAY, ACTIVE_ROOT, ACTIVE_PSD->xorGC,
 			outline, SEGS_PER_FLASH);
     XSync(DISPLAY, FALSE);
 
     while (!XtAppPending(wmGD.mwmAppContext)) {
-    	DrawSegments(DISPLAY, ACTIVE_ROOT, ACTIVE_PSD->xorGC, 
+    	XDrawSegments(DISPLAY, ACTIVE_ROOT, ACTIVE_PSD->xorGC, 
 			outline, SEGS_PER_FLASH);
 	XSync(DISPLAY, FALSE);
     }
@@ -1809,7 +1755,7 @@ void DrawOutline (int x, int y, unsigned int width, unsigned int height)
 	SetOutline (outline, lastOutlineX, lastOutlineY, lastOutlineWidth,
 	    lastOutlineHeight, OUTLINE_WIDTH);
 
-    	DrawSegments(DISPLAY, ACTIVE_ROOT, ACTIVE_PSD->xorGC, 
+    	XDrawSegments(DISPLAY, ACTIVE_ROOT, ACTIVE_PSD->xorGC, 
 			outline, SEGS_PER_DRAW);
     }
 
@@ -1823,7 +1769,7 @@ void DrawOutline (int x, int y, unsigned int width, unsigned int height)
 	SetOutline (outline, lastOutlineX, lastOutlineY, lastOutlineWidth,
 	    lastOutlineHeight, OUTLINE_WIDTH);
 
-    	DrawSegments(DISPLAY, ACTIVE_ROOT, ACTIVE_PSD->xorGC, 
+    	XDrawSegments(DISPLAY, ACTIVE_ROOT, ACTIVE_PSD->xorGC, 
 			outline, SEGS_PER_DRAW);
     }
 } /* END OF FUNCTION  DrawOutline */

@@ -579,17 +579,17 @@ static char _defaultColor1[] = "LightGrey";
 static char _defaultColor2[] = "CadetBlue";
 #define DEFAULT_COLOR_NONE	NULL
 
-Const char _foreground[]    = "foreground";
-Const char _75_foreground[] = "75_foreground";
-Const char _50_foreground[] = "50_foreground";
-Const char _25_foreground[] = "25_foreground";
+const char _foreground[]    = "foreground";
+const char _75_foreground[] = "75_foreground";
+const char _50_foreground[] = "50_foreground";
+const char _25_foreground[] = "25_foreground";
 #ifdef WSM
-Const char *_Dither = XmCO_DITHER;
-Const char *_NoDither = XmCO_NO_DITHER;
-Const char CLIENT_FRAME_PART[] = "client";
-Const char ICON_FRAME_PART[] = "icon";
-Const char FEEDBACK_FRAME_PART[] = "feedback";
-Const char MENU_ITEM_PART[] = "menu";
+const char *_Dither = XmCO_DITHER;
+const char *_NoDither = XmCO_NO_DITHER;
+const char CLIENT_FRAME_PART[] = "client";
+const char ICON_FRAME_PART[] = "icon";
+const char FEEDBACK_FRAME_PART[] = "feedback";
+const char MENU_ITEM_PART[] = "menu";
 #endif /* WSM */
 
 #define WmBGC          XmBACKGROUND

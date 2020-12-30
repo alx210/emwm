@@ -41,6 +41,7 @@
 #include <X11/Core.h>
 #include <X11/keysym.h>
 #include <Xm/AtomMgr.h>
+#include <Xm/DrawingA.h>
 #ifndef NO_HP_KEY_REMAP
 #include <Xm/VirtKeysP.h>
 
@@ -62,14 +63,6 @@ typedef struct
 #include <Dt/WsmM.h>
 #endif /* WSM */
 
-/* Busy is also defined in the BMS  -> bms.h. This conflicts with
- * /usr/include/X11/Xasync.h on ibm.
- */
-#ifdef _AIX
-#ifdef Busy
-#undef Busy
-#endif
-#endif
 #include <X11/Xlibint.h>
 #include <X11/extensions/Xrandr.h>
 
@@ -509,15 +502,6 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 	ExitWM (WM_ERROR_EXIT_VALUE);
     }
 
-#if defined(sun) && defined(ALLPLANES)
-    {
-	int dummy;
-
-	wmGD.allplanes = XAllPlanesQueryExtension(wmGD.display, 
-				&dummy, &dummy);	
-    }
-#endif /* defined(sun) && defined(ALLPLANES) */
-
     /*
      * Setup error handling:
      */
@@ -812,19 +796,6 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 		    _DtGetSmWindow(DISPLAY, 
 				  RootWindow(DISPLAY, 0), 
 				  &wmGD.dtSmWindow) ;
-#ifdef PANACOMM
-		    /*
-		     * If this is the first screen we've managed,
-		     * tell the session manager we're ready 
-		     */
-		    if (!processedGlobalResources)
-		    {
-			SendClientMsg( wmGD.dtSmWindow,
-				      (long) wmGD.xa_DT_SM_WM_PROTOCOL,
-				      (long) wmGD.xa_DT_WM_READY,
-				      CurrentTime, NULL, 0);
-		    }
-#endif /* PANACOMM */
 
 		    /* create topmost shell (application shell) */
 		    argnum = 0;

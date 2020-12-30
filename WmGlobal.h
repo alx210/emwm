@@ -25,14 +25,6 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-/* ANSI C definitions,  This should be the first thing in WmGlobal.h */
-#ifdef __STDC__
-#define Const const
-#else
-#define Const /**/
-#endif
-
-
 /*
  * Included Files:
  */
@@ -55,10 +47,6 @@
 #include <Dt/WsmP.h>
 #include "WmParse.h"
 #endif /* WSM */
-
-#if defined(sun) && defined(ALLPLANES)
-#include <X11/extensions/allplanes.h>
-#endif /* defined(sun) && defined(ALLPLANES) */
 
 /*
  * Value definitions and macros:
@@ -985,9 +973,8 @@ typedef struct _AppearanceData
 {
 	XmRenderTable renderTable;	/* resource */
 	unsigned int fontHeight;
-#ifndef NO_MULTIBYTE
     unsigned int	titleHeight;		/* title bar's height */
-#endif
+
     Boolean	saveUnder;			/* resource */
     Pixel	background;			/* resource */
     Pixel	foreground;			/* resource */
@@ -1637,10 +1624,8 @@ typedef struct _ClientData
     Colormap	*clientCmapList;
     int		clientCmapCount;		/* len of clientCmapList */
     int		clientCmapIndex;		/* current cmap in list */
-#ifndef OLD_COLORMAP /* colormap */
     int		*clientCmapFlags;		/* installed, uninstalled */
     Bool	clientCmapFlagsInitialized;	/* Are clientCmapFlags valid? */
-#endif
 
     /* associated window data: */
 
@@ -1970,9 +1955,8 @@ typedef struct _WmGlobalData
     XtAppContext	mwmAppContext;	/* application context for mwm */
     XContext	windowContextType;	/* window context for XSaveContext */
     XContext	screenContextType;	/* screen context for XSaveContext */
-#ifndef	IBM_169380
     XContext  cmapWindowContextType;  /* list of pCD's in WM_COLORMAP_WINDOWS                                              context for XSaveContext */
-#endif
+
 #ifdef WSM
     XContext	mwmWindowContextType;	/* mwm win context for XSaveContext */
     Window      dtSmWindow;            /* used for contention management */
@@ -2233,9 +2217,6 @@ typedef struct _WmGlobalData
 
     int numMouseButtons;		/* num of mouse buttons available */
     unsigned int bMenuButton;		/* BMenu binding (button/state) */
-#if defined(sun) && defined(ALLPLANES)
-    Bool	allplanes;		/* is SUN_ALLPLANES available? */
-#endif /* defined(sun) && defined(ALLPLANES) */
 	    
     Boolean xrandr_present;
     int xrandr_base_evt;
@@ -2386,9 +2367,9 @@ extern char	builtinSystemMenu[];
 #endif
 extern char	builtinKeyBindings[];
 
-extern Const char	_75_foreground[];
-extern Const char	_50_foreground[];
-extern Const char	_25_foreground[];
+extern const char	_75_foreground[];
+extern const char	_50_foreground[];
+extern const char	_25_foreground[];
 
 /*
  * Undocumented Xme stuff from XmP.h

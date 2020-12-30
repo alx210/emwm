@@ -512,9 +512,7 @@ void HideFeedbackWindow (WmScreenData *pSD)
     if (pSD->feedbackWin)
     {
 	XUnmapWindow (DISPLAY, pSD->feedbackWin);
-#ifndef OLD_COLORMAP
 	ForceColormapFocus (ACTIVE_PSD, ACTIVE_PSD->colormapFocus);
-#endif
     }
     pSD->fbStyle = FB_OFF;
 }

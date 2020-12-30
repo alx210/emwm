@@ -40,7 +40,6 @@ static Bool ProcessEvents(Display *dpy, XEvent *Event, char *c_pCD);
 /* Global variables */
 	static unsigned long firstRequest, lastRequest;
 
-
 /*************************************<->*************************************
  *
  *  InitWorkspaceColormap ()
@@ -75,7 +74,6 @@ void InitWorkspaceColormap (WmScreenData *pSD)
 } /* END OF FUNCTION InitWorkspaceColormap */
 
 
-
 /*************************************<->*************************************
  *
  *  InitColormapFocus (pSD)
@@ -135,8 +133,6 @@ void InitColormapFocus (WmScreenData *pSD)
 } /* END OF FUNCTION InitColormapFocus */
 
 
-
-#ifndef OLD_COLORMAP
 /*************************************<->*************************************
  *
  *  ForceColormapFocus (pSD, pCD)
@@ -172,11 +168,7 @@ void ForceColormapFocus (WmScreenData *pSD, ClientData *pCD)
 		(pCD->clientState == MAXIMIZED_STATE)))
     {
 	pSD->colormapFocus = pCD;
-#ifndef OLD_COLORMAP /* colormaps */
 	ProcessColormapList (pSD, pCD);
-#else /* OSF original */
-	WmInstallColormap (pSD, pCD->clientColormap);
-#endif
     }
     else
     {
@@ -192,10 +184,7 @@ void ForceColormapFocus (WmScreenData *pSD, ClientData *pCD)
     }
 
 } /* END OF FUNCTION ForceColormapFocus */
-#endif
 
-
-
 /*************************************<->*************************************
  *
  *  SetColormapFocus (pSD, pCD)
@@ -224,38 +213,11 @@ void SetColormapFocus (WmScreenData *pSD, ClientData *pCD)
 
 	return;
     }
-#ifndef OLD_COLORMAP
+
     ForceColormapFocus (pSD, pCD);
-#else /* OSF original */
-
-    if (pCD && ((pCD->clientState == NORMAL_STATE) ||
-		(pCD->clientState == MAXIMIZED_STATE)))
-    {
-	pSD->colormapFocus = pCD;
-#ifndef OLD_COLORMAP /* colormaps */
-	ProcessColormapList (pSD, pCD);
-#else /* OSF original */
-	WmInstallColormap (pSD, pCD->clientColormap);
-#endif
-    }
-    else
-    {
-	/*
-	 * The default colormap is installed for minimized windows that have
-	 * the colormap focus.
-	 * !!! should colormaps be installed for icons with client      !!!
-	 * !!! icon windows?  should the client colormap be installed ? !!!
-	 */
-
-	pSD->colormapFocus = NULL;
-	WmInstallColormap (pSD, pSD->workspaceColormap);
-    }
-#endif
-
 } /* END OF FUNCTION SetColormapFocus */
 
 
-
 /*************************************<->*************************************
  *
  *  WmInstallColormap (pSD, colormap)
@@ -291,7 +253,6 @@ void WmInstallColormap (WmScreenData *pSD, Colormap colormap)
 } /* END OF FUNCTION WmInstallColormap */
 
 
-
 /*************************************<->*************************************
  *
  *  ResetColormapData (pCD, pWindows, count)

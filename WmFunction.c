@@ -29,20 +29,10 @@
 
 #include "WmGlobal.h"
 #include <sys/types.h>
-#ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#else
-extern int putenv();
-extern char *getenv();
-extern int atoi();
-extern pid_t wait();
 
-#ifndef PORT_NOVFORK
-extern pid_t vfork();
-#endif /* PORT_NOVFORK */
-#endif
 #ifndef WSM
 #include <signal.h>
 #endif
@@ -1006,28 +996,11 @@ Boolean F_Exec (String args, ClientData *pCD, XEvent *event)
     /*
      * Fork a process to exec a shell to run the specified command:
      */
-
-#ifdef PORT_NOVFORK
-    if ((pid = fork ()) == 0)
-#else
     if ((pid = vfork ()) == 0)
-#endif
     {
 
-#ifndef NO_SETPGRP
-#if defined(SVR4) || defined(__OSF1__) || defined(__osf__) || defined(_POSIX_JOB_CONTROL)
 	setsid();
-#else
-#ifdef SYSV
-	setpgrp();
-#else
-	int tpid;
 
-	tpid = getpid();
-	setpgrp(tpid, tpid);
-#endif /* SYSV */
-#endif /* SVR4 */
-#endif /* NO_SETPGRP */
 #ifdef WSM 
 	/*
 	 * Clean up window manager resources.
@@ -1081,12 +1054,7 @@ Boolean F_Exec (String args, ClientData *pCD, XEvent *event)
 	 * There is no SHELL environment variable or the first execl failed.
 	 * Try /bin/sh .
 	 */
-#ifdef SVR4
-        execl ("/usr/bin/sh", "sh", "-c", args, NULL);
-#else
-        execl ("/bin/sh", "sh", "-c", args, NULL);
-#endif
-
+     execl ("/bin/sh", "sh", "-c", args, NULL);
 
 	/*
 	 * Error - command could not be exec'ed.
@@ -1992,16 +1960,12 @@ Boolean F_Prev_Cmap (String args, ClientData *pCD, XEvent *event)
 	pCD->clientColormap = pCD->clientCmapList[pCD->clientCmapIndex];
 	if (ACTIVE_PSD->colormapFocus == pCD)
 	{
-#ifndef OLD_COLORMAP /* colormap */
 	    /*
 	     * We just re-ordered the colormaps list,
 	     * so we need to re-run the whole thing.
 	     */
 	    pCD->clientCmapFlagsInitialized = 0;
 	    ProcessColormapList (ACTIVE_PSD, pCD);
-#else /* OSF original */
-	    WmInstallColormap (ACTIVE_PSD, pCD->clientColormap);
-#endif
 	}
     }
 
@@ -2362,16 +2326,12 @@ Boolean F_Next_Cmap (String args, ClientData *pCD, XEvent *event)
 	pCD->clientColormap = pCD->clientCmapList[pCD->clientCmapIndex];
 	if (ACTIVE_PSD->colormapFocus == pCD)
 	{
-#ifndef OLD_COLORMAP /* colormap */
 	    /*
 	     * We just re-ordered the colormaps list,
 	     * so we need to re-run the whole thing.
 	     */
 	    pCD->clientCmapFlagsInitialized = 0;
 	    ProcessColormapList (ACTIVE_PSD, pCD);
-#else /* OSF original */
-	    WmInstallColormap (ACTIVE_PSD, pCD->clientColormap);
-#endif
 	}
     }
 

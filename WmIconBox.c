@@ -97,8 +97,8 @@ int frameShadowThickness;
 int firstTime = 1;
 Cardinal insertPosition = 0;
 #define    DEFAULT_ICON_BOX_TITLE "Icons"
-Const char *szhorizontal = "horizontal";
-Const char *szvertical = "vertical";
+const char *szhorizontal = "horizontal";
+const char *szvertical = "vertical";
 
 
 /*************************************<->*************************************
