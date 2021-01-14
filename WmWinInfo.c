@@ -1483,16 +1483,19 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
     unsigned int	incWidth = 0, incHeight = 0;
 	XineramaScreenInfo xsi;
 	unsigned int dispWidth, dispHeight;
-	
+	unsigned int scrWidth, scrHeight;
+
+	dispWidth = DisplayWidth (DISPLAY, SCREEN_FOR_CLIENT(pCD));
+	dispHeight = DisplayHeight (DISPLAY, SCREEN_FOR_CLIENT(pCD));
 
 	if(GetXineramaScreenFromLocation(pCD->clientX,pCD->clientY,&xsi)){
-		dispWidth = xsi.width;
-		dispHeight = xsi.height;
+		scrWidth = xsi.width;
+		scrHeight = xsi.height;
 	}else{
-		dispWidth = DisplayWidth (DISPLAY, SCREEN_FOR_CLIENT(pCD));
-		dispHeight = DisplayHeight (DISPLAY, SCREEN_FOR_CLIENT(pCD));
+		scrWidth = dispWidth;
+		scrHeight = dispHeight;
 	}
-	
+
     /*
      * Use a custom verion of the Xlib routine to get WM_NORMAL_HINTS.
      * A custom version is necessary to handle the different versions
@@ -1561,13 +1564,13 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 		 (pNormalHints->min_width < 0) ? 0 : pNormalHints->min_width;
 	pCD->minHeight =
 		 (pNormalHints->min_height < 0) ? 0 : pNormalHints->min_height;
-	if (pCD->minWidth > MAX_MAX_SIZE(pCD).width)
+	if (pCD->minWidth > dispWidth)
 	{
-	    pCD->minWidth = MAX_MAX_SIZE(pCD).width;
+	    pCD->minWidth = dispWidth;
 	}
-	if (pCD->minHeight > MAX_MAX_SIZE(pCD).height)
+	if (pCD->minHeight > dispHeight)
 	{
-	    pCD->minHeight = MAX_MAX_SIZE(pCD).height;
+	    pCD->minHeight = dispHeight;
 	}
     }
     else if (firstTime)
@@ -1670,7 +1673,7 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 	if (IS_MAXIMIZE_HORIZONTAL(pCD))
 	{
 	    /* go to min (full screen width, max maximum width) */
-	    pCD->maxWidth = dispWidth - (2 * pCD->clientOffset.x);
+	    pCD->maxWidth = scrWidth - (2 * pCD->clientOffset.x);
 
 	    /*
 	     * Hack to set max client to the current client height, maxHeight
@@ -1692,7 +1695,7 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 	    if (pNormalHints->max_width < 0)
 	    {
 	        /* go to min (full screen width, max maximum width) */
-		pCD->maxWidth = dispWidth - (2 * pCD->clientOffset.x);
+		pCD->maxWidth = scrWidth - (2 * pCD->clientOffset.x);
 	    }
 	    else
 	    {
@@ -1703,7 +1706,7 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 	else if (!IS_MAXIMIZE_VERTICAL(pCD))
 	{
 		/* go to min (full screen width, max maximum width) */
-		pCD->maxWidth = dispWidth - (2 * pCD->clientOffset.x);
+		pCD->maxWidth = scrWidth - (2 * pCD->clientOffset.x);
 	}
 	else
 	{
@@ -1727,10 +1730,10 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 	}
 	if (pCD->maxWidth > MAX_MAX_SIZE(pCD).width)
 	{
-		if(MAX_MAX_SIZE(pCD).width < dispWidth)
+		if(MAX_MAX_SIZE(pCD).width < scrWidth)
 	    	pCD->maxWidth = MAX_MAX_SIZE(pCD).width;
 		else
-			pCD->maxWidth = dispWidth - (2 * pCD->clientOffset.x);
+			pCD->maxWidth = scrWidth - (2 * pCD->clientOffset.x);
 	}
     }
 
@@ -1745,7 +1748,7 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 	if (IS_MAXIMIZE_VERTICAL(pCD))
 	{
 	    /* go to min (full screen height, max maximum height) */
-	    pCD->maxHeight = dispHeight -
+	    pCD->maxHeight = scrHeight -
 			(pCD->clientOffset.x + pCD->clientOffset.y);
 	    /*
 	     * Hack to set max client to the current client width, maxWidth
@@ -1767,7 +1770,7 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 	    if (pNormalHints->max_height < 0)
 	    {
 	        /* go to min (full screen height, max maximum height) */
-	        pCD->maxHeight = dispHeight -
+	        pCD->maxHeight = scrHeight -
 				(pCD->clientOffset.x + pCD->clientOffset.y);
 	    }
 	    else
@@ -1779,7 +1782,7 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 	else if (!IS_MAXIMIZE_HORIZONTAL(pCD))
 	{
 		/* go to min (full screen height, max maximum height) */
-		pCD->maxHeight = dispHeight -
+		pCD->maxHeight = scrHeight -
 			(pCD->clientOffset.x + pCD->clientOffset.y);
 	}
 	else
@@ -1804,10 +1807,10 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 	}
 	if (pCD->maxHeight > MAX_MAX_SIZE(pCD).height)
 	{
-		if(MAX_MAX_SIZE(pCD).height < dispHeight)
+		if(MAX_MAX_SIZE(pCD).height < scrHeight)
 	    	pCD->maxHeight = MAX_MAX_SIZE(pCD).height;
 		else
-			pCD->maxHeight = dispHeight -
+			pCD->maxHeight = scrHeight -
 				(pCD->clientOffset.x + pCD->clientOffset.y);
 	}
     }
@@ -1967,11 +1970,14 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
     if (IS_MAXIMIZE_VERTICAL(pCD))
     {
 	/* go to min (full screen width, max maximum width) */
-	pCD->maxWidthLimit = dispWidth - (2 * pCD->clientOffset.x);
+	pCD->maxWidthLimit = scrWidth - (2 * pCD->clientOffset.x);
     }
     else
     {
-	pCD->maxWidthLimit = MAX_MAX_SIZE(pCD).width;
+        if((flags & P_MAX_SIZE) && pNormalHints->max_width > 0)
+            pCD->maxWidthLimit = pNormalHints->max_width;
+        else
+            pCD->maxWidthLimit = MAX_MAX_SIZE(pCD).width;
     }
 
     pCD->maxWidth -= ((pCD->maxWidth - pCD->baseWidth) % pCD->widthInc);
@@ -1993,12 +1999,15 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
     if (IS_MAXIMIZE_HORIZONTAL(pCD))
     {
 	/* go to min (full screen height, max maximum height) */
-	pCD->maxHeightLimit = dispHeight -
+	pCD->maxHeightLimit = scrHeight -
 		(pCD->clientOffset.x + pCD->clientOffset.y);
     }
     else
     {
-	pCD->maxHeightLimit = MAX_MAX_SIZE(pCD).height;
+        if((flags & P_MAX_SIZE) && pNormalHints->max_height > 0)
+            pCD->maxHeightLimit = pNormalHints->max_height;
+        else
+            pNormalHints->max_height = MAX_MAX_SIZE(pCD).height;
     }
 
     pCD->maxHeight -= ((pCD->maxHeight - pCD->baseHeight) % pCD->heightInc);
@@ -2095,6 +2104,15 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 	                    (unsigned int *) &(pCD->clientHeight),
 			    (unsigned int) (pCD->widthInc), 
 			    (unsigned int) (pCD->heightInc));
+
+	/* Disable resize/maximize if both hints have min == max */	
+	if((flags & P_MIN_SIZE) && (flags & P_MAX_SIZE) && 
+		(pNormalHints->max_height == pNormalHints->min_height) &&
+		(pNormalHints->max_width == pNormalHints->min_width)){
+		pCD->clientFunctions &= ~(MWM_FUNC_MAXIMIZE|MWM_FUNC_RESIZE);
+		pCD->decor = pCD->clientDecoration &=
+			~(MWM_DECOR_MAXIMIZE|MWM_DECOR_RESIZEH);
+	}
     }
 
 } /* END OF FUNCTION ProcessWmNormalHints */
@@ -2947,8 +2965,8 @@ PlaceFrameOnScreen (ClientData *pCD, int *pX, int *pY, int w, int h)
 {
     int clientOffsetX;
     int clientOffsetY;
-    int frameX;
-    int frameY;
+    int frameX = 0;
+    int frameY = 0;
     int frameWidth;
     int frameHeight;
     int screenHeight;
@@ -2974,8 +2992,8 @@ PlaceFrameOnScreen (ClientData *pCD, int *pX, int *pY, int w, int h)
 		yOrg = 0;
 	}
 
-    frameX = *pX - (clientOffsetX + xOrg);
-    frameY = *pY - (clientOffsetY + yOrg);
+    if(pX) frameX = *pX - (clientOffsetX + xOrg);
+    if(pY) frameY = *pY - (clientOffsetY + yOrg);
 
     if ((frameX + frameWidth) > screenWidth)
     {
@@ -2994,8 +3012,8 @@ PlaceFrameOnScreen (ClientData *pCD, int *pX, int *pY, int w, int h)
         frameY = 0;
     }
 
-    *pX = frameX + clientOffsetX + xOrg;
-    *pY = frameY + clientOffsetY + yOrg;
+    if(pX) *pX = frameX + clientOffsetX + xOrg;
+    if(pY) *pY = frameY + clientOffsetY + yOrg;
 
 } /* END OF FUNCTION PlaceFrameOnScreen */
 

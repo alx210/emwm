@@ -2017,27 +2017,44 @@ void ProcessNewConfiguration (ClientData *pCD, int x, int y, unsigned int width,
 	else {
 	/*
 	 * Update client coordinates if necessary, also if Xinerama is active
-	 * client's maximized position and size needs to be updated according
+	 * client's maximized position and size need to be updated according
 	 * to Xinerama screen the window resides on.
 	 */ 
 	if (x + xoff != pCD->clientX) {
 	    changedValues |= CWX;
 	    pCD->clientX = x + xoff;
+
 		if(xineramaActive && !toNewMax){
-			pCD->maxX = xsi.x_org + pCD->clientOffset.x;
-			pCD->oldMaxWidth = pCD->maxWidth;
-			pCD->maxWidth = xsi.width - pCD->clientOffset.x*2;
+			int frmWidth = 
+				(pCD->frameInfo.lowerBorderWidth + pCD->matteWidth) * 2;
+
+			if(pCD->maxWidth > ( xsi.width - frmWidth)){
+				pCD->oldMaxWidth = pCD->maxWidth;
+				pCD->maxWidth = xsi.width - frmWidth;
+			}
+
+			pCD->maxX = pCD->clientX;
+			PlaceFrameOnScreen(pCD, &pCD->maxX, NULL,
+				pCD->maxWidth, pCD->maxHeight);
 		}
 	}
 
 	if (y + yoff != pCD->clientY) {
 	    changedValues |= CWY;
 	    pCD->clientY = y + yoff;
+
 		if(xineramaActive && !toNewMax){
-			pCD->maxY = xsi.y_org + pCD->clientOffset.y;
-			pCD->oldMaxHeight = pCD->maxHeight;
-			pCD->maxHeight = xsi.height -
-				(pCD->clientOffset.x + pCD->clientOffset.y);
+			int frmWidth = pCD->frameInfo.lowerBorderWidth
+				 + pCD->matteWidth + pCD->clientOffset.y;
+
+			if(pCD->maxHeight > (xsi.height - frmWidth)){
+				pCD->oldMaxHeight = pCD->maxHeight;
+				pCD->maxHeight = xsi.height - frmWidth;
+			}
+
+			pCD->maxY =pCD->clientY;
+			PlaceFrameOnScreen(pCD, NULL, &pCD->maxY,
+				pCD->maxWidth, pCD->maxHeight);
 		}
 	}
     }
