@@ -426,9 +426,8 @@ static Pixmap GetIconPixmap(const ClientData *pCD)
 	unsigned int rgb_width = 0;
 	unsigned int rgb_height = 0;
 	XImage *dest_img;
+	void *dest_img_data;
 	Visual *visual;
-	GC gc;
-	XGCValues gcv;
 	int depth;
 	XColor bg = {0};
 	Pixmap pixmap = None;
@@ -486,16 +485,18 @@ static Pixmap GetIconPixmap(const ClientData *pCD)
 	};
 	rgb_data = fptr.i + 2; /* fptr is at width/height */
 	
-	dest_img = XCreateImage(DISPLAY,visual,depth,ZPixmap,0,NULL,
-		icon_width,icon_height, XBitmapPad(DISPLAY),0);
-	if(dest_img){
-		dest_img->data = malloc(
-			(dest_img->width*dest_img->height) * (dest_img->bitmap_pad/8));
-		if(!dest_img->data){
-			XDestroyImage(dest_img);
+	dest_img_data = calloc(icon_width * icon_height, XBitmapPad(DISPLAY) / 8);
+	if(dest_img_data){
+		dest_img = XCreateImage(DISPLAY,visual,depth,ZPixmap,0,dest_img_data,
+			icon_width,icon_height, XBitmapPad(DISPLAY),0);
+		if(!dest_img){
+			free(dest_img_data);
 			XFree(prop_data);
 			return None;
 		}
+	} else {
+		XFree(prop_data);
+		return None;
 	}
 	
 	/* color we want to aplha-blend the image with */
@@ -561,22 +562,25 @@ static Pixmap GetIconPixmap(const ClientData *pCD)
 		}
 	}
 
-	pixmap = XCreatePixmap(DISPLAY,pCD->client,
+	pixmap = XCreatePixmap(DISPLAY,ROOT_FOR_CLIENT(pCD),
 		icon_width,icon_height,depth);	
-	if(!pixmap){
-		XDestroyImage(dest_img);
-		XFree(prop_data);
-		return None;
+	if(pixmap){
+		GC gc;
+		XGCValues gcv;
+
+		gcv.graphics_exposures = False;
+		gc = XCreateGC(DISPLAY,ROOT_FOR_CLIENT(pCD),
+			GCGraphicsExposures,&gcv);
+		if(gc){
+			XPutImage(DISPLAY,pixmap,gc,dest_img,
+				0,0,0,0,icon_width,icon_height);
+			XFreeGC(DISPLAY,gc);
+		} else {
+			XFreePixmap(DISPLAY,pixmap);
+			pixmap = None;
+		}
 	}
-	
-	gcv.graphics_exposures = False;
-	gc = XCreateGC(DISPLAY,pCD->client,GCGraphicsExposures,&gcv);
-	if(gc){
-		XPutImage(DISPLAY,pixmap,gc,dest_img,0,0,0,0,
-			dest_img->width,dest_img->height);
-		XFreeGC(DISPLAY,gc);
-	}
-	
+
 	XDestroyImage(dest_img);
 	XFree(prop_data);
 	
