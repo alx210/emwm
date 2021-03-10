@@ -37,7 +37,6 @@
 #include <Xm/BulletinB.h>
 #include <Xm/MessageB.h>
 
-#define MOVE_OUTLINE_WIDTH	2
 #define FEEDBACK_BEVEL		2
 
 #define DEFAULT_POSITION_STRING	"(0000x0000)"
@@ -66,8 +65,8 @@ static Cursor  waitCursor = (Cursor)0L;
 #ifndef NO_MESSAGE_CATALOG
 static char *confirm_mesg[4] = {"Switch to Default Behavior?",
 				"Switch to Custom Behavior?",
-                                "Restart Mwm?",
-                                "QUIT Mwm?"};
+                                "Restart EMWM?",
+                                "QUIT EMWM?"};
 
 
 void
@@ -107,7 +106,7 @@ initMesg()
 
     if (MwmBehavior)
     {
-	tmpString = ((char *)GETMESSAGE(22, 3, "Restart Mwm?"));
+	tmpString = ((char *)GETMESSAGE(22, 3, "Restart EMWM?"));
     }
     else
     {
@@ -119,7 +118,7 @@ initMesg()
         Warning (((char *)GETMESSAGE(22, 5, "Insufficient memory for local message string")));
 	if (MwmBehavior)
 	{
-	    confirm_mesg[2] = "Restart Mwm?";
+	    confirm_mesg[2] = "Restart EMWM?";
 	}
 	else
 	{
@@ -135,7 +134,7 @@ initMesg()
 
     if (MwmBehavior)
     {
-	tmpString = ((char *)GETMESSAGE(22, 6, "QUIT Mwm?"));
+	tmpString = ((char *)GETMESSAGE(22, 6, "QUIT EMWM?"));
     }
     else
     {
@@ -159,7 +158,7 @@ initMesg()
         Warning (((char *)GETMESSAGE(22, 8, "Insufficient memory for local message string")));
 	if (MwmBehavior)
 	{
-	    confirm_mesg[3] = "QUIT Mwm?";
+	    confirm_mesg[3] = "QUIT EMWM?";
 	}
 	else
 #ifdef MINIMAL_DT
@@ -185,8 +184,8 @@ initMesg()
 #else
 static char *confirm_mesg[4] = {"Toggle to Default Behavior?",
 				"Toggle to Custom Behavior?",
-                                "Restart Mwm?",
-                                "QUIT Mwm?"};
+                                "Restart EMWM?",
+                                "QUIT EMWM?"};
 
 #endif
 static char *confirm_widget[4] = {"confirmDefaultBehavior",

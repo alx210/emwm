@@ -1963,10 +1963,6 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 	pCD->maxWidth = pCD->minWidth;
     }
 
-    /*
-     * Hack to use maxWidthLimit as the real maxWidth when maximumClientSize
-     * set to 'vertical'.
-     */
     if (IS_MAXIMIZE_VERTICAL(pCD))
     {
 	/* go to min (full screen width, max maximum width) */
@@ -1992,10 +1988,6 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 	pCD->maxHeight = pCD->minHeight;
     }
 
-    /*
-     * Hack to use maxHeightLimit as the real maxHeight when maximumClientSize
-     * set to 'horizontal'.
-     */
     if (IS_MAXIMIZE_HORIZONTAL(pCD))
     {
 	/* go to min (full screen height, max maximum height) */
@@ -3184,13 +3176,6 @@ FixWindowSize (ClientData *pCD, unsigned int *pWidth, unsigned int *pHeight, uns
     register int  deltaW;
     register int  deltaH;
     WmScreenData *pSD = pCD->pSD;
-
-    /*
-     * All occurances of maxHeight and maxWidth in this routing has been
-     * hacked to use maxHeightLimit and maxWidthLimit as the real max when
-     * maximumClientSize is set to 'horizontal' or 'vertical', since
-     * pCD->maxHeight and pCD->maxWidth is fiddle to on reconfiguration.
-     */
 
     if ((int) *pWidth < pCD->minWidth)
     {

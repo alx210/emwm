@@ -2268,11 +2268,6 @@ Boolean StartResizeConfig (ClientData *pcd, XEvent *pev)
     junkX = junkY = 0;
     ClientToFrame(pcd, &junkX, &junkY, &minWidth, &minHeight);
 
-    /*
-     * Hack to use maxHeightLimit and maxWidthLimit as the real max when
-     * maximumClientSize is set to 'horizontal' or 'vertical', since
-     * pCD->maxHeight and pCD->maxWidth is fiddle to on reconfiguration.
-     */
     maxWidth = pcd->maxWidthLimit;
     maxHeight = pcd->maxHeightLimit;
     junkX = junkY = 0;
