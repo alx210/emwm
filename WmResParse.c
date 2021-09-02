@@ -41,6 +41,7 @@
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
 #include <X11/Xatom.h>
+#include <X11/XKBlib.h>
 #include <ctype.h>
 
 #include <X11/Xlocale.h>
@@ -1696,11 +1697,7 @@ void SyncModifierStrings(void)
 	{
 	    if (map->modifiermap[k])
 	    {
-#ifdef FIX_1611
-		KeySym ks = WmKeycodeToKeysym(DISPLAY, map->modifiermap[k]);
-#else 
-		KeySym ks = XKeycodeToKeysym(DISPLAY, map->modifiermap[k], 0);
-#endif
+		KeySym ks = XkbKeycodeToKeysym(DISPLAY, map->modifiermap[k], 0, 0);
 		char *nm = XKeysymToString(ks);
 
 		/* Compare, ignoring the trailing '_L' or '_R' in keysym */

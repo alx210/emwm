@@ -26,9 +26,7 @@
  */
 #include "WmGlobal.h"	/* This should be the first include */
 #include <X11/X.h>
-
-#define XK_MISCELLANY
-#include <X11/keysymdef.h>
+#include <X11/XKBlib.h>
 
 /* number of points to draw outline once */
 #define SEGS_PER_DRAW	(4*wmGD.outlineWidth)
@@ -273,11 +271,8 @@ void HandleClientFrameMove (ClientData *pcd, XEvent *pev)
 	    {
 		  keyMultiplier++;
 	    }
-#ifdef FIX_1611
-	    keysym = WmKeycodeToKeysym (DISPLAY, pev->xkey.keycode);
-#else
-	    keysym = XKeycodeToKeysym (DISPLAY, pev->xkey.keycode, 0);
-#endif
+
+	    keysym = XkbKeycodeToKeysym (DISPLAY, pev->xkey.keycode, 0, 0);
 	    control = (pev->xkey.state & ControlMask) != 0;
 	    tmpX = tmpY = 0;
 
@@ -690,11 +685,7 @@ Boolean HandleResizeKeyPress (ClientData *pcd, XEvent *pev)
 	  keyMult++;
     }
 
-#ifdef FIX_1611
-    keysym = WmKeycodeToKeysym (DISPLAY, pev->xkey.keycode);
-#else
-    keysym = XKeycodeToKeysym (DISPLAY, pev->xkey.keycode, 0);
-#endif
+    keysym = XkbKeycodeToKeysym (DISPLAY, pev->xkey.keycode, 0, 0);
     control = (pev->xkey.state & ControlMask) != 0;
 
     switch (keysym) {
@@ -4206,7 +4197,7 @@ Boolean HandleMarqueeKeyPress (WmScreenData *pSD, XEvent *pev)
 	  keyMult++;
     }
 
-    keysym = XKeycodeToKeysym (DISPLAY, pev->xkey.keycode, 0);
+    keysym = XkbKeycodeToKeysym (DISPLAY, pev->xkey.keycode, 0, 0);
     control = (pev->xkey.state & ControlMask) != 0;
 
     switch (keysym) {
@@ -4228,33 +4219,3 @@ Boolean HandleMarqueeKeyPress (WmScreenData *pSD, XEvent *pev)
 } /* END OF FUNCTION HandleResizeKeyPress */
 
 #endif /* WSM */
-
-/*************************************<->*************************************
- *
- *  WmKeycodeToKeysym ()
- *
- *
- *  Description:
- *  Used insted of depricated function of Xlib XKeycodeToKeysym.
- *
- *************************************<->***********************************/
-#ifdef FIX_1611
-KeySym WmKeycodeToKeysym(Display *display, KeyCode keycode)
- { int keysyms_per_keycode = 0;
-   int min_keycode = 0;
-   int max_keycode = 0;
-   /* Allowable keycodes range */
-   XDisplayKeycodes(display, &min_keycode, &max_keycode);
-   KeySym keysym = NoSymbol;
-    
-   if ((keycode >= min_keycode) && (keycode <= max_keycode)) 
-     { KeySym *keysymTab = XGetKeyboardMapping(display, keycode, 1, &keysyms_per_keycode);
-       if ((keysymTab != NULL) && (keysyms_per_keycode > 0))
-         { keysym = keysymTab[0];
-           XFree(keysymTab);
-         }
-     }
-   return keysym;
- }
-#endif /* FIX_1611 */
-
