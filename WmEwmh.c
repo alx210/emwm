@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 alx@fastestcode.org
+ * Copyright (C) 2018-2021 alx@fastestcode.org
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -44,6 +44,10 @@ static void* FetchWindowProperty(Window wnd, Atom prop,
 	Atom req_type, unsigned long *size);
 static Pixmap GetIconPixmap(const ClientData *pCD);
 static void UpdateFrameExtents(ClientData *pCD);
+static void ProcessMoveResize(ClientData *pCD,
+	int x_root, int y_root, int dir, int button, int source);
+static Boolean GetMultiscreenCoords(ClientData *pCD,
+	int *xorg, int *yorg, int *width, int *height);
 
 enum ewmh_atom {
 	_NET_SUPPORTED, _NET_SUPPORTING_WM_CHECK, _NET_CLOSE_WINDOW,
@@ -52,7 +56,11 @@ enum ewmh_atom {
 	_NET_WM_NAME, _NET_WM_ICON_NAME, _NET_WM_STATE,
 	_NET_WM_STATE_FULLSCREEN, _NET_WM_STATE_MAXIMIZED_VERT,
 	_NET_WM_STATE_MAXIMIZED_HORZ, _NET_WM_STATE_HIDDEN,
-	_NET_WM_STATE_MODAL, _NET_WM_ICON,
+	_NET_WM_STATE_MODAL, _NET_WM_ICON, _NET_WM_MOVERESIZE,
+	_NET_WM_ALLOWED_ACTIONS, _NET_WM_ACTION_MOVE, _NET_WM_ACTION_RESIZE,
+	_NET_WM_ACTION_MINIMIZE, _NET_WM_ACTION_MAXIMIZE_HORZ,
+	_NET_WM_ACTION_MAXIMIZE_VERT, _NET_WM_ACTION_FULLSCREEN,
+	_NET_WM_ACTION_CLOSE, _NET_WM_FULLSCREEN_MONITORS,
 
 	_NUM_EWMH_ATOMS
 };
@@ -65,7 +73,11 @@ static char *ewmh_atom_names[_NUM_EWMH_ATOMS]={
 	"_NET_WM_NAME", "_NET_WM_ICON_NAME", "_NET_WM_STATE",
 	"_NET_WM_STATE_FULLSCREEN", "_NET_WM_STATE_MAXIMIZED_VERT",
 	"_NET_WM_STATE_MAXIMIZED_HORZ", "_NET_WM_STATE_HIDDEN",
-	"_NET_WM_STATE_MODAL", "_NET_WM_ICON"
+	"_NET_WM_STATE_MODAL", "_NET_WM_ICON", "_NET_WM_MOVERESIZE",
+	"_NET_WM_ALLOWED_ACTIONS", "_NET_WM_ACTION_MOVE", "_NET_WM_ACTION_RESIZE",
+	"_NET_WM_ACTION_MINIMIZE", "_NET_WM_ACTION_MAXIMIZE_HORZ",
+	"_NET_WM_ACTION_MAXIMIZE_VERT", "_NET_WM_ACTION_FULLSCREEN",
+	"_NET_WM_ACTION_CLOSE", "_NET_WM_FULLSCREEN_MONITORS"
 };
 
 /* Initialized in SetupEwhm() */
@@ -198,24 +210,71 @@ void HandleEwmhCPropertyNotify(ClientData *pCD, XPropertyEvent *evt)
 
 /*
  * Called by HandleEventsOnClientWindow.
- * Processes EWMH reladed ClientMessage events.
+ * Processes EWMH related ClientMessage events.
  */
 void HandleEwmhClientMessage(ClientData *pCD, XClientMessageEvent *evt)
 {
 	if(evt->message_type == ewmh_atoms[_NET_WM_STATE]){
-		enum { remove, add, toggle } action = evt->data.l[0];
+		/* _NET_WM_STATE action constants. Keep in that order. */
+		enum { REMOVE, ADD, TOGGLE } action = evt->data.l[0];
 		
 		if(evt->data.l[1] == ewmh_atoms[_NET_WM_STATE_FULLSCREEN]){
-			Boolean set;
+			Boolean set = False;
 			
-			if(action == toggle)
-				set = pCD->fullScreen?False:True;
-			else
-				set = (action == add)?True:False;
-			
+			switch(action) {
+				case TOGGLE:
+				set = pCD->fullScreen ? False : True;
+				break;
+				case ADD:
+				set = True;
+				break;
+				case REMOVE:
+				set = False;
+				break;
+			}
 			ConfigureEwmhFullScreen(pCD,set);
 		}
-	} 
+		else if((evt->data.l[1] == ewmh_atoms[_NET_WM_STATE_MAXIMIZED_VERT]) 
+			&& (evt->data.l[2] == ewmh_atoms[_NET_WM_STATE_MAXIMIZED_HORZ])) {
+			
+			switch(action) {
+				case ADD:
+				if(pCD->clientState != MAXIMIZED_STATE)
+					F_Maximize(NULL, pCD, (XEvent*)evt);
+				break;
+				case TOGGLE:
+				if(pCD->clientState == MAXIMIZED_STATE)
+					F_Restore(NULL, pCD, (XEvent*)evt);
+				else
+					F_Maximize(NULL, pCD, (XEvent*)evt);
+				break;
+				case REMOVE:
+				if(pCD->clientState == MAXIMIZED_STATE)
+					F_Restore(NULL, pCD, (XEvent*)evt);
+				break;
+			}
+			UpdateEwmhClientState(pCD);	
+		}
+		else if(evt->data.l[1] == ewmh_atoms[_NET_WM_STATE_HIDDEN]) {
+			switch(action) {
+				case ADD:
+				if(pCD->clientState != MINIMIZED_STATE)
+					F_Minimize(NULL, pCD, (XEvent*)evt);
+				break;
+				case TOGGLE:
+				if(pCD->clientState == MINIMIZED_STATE)
+					F_Restore(NULL, pCD, (XEvent*)evt);
+				else
+					F_Minimize(NULL, pCD, (XEvent*)evt);
+				break;
+				case REMOVE:
+				if(pCD->clientState == MINIMIZED_STATE)
+					F_Restore(NULL, pCD, (XEvent*)evt);
+				break;
+			}
+		UpdateEwmhClientState(pCD);
+		}
+	}
 	else if(evt->message_type == ewmh_atoms[_NET_ACTIVE_WINDOW]) {
 		F_Focus_Key(NULL,pCD,NULL);
 	}
@@ -252,12 +311,129 @@ void HandleEwmhClientMessage(ClientData *pCD, XClientMessageEvent *evt)
 			&cx, &cy, &width, &height);
 		ProcessNewConfiguration (pCD, cx, cy, width, height, True);
 	}
+	else if(evt->message_type == ewmh_atoms[_NET_WM_MOVERESIZE]) {
+		ProcessMoveResize(pCD, evt->data.l[0], evt->data.l[1],
+			evt->data.l[2], evt->data.l[3], evt->data.l[4]);
+	}
+	else if(evt->message_type == ewmh_atoms[_NET_WM_FULLSCREEN_MONITORS]) {
+		pCD->fullScreenXineramaIndices[0] = evt->data.l[0];
+		pCD->fullScreenXineramaIndices[1] = evt->data.l[1];
+		pCD->fullScreenXineramaIndices[2] = evt->data.l[2];
+		pCD->fullScreenXineramaIndices[3] = evt->data.l[3];
+	}
+}
+
+/*
+ * Initiates client requested window configuration
+ */
+static void ProcessMoveResize(ClientData *pCD,
+	int x_root, int y_root, int dir, int button, int source)
+{
+	XEvent evt = {0};
+
+	/* _NET_WM_MOVERESIZE direction constants. Keep in that order. */
+	enum {
+		SIZE_TOPLEFT, SIZE_TOP, SIZE_TOPRIGHT, SIZE_RIGHT,
+		SIZE_BOTTOMRIGHT, SIZE_BOTTOM, SIZE_BOTTOMLEFT,
+		SIZE_LEFT, MOVE, SIZE_KEYBOARD, MOVE_KEYBOARD, CANCEL
+	};
+
+	if(dir == CANCEL) {
+		if(wmGD.configAction != NO_ACTION)
+			CancelFrameConfig(pCD);
+		return;
+	}
+
+	if(!((pCD->clientState == NORMAL_STATE) ||
+		(pCD->clientState == MAXIMIZED_STATE))) return;
+	
+	if((dir == MOVE) ||	(dir == MOVE_KEYBOARD)) {
+		if(!(pCD->clientFunctions & MWM_FUNC_MOVE)) return;
+	} else {
+		if(!(pCD->clientFunctions & MWM_FUNC_RESIZE)) return;
+	}
+	
+	if(dir == SIZE_KEYBOARD) {
+		evt.type = KeyPress;
+		StartClientResize(pCD, &evt);
+		HandleClientFrameResize(pCD, &evt);
+	} else if(dir == MOVE_KEYBOARD) {
+		evt.type = KeyPress;
+		StartClientMove(pCD, &evt);
+		HandleClientFrameMove(pCD, &evt);
+	} else { 
+		evt.type = ButtonPress;
+		evt.xbutton.button = button;
+		evt.xbutton.x_root = x_root;
+		evt.xbutton.y_root = y_root;
+
+		switch(dir) {
+			case SIZE_TOPLEFT:
+			wmGD.configPart = FRAME_RESIZE_NW;
+			break;
+			case SIZE_TOP:
+			wmGD.configPart = FRAME_RESIZE_N;
+			break;
+			case SIZE_TOPRIGHT:
+			wmGD.configPart = FRAME_RESIZE_NE;
+			break;
+			case SIZE_RIGHT:
+			wmGD.configPart = FRAME_RESIZE_E;
+			break;
+			case SIZE_BOTTOMRIGHT:
+			wmGD.configPart = FRAME_RESIZE_SE;
+			break;
+			case SIZE_BOTTOM:
+			wmGD.configPart = FRAME_RESIZE_S;
+			break;
+			case SIZE_BOTTOMLEFT:
+			wmGD.configPart = FRAME_RESIZE_SW;
+			break;
+			case SIZE_LEFT:
+			wmGD.configPart = FRAME_RESIZE_W;
+			break;
+		};
+		
+		if(dir == MOVE) {
+			StartClientMove(pCD, &evt);
+			HandleClientFrameMove(pCD, &evt);
+		} else {
+			StartResizeConfig (pCD, &evt);
+			HandleClientFrameResize(pCD, &evt);
+		}
+	}
+}
+
+/*
+ * Returns rectangular coordinates from Xinerama screens obtained earlier
+ * with the _NET_WM_FULLSCREEN_MONITORS client message event.
+ * Returns True on success, False if no data available.
+ */
+static Boolean GetMultiscreenCoords(ClientData *pCD,
+	int *xorg, int *yorg, int *width, int *height)
+{
+	XineramaScreenInfo xsi[4];
+	int i;
+	
+	if(pCD->fullScreenXineramaIndices[0] == (-1)) return False;
+	
+	for(i = 0; i < 4; i++) {
+		if(!GetXineramaScreenInfo(pCD->fullScreenXineramaIndices[i], &xsi[i]))
+			return False;
+	}
+
+	*yorg = xsi[0].y_org;
+	*height = xsi[1].y_org + xsi[1].height;
+	*xorg = xsi[2].x_org;
+	*width = xsi[3].x_org + xsi[3].width;
+
+	return True;
 }
 
 /*
  * Removes decorations and resizes frame and client windows to the size of
  * display or xinerama screen they're on if 'set' is true, restores normal
- * configuration otherwise. Sets client's _NET_WM_STATE property appropriately.
+ * configuration otherwise.
  */
 void ConfigureEwmhFullScreen(ClientData *pCD, Boolean set)
 {
@@ -267,21 +443,37 @@ void ConfigureEwmhFullScreen(ClientData *pCD, Boolean set)
 	int sheight;
 	XineramaScreenInfo xsi;
 	int i;
-	
-	if(set == pCD->fullScreen) return;
 
-	if(GetXineramaScreenFromLocation(pCD->clientX,pCD->clientY,&xsi)){
-		xorg = xsi.x_org;
-		yorg = xsi.y_org;
-		swidth = xsi.width;
-		sheight = xsi.height;
-	}else{
-		swidth = XDisplayWidth(DISPLAY,pCD->pSD->screen);
-		sheight = XDisplayHeight(DISPLAY,pCD->pSD->screen);
+	if(set == pCD->fullScreen) return;
+	
+	if(!GetMultiscreenCoords(pCD, &xorg, &yorg, &swidth, &sheight)) {
+		if(GetXineramaScreenFromLocation(pCD->clientX,pCD->clientY,&xsi)){
+			xorg = xsi.x_org;
+			yorg = xsi.y_org;
+			swidth = xsi.width;
+			sheight = xsi.height;
+		}else{
+			swidth = XDisplayWidth(DISPLAY,pCD->pSD->screen);
+			sheight = XDisplayHeight(DISPLAY,pCD->pSD->screen);
+		}
 	}
 	
+	/*
+	 * XXX
+	 * This is sketchy. We just shift frame parts around, without maintaining
+	 * a proper configuration state for full screen clients. It works because
+	 * we don't need to process any size/position config requests on these.
+	 * Ultimately MWMs decoration code needs to be tweaked to handle things
+	 * dynamically.
+	 * XXX
+	 */
 	if(set){
 		pCD->normalClientFunctions = pCD->clientFunctions;
+		pCD->fullScreenWidth = swidth;
+		pCD->fullScreenHeight = sheight;
+		pCD->fullScreenX = xorg;
+		pCD->fullScreenY = yorg;
+
 		pCD->clientFunctions = pCD->clientFunctions & 
 			(~(MWM_FUNC_RESIZE|MWM_FUNC_MOVE|MWM_FUNC_MAXIMIZE));
 
@@ -297,6 +489,8 @@ void ConfigureEwmhFullScreen(ClientData *pCD, Boolean set)
 		UpdateEwmhClientState(pCD);
 	}else{
 		pCD->clientFunctions = pCD->normalClientFunctions;
+
+		XResizeWindow(DISPLAY,pCD->client,pCD->clientWidth,pCD->clientHeight);
 		XMoveResizeWindow(DISPLAY,pCD->clientBaseWin,
 			BaseWindowX(pCD),BaseWindowY(pCD),
 			BaseWindowWidth(pCD),BaseWindowHeight(pCD));
@@ -387,14 +581,16 @@ void UpdateEwmhClientList(WmScreenData *pSD)
 }
 
 /*
- * Sets _NET_WM_STATE according to client's current state
+ * Sets _NET_WM_STATE and _NET_WM_ALLOWED_ACTIONS according
+ * to client's configuration.
  */
 void UpdateEwmhClientState(ClientData *pCD)
 {
 	Atom state[4];
+	Atom actions[10];
 	unsigned int i = 0;
 
-	if(pCD->fullScreen){
+	if(pCD->fullScreen && (pCD->clientState != MINIMIZED_STATE)){
 		state[i++] = ewmh_atoms[_NET_WM_STATE_FULLSCREEN];
 	}
 	else if(pCD->clientState == MAXIMIZED_STATE){
@@ -410,6 +606,33 @@ void UpdateEwmhClientState(ClientData *pCD)
 
 	XChangeProperty(DISPLAY,pCD->client,ewmh_atoms[_NET_WM_STATE],
 		XA_ATOM,32,PropModeReplace,(unsigned char*)state,i);
+
+	i = 0;
+	
+	if(pCD->clientFunctions & MWM_FUNC_MOVE) {
+		actions[i++] = ewmh_atoms[_NET_WM_ACTION_MOVE];
+	}
+	
+	if(pCD->clientFunctions & MWM_FUNC_RESIZE) {
+		actions[i++] = ewmh_atoms[_NET_WM_ACTION_RESIZE];
+	}
+
+	if(pCD->clientFunctions & MWM_FUNC_MAXIMIZE) {
+		actions[i++] = ewmh_atoms[_NET_WM_ACTION_MAXIMIZE_HORZ];
+		actions[i++] = ewmh_atoms[_NET_WM_ACTION_MAXIMIZE_VERT];
+		actions[i++] = ewmh_atoms[_NET_WM_ACTION_FULLSCREEN];
+	}
+
+	if(pCD->clientFunctions & MWM_FUNC_MINIMIZE) {
+		actions[i++] = ewmh_atoms[_NET_WM_ACTION_MINIMIZE];
+	}
+
+	if(pCD->clientFunctions & MWM_FUNC_CLOSE) {
+		actions[i++] = ewmh_atoms[_NET_WM_ACTION_CLOSE];
+	}
+
+	XChangeProperty(DISPLAY,pCD->client,ewmh_atoms[_NET_WM_ALLOWED_ACTIONS],
+		XA_ATOM,32,PropModeReplace,(unsigned char*)actions, i);
 }
 
 /*

@@ -2000,8 +2000,8 @@ void GetSystemMenuPosition (ClientData *pcd, int *px, int *py,
 	
 	if(pcd->fullScreen)
 	{
-		*px = 0;
-		*py = 0;
+		*px = pcd->fullScreenX;
+		*py = pcd->fullScreenY;
 	} 
 	else if ((pcd->decor & MWM_DECOR_TITLE) &&
 	    !(pcd->decor & (MWM_DECOR_RESIZEH | MWM_DECOR_BORDER)))

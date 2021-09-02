@@ -324,7 +324,14 @@ void SendConfigureNotify (ClientData *pCD)
     notifyEvent.display = DISPLAY;
     notifyEvent.event = pCD->client;
     notifyEvent.window = pCD->client;
-    if (pCD->maxConfig)
+	if(pCD->fullScreen)
+	{
+	notifyEvent.x = pCD->fullScreenX;
+	notifyEvent.y = pCD->fullScreenY;
+	notifyEvent.width = pCD->fullScreenWidth;
+	notifyEvent.height = pCD->fullScreenHeight;
+	}
+	else if (pCD->maxConfig)
     {
 	notifyEvent.x = pCD->maxX;
 	notifyEvent.y = pCD->maxY;

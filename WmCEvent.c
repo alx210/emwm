@@ -2209,37 +2209,26 @@ void HandleCConfigureRequest (ClientData *pCD, XConfigureRequestEvent *configure
      * Send ConfigureNotify event (based on ICCCM conventions).
      * Then process the request for stacking.
      */
-
     if ((configureRequest->window == pCD->client) &&
 	(mask & (CWX | CWY | CWWidth | CWHeight | CWBorderWidth)))
     {
-		if(pCD->fullScreen){
+		/* If the client is full screen, just reply with current config */
+		if(pCD->fullScreen) {
 			XConfigureEvent evt;
-			XineramaScreenInfo xsi;
 
 			evt.type = ConfigureNotify;
 			evt.display = DISPLAY;
 			evt.border_width = configureRequest->border_width;
 			evt.event = pCD->client;
 			evt.window = pCD->client;
-			evt.above = None;
-			evt.override_redirect = False;
+			evt.x = pCD->fullScreenX + evt.border_width;
+			evt.y = pCD->fullScreenY + evt.border_width;
+			evt.width = pCD->fullScreenWidth - evt.border_width * 2;
+			evt.height = pCD->fullScreenHeight - evt.border_width * 2;
 
-			if(GetXineramaScreenFromLocation(pCD->clientX,pCD->clientY,&xsi)){
-				evt.x = xsi.x_org + evt.border_width;
-				evt.y = xsi.y_org + evt.border_width;
-				evt.width = xsi.width - evt.border_width * 2;
-				evt.height = xsi.height - evt.border_width * 2;
-			} else {
-				evt.x = evt.border_width;
-				evt.y = evt.border_width ;
-				evt.width = XDisplayWidth(
-					DISPLAY,pCD->pSD->screen) - evt.border_width * 2;
-				evt.height = XDisplayHeight(
-					DISPLAY,pCD->pSD->screen) - evt.border_width * 2;
-			}
 			XSendEvent(DISPLAY, pCD->client, False,
 				StructureNotifyMask, (XEvent*)&evt);
+
 		} else {
 			int cx = (mask & CWX) ? configureRequest->x :
 				(pCD->maxConfig ? pCD->maxX : pCD->clientX);

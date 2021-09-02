@@ -65,4 +65,9 @@ Bool GetPreferredXineramaScreen(XineramaScreenInfo *xsi);
 #define GetXineramaScreenOfClient(cd,xsi)\
 	GetXineramaScreenFromPoint(cd->clientX,cd->clientY,xsi)
 
+/*
+ * Retrieves xinerama screen info. Returns True on success.
+ */
+Bool GetXineramaScreenInfo(int index, XineramaScreenInfo *xsi);
+
 #endif /* _WM_XINERAMA_H */

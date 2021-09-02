@@ -95,10 +95,7 @@ extern int firstTime;
 
 void SetClientState (ClientData *pCD, int newState, Time setTime)
 {
-	int oldState = pCD->clientState;
-	
 	SetClientStateWithEventMask(pCD, newState, setTime, (unsigned int)0);
-	if(pCD->clientState != oldState) UpdateEwmhClientState(pCD);
 	
 } /* END OF FUNCTION SetClientState */
 
@@ -111,15 +108,12 @@ void SetClientStateWithEventMask (ClientData *pCD, int newState, Time setTime, u
     Boolean notShowing = (newState & UNSEEN_STATE);
 #endif /* WSM */
 
-	if(pCD->fullScreen) ConfigureEwmhFullScreen(pCD,False);
-	
     currentState = pCD->clientState;
     if (currentState == newState)
     {
 	/* no change in state */
 	return;
     }
-
 
     /*
      * Undo the old state and setup the new state.  If this is a transient
@@ -362,6 +356,8 @@ void SetClientStateWithEventMask (ClientData *pCD, int newState, Time setTime, u
 	break;
 #endif /* WSM */
     }
+
+	UpdateEwmhClientState(pCD);
 
 } /* END OF FUNCTION SetClientStateWithEventMask */
 

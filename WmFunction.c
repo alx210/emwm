@@ -2470,7 +2470,7 @@ Boolean F_Restore (String args, ClientData *pCD, XEvent *event)
 	 * If current state is MAXIMIZED state then just go to NORMAL state,
 	 * otherwise (you are in MINIMIZED state) return to previous state.
 	 */
-	if (pCD->fullScreen)
+	if (pCD->fullScreen && (pCD->clientState != MINIMIZED_STATE))
 	{
 		ConfigureEwmhFullScreen(pCD,False);
 	}
@@ -2712,8 +2712,9 @@ Boolean F_Post_SMenu (String args, ClientData *pCD, XEvent *event)
 	 * Determine whether the keyboard is posting the menu and post
 	 * the menu at an appropriate place.
          */
-	if(pCD->fullScreen)
+	if(pCD->fullScreen && (pCD->clientState != MINIMIZED_STATE))
 	{
+		/* F_Restore also restores full screen clients to previous state */
 		menuContext = F_CONTEXT_MAXIMIZE;
 	}
 	else if (pCD->clientState == NORMAL_STATE)

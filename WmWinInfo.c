@@ -213,6 +213,7 @@ GetClientInfo (WmScreenData *pSD, Window clientWindow, long manageFlags)
     pCD->clientEntry.pCD = NULL;
 
     pCD->smClientID = (String)NULL;
+    pCD->fullScreenXineramaIndices[0] = (-1);
 
      /*
      * Do special processing for client windows that are controlled by
