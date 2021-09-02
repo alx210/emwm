@@ -30,8 +30,8 @@
 #define XK_MISCELLANY
 #include <X11/keysymdef.h>
 
-
-#define MOVE_OUTLINE_WIDTH	2
+/* number of points to draw outline once */
+#define SEGS_PER_DRAW	(4*wmGD.outlineWidth)
 
 #define CONFIG_MASK (KeyPressMask|ButtonPressMask|\
 			 ButtonReleaseMask|PointerMotionMask)
@@ -56,10 +56,6 @@
 #define ABS(x) ((x)>0?(x):(-(x)))
 #endif /* ABS */
 #endif /* WSM */
-
-/* number of times to poll before blocking on a config event */
-
-#define CONFIG_POLL_COUNT	300
 
 /* mask for all buttons */
 #define ButtonMask	\
@@ -1389,17 +1385,6 @@ void MoveOpaque (ClientData *pcd, int x, int y,
     
 } /* END OF FUNCTION MoveOpaque */
 
-
-
-/* thickness of outline */
-#define OUTLINE_WIDTH	2
-
-/* number of points to draw outline once */
-#define SEGS_PER_DRAW	(4*OUTLINE_WIDTH)
-
-/* number of points to flash outline (draw then erase) */
-#define SEGS_PER_FLASH	(2*SEGS_PER_DRAW)
-
 /*************************************<->*************************************
  *
  *  MoveOutline (x, y, width, height)
@@ -1428,85 +1413,13 @@ void MoveOpaque (ClientData *pcd, int x, int y,
  *************************************<->***********************************/
 void MoveOutline (int x, int y, unsigned int width, unsigned int height)
 {
-    if (wmGD.freezeOnConfig)
-    {
-	DrawOutline (x, y, width, height);
-    }
-    else
-    {
-#ifdef WSM
-      if (wmGD.useWindowOutline)
-	WindowOutline(x,y,width,height);
-      else
-#endif
-	FlashOutline(x, y, width, height);
-    }
+    if (wmGD.useWindowOutline)
+		WindowOutline(x,y,width,height);    
+	else
+		DrawOutline (x, y, width, height);
+
 } /* END OF FUNCTION  MoveOutline */
 
-
-
-/*************************************<->*************************************
- *
- *  FlashOutline ()
- *
- *
- *  Description:
- *  -----------
- *  flash a window outline on the root window.
- *
- *
- *  Inputs:
- *  ------
- *  x		- x coordinate (on root)
- *  y		- y coordinate (on root)
- *  width	- pixel width of frame
- *  height	- pixel height of frame
- * 
- *  Outputs:
- *  -------
- *
- *
- *  Comments:
- *  --------
- *  o get display, root window ID, and xorGC out of global data.  
- *  o draw on root and erase "atomically"
- * 
- *************************************<->***********************************/
-void FlashOutline (int x, int y, unsigned int width, unsigned int height)
-{
-    static XSegment  outline[SEGS_PER_FLASH];
-
-    /*
-     * Do nothing if no box to draw 
-     */
-    if (x == 0 && y == 0 &&
-	width == 0 && height == 0)
-	return;
-
-    /*
-     * Draw outline an even number of times (draw then erase)
-     */
-    SetOutline (outline, x, y, width, height, OUTLINE_WIDTH);
-    memcpy ( (char *) &outline[SEGS_PER_DRAW], (char *) &outline[0], 
-	SEGS_PER_DRAW*sizeof(XSegment));
-
-    /*
-     * Flash the outline at least once, then as long as there's 
-     * nothing else going on
-     */
-    XDrawSegments(DISPLAY, ACTIVE_ROOT, ACTIVE_PSD->xorGC,
-			outline, SEGS_PER_FLASH);
-    XSync(DISPLAY, FALSE);
-
-    while (!XtAppPending(wmGD.mwmAppContext)) {
-    	XDrawSegments(DISPLAY, ACTIVE_ROOT, ACTIVE_PSD->xorGC, 
-			outline, SEGS_PER_FLASH);
-	XSync(DISPLAY, FALSE);
-    }
-} /* END OF FUNCTION  FlashOutline */
-
-#ifdef WSM
-
 /*************************************<->*************************************
  *
  *  CreateOutlineWindows (pSD)
@@ -1542,8 +1455,8 @@ CreateOutlineWindows (WmScreenData *pSD)
 
     x = -10;
     y = -10;
-    width = OUTLINE_WIDTH;
-    height = OUTLINE_WIDTH;
+    width = wmGD.outlineWidth;
+    height = wmGD.outlineWidth;
 
     xswa.override_redirect = True;    
     xswa.backing_store = NotUseful;
@@ -1551,8 +1464,8 @@ CreateOutlineWindows (WmScreenData *pSD)
     xswa.background_pixmap = XmGetPixmap(
 				XtScreen(pSD->screenTopLevelW),
 				"50_foreground", 
-				pSD->clientAppearance.foreground,
-				pSD->clientAppearance.background);
+				pSD->clientAppearance.activeTopShadowColor,
+				pSD->clientAppearance.activeBackground);
 
     xswamask = (CWOverrideRedirect | 
 		CWBackingStore | 
@@ -1663,31 +1576,31 @@ void WindowOutline (int x, int y, unsigned int width, unsigned int height)
 	iX = x;
 	iY = y;
 	iW = (int) width;
-	iH = OUTLINE_WIDTH;
+	iH = wmGD.outlineWidth;
 	if (iW < 0) iW = 1;
 	XMoveResizeWindow (DISPLAY, pSD->woN, iX, iY, iW, iH);
 
 	/* West */
 	iX = x;
-	iY = y + OUTLINE_WIDTH;
-	iW = OUTLINE_WIDTH;
-	iH = (int) height - OUTLINE_WIDTH;
+	iY = y + wmGD.outlineWidth;
+	iW = wmGD.outlineWidth;
+	iH = (int) height - wmGD.outlineWidth;
 	if (iH < 0) iH = 1;
 	XMoveResizeWindow (DISPLAY, pSD->woW, iX, iY, iW, iH);
 
 	/* East */
-	iX = x + (int)width - OUTLINE_WIDTH;
-	iY = y + OUTLINE_WIDTH;
-	iW = OUTLINE_WIDTH;
-	iH = (int)height - OUTLINE_WIDTH;
+	iX = x + (int)width - wmGD.outlineWidth;
+	iY = y + wmGD.outlineWidth;
+	iW = wmGD.outlineWidth;
+	iH = (int)height - wmGD.outlineWidth;
 	if (iH < 0) iH = 1;
 	XMoveResizeWindow (DISPLAY, pSD->woE, iX, iY, iW, iH);
 
 	/* South */
-	iX = x + OUTLINE_WIDTH;
-	iY = y + (int)height - OUTLINE_WIDTH;
-	iW = (int)width - 2*OUTLINE_WIDTH;
-	iH = OUTLINE_WIDTH;
+	iX = x + wmGD.outlineWidth;
+	iY = y + (int)height - wmGD.outlineWidth;
+	iW = (int)width - 2*wmGD.outlineWidth;
+	iH = wmGD.outlineWidth;
 	if (iW < 0) iW = 1;
 	XMoveResizeWindow (DISPLAY, pSD->woS, iX, iY, iW, iH);
 
@@ -1707,9 +1620,7 @@ void WindowOutline (int x, int y, unsigned int width, unsigned int height)
 
 } /* END OF FUNCTION  WindowOutline */
 
-#endif /* WSM */
 
-
 /*************************************<->*************************************
  *
  *  DrawOutline (x, y, width, height)
@@ -1753,7 +1664,7 @@ void DrawOutline (int x, int y, unsigned int width, unsigned int height)
 
     if (lastOutlineWidth || lastOutlineHeight) {
 	SetOutline (outline, lastOutlineX, lastOutlineY, lastOutlineWidth,
-	    lastOutlineHeight, OUTLINE_WIDTH);
+	    lastOutlineHeight, wmGD.outlineWidth);
 
     	XDrawSegments(DISPLAY, ACTIVE_ROOT, ACTIVE_PSD->xorGC, 
 			outline, SEGS_PER_DRAW);
@@ -1767,7 +1678,7 @@ void DrawOutline (int x, int y, unsigned int width, unsigned int height)
     if (lastOutlineWidth || lastOutlineHeight) {
 
 	SetOutline (outline, lastOutlineX, lastOutlineY, lastOutlineWidth,
-	    lastOutlineHeight, OUTLINE_WIDTH);
+	    lastOutlineHeight, wmGD.outlineWidth);
 
     	XDrawSegments(DISPLAY, ACTIVE_ROOT, ACTIVE_PSD->xorGC, 
 			outline, SEGS_PER_DRAW);
@@ -2673,17 +2584,8 @@ Boolean DoGrabs (Window grab_win, Cursor cursor, unsigned int pmask, Time grabTi
 	}
     }
     
-    
-	/* 
-	 * If running automation version of mwm, do not grab the server, since
-	 * this will confuse the automation input synthesis code.
-	 */
-# if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
-if (grabServer == TRUE)
-# endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
-
-    if (wmGD.freezeOnConfig) 
-	
+   
+    if (!wmGD.useWindowOutline && grabServer) 
     {
 #ifdef WSM
 	if (!pCD || ((pCD->pSD->moveOpaque && alwaysGrab) ||
@@ -2729,8 +2631,8 @@ void UndoGrabs (void)
     XSync (DISPLAY, FALSE /*don't discard events*/);
 
     /* give up grabs */
-    if (wmGD.freezeOnConfig) {
-	XUngrabServer(DISPLAY);
+    if (!wmGD.useWindowOutline && grabServer) {
+		XUngrabServer(DISPLAY);
     }
 
     /*
@@ -3638,8 +3540,6 @@ void GetConfigEvent (Display *display, Window window, unsigned long mask, int cu
     Window root_ret, child_ret;
     int root_x, root_y, win_x, win_y;
     unsigned int mask_ret;
-    Boolean polling;
-    int pollCount;
     Boolean gotEvent;
     Boolean eventToReturn = False;
 
@@ -3656,83 +3556,7 @@ void GetConfigEvent (Display *display, Window window, unsigned long mask, int cu
 		break;
 	}
 
-	/*
-	 * Only poll if we are warping the pointer. 
-	 * (uses PointerMotionHints exclusively).
-	 */
-	polling = wmGD.enableWarp;
-	pollCount = CONFIG_POLL_COUNT;
-
-	if (!gotEvent && (polling || !wmGD.freezeOnConfig))
-	{
-	    /*
-             * poll for events and flash the frame outline 
-	     * if not move opaque
-	     */
-
-	    while (True)
-	    {
-		if (XCheckWindowEvent(display, window, 
-				      (mask & ~PointerMotionMask), pev))
-		{
-		    gotEvent = True;
-		    break;
-		}
-		
-		if (!wmGD.freezeOnConfig && !wmGD.pActiveSD->moveOpaque)
-		{
-                    /* flash the outline if server is not grabbed */
-		    MoveOutline (oX, oY, oWidth, oHeight);
-		}
-
-		if (!XQueryPointer (display, window, &root_ret, &child_ret, 
-			&root_x, &root_y, &win_x, &win_y, &mask_ret))
-		{
-		    continue;	/* query failed, try again */
-		}
-
-		if ((root_x != curX) || (root_y != curY))
-		{
-		    /* 
-		     * Pointer moved to a new position.
-		     * Cobble a motion event together. 
-		     * NOTE: SOME FIELDS NOT SET !!! 
-		     */
-
-		    pev->type = MotionNotify;
-		    /* pev->xmotion.serial = ??? */
-		    pev->xmotion.send_event = False;
-		    pev->xmotion.display = display;
-		    pev->xmotion.window = root_ret;
-		    pev->xmotion.subwindow = child_ret;
-		    pev->xmotion.time = CurrentTime;		/* !!! !!! */
-		    pev->xmotion.x = root_x;
-		    pev->xmotion.y = root_y;
-		    pev->xmotion.x_root = root_x;
-		    pev->xmotion.y_root = root_y;
-		    /* pev->xmotion.state = ??? */
-		    /* pev->xmotion.is_hint  = ???? */
-		    /* pev->xmotion.same_screen = ??? */
-
-		    eventToReturn = True;
-		    break;	/* from while loop */
-		}
-		else if (wmGD.freezeOnConfig)
-		{
-		    if (!(--pollCount))
-		    {
-			/* 
-			 * No pointer motion in some time. Stop polling
-			 * and wait for next event.
-			 */
-			polling = False;
-			break; /* from while loop */ 
-		    }
-		}
-	    }  /* end while */
-	}
-
-	if (!gotEvent && !polling && wmGD.freezeOnConfig) 
+	if (!gotEvent)
 	{
 	    /* 
 	     * Wait for next event on window 

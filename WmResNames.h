@@ -72,9 +72,6 @@
 #define WmNframeBorderWidth		"frameBorderWidth"
 #ifdef WSM
 #define WmNframeExternalShadowWidth	"frameExternalShadowWidth"
-#endif /* WSM */
-#define WmNfreezeOnConfig		"freezeOnConfig"
-#ifdef WSM
 #define WmNgeometry			"geometry"
 #endif /* WSM */
 #define WmNiconAutoPlace		"iconAutoPlace"
@@ -140,9 +137,8 @@
 #define WmNtransientDecoration		"transientDecoration"
 #define WmNtransientFunctions		"transientFunctions"
 #define WmNuseIconBox			"useIconBox"
-#ifdef WSM
 #define WmNuseWindowOutline		"useWindowOutline"
-#endif /* WSM */
+#define WmNoutlineWidth			"outlineWidth"
 #ifdef MINIMAL_DT
 #define WmNdtLite			"useDtLite"
 #endif /* MINIMAL_DT */
@@ -274,9 +270,6 @@
 #define WmCFrameBorderWidth		"FrameBorderWidth"
 #ifdef WSM
 #define WmCFrameExternalShadowWidth	"FrameExternalShadowWidth"
-#endif /* WSM */
-#define WmCFreezeOnConfig		"FreezeOnConfig"
-#ifdef WSM
 #define WmCGeometry			"Geometry"
 #endif /* WSM */
 #define WmCIconAutoPlace		"IconAutoPlace"
@@ -344,9 +337,8 @@
 #define WmCTransientDecoration		"TransientDecoration"
 #define WmCTransientFunctions		"TransientFunctions"
 #define WmCUseIconBox			"UseIconBox"
-#ifdef WSM
 #define WmCUseWindowOutline		"UseWindowOutline"
-#endif /* WSM */
+#define WmCOutlineWidth			"OutlineWidth"
 #ifdef MINIMAL_DT
 #define WmCDtLite			"UseDtLite"
 #endif /* MINIMAL_DT */

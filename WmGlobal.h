@@ -1270,14 +1270,11 @@ typedef struct _WmScreenData
     GC		fadeIconGC;
     GC		fadeIconTextGC;
 
-#ifdef WSM
-    
     /* per screen configuration outline windows */
     Window	woN;		/* North outline window */
     Window	woS;		/* South outline window */
     Window	woE;		/* East outline window */
     Window	woW;		/* West outline window */
-#endif /* WSM */
 
     /* per screen feedback data */
     unsigned long fbStyle;
@@ -2150,10 +2147,9 @@ typedef struct _WmGlobalData
     int		doubleClickTime;		/* resource */
     Boolean	enableWarp;			/* resource */
     Boolean	enforceKeyFocus;		/* resource */
-    Boolean	freezeOnConfig;			/* resource - testing */
-#ifdef WSM
     Boolean	useWindowOutline;		/* resource */
-#endif /* WSM */
+	Dimension outlineWidth;			/* resource */
+
     Boolean	iconAutoPlace;			/* resource */
     Boolean	iconClick;			/* resource */
     Boolean	interactivePlacement;		/* resource */

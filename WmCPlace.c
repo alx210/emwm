@@ -219,7 +219,7 @@ void StartInteractiveSizing (ClientData *pcd, Time time)
     unsigned int gmask;
 
     /* regrab pointer to change cursor */
-    gmask = (wmGD.freezeOnConfig)? PGRAB_MASK : NOFRZ_PGRAB_MASK;
+    gmask = (wmGD.useWindowOutline)? NOFRZ_PGRAB_MASK : PGRAB_MASK;
     XChangeActivePointerGrab (DISPLAY, gmask, 
 			      wmGD.sizePlacementCursor, time);
 
@@ -637,7 +637,7 @@ void PlaceWindowInteractively (ClientData *pcd)
 {
     unsigned int gmask;
 
-    gmask = (wmGD.freezeOnConfig)? PGRAB_MASK : NOFRZ_PGRAB_MASK;
+    gmask = (wmGD.useWindowOutline)? NOFRZ_PGRAB_MASK : PGRAB_MASK;
 
     /*
      * Return if config is in progress or if grabs fail

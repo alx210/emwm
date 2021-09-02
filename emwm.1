@@ -549,7 +549,7 @@ DirectoryDirectory/X11/bitmaps
 clientAutoPlaceClientAutoPlaceT/FT
 colormapFocus-ColormapFocus-stringkeyboard
 PolicyPolicy
-configFileConfigFilefile$HOME/mwmrc
+configFileConfigFilefile$HOME/.mwmrc
 deiconifyKeyFocusDeiconifyKeyFocusT/FT
 doubleClick-DoubleClick-millisec\&.multi-click
 TimeTimetime\(dg
@@ -564,6 +564,7 @@ PolicyPolicy
 lowerOnIconifyLowerOnIconifyT/FT
 moveThresholdMoveThresholdpixels4
 multiScreenMultiScreenT/FF
+outlineWidthOutlineWidthpixels2
 passButtonsPassButtonsT/FF
 passSelectButtonPassSelectButtonT/FT
 positionOnScreenPositionOnScreenT/FT
@@ -575,6 +576,7 @@ screensScreensstringvaries
 sessionClientDBSessionClientDBstring$HOME/\&.mwmclientdb
 showFeedbackShowFeedbackstringall
 startupKeyFocusStartupKeyFocusT/FT
+useWindowOutlineUseWindowOutlineT/FT
 wMenuButtonClickWMenuButtonClickT/FT
 wMenuButtonClick2WMenuButtonClick2T/FT
 .TE
@@ -698,6 +700,9 @@ The default value of this resource is 4 (pixels)\&.
 This resource, if True, causes \fBemwm\fP to manage all
 the screens on the display\&. If False, \fBemwm\fP manages only
 a single screen\&. The default value is False\&.
+.IP "\fIoutlineWidth\fP\ (class\  \fIOutlineWidth\fP)" 10
+Specifies the width of rubber-bands shown during client placement and resizing\&.
+The default value is 2 pixels\&.
 .IP "\fIpassButtons\fP\ (class\  \fIPassButtons\fP)" 10
 This resource indicates whether or not button press events are passed
 to clients after they are used to do a window manager function in the client
@@ -806,6 +811,10 @@ is explicit\&. When given the default value of True, a window gets the keyboard
 input focus when the window is mapped (that is, initially managed by the window
 manager)\&. It is recommended that both \fIautoKeyFocus\fP and \fIstartupKeyFocus\fP be True to work with tear off menus\&. The default
 value is True\&.
+.IP "\fIuseWindowOutline\fP\ (class\  \fIUseWindowOutline\fP)" 10
+True by default, enables the use of overlay windows to draw client placement
+and size rubber-bands. If set to False, the server will remain grabbed during client
+placement and rubber-bands will be drawn on the root window\&.
 .IP "\fIwMenuButtonClick\fP\ (class\  \fIWMenuButtonClick\fP)" 10
 This resource indicates whether a click of the mouse when the pointer
 is over the window menu button posts and leaves posted the window menu\&. If

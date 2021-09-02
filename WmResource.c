@@ -766,26 +766,24 @@ XtResource wmGlobalResources[] =
 #endif /* WSM */
 
     {
-	WmNfreezeOnConfig,
-	WmCFreezeOnConfig,
-	XtRBoolean,
-	sizeof (Boolean),
-        XtOffsetOf(WmGlobalData, freezeOnConfig),
-	XtRImmediate,
-	(XtPointer)True
-    },
-#ifdef WSM
-
-    {
 	WmNuseWindowOutline,
 	WmCUseWindowOutline,
 	XtRBoolean,
 	sizeof (Boolean),
         XtOffsetOf(WmGlobalData, useWindowOutline),
 	XtRImmediate,
-	(XtPointer)False
+	(XtPointer)True
     },
-#endif /* WSM */
+
+    {
+	WmNoutlineWidth,
+	WmCOutlineWidth,
+	XtRDimension,
+	sizeof (Dimension),
+        XtOffsetOf(WmGlobalData, outlineWidth),
+	XtRImmediate,
+	(XtPointer)2
+    },
 
     {
 	WmNiconAutoPlace,
@@ -3205,7 +3203,6 @@ SetStdGlobalResourceValues (void)
     wmGD.colormapFocusPolicy = CMAP_FOCUS_KEYBOARD;
     wmGD.deiconifyKeyFocus = True;
     wmGD.doubleClickTime = 500;
-    wmGD.freezeOnConfig = True;
     wmGD.iconAutoPlace = True;
     wmGD.iconClick = True;
     wmGD.interactivePlacement = False;
@@ -3215,6 +3212,7 @@ SetStdGlobalResourceValues (void)
     wmGD.startupKeyFocus = True;
     wmGD.systemButtonClick = True;
     wmGD.systemButtonClick2 = True;
+	wmGD.useWindowOutline = True;
 
 } /* END OF FUNCTION SetStdGlobalResourceValues */
 
