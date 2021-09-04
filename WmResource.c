@@ -2216,8 +2216,8 @@ XtResource wmAppearanceResources[] =
 	XmRRenderTable,
 	sizeof (XmRenderTable),
 	XtOffsetOf (AppearanceData, renderTable),
-	XtRImmediate,
-	(XtPointer)NULL
+	XtRCallProc,
+	(XtPointer)_WmRenderTableDefault
     },
 
     {
@@ -2568,6 +2568,24 @@ _WmMatteTSPDefault (Widget widget, int offset, XrmValue *value)
  *  value = default resource value and size
  * 
  *************************************<->***********************************/
+
+void _WmRenderTableDefault(Widget w, int offset, XrmValue *pv)
+{
+	static XmRenderTable renderTable;
+	XmRendition rendition;
+	Arg args[4];
+	Cardinal n = 0;
+
+	XtSetArg(args[n], XmNfontType, XmFONT_IS_XFT); n++;
+	XtSetArg(args[n], XmNfontName, "Sans"); n++;
+	XtSetArg(args[n], XmNfontSize, 9); n++;
+	rendition = XmRenditionCreate(w, XmFONTLIST_DEFAULT_TAG, args, n);
+	renderTable = XmRenderTableAddRenditions(
+		NULL, &rendition, 1, XmMERGE_NEW);
+
+	pv->addr = (XPointer) &renderTable;
+	pv->size = sizeof(XmRenderTable);
+}
 
 void 
 _WmBackgroundDefault (Widget widget, int offset, XrmValue *value)
@@ -4360,18 +4378,6 @@ MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean make
 	int fontAscent;
 	int fontDescent;
 
-	if(!pAData->renderTable){
-		XmRendition rendition;
-		Arg args[4];
-		Cardinal n = 0;
-		
-		XtSetArg(args[n],XmNfontType,XmFONT_IS_XFT); n++;
-		XtSetArg(args[n],XmNfontName,"Sans"); n++;
-		XtSetArg(args[n],XmNfontSize,8); n++;
-		rendition = XmRenditionCreate(pSD->screenTopLevelW,XmFONTLIST_DEFAULT_TAG,args,n);
-		pAData->renderTable = XmRenderTableAddRenditions(NULL,&rendition,1,XmMERGE_NEW);
-	}
-	
 	XmRenderTableGetDefaultFontExtents(pAData->renderTable,
 		&fontHeight,&fontAscent,&fontDescent);
 	
