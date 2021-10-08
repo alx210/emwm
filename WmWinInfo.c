@@ -3396,6 +3396,7 @@ FindClientPlacement (ClientData *pCD)
     Boolean offScreenX;
     Boolean offScreenY;
 	XineramaScreenInfo xsi;
+	Boolean have_xinerama;
 	int scrOriginX = 0;
 	int scrOriginY = 0;
 
@@ -3422,7 +3423,12 @@ FindClientPlacement (ClientData *pCD)
     frameWidth = pCD->clientWidth + (2 * pCD->clientOffset.x);
     frameHeight = pCD->clientHeight + pCD->clientOffset.y + pCD->clientOffset.x;
 
-	if(GetActiveXineramaScreen(&xsi)){
+	if(wmGD.xineramaFollowPointer)
+		have_xinerama = GetXineramaScreenFromPointer(&xsi);
+	else
+		have_xinerama = GetActiveXineramaScreen(&xsi);
+
+	if(have_xinerama) {
 		screenWidth = xsi.width;
 		screenHeight = xsi.height;
 		scrOriginX = xsi.x_org;

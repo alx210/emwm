@@ -580,6 +580,7 @@ startupKeyFocusStartupKeyFocusT/FT
 useWindowOutlineUseWindowOutlineT/FT
 wMenuButtonClickWMenuButtonClickT/FT
 wMenuButtonClick2WMenuButtonClick2T/FT
+xineramaFollowPointerXineramaFollowPointerT/FF
 .TE
 .PP
 \(dgThe resource doubleClickTime is included for backward compatibility\&.
@@ -827,6 +828,10 @@ default value for this resource\&.
 .IP "\fIwMenuButtonClick2\fP\ (class\  \fIWMenuButtonClick2\fP)" 10
 When this resource is given the default value of True, a double-click
 action on the window menu button does an \fIf\&.kill function\fP\&.
+.IP "\fIxineramaFollowPointer\fP\ (class\  \fIXineramaFollowPointer\fP)" 10
+If this resource is True, new windows will be placed on Xinerama screen that
+contains the pointer\&. By default, new windows are placed on Xinerama screen
+containing the currently focused window\&.
 .SS "Screen Specific Appearance and Behavior Resources"
 .PP
 The syntax for specifying screen specific resources is \fIMwm*\fP \fBscreen_name\fP\fI*\fP\fBresource_id\fP For example, \fIMwm*1*keyBindings\fP specifies

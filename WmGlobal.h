@@ -2221,6 +2221,7 @@ typedef struct _WmGlobalData
     int numMouseButtons;		/* num of mouse buttons available */
     unsigned int bMenuButton;		/* BMenu binding (button/state) */
     int primaryXineramaScreen;
+	Boolean xineramaFollowPointer;
     Boolean xrandr_present;
     int xrandr_base_evt;
     int xrandr_base_err;
