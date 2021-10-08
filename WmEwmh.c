@@ -61,6 +61,9 @@ enum ewmh_atom {
 	_NET_WM_ACTION_MINIMIZE, _NET_WM_ACTION_MAXIMIZE_HORZ,
 	_NET_WM_ACTION_MAXIMIZE_VERT, _NET_WM_ACTION_FULLSCREEN,
 	_NET_WM_ACTION_CLOSE, _NET_WM_FULLSCREEN_MONITORS,
+	_NET_WM_WINDOW_TYPE, _NET_WM_WINDOW_TYPE_SPLASH,
+	_NET_WM_WINDOW_TYPE_TOOLBAR, _NET_WM_WINDOW_TYPE_UTILITY,
+	_NET_WM_WINDOW_TYPE_DIALOG,
 
 	_NUM_EWMH_ATOMS
 };
@@ -77,7 +80,10 @@ static char *ewmh_atom_names[_NUM_EWMH_ATOMS]={
 	"_NET_WM_ALLOWED_ACTIONS", "_NET_WM_ACTION_MOVE", "_NET_WM_ACTION_RESIZE",
 	"_NET_WM_ACTION_MINIMIZE", "_NET_WM_ACTION_MAXIMIZE_HORZ",
 	"_NET_WM_ACTION_MAXIMIZE_VERT", "_NET_WM_ACTION_FULLSCREEN",
-	"_NET_WM_ACTION_CLOSE", "_NET_WM_FULLSCREEN_MONITORS"
+	"_NET_WM_ACTION_CLOSE", "_NET_WM_FULLSCREEN_MONITORS",
+	"_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_SPLASH",
+	"_NET_WM_WINDOW_TYPE_TOOLBAR", "_NET_WM_WINDOW_TYPE_UTILITY",
+	"_NET_WM_WINDOW_TYPE_DIALOG"
 };
 
 /* Initialized in SetupEwhm() */
@@ -156,6 +162,35 @@ void ProcessEwmh(ClientData *pCD)
 	}
 
 	UpdateFrameExtents(pCD);
+}
+
+/*
+ * Maps EWMH window type to whatever it's closest to in MWM terms
+ * and sets pCD's clientDecoration/Functions accordingly.
+ */
+void ProcessEwmhWindowType(ClientData *pCD)
+{
+	Atom *atoms;
+	unsigned long count;
+
+	atoms = FetchWindowProperty(
+		pCD->client, ewmh_atoms[_NET_WM_WINDOW_TYPE], XA_ATOM, &count);
+	if(atoms) {
+		/* clients may list several types in order of preference,
+		 * hence we can't go wrong by ignoring all but the first */
+		if(atoms[0] == ewmh_atoms[_NET_WM_WINDOW_TYPE_TOOLBAR] ||
+			atoms[0] == ewmh_atoms[_NET_WM_WINDOW_TYPE_UTILITY]) {
+			pCD->clientDecoration = pCD->pSD->utilityDecoration;
+			pCD->clientFunctions = pCD->pSD->utilityFunctions;
+		} else if(atoms[0] == ewmh_atoms[_NET_WM_WINDOW_TYPE_DIALOG]) {
+			pCD->clientDecoration = pCD->pSD->transientDecoration;
+			pCD->clientFunctions = pCD->pSD->transientFunctions;
+		} else if(atoms[0] == ewmh_atoms[_NET_WM_WINDOW_TYPE_SPLASH]) {
+			pCD->clientDecoration = WM_DECOR_MINIMIZE | WM_DECOR_BORDER;
+			pCD->clientFunctions = MWM_FUNC_MINIMIZE | MWM_FUNC_MOVE;
+		}
+		XtFree((char*)atoms);
+	}
 }
 
 /*

@@ -1332,6 +1332,8 @@ typedef struct _WmScreenData
     Boolean	resizeCursors;			/* resource */
     int		transientDecoration;		/* resource */
     int		transientFunctions;		/* resource */
+    int		utilityDecoration;	    /* resource */
+    int		utilityFunctions;       /* resource */
     Boolean	useIconBox;			/* resource */
     Boolean     moveOpaque;                     /* move window not outlines */
 

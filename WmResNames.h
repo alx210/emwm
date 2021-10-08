@@ -144,6 +144,8 @@
 #endif /* MINIMAL_DT */
 #define WmNmoveOpaque                   "moveOpaque"
 #define WmNframeStyle			"frameStyle"
+#define WmNutilityDecoration    "utilityDecoration"
+#define WmNutilityFunctions     "utilityFunctions"
 #define WmNprimaryXineramaScreen	"primaryXineramaScreen"
 
 /* conponent appearance resources: */
@@ -348,6 +350,8 @@
 #define WmCWorkspaceList	        "WorkspaceList"
 #define WmCWorkspaceCount	        "WorkspaceCount"
 #endif /* WSM */
+#define WmCUtilityDecoration     "UtilityDecoration"
+#define WmCUtilityFunctions      "UtilityFunctions"
 #define WmCPrimaryXineramaScreen	"PrimaryXineramaScreen"
 
 /* component appearance resources: */

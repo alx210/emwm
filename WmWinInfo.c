@@ -3701,7 +3701,8 @@ void
 ProcessMwmHints (ClientData *pCD)
 {
     PropMwmHints *pHints;
-
+	
+	ProcessEwmhWindowType(pCD);
 
     /*
      * Fix the client functions and decorations fields if they have

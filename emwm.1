@@ -852,10 +852,11 @@ moveOpaqueMoveOpaqueT/FF
 resizeBorderWidthResizeBorderWidthpixelsvaries
 resizeCursorsResizeCursorsT/FT
 transientDecorationTransientDecorationstringmenu title
-transientFunctionsTransientFunctionsstringT{
--minimize-maximize
-T}
+transientFunctionsTransientFunctionsstring-minimize-maximize
 useIconBoxUseIconBoxT/FF
+utilityDecorationutilityDecorationstringmenu title
+utilityFunctionsutilityFunctionsstring-minimize-maximize
+
 .TE
 .IP "\fIbuttonBindings\fP\ (class\  \fIButtonBindings\fP)" 10
 This resource identifies the set of button bindings for window management
@@ -1018,6 +1019,20 @@ page\&.
 If this resource is given a value of True, icons are placed in an icon
 box\&. When an icon box is not used, the icons are placed on the root window
 (default value)\&.
+.IP "\fIutilityDecoration\fP\ (class\  \fIUtilityDecoration\fP)" 10
+This controls the amount of decoration that \fBemwm\fP
+puts on utility windows\&. The decoration specification is exactly the same
+as for the \fIclientDecoration\fP (client specific) resource\&.
+Utility windows are identified by the \fI_NET_WM_WINDOW_TYPE_UTILITY\fP
+or the \fI_NET_WM_WINDOW_TYPE_TOOLBAR\fP value in the \fI_NET_WM_WINDOW_TYPE\fP
+property\&.
+The default value for this resource is menu title (that is, utility windows
+have frame borders and a titlebar with a window menu button)\&.
+.IP "\fIutilityFunctions\fP\ (class\  \fIUtilityFunctions\fP)" 10
+This resource is used to indicate which window management functions
+are applicable (or not applicable) to utility windows\&.
+The function specification is exactly the same as for the \fIclientFunctions\fP
+(client specific) resource\&. The default value for this resource is -maximize\&.
 .SS "Client Specific Resources"
 .PP
 The syntax for specifying client specific resources is

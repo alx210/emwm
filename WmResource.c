@@ -1437,6 +1437,26 @@ XtResource wmScreenResources[] =
     },
 
     {
+	WmNutilityDecoration,
+	WmCUtilityDecoration,
+	WmRClientDecor,
+	sizeof (int),
+	XtOffsetOf (WmScreenData, utilityDecoration),
+	XtRImmediate,
+	(XtPointer)(WM_DECOR_SYSTEM | WM_DECOR_RESIZEH)
+    },
+
+    {
+	WmNutilityFunctions,
+	WmCUtilityFunctions,
+	WmRClientFunction,
+	sizeof (int),
+	XtOffsetOf (WmScreenData, utilityFunctions),
+	XtRImmediate,
+	(XtPointer)(WM_FUNC_ALL & ~(MWM_FUNC_MAXIMIZE))
+    },
+
+    {
 	WmNuseIconBox,
 	WmCUseIconBox,
 	XtRBoolean,

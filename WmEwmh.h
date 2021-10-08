@@ -26,6 +26,7 @@
 
 void SetupWmEwmh(void);
 void ProcessEwmh(ClientData *pCD);
+void ProcessEwmhWindowType(ClientData *pCD);
 void SetEwmhActiveWindow(ClientData *pCD);
 void HandleEwmhCPropertyNotify(ClientData *pCD, XPropertyEvent *evt);
 void HandleEwmhClientMessage(ClientData *pCD, XClientMessageEvent *evt);
