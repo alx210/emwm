@@ -1232,7 +1232,7 @@ typedef struct _WmScreenData
 #ifdef WSM
     int displayResolutionType;
 #endif /* WSM */
-	int		primaryXineramaScreen;
+
     /* wm state info: */
 
     unsigned long clientCounter;
@@ -2194,8 +2194,7 @@ typedef struct _WmGlobalData
     XButtonEvent evLastButton;			/* for detecting replayed 
 						   button events */
     Boolean	bReplayedButton;		/* true if button replayed */
-    Boolean	bSuspendSecondaryRestack;	/* overrides transient
-						   stacking */
+    Boolean	bSuspendSecondaryRestack;	/* overrides transient stacking */
 #endif /* WSM */
 
     XmString	clientDefaultTitle;
@@ -2221,7 +2220,7 @@ typedef struct _WmGlobalData
 
     int numMouseButtons;		/* num of mouse buttons available */
     unsigned int bMenuButton;		/* BMenu binding (button/state) */
-	    
+    int primaryXineramaScreen;
     Boolean xrandr_present;
     int xrandr_base_evt;
     int xrandr_base_err;

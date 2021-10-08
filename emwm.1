@@ -568,6 +568,7 @@ outlineWidthOutlineWidthpixels2
 passButtonsPassButtonsT/FF
 passSelectButtonPassSelectButtonT/FT
 positionOnScreenPositionOnScreenT/FT
+primaryXineramaScreenPrimaryXineramaScreenindex0
 quitTimeoutQuitTimeoutmillisec\&.1000
 raiseKeyFocusRaiseKeyFocusT/FF
 refreshByClearingRefreshByClearingT/FT
@@ -724,6 +725,9 @@ resource value is True)\&. If a window is larger than the size of the screen,
 at least the upper-left corner of the window is on-screen\&. If the resource
 value is False, windows are placed in the requested position even if totally
 off-screen\&. The default value of this resource is True\&.
+.IP "\fIprimaryXineramaScreen\fP\ (class\ \fIPrimaryXineramaScreen\fP)" 10
+This resource specifies the index of a Xinerama screen that is preferred when
+placing newly mapped application windows and modal dialog boxes.
 .IP "\fIquitTimeout\fP\ (class\  \fIQuitTimeout\fP)" 10
 This resource specifies the amount of time (in milliseconds) that \fBemwm\fP will wait for a client to update the \fIWM_COMMAND\fP
 property after \fBemwm\fP has sent the \fBWM_SAVE_YOURSELF\fP message\&. The default value of this resource is 1000 (ms)\&. (Refer
@@ -977,9 +981,6 @@ to greater than the maximum size\&. The default value for this resource is True\
 This resource controls whether the actual window is moved or a rectangular
 outline of the window is moved\&. A default value of False displays a rectangular
 outline on moves\&.
-.IP "\fIprimaryXineramaScreen\fP\ (class\ \fIPrimaryXineramaScreen\fP)" 10
-This resource specifies the index of a Xinerama screen that is preferred when
-placing newly mapped application windows and modal dialog boxes.
 .IP "\fIresizeBorderWidth\fP\ (class\  \fIResizeBorderWidth\fP)" 10
 This resource specifies the width (in pixels) of a client window frame
 border with resize handles\&. The specified border width includes the 3-D shadows\&.

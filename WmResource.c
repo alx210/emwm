@@ -1012,8 +1012,17 @@ XtResource wmGlobalResources[] =
         XtOffsetOf(WmGlobalData, dtLite),
 	XtRImmediate,
 	(XtPointer)False
-    }
+    },
 #endif /* MINIMAL_DT */
+	{
+	WmNprimaryXineramaScreen,
+	WmCPrimaryXineramaScreen,
+	XtRInt,
+	sizeof(int),
+	XtOffsetOf (WmGlobalData, primaryXineramaScreen),
+	XtRImmediate,
+	(XtPointer)0
+	}
 }; /* END OF wmGlobalResources[] */
 
 
@@ -1159,6 +1168,15 @@ XtResource wmStdGlobalResources[] =
 	(XtPointer)(WM_SHOW_FB_DEFAULT)
     },
 
+	{
+	WmNprimaryXineramaScreen,
+	WmCPrimaryXineramaScreen,
+	XtRInt,
+	sizeof(int),
+	XtOffsetOf (WmGlobalData, primaryXineramaScreen),
+	XtRImmediate,
+	(XtPointer)0
+	}
 };
 
 
@@ -1300,16 +1318,6 @@ XtResource wmScreenResources[] =
 	XtRImmediate,
 	(XtPointer) BIGSIZE
     },
-	
-	{
-	WmNprimaryXineramaScreen,
-	WmCPrimaryXineramaScreen,
-	XtRInt,
-	sizeof(int),
-	XtOffsetOf (WmScreenData, primaryXineramaScreen),
-	XtRImmediate,
-	(XtPointer)0
-	},	
 	
 #ifndef WSM
 

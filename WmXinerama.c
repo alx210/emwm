@@ -131,12 +131,13 @@ Bool GetPreferredXineramaScreen(XineramaScreenInfo *xsi)
 {
 	if(!is_active) return False;
 
-	if(ACTIVE_PSD->primaryXineramaScreen >= g_nxsi ||
-		ACTIVE_PSD->primaryXineramaScreen < 0){
+	if(wmGD.primaryXineramaScreen >= g_nxsi ||
+		wmGD.primaryXineramaScreen < 0){
 		Warning("PrimaryXineramaScreen out of range\n");
-		memcpy(xsi,&g_xsi[0],sizeof(XineramaScreenInfo));
+		memcpy(xsi, &g_xsi[0], sizeof(XineramaScreenInfo));
+		return True;
 	}
-	memcpy(xsi,&g_xsi[ACTIVE_PSD->primaryXineramaScreen],
+	memcpy(xsi,&g_xsi[wmGD.primaryXineramaScreen],
 		sizeof(XineramaScreenInfo));
 	return True;
 }
