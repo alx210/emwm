@@ -1335,7 +1335,8 @@ typedef struct _WmScreenData
     int		utilityDecoration;	    /* resource */
     int		utilityFunctions;       /* resource */
     Boolean	useIconBox;			/* resource */
-    Boolean     moveOpaque;                     /* move window not outlines */
+    Boolean moveOpaque;    /* move window not outlines */
+    Boolean titleLeft;
 
 #ifdef WSM
 

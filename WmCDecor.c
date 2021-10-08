@@ -1248,24 +1248,16 @@ void DrawWindowTitle (ClientData *pcd, Boolean eraseFirst)
 		FALSE);
     }
 
-#ifdef  DT_LEFT_JUSTIFIED_TITLE
-    WmDrawXmString(DISPLAY, win, renderTable,
-		pcd->ewmhClientTitle?pcd->ewmhClientTitle:pcd->clientTitle, clientGC,
-		textBox.x, textBox.y, textBox.width, &textBox,
-		((wmGD.frameStyle == WmSLAB) ? False : True));
-#else /* DT_LEFT_JUSTIFIED_TITLE */
-#ifdef WSM
-    WmDrawXmString(DISPLAY, win, renderTable,
-		pcd->ewmhClientTitle?pcd->ewmhClientTitle:pcd->clientTitle, clientGC,
-		textBox.x, textBox.y, textBox.width, &textBox, True);
-#else
-    WmDrawXmString(DISPLAY, win, renderTable,
-		pcd->ewmhClientTitle?pcd->ewmhClientTitle:pcd->clientTitle, clientGC,
-		textBox.x, textBox.y, textBox.width, &textBox);
-#endif
-#endif /* DT_LEFT_JUSTIFIED_TITLE */
-		     
+	if(pcd->pSD->titleLeft) {
+		int padding = CLIENT_TITLE_APPEARANCE(pcd).fontHeight / 3;
+		textBox.x += padding;
+		textBox.width -= padding;
+	}
 
+    WmDrawXmString(DISPLAY, win, renderTable,
+		pcd->ewmhClientTitle ? pcd->ewmhClientTitle : pcd->clientTitle,
+		clientGC, textBox.x, textBox.y, textBox.width, &textBox,
+		pcd->pSD->titleLeft ? False : True);
 
 } /* END OF FUNCTION DrawWindowTitle */
 

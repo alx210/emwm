@@ -873,19 +873,9 @@ void DrawIconTitle (ClientData *pcd)
 	    iconGC = FADE_ICON_TEXT_GC(pcd);
     }
 
-
-
-
-    /* paint the text */
-#ifdef WSM
     WmDrawXmString(DISPLAY, ICON_FRAME_WIN(pcd), ICON_APPEARANCE(pcd).renderTable,
-		   pcd->ewmhIconTitle?pcd->ewmhIconTitle:pcd->iconTitle, iconGC, 
+		   pcd->ewmhIconTitle ? pcd->ewmhIconTitle : pcd->iconTitle, iconGC, 
 		   textBox.x, textBox.y, textBox.width, &textBox, True);
-#else /* WSM */
-    WmDrawXmString(DISPLAY, ICON_FRAME_WIN(pcd), ICON_APPEARANCE(pcd).renderTable,
-		   pcd->ewmhIconTitle?pcd->ewmhIconTitle:pcd->iconTitle, iconGC, 
-		   textBox.x, textBox.y, textBox.width, &textBox);
-#endif /* WSM */
 
 } /* END OF FUNCTION DrawIconTitle */
 
@@ -969,19 +959,10 @@ void RedisplayIconTitle (ClientData *pcd)
 	    FALSE);
 
 	/* in with the new */
-#ifdef WSM
 	WmDrawXmString(DISPLAY, ICON_FRAME_WIN(pcd), 
 		       ICON_APPEARANCE(pcd).renderTable,
-		       pcd->ewmhIconTitle?pcd->ewmhIconTitle:pcd->iconTitle, iconGC, 
-		       textBox.x, textBox.y, textBox.width, &textBox,
-		       True);
-#else /* WSM */
-	WmDrawXmString(DISPLAY, ICON_FRAME_WIN(pcd), 
-		       ICON_APPEARANCE(pcd).renderTable,
-		       pcd->ewmhIconTitle?pcd->ewmhIconTitle:pcd->iconTitle, iconGC, 
-		       textBox.x, textBox.y, textBox.width, &textBox);
-#endif /* WSM */
-
+		       pcd->ewmhIconTitle ? pcd->ewmhIconTitle : pcd->iconTitle, iconGC, 
+		       textBox.x, textBox.y, textBox.width, &textBox, True);
 	/* 
 	 * Erase & paint text in the active icon text window
 	 */
@@ -1807,18 +1788,10 @@ void PaintActiveIconText (ClientData *pcd, Boolean erase)
 		    FALSE);
     }
 
-#ifdef WSM
     WmDrawXmString(DISPLAY, pcd->pSD->activeIconTextWin, 
 		   ICON_APPEARANCE(pcd).renderTable,
-		   pcd->ewmhIconTitle?pcd->ewmhIconTitle:pcd->iconTitle, iconGC, 
+		   pcd->ewmhIconTitle ? pcd->ewmhIconTitle : pcd->iconTitle, iconGC, 
 		   textBox.x, textBox.y, textBox.width, &textBox, True);
-#else /* WSM */
-    WmDrawXmString(DISPLAY, pcd->pSD->activeIconTextWin, 
-		   ICON_APPEARANCE(pcd).renderTable,
-		   pcd->ewmhIconTitle?pcd->ewmhIconTitle:pcd->iconTitle, iconGC, 
-		   textBox.x, textBox.y, textBox.width, &textBox);
-#endif /* WSM */
-
 
 } /* END OF FUNCTION PaintActiveIconText */
 

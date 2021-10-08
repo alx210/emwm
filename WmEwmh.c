@@ -518,14 +518,15 @@ void ConfigureEwmhFullScreen(ClientData *pCD, Boolean set)
 		}
 		XMoveResizeWindow(DISPLAY,pCD->clientFrameWin,xorg,yorg,swidth,sheight);
 		XMoveResizeWindow(DISPLAY,pCD->clientBaseWin,0,0,swidth,sheight);
-		XResizeWindow(DISPLAY,pCD->client,swidth,sheight);
+		XMoveResizeWindow(DISPLAY, pCD->client, 0, 0, swidth, sheight);
 
 		pCD->fullScreen = True;
 		UpdateEwmhClientState(pCD);
 	}else{
 		pCD->clientFunctions = pCD->normalClientFunctions;
 
-		XResizeWindow(DISPLAY,pCD->client,pCD->clientWidth,pCD->clientHeight);
+		XMoveResizeWindow(DISPLAY, pCD->client, pCD->matteWidth,
+			pCD->matteWidth, pCD->clientWidth, pCD->clientHeight);
 		XMoveResizeWindow(DISPLAY,pCD->clientBaseWin,
 			BaseWindowX(pCD),BaseWindowY(pCD),
 			BaseWindowWidth(pCD),BaseWindowHeight(pCD));

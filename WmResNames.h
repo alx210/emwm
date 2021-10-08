@@ -167,6 +167,7 @@
 #define WmNsaveUnder			"saveUnder"
 #define WmNtopShadowColor		"topShadowColor"
 #define WmNtopShadowPixmap		"topShadowPixmap"
+#define WmNtitleLeft            "titleLeft"
 
 /* mwm - client specific resources: */
 
@@ -374,6 +375,7 @@
 #define WmCSaveUnder			"SaveUnder"
 #define WmCTopShadowColor		"TopShadowColor"
 #define WmCTopShadowPixmap		"TopShadowPixmap"
+#define WmCTitleLeft            "TitleLeft"
 
 /* mwm - client specific resources: */
 

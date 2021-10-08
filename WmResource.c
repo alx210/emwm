@@ -1492,6 +1492,16 @@ XtResource wmScreenResources[] =
 	XtOffsetOf (WmScreenData, moveOpaque),
 	XtRImmediate,
 	(XtPointer)False
+	},
+
+	{
+	WmNtitleLeft,
+	WmCTitleLeft,
+	XtRBoolean,
+	sizeof(Boolean),
+	XtOffsetOf(WmScreenData, titleLeft),
+	XtRImmediate,
+	(XtPointer) False
 
 #ifdef WSM
     },

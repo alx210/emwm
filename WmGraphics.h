@@ -42,16 +42,11 @@ extern void StretcherCorner (RList *prTop, RList *prBot, int x, int y,
 			     unsigned int cwidth, unsigned int cheight);
 extern void WmDrawString (Display *dpy, Drawable d, GC gc, int x, int y, 
 			  char *string, unsigned int length);
-#ifdef WSM
+
 extern void WmDrawXmString (Display *dpy, Window w, XmFontList xmfontlist, 
 			    XmString xmstring, GC gc, Position x, Position y, 
 			    Dimension width, XRectangle *pbox,
 			    Boolean bCenter);
-#else /* WSM */
-extern void WmDrawXmString (Display *dpy, Window w, XmFontList xmfontlist, 
-			    XmString xmstring, GC gc, Position x, Position y, 
-			    Dimension width, XRectangle *pbox);
-#endif /* WSM */
 
 extern GC WmGetGC (WmScreenData *pSD, unsigned long gc_mask, XGCValues *pGcv);
 

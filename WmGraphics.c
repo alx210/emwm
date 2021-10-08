@@ -1101,41 +1101,20 @@ void WmDrawString (Display *dpy, Drawable d, GC gc, int x, int y, char *string, 
  *    B/W displays.
  *			
  *************************************<->***********************************/
-#ifdef WSM
 void WmDrawXmString (Display *dpy, Window w, XmRenderTable xmrendertable, 
 		     XmString xmstring, GC gc, Position x, Position y, 
 		     Dimension width,  XRectangle *pbox, Boolean bCenter)
-#else /* WSM */
-void WmDrawXmString (Display *dpy, Window w, XmRenderTable xmrendertable, 
-		     XmString xmstring, GC gc, Position x, Position y, 
-		     Dimension width,  XRectangle *pbox)
-#endif /* WSM */
 {
     Dimension textWidth;
-#ifdef WSM
     int alignment;
-#else /* WSM */
-    int alignment = XmALIGNMENT_BEGINNING;
-#endif /* WSM */
 
     textWidth = XmStringWidth(xmrendertable, xmstring);
-
-#ifdef WSM
     alignment = bCenter ? XmALIGNMENT_CENTER : XmALIGNMENT_BEGINNING;
 
     if (textWidth >= pbox->width)  /* can't center text if no room */
     {                              /* left justify & clip text */
 	alignment = XmALIGNMENT_BEGINNING;
     }
-#else /* WSM */
-    if (textWidth < pbox->width) {      /* center text if there's room */
-	alignment = XmALIGNMENT_CENTER;
-    }
-    else 
-    {                              /* left justify & clip text */
-	alignment = XmALIGNMENT_BEGINNING;
-    }
-#endif /* WSM */
     
     if (ACTIVE_PSD->cleanText)
     {
