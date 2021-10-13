@@ -1,9 +1,9 @@
 # EMWM Makefile
 
 PREFIX = /usr
-MWMRCDIR = $(PREFIX)/share/X11/mwm
 MANDIR = $(PREFIX)/share/man
-APPLRESDIR = $(PREFIX)/share/X11/app-defaults
+MWMRCDIR = /etc/X11/mwm
+APPLRESDIR = /etc/X11/app-defaults
 
 INCDIRS = -I./Xm -I/usr/local/include 
 LIBDIRS = -L/usr/local/lib
