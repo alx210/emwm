@@ -129,17 +129,11 @@ extern char * pWarningStringFile;
 extern char * pWarningStringLine;
 #endif
 
-char *mwmFallbackRes[] = {
+static const char *mwmFallbackRes[] = {
 	"*renderTable: variable",
 	"*renderTable.variable.fontType: FONT_IS_XFT",
 	"*renderTable.variable.fontName: Sans",
 	"*renderTable.variable.fontSize: 9",
-	"*enableThinThickness: True",
-	"*enableEtchedInMenu: True",
-	"*enableMenuInCascade: True",
-	"*enableMultiKeyBindings: True",
-	"*enableToggleColor: True",
-	"*enableToggleVisual: True",
 	NULL
 };
 
@@ -471,7 +465,7 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
     XtToolkitInitialize();
     wmGD.mwmAppContext = XtCreateApplicationContext();
     AddWmResourceConverters ();
-	XtAppSetFallbackResources(wmGD.mwmAppContext,mwmFallbackRes);
+	XtAppSetFallbackResources(wmGD.mwmAppContext, (String*)mwmFallbackRes);
     wmGD.display = XtOpenDisplay (wmGD.mwmAppContext,
 				  NULL,
 				  wmGD.mwmName,
