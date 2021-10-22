@@ -2621,15 +2621,21 @@ void _WmRenderTableDefault(Widget w, int offset, XrmValue *pv)
 {
 	static XmRenderTable renderTable;
 	XmRendition rendition;
-	Arg args[4];
+	Arg args[5];
 	Cardinal n = 0;
 
+	XtSetArg(args[n], XmNfont, XmAS_IS); n++;
+	
+	#ifdef USE_XFT
 	/* Since UTF-8 is required for EWMH title text rendering,
 	 * set up a generic Xft font by default */
-	XtSetArg(args[n], XmNfont, XmAS_IS); n++;
 	XtSetArg(args[n], XmNfontType, XmFONT_IS_XFT); n++;
 	XtSetArg(args[n], XmNfontName, "Sans"); n++;
 	XtSetArg(args[n], XmNfontSize, 9); n++;
+	#else /* !USE_XFT */
+	XtSetArg(args[n], XmNfontType, XmFONT_IS_FONT); n++;
+	XtSetArg(args[n], XmNfontName, "fixed"); n++;
+	#endif /* USE_XFT */
 
 	rendition = XmRenditionCreate(w, XmFONTLIST_DEFAULT_TAG, args, n);
 	renderTable = XmRenderTableAddRenditions(

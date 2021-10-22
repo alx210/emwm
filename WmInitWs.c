@@ -129,14 +129,6 @@ extern char * pWarningStringFile;
 extern char * pWarningStringLine;
 #endif
 
-static const char *mwmFallbackRes[] = {
-	"*renderTable: variable",
-	"*renderTable.variable.fontType: FONT_IS_XFT",
-	"*renderTable.variable.fontName: Sans",
-	"*renderTable.variable.fontSize: 9",
-	NULL
-};
-
 /*
  * InitMouseBinding
  *
@@ -465,7 +457,7 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
     XtToolkitInitialize();
     wmGD.mwmAppContext = XtCreateApplicationContext();
     AddWmResourceConverters ();
-	XtAppSetFallbackResources(wmGD.mwmAppContext, (String*)mwmFallbackRes);
+	XtAppSetFallbackResources(wmGD.mwmAppContext, NULL);
     wmGD.display = XtOpenDisplay (wmGD.mwmAppContext,
 				  NULL,
 				  wmGD.mwmName,
