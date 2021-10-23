@@ -55,12 +55,8 @@ typedef struct _ProxyClientInfo
 
 #define MAX_RESOURCE_LEN 1024
 
-#ifdef WSM
-static char *dtwmFileName = "dtwm.db";
-#else
-static char *dtwmFileName = ".mwmclientdb";
+static char *dtwmFileName = ".emwmclientdb";
 # define EXTRA_FN_CHARS 20
-#endif
 
 /* Fully-qualified resource names/classes. */
 static char *xPositionStr = "%s.position.x";

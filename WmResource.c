@@ -482,7 +482,7 @@ char builtinRootMenuName[] = "_MwmRootMenu_";
 	\"Pack Icons\"		f.pack_icons\n\
 	 no-label		f.separator\n\
 	\"Restart...\"		f.restart\n\
-	\"Quit...\"		f.quit_mwm\n\
+	\"Quit...\"		f.quit_wm\n\
 }";
 char builtinRootMenu[] = BUILTINROOTMENU
 #else /* MCCABE */

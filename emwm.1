@@ -1,7 +1,6 @@
 .TH EMWM 1
 .SH "NAME"
-\fBemwm\fP \(em The Enhanced Motif
-Window Manager
+\fBemwm\fP \(em The Enhanced Motif Window Manager
 .SH "SYNOPSIS"
 .PP
 \fBemwm\fP [\fIoptions\fP] 
@@ -314,9 +313,9 @@ The \fBemwm\fP command is configured from its resource
 database\&. This database is built from the following sources\&. They are listed
 in order of precedence, low to high:
 .PP
-\fB/usr/etc/X11/app-defaults/Mwm\fP
+\fB/usr/etc/X11/app-defaults/Emwm\fP
 .PP
-\fB$HOME/Mwm\fP
+\fB$HOME/Emwm\fP
 .PP
 \fBRESOURCE_MANAGER\fP root window property or \fB$HOME/\&.Xdefaults\fP
 .PP
@@ -324,7 +323,7 @@ in order of precedence, low to high:
 .PP
 \fBemwm\fP command line options
 .PP
-The file names \fB/usr/etc/X11/app-defaults/Mwm\fP and \fB$HOME/Mwm\fP represent customary locations for these files\&. The actual
+The file names \fB/usr/etc/X11/app-defaults/Emwm\fP and \fB$HOME/Emwm\fP represent customary locations for these files\&. The actual
 location of the system-wide class resource file may depend on the \fBXFILESEARCHPATH\fP environment variable and the
 current language environment\&. The actual location of the user-specific class
 resource file may depend on the \fBXUSERFILESEARCHPATH\fP and \fBXAPPLRESDIR\fP
@@ -335,12 +334,12 @@ specific types of resources\&. These include files that contain bitmaps, fonts,
 and \fBemwm\fP specific resources such as menus and behavior
 specifications (for example, button and key bindings)\&.
 .PP
-For compatibility, \fIMwm\fP is the resource class name of
-\fBemwm\fP and \fBmwm\fP is the default resource name used by \fBemwm\fP to look
-up resources\&. The \fI-screens\fP command line option specifies resource names,
-such as "mwm_b+w" and "mwm_color"\&.) In the following discussion of resource
-specification, "Mwm" and "mwm" (and the aliased \fBmwm\fP resource names) can be
-used interchangeably, but "mwm" takes precedence over "Mwm"\&.
+\fIEmwm\fP is the resource class name and \fIemwm\fP is the default resource
+name used by \fbemwm\fP to look up resources\&.
+The \fI-screens\fP command line option specifies resource names,
+such as "emwm_b+w" and "emwm_color"\&.) In the following discussion of resource
+specification, "Emwm" and "emwm" (and the aliased \fBemwm\fP resource names)
+can be used interchangeably, but "emwm" takes precedence over "Emwm"\&.
 .PP
 The \fBemwm\fP command uses the following types of resources:
 .IP "\fBComponent Appearance Resources:\fP" 10
@@ -368,35 +367,35 @@ environment variable (generally the user\&'s home directory)\&.
 .SS "Component Appearance Resources"
 .PP
 The syntax for specifying component appearance resources that apply
-to window manager icons, menus, and client window frames is \fIMwm*\fP \fBresource_id\fP
+to window manager icons, menus, and client window frames is \fIEmwm*\fP \fBresource_id\fP
 .PP
-For example, \fIMwm*foreground\fP is used to specify
+For example, \fIEmwm*foreground\fP is used to specify
 the foreground color for \fBemwm\fP menus, icons, client window
 frames, and feedback dialogs\&.
 .PP
 The syntax for specifying component appearance resources that apply
-to a particular \fBemwm\fP component is \fIMwm*\fP[\fImenu\fP|\fIicon\fP|\fIclient\fP|\fIfeedback\fP] \fI*\fP\fBresource_id\fP
+to a particular \fBemwm\fP component is \fIEmwm*\fP[\fImenu\fP|\fIicon\fP|\fIclient\fP|\fIfeedback\fP] \fI*\fP\fBresource_id\fP
 .PP
 If \fBmenu\fP is specified, the resource is applied only
 to \fBemwm\fP menus; if \fBicon\fP is specified,
 the resource is applied to icons; and if \fBclient\fP is specified,
-the resource is applied to client window frames\&. For example, \fIMwm*icon*foreground\fP is used to specify the foreground color for \fBemwm\fP
-icons, \fIMwm*menu*foreground\fP specifies the foreground
-color for \fBemwm\fP menus, and \fIMwm*client*foreground\fP is used to specify the foreground color for \fBemwm\fP
+the resource is applied to client window frames\&. For example, \fIEmwm*icon*foreground\fP is used to specify the foreground color for \fBemwm\fP
+icons, \fIEmwm*menu*foreground\fP specifies the foreground
+color for \fBemwm\fP menus, and \fIEmwm*client*foreground\fP is used to specify the foreground color for \fBemwm\fP
 client window frames\&.
 .PP
 The appearance of the title area of a client window frame (including
 window management buttons) can be separately configured\&. The syntax for configuring
-the title area of a client window frame is \fIMwm*client*title*\fP \fBresource_id\fP
+the title area of a client window frame is \fIEmwm*client*title*\fP \fBresource_id\fP
 .PP
-For example, \fIMwm*client*title*foreground\fP specifies
+For example, \fIEmwm*client*title*foreground\fP specifies
 the foreground color for the title area\&. Defaults for title area resources
 are based on the values of the corresponding client window frame resources\&.
 .PP
 The appearance of menus can be configured based on the name of the menu\&.
-The syntax for specifying menu appearance by name is \fIMwm*menu*\fP \fBmenu_name\fP\fI*\fP\fBresource_id\fP
+The syntax for specifying menu appearance by name is \fIEmwm*menu*\fP \fBmenu_name\fP\fI*\fP\fBresource_id\fP
 .PP
-For example, \fIMwm*menu*my_menu*foreground\fP specifies
+For example, \fIEmwm*menu*my_menu*foreground\fP specifies
 the foreground color for the menu named \fImy_menu\fP\&. The
 user can also specify resources for window manager menu components, that is,
 the gadgets that comprise the menu\&. These may include for example, a menu
@@ -534,9 +533,9 @@ If False, the text is centered. The default value is False\&.
 .SS "General Appearance and Behavior Resources"
 .PP
 The syntax for specifying general appearance and behavior resources
-is \fIMwm*\fP\fBresource_id\fP
+is \fIEmwm*\fP\fBresource_id\fP
 .PP
-For example, \fIMwm*keyboardFocusPolicy\fP specifies
+For example, \fIEmwm*keyboardFocusPolicy\fP specifies
 the window manager policy for setting the keyboard focus to a particular client
 window\&.
 .PP
@@ -806,7 +805,7 @@ restartConfirm \fBemwm\fP restart\&.
 The following command line illustrates the syntax for showFeedback:
 .PP
 .nf
-\f(CW\fIMwm*showFeedback: placement resize behavior restart\fP\fR
+\f(CW\fIEmwm*showFeedback: placement resize behavior restart\fP\fR
 .fi
 .PP
 .PP
@@ -838,7 +837,7 @@ contains the pointer\&. By default, new windows are placed on Xinerama screen
 containing the currently focused window\&.
 .SS "Screen Specific Appearance and Behavior Resources"
 .PP
-The syntax for specifying screen specific resources is \fIMwm*\fP \fBscreen_name\fP\fI*\fP\fBresource_id\fP For example, \fIMwm*1*keyBindings\fP specifies
+The syntax for specifying screen specific resources is \fIEmwm*\fP \fBscreen_name\fP\fI*\fP\fBresource_id\fP For example, \fIEmwm*1*keyBindings\fP specifies
 the key bindings to use for screen "1"\&.
 .SS "Screen Specific Resources"
 .TS
@@ -1047,16 +1046,16 @@ The function specification is exactly the same as for the \fIclientFunctions\fP
 .PP
 The syntax for specifying client specific resources is
 .PP
-\fIMwm*\fP\fBclient_name_or_class\fP \fI*\fP\fBresource_id\fP
+\fIEmwm*\fP\fBclient_name_or_class\fP \fI*\fP\fBresource_id\fP
 .PP
-For example, \fIMwm*mterm*windowMenu\fP is used to specify
+For example, \fIEmwm*mterm*windowMenu\fP is used to specify
 the window menu to be used with mterm clients\&. The syntax for specifying client
 specific resources for all classes of clients is
 .PP
-\fIMwm*\fP\fBresource_id\fP
+\fIEmwm*\fP\fBresource_id\fP
 .PP
 Specific client specifications take precedence over the specifications
-for all clients\&. For example, \fIMwm*windowMenu\fP is used
+for all clients\&. For example, \fIEmwm*windowMenu\fP is used
 to specify the window menu to be used for all classes of clients that don\&'t
 have a window menu specified\&.
 .PP
@@ -1064,9 +1063,9 @@ The syntax for specifying resource values for windows that have an unknown
 name and class (that is, windows that do not have a \fBWM_CLASS\fP
 property associated with them) is
 .PP
-\fIMwm*defaults*\fP\fBresource_id\fP
+\fIEmwm*defaults*\fP\fBresource_id\fP
 .PP
-For example, \fIMwm*defaults*iconImage\fP is used to
+For example, \fIEmwm*defaults*iconImage\fP is used to
 specify the icon image to be used for windows that have an unknown name and
 class\&.
 .PP
@@ -1148,8 +1147,8 @@ T}
 titleTitle bar (includes border)\&.
 .TE
 .PP
-Examples: \fIMwm*XClock\&.clientDecoration: -resizeh -maximize\fP This removes the resize handles and maximize button from XClock
-windows\&. \fIMwm*XClock\&.clientDecoration: menu minimize border\fP This does the same thing as above\&. Note that either \fImenu\fP or \fIminimize\fP implies
+Examples: \fIEmwm*XClock\&.clientDecoration: -resizeh -maximize\fP This removes the resize handles and maximize button from XClock
+windows\&. \fIEmwm*XClock\&.clientDecoration: menu minimize border\fP This does the same thing as above\&. Note that either \fImenu\fP or \fIminimize\fP implies
 \fItitle\fP\&.
 .IP "\fIclientFunctions\fP\ (class\  \fIClientFunctions\fP)" 10
 This resource is used to indicate which \fBemwm\fP functions
@@ -1193,22 +1192,22 @@ The default value is True when the keyboardFocusPolicy is explicit and False
 when the keyboardFocusPolicy is pointer\&.
 .IP "\fIiconImage\fP\ (class\  \fIIconImage\fP)" 10
 This resource can be used to specify an icon image for a client (for
-example, "Mwm*myclock*iconImage")\&. The resource value is a pathname for a
+example, "Emwm*myclock*iconImage")\&. The resource value is a pathname for a
 pixmap or bitmap file\&. The value of the (client specific) \fIuseClientIcon\fP resource is used to determine whether or not user supplied icon
 images are used instead of client supplied icon images\&. The default value
 is to display a built-in window manager icon image\&.
 .IP "\fIiconImageBackground\fP\ (class\  \fIBackground\fP)" 10
 This resource specifies the background color of the icon image that
 is displayed in the image part of an icon\&. The default value of this resource
-is the icon background color (that is, specified by "Mwm*background or Mwm*icon*background)\&.
+is the icon background color (that is, specified by "Emwm*background or Emwm*icon*background)\&.
 .IP "\fIiconImageBottomShadowColor\fP\ (class\  \fIForeground\fP)" 10
 This resource specifies the bottom shadow color of the icon image that
 is displayed in the image part of an icon\&. The default value of this resource
-is the icon bottom shadow color (that is, specified by Mwm*icon*bottomShadowColor)\&.
+is the icon bottom shadow color (that is, specified by Emwm*icon*bottomShadowColor)\&.
 .IP "\fIiconImageBottomShadowPixmap\fP\ (class\  \fIBottomShadowPixmap\fP)" 10
 This resource specifies the bottom shadow Pixmap of the icon image that
 is displayed in the image part of an icon\&. The default value of this resource
-is the icon bottom shadow Pixmap (that is, specified by Mwm*icon*bottomShadowPixmap)\&.
+is the icon bottom shadow Pixmap (that is, specified by Emwm*icon*bottomShadowPixmap)\&.
 .IP "\fIiconImageForeground\fP\ (class\  \fIForeground\fP)" 10
 This resource specifies the foreground color of the icon image that
 is displayed in the image part of an icon\&. The default value of this resource
@@ -1216,31 +1215,31 @@ varies depending on the icon background\&.
 .IP "\fIiconImageTopShadowColor\fP\ (class\  \fIBackground\fP)" 10
 This resource specifies the top shadow color of the icon image that
 is displayed in the image part of an icon\&. The default value of this resource
-is the icon top shadow color (that is, specified by Mwm*icon*topShadowColor)\&.
+is the icon top shadow color (that is, specified by Emwm*icon*topShadowColor)\&.
 .IP "\fIiconImageTopShadowPixmap\fP\ (class\  \fITopShadowPixmap\fP)" 10
 This resource specifies the top shadow Pixmap of the icon image that
 is displayed in the image part of an icon\&. The default value of this resource
-is the icon top shadow pixmap (that is, specified by Mwm*icon*topShadowPixmap)\&.
+is the icon top shadow pixmap (that is, specified by Emwm*icon*topShadowPixmap)\&.
 .IP "\fImatteBackground\fP\ \ (class\  \fIBackground\fP)" 10
 This resource specifies the background color of the matte, when \fImatteWidth\fP is positive\&. The default value of this resource is the
-client background color (that is, specified by "Mwm*background or Mwm*client*background)\&.
+client background color (that is, specified by "Emwm*background or Emwm*client*background)\&.
 .IP "\fImatteBottomShadowColor\fP\ (class\  \fIForeground\fP)" 10
 This resource specifies the bottom shadow color of the matte, when \fImatteWidth\fP is positive\&. The default value of this resource is the
-client bottom shadow color (that is, specified by Mwm*bottomShadowColor or
-Mwm*client*bottomShadowColor)\&.
+client bottom shadow color (that is, specified by Emwm*bottomShadowColor or
+Emwm*client*bottomShadowColor)\&.
 .IP "\fImatteBottomShadowPixmap\fP\ (class\  \fIBottomShadowPixmap\fP)" 10
 This resource specifies the bottom shadow Pixmap of the matte, when \fImatteWidth\fP is positive\&. The default value of this resource is the
-client bottom shadow pixmap (that is, specified by Mwm*bottomShadowPixmap
-or Mwm*client*bottomShadowPixmap)\&.
+client bottom shadow pixmap (that is, specified by Emwm*bottomShadowPixmap
+or Emwm*client*bottomShadowPixmap)\&.
 .IP "\fImatteForeground\fP\ (class\  \fIForeground\fP)" 10
 This resource specifies the foreground color of the matte, when \fImatteWidth\fP is positive\&. The default value of this resource is the
-client foreground color (that is, specified by Mwm*foreground or Mwm*client*foreground)\&.
+client foreground color (that is, specified by Emwm*foreground or Emwm*client*foreground)\&.
 .IP "\fImatteTopShadowColor\fP\ (class\  \fIBackground\fP)" 10
 This resource specifies the top shadow color of the matte, when \fImatteWidth\fP is positive\&. The default value of this resource is the
-client top shadow color (that is, specified by Mwm*topShadowColor or Mwm*client*topShadowColor)\&.
+client top shadow color (that is, specified by Emwm*topShadowColor or Emwm*client*topShadowColor)\&.
 .IP "\fImatteTopShadowPixmap\fP\ (class\  \fITopShadowPixmap\fP)" 10
 This resource specifies the top shadow pixmap of the matte, when \fImatteWidth\fP is positive\&. The default value of this resource is the
-client top shadow pixmap (that is, specified by "Mwm*topShadowPixmap or Mwm*client*topShadowPixmap)\&.
+client top shadow pixmap (that is, specified by "Emwm*topShadowPixmap or Emwm*client*topShadowPixmap)\&.
 .IP "\fImatteWidth\fP\ (class\  \fIMatteWidth\fP)" 10
 This resource specifies the width of the optional matte\&. The default
 value is 0, which effectively disables the matte\&.
@@ -1274,14 +1273,14 @@ the window menu is popped up (usually by pressing button 1 on the window
 menu button on the client window frame)\&. Menu panes are specified in the \fBemwm\fP resource description file\&. Window menus can be customized on
 a client class basis by creating custom menus in your \fBmwmrc\fP
 file (see \fBemwmrc\fP(4) and specifying resources to activate
-the custom menus\&. The resources have the form \fIMwm*\fP \fBclient_name_or_class\fP\fI*windowMenu\fP\&. The default
+the custom menus\&. The resources have the form \fIEmwm*\fP \fBclient_name_or_class\fP\fI*windowMenu\fP\&. The default
 value of this resource is DefaultWindowMenu\&.
 .SS "Resource Description File"
 .PP
 The \fBemwm\fP resource description file is a supplementary
 resource file that contains resource descriptions that are referred to by
 entries in the resource manager property (see \fBxrdb\fP(1) and
-the defaults files (\fB\&.Xdefaults\fP, \fBapp-defaults/Mwm\fP )\&. It contains descriptions of resources that are to be used by \fBemwm\fP, and that cannot be easily encoded in the defaults files (a
+the defaults files (\fB\&.Xdefaults\fP, \fBapp-defaults/Emwm\fP )\&. It contains descriptions of resources that are to be used by \fBemwm\fP, and that cannot be easily encoded in the defaults files (a
 bitmap file is an analogous type of resource description file)\&. A particular \fBemwm\fP resource description file can be selected using the
 \fIconfigFile\fP resource\&.
 .PP
@@ -1311,22 +1310,24 @@ file if it exists to install a virtual key bindings property on
 the root window\&. For more information on the content of the \fB\&.motifbind\fP file, see
 .PP
 The \fBemwm\fP window manager uses the environment variable
-\fBMWMSHELL\fP (or \fBSHELL\fP, \fIif\fP \fBMWMSHELL\fP is not set), specifying
+\fBWMSHELL\fP (or \fBSHELL\fP, \fIif\fP \fBWMSHELL\fP is not set), specifying
 the shell to use when executing commands via the \fBf\&.exec\fP
 function\&.
 .SS "Files"
 .PP
-\fB/usr/etc/X11/$LANG/mwm/system\&.mwmrc\fP
+\fB/usr/etc/X11/$LANG/system\&.emwmrc\fP\(dg
 .PP
-\fB/usr/etc/X11/mwm/system\&.mwmrc\fP
+\fB/usr/etc/X11/system\&.emwmrc\fP\(dg
 .PP
-\fB/usr/etc/X11/app-defaults/Mwm\fP
+\fB/usr/etc/X11/app-defaults/Emwm\fP\(dg
 .PP
-\fB$HOME/Mwm\fP
+\fB$HOME/Emwm\fP
 .PP
-\fB$HOME/$LANG/\&.mwmrc\fP
+\fB$HOME/$LANG/\&.emwmrc\fP
 .PP
-\fB$HOME/\&.mwmrc\fP
+\fB$HOME/\&.emwmrc\fP
+.PP
+\(dg Paths may vary depending on system/distribution.
 .SS "SEE ALSO"
 .PP
 \fBVendorShell\fP(3), \fBVirtualBindings\fP(3), \fBX\fP(1), \fBXmInstallImage\fP(3), \fBxrdb\fP(1)\&.

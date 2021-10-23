@@ -52,12 +52,11 @@
  * Value definitions and macros:
  */
 
-#ifdef MOTIF_ONE_DOT_ONE
-#define XmFONTLIST_DEFAULT_TAG	"XmSTRING_DEFAULT_CHARSET"
-#endif
-#ifdef WSM
+/* window manager name and class used to get resources: */
+#define	WM_RESOURCE_CLASS	"Emwm"
+#define WM_RESOURCE_NAME	"emwm"
 
-extern int WmIdentity;
+#ifdef WSM
 
 /*
  * Color server defines
@@ -65,16 +64,6 @@ extern int WmIdentity;
 #define CSERVE_NORMAL		   0
 #define CSERVE_NOT_AVAILABLE       1
 #define CSERVE_FAILURE             2
-#endif /* WSM */
-
-/* window manager name and class used to get resources: */
-#define	WM_RESOURCE_CLASS	"Mwm"
-#define WM_RESOURCE_NAME	"mwm"
-
-#ifdef WSM
-#define	DT_WM_RESOURCE_CLASS	"Dtwm"
-#define DT_WM_RESOURCE_NAME	"dtwm"
-
 
 extern Pixel		FPbackground;
 extern Pixel		FPforeground;

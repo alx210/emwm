@@ -1023,11 +1023,11 @@ Boolean F_Exec (String args, ClientData *pCD, XEvent *event)
 #endif /* WSM */
 
 	/*
-	 * Exec the command using $MWMSHELL if set or 
+	 * Exec the command using $WMSHELL if set or 
 	 * $SHELL if set and $MWMSHELL not set or sh.
 	 */
 
-        if (((shell = getenv ("MWMSHELL")) != NULL) ||
+        if (((shell = getenv ("WMSHELL")) != NULL) ||
 	    ((shell = getenv ("SHELL")) != NULL))
 
 	{
@@ -1035,7 +1035,7 @@ Boolean F_Exec (String args, ClientData *pCD, XEvent *event)
 	    if (shellname == NULL)
 	    {
 		/*
-		If the shell pathname obtained from SHELL or MWMSHELL does not
+		If the shell pathname obtained from SHELL or WMSHELL does not
 		have a "/" in the path and if the user expects this shell to be
 		obtained using the PATH variable rather than the current
 		directory, then we must call execlp and not execl
@@ -1155,7 +1155,7 @@ Boolean F_Quit_Mwm (String args, ClientData *pCD, XEvent *event)
  *
  *  Description:
  *  -----------
- *  Callback to do the f.quit_mwm function.
+ *  Callback to do the f.quit_wm function.
  *
  *************************************<->***********************************/
 

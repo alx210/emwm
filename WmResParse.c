@@ -530,7 +530,7 @@ FunctionTableEntry functionTable[] = {
 			F_Prev_Workspace,
 			ParseWmFuncNoArg},
 #endif /* WSM */
-    {"f.quit_mwm",	F_CONTEXT_ICON|F_CONTEXT_WINDOW,
+    {"f.quit_wm",	F_CONTEXT_ICON|F_CONTEXT_WINDOW,
 			CRS_ANY,
 			0,
 			F_Quit_Mwm,
@@ -2050,8 +2050,8 @@ FILE *FopenConfigFile (void)
      * First try HOME_MWMRC, then try SYS_MWMRC .
      */
 
-#define HOME_MWMRC "/.mwmrc"
-#define SLASH_MWMRC "/system.mwmrc"
+#define HOME_MWMRC "/.emwmrc"
+#define SLASH_MWMRC "/system.emwmrc"
 
 #ifdef MOTIF_ONE_DOT_ONE
     GetHomeDirName(cfileName);
@@ -2149,15 +2149,15 @@ FILE *FopenConfigFile (void)
 	}
     }
 
-#ifndef MWMRCDIR
-#define MWMRCDIR "/usr/lib/X11"
+#ifndef RCDIR
+#define RCDIR "/usr/lib/X11"
 #endif
     if (LANG != NULL)
     {
 #ifdef WSM
 	if (MwmBehavior)
 	{
-	    strcpy(cfileName, MWMRCDIR);
+	    strcpy(cfileName, MRCDIR);
 	    strncat(cfileName, "/", MAXWMPATH-strlen(cfileName));
 	    strncat(cfileName, LANG, MAXWMPATH-strlen(cfileName));
 	    strncat(cfileName, SLASH_MWMRC, MAXWMPATH - strlen(cfileName));
@@ -2173,7 +2173,7 @@ FILE *FopenConfigFile (void)
        /*
 	* Try /$LANG/system.mwmrc within the install tree
 	*/
-	strcpy(cfileName, MWMRCDIR);
+	strcpy(cfileName, RCDIR);
 	strncat(cfileName, "/", MAXWMPATH-strlen(cfileName));
 	strncat(cfileName, LANG, MAXWMPATH-strlen(cfileName));
 	strncat(cfileName, SLASH_MWMRC, MAXWMPATH - strlen(cfileName));
@@ -2189,7 +2189,7 @@ FILE *FopenConfigFile (void)
 #ifdef WSM
     if (MwmBehavior)
     {
-	strcpy(cfileName, MWMRCDIR);
+	strcpy(cfileName, RCDIR);
 	strncat(cfileName, SLASH_MWMRC, MAXWMPATH - strlen(cfileName));
 	return (fopen (cfileName, "r"));
     }
@@ -2205,7 +2205,7 @@ FILE *FopenConfigFile (void)
     /*
      * Try /system.mwmrc within the install tree
      */
-    strcpy(cfileName, MWMRCDIR);
+    strcpy(cfileName, RCDIR);
     strncat(cfileName, SLASH_MWMRC, MAXWMPATH - strlen(cfileName));
 
     if (LANG != NULL) 
