@@ -1,0 +1,18 @@
+# EMWM OpenBSD Makefile
+
+PREFIX = /usr/local
+MANDIR = /usr/local/man
+RCDIR = /usr/X11R6/lib/X11
+APPLRESDIR = /usr/X11R6/lib/X11/app-defaults
+
+INCDIRS = -I./Xm -I/usr/X11R6/include -I/usr/local/include
+LIBDIRS = -L/usr/X11R6/lib -L/usr/local/lib
+
+CFLAGS = -O2 -Wall $(INCDIRS)
+
+.c.o:
+	$(CC) $(CFLAGS) $(DEFINES) $(INCDIRS) -c -o $(@D)/$(@F) $<
+
+include common.mf
+
+install: common_install

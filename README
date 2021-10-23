@@ -10,8 +10,16 @@ libxrandr
 libxinerama
 libxm (open-motif/motif)
 
-EMWM is built with an ordinary makefile. Following variables may need to be
-overridden depending on system/user preferences:
-PREFIX (defaults to /usr), MANDIR, MWMRCDIR, APPLRESDIR
+EMWM is built with ordinary makefiles. Several platform specific Makefiles
+are provided; run 'ls Makefile.*' to list them.
 
-Run 'make', then 'make install' as root.
+Create a symlink named 'Makefile' pointing to a platform specific makefile.
+e.g: run 'ln -s Makefile.FreeBSD Makefile'.
+
+Run 'make'. When done, run 'make install' as root.
+
+Note On MWM Compatibility
+=========================
+Initially EMWM used same configuration files and X resources as MWM, this needed
+to change in order to avoid conflicts. Future releases will only recognize Emwm
+class in X resources, mwmrc becomes emwmrc also.

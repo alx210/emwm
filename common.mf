@@ -1,0 +1,50 @@
+# Common Makefile part, included in every platform scpecific Makefile
+
+SYSLIBS =  -lm -lXm -lXt -lXext -lXrandr -lXinerama -lX11
+
+DEFINES = -DLARGECURSORS -DUNMAP_ON_RESTART \
+	-DNO_OL_COMPAT -DNO_MESSAGE_CATALOG \
+	-DRCDIR='"$(RCDIR)"'
+
+CFLAGS += $(DEFINES)
+
+mwm_objs = \
+	WmCDInfo.o	WmCDecor.o	WmCEvent.o\
+	WmCPlace.o	WmColormap.o	WmError.o\
+	WmEvent.o	WmFeedback.o	WmFunction.o\
+	WmGraphics.o	WmIDecor.o	WmIPlace.o\
+	WmIconBox.o	WmKeyFocus.o	WmMain.o\
+	WmManage.o	WmProperty.o	WmResCvt.o\
+	WmResParse.o	WmResource.o	WmSignal.o\
+	WmWinConf.o	WmWinInfo.o	WmWinList.o\
+	WmWinState.o	WmWsm.o		WmXSMP.o\
+	WmCmd.o 	WmImage.o	WmInitWs.o\
+	WmMenu.o	WmProtocol.o	WmXinerama.o \
+	WmEwmh.o
+
+wsm_objs = \
+	WmWsmLib/debug.o WmWsmLib/disp.o\
+	WmWsmLib/free.o WmWsmLib/pack.o\
+	WmWsmLib/recv.o WmWsmLib/send.o\
+	WmWsmLib/util.o WmWsmLib/utm_send.o
+
+emwm: $(mwm_objs) $(wsm_objs)
+	$(CC) $(LIBDIRS) -o $@ $(mwm_objs) $(wsm_objs) $(SYSLIBS)
+
+.depend:
+	$(CC) -MM $(INCDIRS) $(mwm_objs:.o=.c) $(wsm_objs:.o=.c) > $@
+
+.PHONY: clean install common_install
+
+clean:
+	-rm -f $(mwm_objs) $(wsm_objs) emwm
+	-rm .depend
+
+common_install:
+	install -m 775 emwm $(PREFIX)/bin/emwm
+	install -m 775 -d $(MANDIR)/man1
+	install -m 664 emwm.1 $(MANDIR)/man1/emwm.1
+	install -m 775 -d $(RCDIR)
+	install -m 664 system.emwmrc $(RCDIR)/system.emwmrc
+	install -m 775 -d $(APPLRESDIR)
+	install -m 664 Emwm.ad $(APPLRESDIR)/Emwm
