@@ -515,26 +515,6 @@ char builtinKeyBindings[] = BUILTINKEYBINDINGS
 char builtinKeyBindings[];
 #endif
 
-/*
- * NOTE: Default Toggle Behavior key bindings.  There are TWO key bindings as
- * of 1.1.4 and 1.2.  Make sure you make any modify builtinKeyBindings (above)
- * whenever modifying behaviorKeyBindings.
- */
-
-char behaviorKeyBindingName[] = "_MwmBehaviorKey_";
-#ifndef MCCABE
-#define BEHAVIORKEYBINDINGS "_MwmBehaviorKey_\n\
-{\n\
-	Alt Shift Ctrl<Key>exclam root|icon|window	f.set_behavior\n\
-	Alt Ctrl<Key>1		  root|icon|window	f.set_behavior\n\
-}";
-char behaviorKeyBindings[] = BEHAVIORKEYBINDINGS
-
-#else
-char behaviorKeyBindings[];
-#endif
-
-
 /* default button bindings specification */
 /* note - the %s will be replaced by the real DefaultRootMenu */
 
@@ -6250,9 +6230,6 @@ WmScreenData *pSD;
 #ifdef NO_MESSAGE_CATALOG
 	MenuSpec *menuSpec;
 #endif
-    KeySpec *nextKeySpec;
-    String keyBindings;
-
 
 /*
  * If (using DefaultBindings mechanism and bindings are not found in .mwmrc)
@@ -6309,31 +6286,6 @@ WmScreenData *pSD;
 #else
 	ParseKeyStr (pSD, (unsigned char *)builtinKeyBindings);
 #endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
-    }
-    else
-    {
-	/*
-	 * Add the switch behavior key binding to the front of the list
-	 * of user specified key bindings that have been parsed.
-	 */
-
-	nextKeySpec = pSD->keySpecs;
-	keyBindings = pSD->keyBindings;
-	pSD->keyBindings = behaviorKeyBindingName;
-	pSD->keySpecs = NULL;
-
-	ParseKeyStr (pSD, (unsigned char *)behaviorKeyBindings);
-
-	if (pSD->keySpecs)
-	{
-	    /* Skip past the TWO key definitions (1.2 & 1.1.4) */
-	    pSD->keySpecs->nextKeySpec->nextKeySpec = nextKeySpec;
-	}
-	else
-	{
-	    pSD->keySpecs = nextKeySpec;
-	}
-	pSD->keyBindings = keyBindings;
     }
 
     if (pSD->buttonBindings == builtinButtonBindingsName)
