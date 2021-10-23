@@ -2,7 +2,7 @@
 
 PREFIX ?= /usr/local
 MANDIR = $(PREFIX)/man
-RCDIR = $(PREFIX)/X11
+RCDIR = $(PREFIX)/etc/X11
 APPLRESDIR = $(PREFIX)/etc/X11/app-defaults
 
 INCDIRS = -I./Xm -I/usr/local/include 
