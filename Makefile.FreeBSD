@@ -1,0 +1,15 @@
+# EMWM FreeBSD Makefile
+
+PREFIX ?= /usr/local
+MANDIR = $(PREFIX)/man
+RCDIR = $(PREFIX)/etc/X11
+APPLRESDIR = $(PREFIX)/etc/X11/app-defaults
+
+INCDIRS = -I./Xm -I/usr/local/include 
+LIBDIRS = -L/usr/local/lib
+
+CFLAGS += -Wall $(INCDIRS)
+
+.include "common.mf"
+
+install: common_install

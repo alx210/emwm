@@ -1,0 +1,17 @@
+# EMWM generic Makefile
+
+PREFIX = /usr
+MANDIR = $(PREFIX)/share/man
+RCDIR = /etc/X11
+APPLRESDIR = /etc/X11/app-defaults
+
+INCDIRS = -I./Xm -I/usr/local/include -I/usr/X11R6/include
+LIBDIRS = -L/usr/local/lib -L/usr/X11R6/lib
+
+CFLAGS = -O2 -Wall $(INCDIRS)
+
+include common.mf
+
+install: common_install
+
+-include .depend
