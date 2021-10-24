@@ -1,4 +1,4 @@
-# EMWM generic Makefile
+# EMWM Mac OSX Makefile
 
 PREFIX = /usr
 MANDIR = $(PREFIX)/share/man
