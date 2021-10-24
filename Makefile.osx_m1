@@ -1,0 +1,19 @@
+# EMWM generic Makefile
+
+PREFIX = /usr
+MANDIR = $(PREFIX)/share/man
+RCDIR = /opt/x11/etc/x11
+APPLRESDIR = /opt/x11/share/x11/app-defaults
+#i have not tried a live test of the above just yet, no attempt at "make install" as i don't have the heart yet to do on a real mac just yet
+
+# Dependency with homebrew, not to sure of the dependincys of MacPort and fink if they ever get a native port on mac osx on apple silicon at all.
+INCDIRS = -I/opt/homebrew/include
+LIBDIRS = -L/opt/homebrew/lib
+
+CFLAGS = -O2 -Wall $(INCDIRS)
+
+include common.mf
+
+install: common_install
+
+-include .depend
