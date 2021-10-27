@@ -10,13 +10,10 @@ libxrandr
 libxinerama
 libxm (open-motif/motif)
 
-EMWM is built with ordinary makefiles. Several platform specific Makefiles
-are provided; run 'ls Makefile.*' to list them.
-
-Create a symlink named 'Makefile' pointing to a platform specific makefile.
-e.g: run 'ln -s Makefile.FreeBSD Makefile'.
-
-Run 'make'. When done, run 'make install' as root.
+BUILDING AND INSTALLING
+=======================
+Run 'make' in the top-level directory of the source distribution.
+When the build process finishes, run 'make install' as root.
 
 Note On MWM Compatibility
 =========================
