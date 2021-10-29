@@ -1918,46 +1918,42 @@ void ProcessNewConfiguration (ClientData *pCD, int x, int y, unsigned int width,
     }
 	else {
 	/*
-	 * Update client coordinates if necessary, also if Xinerama is active
-	 * client's maximized position and size need to be updated according
-	 * to Xinerama screen the window resides on.
+	 * Update client coordinates if necessary.
 	 */ 
 	if (x + xoff != pCD->clientX) {
 	    changedValues |= CWX;
 	    pCD->clientX = x + xoff;
-
-		if(xineramaActive && !toNewMax){
-			int frmWidth = 
-				(pCD->frameInfo.lowerBorderWidth + pCD->matteWidth) * 2;
-
-			if(pCD->maxWidth > ( xsi.width - frmWidth)){
-				pCD->oldMaxWidth = pCD->maxWidth;
-				pCD->maxWidth = xsi.width - frmWidth;
-			}
-
-			pCD->maxX = pCD->clientX;
-			PlaceFrameOnScreen(pCD, &pCD->maxX, NULL,
-				pCD->maxWidth, pCD->maxHeight);
-		}
 	}
 
 	if (y + yoff != pCD->clientY) {
 	    changedValues |= CWY;
 	    pCD->clientY = y + yoff;
+	}
+	
+	/* If Xinerama is active, update client's maximized position and size
+	 * according to screen the window resides on. */
+	if(xineramaActive && !toNewMax && (changedValues & (CWX|CWY))){
+		int frmWidth = pCD->clientOffset.x * 2;
+		int frmHeight = pCD->clientOffset.x + pCD->clientOffset.y;
 
-		if(xineramaActive && !toNewMax){
-			int frmWidth = pCD->frameInfo.lowerBorderWidth
-				 + pCD->matteWidth + pCD->clientOffset.y;
+		pCD->oldMaxWidth = pCD->maxWidth;
+		pCD->maxWidth = xsi.width - frmWidth;
+		pCD->oldMaxHeight = pCD->maxHeight;
+		pCD->maxHeight = xsi.height - frmHeight;
 
-			if(pCD->maxHeight > (xsi.height - frmWidth)){
-				pCD->oldMaxHeight = pCD->maxHeight;
-				pCD->maxHeight = xsi.height - frmWidth;
-			}
+		if(pCD->maxWidth > pCD->maxWidthLimit)
+			pCD->maxWidth = pCD->maxWidthLimit;
 
-			pCD->maxY =pCD->clientY;
-			PlaceFrameOnScreen(pCD, NULL, &pCD->maxY,
-				pCD->maxWidth, pCD->maxHeight);
-		}
+		if(pCD->maxHeight > pCD->maxHeightLimit)
+			pCD->maxHeight = pCD->maxHeightLimit;
+
+		pCD->maxWidth -=
+			((pCD->maxWidth - pCD->baseWidth) % pCD->widthInc);
+		pCD->maxHeight -=
+			((pCD->maxHeight - pCD->baseHeight) % pCD->heightInc);
+
+		PlaceFrameOnScreen(pCD, &pCD->maxX, &pCD->maxY,
+			pCD->maxWidth, pCD->maxHeight);
 	}
     }
 

@@ -490,14 +490,58 @@ Boolean HandleEventsOnSpecialWindows (XEvent *pEvent)
 #ifdef WSM
     WmScreenData *pSD;
 #endif /* WSM */
-	
+
 	/* Check for Xrandr screen change event; update configuration */
 	if(wmGD.xrandr_present && pEvent->type == 
 		wmGD.xrandr_base_evt + RRScreenChangeNotify) {
+
+		ClientListEntry *e = ACTIVE_PSD->clientList;
+
 		XRRUpdateConfiguration(pEvent);
 		UpdateXineramaInfo();
+
+		while(e) {
+			XineramaScreenInfo xsi;
+			unsigned int swidth, sheight;
+
+			if(e->type == MINIMIZED_STATE) {
+				e = e->nextSibling;
+				continue;
+			}
+
+			if(GetXineramaScreenFromLocation(
+				e->pCD->clientX, e->pCD->clientY, &xsi)){
+				swidth = xsi.width;
+				sheight = xsi.height;
+			} else {
+				swidth = XDisplayWidth(DISPLAY, e->pCD->pSD->screen);
+				sheight = XDisplayHeight(DISPLAY, e->pCD->pSD->screen);
+			}
+			e->pCD->maxWidth = swidth - e->pCD->clientOffset.x * 2;
+			e->pCD->maxHeight = sheight -
+				(e->pCD->clientOffset.x + e->pCD->clientOffset.y);
+
+			if(e->pCD->maxWidth > e->pCD->maxWidthLimit)
+				e->pCD->maxWidth = e->pCD->maxWidthLimit;
+
+			if(e->pCD->maxHeight > e->pCD->maxHeightLimit)
+				e->pCD->maxHeight = e->pCD->maxHeightLimit;
+
+			e->pCD->maxWidth -=
+				((e->pCD->maxWidth - e->pCD->baseWidth) % e->pCD->widthInc);
+			e->pCD->maxHeight -=
+				((e->pCD->maxHeight - e->pCD->baseHeight) % e->pCD->heightInc);
+
+			PlaceFrameOnScreen(e->pCD, &e->pCD->maxX, &e->pCD->maxY,
+				e->pCD->maxWidth, e->pCD->maxHeight);
+
+			ProcessNewConfiguration (e->pCD, e->pCD->clientX, e->pCD->clientY,
+				e->pCD->clientWidth, e->pCD->clientHeight, True);
+
+			e = e->nextSibling;
+		}
 	}
-	
+
     /*
      * The window is not a root window or a client frame window.  Check for
      * a special window manager window.  Have the toolkit dispatch the event
