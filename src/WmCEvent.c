@@ -508,6 +508,8 @@ Boolean HandleEventsOnSpecialWindows (XEvent *pEvent)
 				e = e->nextSibling;
 				continue;
 			}
+			
+			if(e->pCD->fullScreen) ConfigureEwmhFullScreen(e->pCD, False);
 
 			if(GetXineramaScreenFromLocation(
 				e->pCD->clientX, e->pCD->clientY, &xsi)){
