@@ -305,7 +305,7 @@ and \fBf\&.raise_lower\fP\&.
 The window manager is an X Session Management Protocol aware client\&. It responds to SaveYourself
 (and other associated messages) by saving the geometries of its clients to a state file\&. 
 \fBemwm\fP can then be restarted by the XSMP session manager\&.
-The default location for the state file is \fB$HOME/\&.mwmclientdb\fP\&.
+The default location for the state file is \fB$HOME/\&.emwmclientdb\fP\&.
 This location can be overriden with the resource \fBsessionClientDB\fP\&.
 .SS "X Resources"
 .PP
@@ -459,9 +459,11 @@ This resource specifies the bottom shadow Pixmap\&. This Pixmap is used
 for the lower and right bevels of the window manager decoration\&. The default
 is chosen based on the visual type of the screen\&.
 .IP "\fIrenderTable\fP\ (class\  \fIRenderTable\fP)" 10
-This resource specifies the font used in the window manager decoration\&.
-The character encoding of the font should match the character encoding of
-the strings that are used\&. The default is Xft "Sans\&."
+This resource specifies the render table used in the window manager decoration\&.
+The character encoding of the font specified should match the character
+encoding of the strings that are used\&. Note that UTF-8 support is required
+for window title strings obtained from EWMH. The default font is XFT Sans
+if Motif was built with Xft support, or "fixed" otherwise\&.
 .IP "\fIforeground\fP\ (class\  \fIForeground\fP)" 10
 This resource specifies the foreground color\&. The default is chosen
 based on the visual type of the screen\&.
@@ -552,7 +554,7 @@ DirectoryDirectory/X11/bitmaps
 clientAutoPlaceClientAutoPlaceT/FT
 colormapFocus-ColormapFocus-stringkeyboard
 PolicyPolicy
-configFileConfigFilefile$HOME/.mwmrc
+configFileConfigFilefile$HOME/.emwmrc
 deiconifyKeyFocusDeiconifyKeyFocusT/FT
 doubleClick-DoubleClick-millisec\&.multi-click
 TimeTimetime\(dg
@@ -577,7 +579,7 @@ raiseKeyFocusRaiseKeyFocusT/FF
 refreshByClearingRefreshByClearingT/FT
 rootButtonClickRootButtonClickT/FF
 screensScreensstringvaries
-sessionClientDBSessionClientDBstring$HOME/\&.mwmclientdb
+sessionClientDBSessionClientDBstring$HOME/\&.emwmclientdb
 showFeedbackShowFeedbackstringall
 startupKeyFocusStartupKeyFocusT/FT
 useWindowOutlineUseWindowOutlineT/FT
@@ -633,8 +635,8 @@ is set, \fBemwm\fP looks for \fI$HOME/$LANG\fP/ \fBconfigFile\fP\&. If that file
 \fB$HOME\fP/\fBconfigFile\fP\&. If the \fIconfigFile\fP pathname does not begin with "~/" or "/", \fBemwm\fP considers it to be relative to the current working directory\&. If
 the \fIconfigFile\fP resource is not specified
 or if that file does not exist, \fBemwm\fP uses several default
-paths to find a configuration file\&. The order of the search is shown below: \fB/usr/etc/X11/$LANG/mwm/system\&.mwmrc\fP\(dg
-\fB/usr/etc/X11/mwm/system\&.emwmrc\fP\(dg Paths marked with \&'\(dg\&' are
+paths to find a configuration file\&. The order of the search is shown below: \fB/usr/etc/X11/$LANG/system\&.emwmrc\fP\(dg
+\fB/usr/etc/X11/system\&.emwmrc\fP\(dg Paths marked with \&'\(dg\&' are
 implementation dependent\&.
 .IP "\fIdeiconifyKeyFocus\fP\ (class\  \fIDeiconifyKeyFocus\fP)" 10
 This resource applies only when the keyboard input focus policy is explicit\&.
