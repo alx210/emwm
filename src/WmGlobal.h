@@ -2366,15 +2366,6 @@ extern const char	_50_foreground[];
 extern const char	_25_foreground[];
 
 /*
- * Undocumented Xme stuff from XmP.h
- */
-extern void XmRenderTableGetDefaultFontExtents(
-                        XmRenderTable rendertable,
-                        int *height,
-                        int *ascent,
-                        int *descent) ;
-
-/*
  * macro to get message catalog strings
  */
 #ifndef NO_MESSAGE_CATALOG

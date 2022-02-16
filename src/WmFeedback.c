@@ -26,6 +26,7 @@
  */
 #include "WmGlobal.h"
 #include "WmResNames.h"
+#include "WmXmP.h"
 
 #define MWM_NEED_TIME16
 #include "WmBitmap.h"

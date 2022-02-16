@@ -34,9 +34,9 @@
 #endif /* WSM */
 #include "WmResource.h"
 #include "WmWinConf.h"
+#include "WmXmP.h"
 
 #include <Xm/VirtKeysP.h>
-#include "Xm/VirtKeysI.h"
 
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>

@@ -90,7 +90,7 @@
 #include <stdlib.h>
 #endif /* WSM */
 #include "WmXSMP.h"
-#include "Xm/VirtKeysI.h"
+#include "WmXmP.h"
 #include "WmXinerama.h"
 #include "WmEwmh.h"
 
