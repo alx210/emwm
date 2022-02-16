@@ -716,7 +716,8 @@ static Pixmap GetIconPixmap(const ClientData *pCD)
 	prop_data = FetchWindowProperty(pCD->client,
 		ewmh_atoms[_NET_WM_ICON],XA_CARDINAL,&prop_data_size);
 	if(!prop_data) return None;
-	if(!prop_data_size){
+	
+	if(prop_data_size < 2){
 		XFree(prop_data);
 		return None;
 	}
@@ -727,23 +728,25 @@ static Pixmap GetIconPixmap(const ClientData *pCD)
 	rgb_height = fptr.i[1];
 
 	while(rgb_width < icon_width || rgb_height < icon_height) {
-		if(!rgb_width || !rgb_height){
-			XFree(prop_data);
-			return None;
-		}
-		
-		if((fptr.i + 2+rgb_width*rgb_height) >= 
-			(prop_data + prop_data_size)) {
+		if(!rgb_width || !rgb_height ||
+			((fptr.i + 2 + rgb_width * rgb_height) >= 
+				(prop_data + prop_data_size)) ) {
+				
 				XFree(prop_data);
 				return None;
 		}
 		
-		fptr.i += 2+rgb_width*rgb_height;
+		fptr.i += 2 + rgb_width * rgb_height;
 		rgb_width = fptr.i[0];
 		rgb_height = fptr.i[1];
 	};
 	rgb_data = fptr.i + 2; /* fptr is at width/height */
 	
+	if((rgb_data + rgb_width * rgb_height) > (prop_data + prop_data_size)) {
+		XFree(prop_data);
+		return None;
+	}
+
 	dest_img_data = calloc(icon_width * icon_height, XBitmapPad(DISPLAY) / 8);
 	if(dest_img_data){
 		dest_img = XCreateImage(DISPLAY,visual,depth,ZPixmap,0,dest_img_data,
@@ -757,7 +760,7 @@ static Pixmap GetIconPixmap(const ClientData *pCD)
 		XFree(prop_data);
 		return None;
 	}
-	
+
 	/* color we want to aplha-blend the image with */
 	bg.pixel = ICON_APPEARANCE(pCD).background;
 	XQueryColor(DISPLAY,pCD->clientColormap,&bg);
@@ -767,7 +770,7 @@ static Pixmap GetIconPixmap(const ClientData *pCD)
 	red_shift = visual->red_mask?ffs(visual->red_mask)-1:0;
 	green_shift = visual->green_mask?ffs(visual->green_mask)-1:0;
 	blue_shift = visual->blue_mask?ffs(visual->blue_mask)-1:0;
-	
+
 	/* scale and alpha-blend RGBA to XImage, then  make a pixmap out of it */
 	dx = (float)rgb_width / dest_img->width;
 	dy = (float)rgb_height / dest_img->height;
