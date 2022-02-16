@@ -2494,10 +2494,6 @@ ProcessWmTransientFor (ClientData *pCD)
 void 
 MakeSystemMenu (ClientData *pCD)
 {
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
-    MenuItem *lastItem;
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
-
     pCD->mwmMenuItems = GetMwmMenuItems(pCD);
     pCD->systemMenuSpec = 
        MAKE_MENU (PSD_FOR_CLIENT(pCD), pCD, pCD->systemMenu, F_CONTEXT_WINDOW,
@@ -2517,48 +2513,6 @@ MakeSystemMenu (ClientData *pCD)
 		    F_CONTEXT_WINDOW|F_CONTEXT_ICON, pCD->mwmMenuItems, TRUE);
     }
 #endif
-
-#if defined(MWM_QATS_PROTOCOL)
-    /* Added to fix CDExc23338
-     * Not sure what the MWM_QATS_PROTOCOL is trying to accomplish here,
-     * but this code is causing the system menu to loose it's default
-     * actions whenever client defined actions are added.  I thought
-     * it prudent to minimize the changes.  It could be that the
-     * #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
-     * should be
-     * #if ((!defined(WSM)) && defined(MWM_QATS_PROTOCOL))
-     * throughout the wm code, but I am loath to make such a change
-     * without any documentation.
-     */
-
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
-    /** BEGIN FIX CR 6941 **/
-
-    /* if we still don't have a menu spec, then just abort. */
-    if (pCD->systemMenuSpec == NULL)
-      return;
-
-    pCD->systemMenuSpec = DuplicateMenuSpec(pCD->systemMenuSpec);
-    XtFree(pCD->systemMenuSpec->name);
-    pCD->systemMenuSpec->name = XtNewString("ProtocolsMenu");
-
-    /* Find the last menu item in the menu spec's list. */
-    for (lastItem = pCD->systemMenuSpec->menuItems;
-	 lastItem->nextMenuItem != (MenuItem *) NULL;
-	 lastItem = lastItem->nextMenuItem)
-      /*EMPTY*/;
-    lastItem->nextMenuItem = pCD->mwmMenuItems;
-
-    /* Now recreate the menu widgets since we've appended the 
-       protocol menu items */
-    DestroyMenuSpecWidgets(pCD->systemMenuSpec);
-    pCD->systemMenuSpec->menuWidget =
-      CreateMenuWidget (PSD_FOR_CLIENT(pCD), pCD, "ProtocolsMenu",
-			PSD_FOR_CLIENT(pCD)->screenTopLevelW, TRUE,
-			pCD->systemMenuSpec, NULL);
-    /** END FIX CR 6941 **/
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
-#endif /* defined(MWM_QATS_PROTOCOL) */
 
 } /* END OF FUNCTION MakeSystemMenu */
 
