@@ -1,0 +1,19 @@
+# EMWM NetBSD Makefile
+
+PREFIX = /usr
+MANDIR = /usr/share/man
+RCDIR = /usr/pkg/lib/X11
+APPLRESDIR = /usr/pkg/lib/X11/app-defaults
+
+INCDIRS = -I/usr/X11R7/include -I/usr/pkg/include 
+LIBDIRS = -L/usr/X11R7/lib -L/usr/pkg/lib
+LDFLAGS = -Wl,-R/usr/X11R7/lib,-R/usr/pkg/lib
+
+CFLAGS += -Wall $(INCDIRS)
+
+.include "common.mf"
+
+.c.o:
+	$(CC) $(CFLAGS) $(DEFINES) $(INCDIRS) -c -o $(<:.c=.o) $>
+
+install: common_install

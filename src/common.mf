@@ -29,7 +29,7 @@ wsm_objs = \
 	WmWsmLib/util.o WmWsmLib/utm_send.o
 
 emwm: $(mwm_objs) $(wsm_objs)
-	$(CC) $(LIBDIRS) -o $@ $(mwm_objs) $(wsm_objs) $(SYSLIBS)
+	$(CC) $(LDFLAGS) $(LIBDIRS) -o $@ $(mwm_objs) $(wsm_objs) $(SYSLIBS)
 
 .depend:
 	$(CC) -MM $(INCDIRS) $(mwm_objs:.o=.c) $(wsm_objs:.o=.c) > $@
