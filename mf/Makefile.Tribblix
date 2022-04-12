@@ -5,8 +5,6 @@ MANDIR = /usr/share/man
 RCDIR = /usr/lib/X11
 APPLRESDIR = /usr/lib/X11/app-defaults
 
-INCDIRS = -I./Xm
-
 CC = gcc
 CFLAGS = -O2 -Wall $(INCDIRS)
 

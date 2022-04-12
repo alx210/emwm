@@ -5,7 +5,7 @@ MANDIR = $(PREFIX)/share/man
 RCDIR = /etc/X11
 APPLRESDIR = /etc/X11/app-defaults
 
-INCDIRS = -I./Xm -I/usr/local/include 
+INCDIRS = -I/usr/local/include 
 LIBDIRS = -L/usr/local/lib
 
 CFLAGS = -O2 -Wall $(INCDIRS)
