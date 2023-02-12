@@ -48,3 +48,11 @@ common_install:
 	install -m 664 system.emwmrc $(RCDIR)/system.emwmrc
 	install -m 775 -d $(APPLRESDIR)
 	install -m 664 Emwm.ad $(APPLRESDIR)/Emwm
+
+uninstall:
+	rm -f $(PREFIX)/bin/emwm
+	rm -f $(MANDIR)/man1/emwm.1
+	rm -f $(RCDIR)/system.emwmrc
+	rmdir $(RCDIR)
+	rm -f $(APPLRESDIR)/Emwm
+
