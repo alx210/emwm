@@ -398,8 +398,6 @@ static void SetupWindowStateWithEventMask (ClientData *pCD, int newState,
 #ifdef WSM
     int wsI, iplace;
     WmWorkspaceData *pWS_i;
-#else /* WSM */
-    WmWorkspaceData *pWS = PSD_FOR_CLIENT(pCD)->pActiveWS;
 #endif /* WSM */
     WmScreenData *pSD = PSD_FOR_CLIENT(pCD);
 
@@ -505,8 +503,7 @@ static void SetupWindowStateWithEventMask (ClientData *pCD, int newState,
 #else /* WSM */
 	        if ((wmGD.iconAutoPlace) && (ICON_PLACE(pCD) != NO_ICON_PLACE))
 	        {
-		    pWS->IPData.placeList[ICON_PLACE(pCD)].pCD = 
-			NULL;
+				pCD->IPData->placeList[ICON_PLACE(pCD)].pCD = NULL;
 	        }
 #endif /* WSM */
 	    }
@@ -853,29 +850,30 @@ void ShowIconForMinimizedClient (WmWorkspaceData *pWS, ClientData *pCD)
     WmScreenData *pSD = PSD_FOR_CLIENT(pCD);
 
     /*
-     * Handle auto-placement for root icons (icons not in an icon
-     * box).
+     * Handle auto-placement for root icons (icons not in an icon box).
      */
     if (wmGD.iconAutoPlace && !P_ICON_BOX(pCD))
     {
-        if ((ICON_PLACE(pCD) == NO_ICON_PLACE) ||
-	    ((pWS->IPData.placeList[ICON_PLACE(pCD)].pCD) &&
-	     (pWS->IPData.placeList[ICON_PLACE(pCD)].pCD != pCD)))
+        if ( !pCD->IPData || (ICON_PLACE(pCD) == NO_ICON_PLACE) ||
+	    ((pCD->IPData->placeList[ICON_PLACE(pCD)].pCD) &&
+	     (pCD->IPData->placeList[ICON_PLACE(pCD)].pCD != pCD)))
         {
-            /*
-             * Icon place not defined or occupied by another client,
+        /*
+         * Icon place not defined or occupied by another client,
 	     * find a free place to put the icon.
-             */
-
-	    if ((ICON_PLACE(pCD) = GetNextIconPlace (&pWS->IPData)) 
+         */
+		if(!pCD->IPData) {
+			pCD->IPData = PositionToPlacementData(pSD->pWS,
+				pCD->clientX, pCD->clientY);
+		}
+		
+	    if ((ICON_PLACE(pCD) = GetNextIconPlace (pCD->IPData)) 
 		== NO_ICON_PLACE)
 	    {
 	        ICON_PLACE(pCD) = 
-		    CvtIconPositionToPlace (&pWS->IPData,
-							 pCD->clientX,
-			               	                 pCD->clientY);
+		    CvtIconPositionToPlace(pCD->IPData, pCD->clientX, pCD->clientY);
 	    }
-	    CvtIconPlaceToPosition (&pWS->IPData, ICON_PLACE(pCD), 
+	    CvtIconPlaceToPosition (pCD->IPData, ICON_PLACE(pCD), 
 				    &ICON_X(pCD), &ICON_Y(pCD));
 
 #ifndef WSM
@@ -885,7 +883,7 @@ void ShowIconForMinimizedClient (WmWorkspaceData *pWS, ClientData *pCD)
 
         }
 
-        pWS->IPData.placeList[ICON_PLACE(pCD)].pCD = pCD;
+        pCD->IPData->placeList[ICON_PLACE(pCD)].pCD = pCD;
     }
 
 #ifdef WSM

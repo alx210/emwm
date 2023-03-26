@@ -1012,7 +1012,18 @@ XtResource wmGlobalResources[] =
 	XtOffsetOf (WmGlobalData, xineramaFollowPointer),
 	XtRImmediate,
 	(XtPointer)False
+	},
+
+	{
+	WmNxineramaIconifyToPrimary,
+	WmCXineramaIconifyToPrimary,
+	XtRBoolean,
+	sizeof(Boolean),
+	XtOffsetOf (WmGlobalData, xineramaIconifyToPrimary),
+	XtRImmediate,
+	(XtPointer)False
 	}
+
 }; /* END OF wmGlobalResources[] */
 
 

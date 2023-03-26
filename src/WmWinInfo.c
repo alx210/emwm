@@ -214,6 +214,7 @@ GetClientInfo (WmScreenData *pSD, Window clientWindow, long manageFlags)
 
     pCD->smClientID = (String)NULL;
     pCD->fullScreenXineramaIndices[0] = (-1);
+	pCD->IPData = NULL;
 
      /*
      * Do special processing for client windows that are controlled by
@@ -1313,13 +1314,14 @@ ProcessWmHints (ClientData *pCD, Boolean firstTime)
 		      pCD->iconX : pXWMHints->icon_x;
 		    tmpIconY = (pCD->clientFlags & SM_ICON_Y) ?
 		      pCD->iconY : pXWMHints->icon_y;
+			pCD->IPData = PositionToPlacementData(
+				ACTIVE_WS, tmpIconX, tmpIconY);
 		    pCD->iconPlace = 
-			FindIconPlace (pCD, &(pCD->pSD->pActiveWS->IPData),
-				       tmpIconX, tmpIconY);
+			FindIconPlace (pCD, pCD->IPData, tmpIconX, tmpIconY);
 		    if (pCD->iconPlace != NO_ICON_PLACE)
 		    {
-		        CvtIconPlaceToPosition (&(pCD->pSD->pActiveWS->IPData),
-			    pCD->iconPlace, &pCD->iconX, &pCD->iconY);
+		        CvtIconPlaceToPosition (pCD->IPData, pCD->iconPlace,
+					&pCD->iconX, &pCD->iconY);
 		    }
 	        }
 	        else

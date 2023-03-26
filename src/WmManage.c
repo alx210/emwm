@@ -868,27 +868,22 @@ void WithdrawWindow (ClientData *pCD)
 		 */
 		for (j = 0; j< pCD->numInhabited; j++)
 		{
-		    pWsc = &(pCD->pWsList[j]);
+			pWsc = &(pCD->pWsList[j]);
 
-		    if (pWsc->iconPlace != NO_ICON_PLACE)
-		    {
-			if (pWsTmp=GetWorkspaceData(pCD->pSD, pWsc->wsID))
+			if (pWsc->iconPlace != NO_ICON_PLACE)
 			{
-			  pWsTmp->IPData.placeList[pWsc->iconPlace].pCD 
-			      = NULL;
+				pWsc->IPData->placeList[pWsc->iconPlace].pCD = NULL;
 			}
-		    }
 		}
 	    }
 #else /* WSM */
 	    if (wmGD.iconAutoPlace && (!(P_ICON_BOX(pCD))))
 	    {
-		if (ICON_PLACE(pCD) != NO_ICON_PLACE)
-		{
-		pCD->pSD->pActiveWS->IPData.placeList[ICON_PLACE(pCD)].pCD 
-		    = NULL;
+			if (ICON_PLACE(pCD) != NO_ICON_PLACE)
+			{
+				pCD->IPData->placeList[ICON_PLACE(pCD)].pCD = NULL;
+			}
 		}
-	    }
 #endif /* WSM */
 	    if (ICON_FRAME_WIN(pCD))
 	    {

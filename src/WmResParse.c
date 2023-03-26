@@ -3394,7 +3394,7 @@ static Boolean ParseWmAccelerator (unsigned char **linePP, MenuItem *menuItem)
 static void ParseMenuItemName (unsigned char **linePP, MenuItem *menuItem)
 {
     unsigned char *lineP, *endquote;
-    int chlen;
+    int chlen = 0;
 
     /* Skip past any whitespace */
     ScanWhitespace (linePP);

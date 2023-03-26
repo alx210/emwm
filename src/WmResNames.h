@@ -148,6 +148,7 @@
 #define WmNutilityFunctions     "utilityFunctions"
 #define WmNprimaryXineramaScreen	"primaryXineramaScreen"
 #define WmNxineramaFollowPointer    "xineramaFollowPointer"
+#define WmNxineramaIconifyToPrimary "xineramaIconifyToPrimary"
 
 /* conponent appearance resources: */
 
@@ -356,6 +357,7 @@
 #define WmCUtilityFunctions      "UtilityFunctions"
 #define WmCPrimaryXineramaScreen	"PrimaryXineramaScreen"
 #define WmCXineramaFollowPointer    "XineramaFollowPointer"
+#define WmCXineramaIconifyToPrimary "XineramaIconifyToPrimary"
 
 /* component appearance resources: */
 

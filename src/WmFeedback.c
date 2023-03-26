@@ -779,7 +779,7 @@ void ConfirmAction (WmScreenData *pSD, int nbr)
 	initMesg();
 #endif
 
-		have_xinerama=GetPreferredXineramaScreen(&xsi);
+		have_xinerama=GetPrimaryXineramaScreen(&xsi);
 	
 		if(have_xinerama){
 			x=(xsi.x_org+xsi.width/2);

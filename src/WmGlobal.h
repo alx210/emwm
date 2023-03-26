@@ -1043,6 +1043,9 @@ typedef struct _IconPlacementData
     int		placeIconY;
     int		*placementRowY;
     int		*placementColX;
+	int      xiOrgX;
+	int      xiOrgY;
+	int      xiScreen;
 } IconPlacementData;
 
 
@@ -1511,7 +1514,7 @@ typedef struct _WmWorkspaceData
 
     WmScreenData	*pSD;		/* screen data for this workspace */
     IconBoxData 	*pIconBox;	/* icon box data for this workspace */
-    IconPlacementData 	IPData;
+    IconPlacementData 	*IPData;
 
     Widget		workspaceTopLevelW;
 
@@ -1758,7 +1761,8 @@ typedef struct _ClientData
 #ifndef WSM
     int		iconX;				/* WM_HINTS field */
     int		iconY;				/* WM_HINTS field */
-    int		iconPlace;
+    int		iconPlace; /* Position in IPData */
+	IconPlacementData *IPData; /* For xinerama screen the icon is on */
     Window	iconFrameWin;
 #endif /* WSM */
     Pixmap	iconPixmap;			/* WM_HINTS field */
@@ -1903,12 +1907,12 @@ typedef struct _ClientData *PtrClientData;
 typedef struct _WsClientData
 {
     WorkspaceID	wsID;			/* workspace identifier */
+	IconPlacementData *IPData; /* for xinerama screen the icon is on */
     int		iconPlace;		/* icon placment index */
     int		iconX;
     int		iconY;
     Window	iconFrameWin;
     IconBoxData *pIconBox;		/* icon box for this win */
-
 } WsClientData;
 
 #endif /* WSM */
@@ -2212,6 +2216,9 @@ typedef struct _WmGlobalData
     unsigned int bMenuButton;		/* BMenu binding (button/state) */
     int primaryXineramaScreen;
 	Boolean xineramaFollowPointer;
+	Boolean xineramaIconifyToPrimary;
+	
+	/* Extension info */
     Boolean xrandr_present;
     int xrandr_base_evt;
     int xrandr_base_err;

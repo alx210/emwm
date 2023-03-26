@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 alx@fastestcode.org
+ * Copyright (C) 2018-2023 alx@fastestcode.org
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -493,15 +493,6 @@ void ConfigureEwmhFullScreen(ClientData *pCD, Boolean set)
 		}
 	}
 	
-	/*
-	 * XXX
-	 * This is sketchy. We just shift frame parts around, without maintaining
-	 * a proper configuration state for full screen clients. It works because
-	 * we don't need to process any size/position config requests on these.
-	 * Ultimately MWMs decoration code needs to be tweaked to handle things
-	 * dynamically.
-	 * XXX
-	 */
 	if(set){
 		pCD->normalClientFunctions = pCD->clientFunctions;
 		pCD->fullScreenWidth = swidth;

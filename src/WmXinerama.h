@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 alx@fastestcode.org
+ * Copyright (C) 2018-2023 alx@fastestcode.org
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -23,7 +23,6 @@
 #ifndef _WM_XINERAMA_H
 #define _WM_XINERAMA_H
 
-#include "WmGlobal.h"
 #include <X11/extensions/Xinerama.h>
 
 /*
@@ -59,7 +58,7 @@ Bool GetActiveXineramaScreen(XineramaScreenInfo *xsi);
  * Retrieves user's preferred xinerama screen.
  * Returns True on success, False if xinerama is inactive or on error.
  */
-Bool GetPreferredXineramaScreen(XineramaScreenInfo *xsi);
+Bool GetPrimaryXineramaScreen(XineramaScreenInfo *xsi);
 
 /* Convenience macro for ClientData */
 #define GetXineramaScreenOfClient(cd,xsi)\
@@ -69,5 +68,11 @@ Bool GetPreferredXineramaScreen(XineramaScreenInfo *xsi);
  * Retrieves xinerama screen info. Returns True on success.
  */
 Bool GetXineramaScreenInfo(int index, XineramaScreenInfo *xsi);
+
+/*
+ * Retrieves the count of xinerama screens available.
+ * Returns True on success, False if xinerama is inactive.
+ */
+Bool GetXineramaScreenCount(int *count);
 
 #endif /* _WM_XINERAMA_H */

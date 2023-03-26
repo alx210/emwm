@@ -2853,7 +2853,7 @@ void PackIconBox (IconBoxData *pIBD, Boolean packVert, Boolean packHorz, int pas
 	    {
 		if (ix1 != ix2)
 		{
-		    MoveIconInfo (&pIBD->IPD, ix1, ix2);
+		    MoveIconInfo (&pIBD->IPD, ix1, &pIBD->IPD, ix2);
 		}
 
 		CvtIconPlaceToPosition (&pIBD->IPD, ix2, &newX, &newY);
@@ -3032,7 +3032,7 @@ void RealignIconList (IconBoxData *pIBD, int newCols, int newRows)
 		ix2 = CvtIconPositionToPlace (&ipdNew, c1, c2);
 		if (ix1 != ix2)
 		{ 
-		    MoveIconInfo (&pIBD->IPD, ix1, ix2);
+		    MoveIconInfo (&pIBD->IPD, ix1, &pIBD->IPD, ix2);
 		} 
 	    }
 	}
@@ -3055,7 +3055,7 @@ void RealignIconList (IconBoxData *pIBD, int newCols, int newRows)
 		ix2 = CvtIconPositionToPlace (&ipdNew, c1, c2);
 		if (ix1 != ix2)
 		{
-		    MoveIconInfo (&pIBD->IPD, ix1, ix2);
+		    MoveIconInfo (&pIBD->IPD, ix1, &pIBD->IPD, ix2);
 		}
 	    }
 	}

@@ -585,6 +585,7 @@ startupKeyFocusStartupKeyFocusT/FT
 useWindowOutlineUseWindowOutlineT/FT
 wMenuButtonClickWMenuButtonClickT/FT
 wMenuButtonClick2WMenuButtonClick2T/FT
+xineramaIconifyToPrimaryXineramaIconifyToPrimaryT/FF
 xineramaFollowPointerXineramaFollowPointerT/FF
 .TE
 .PP
@@ -732,8 +733,10 @@ at least the upper-left corner of the window is on-screen\&. If the resource
 value is False, windows are placed in the requested position even if totally
 off-screen\&. The default value of this resource is True\&.
 .IP "\fIprimaryXineramaScreen\fP\ (class\ \fIPrimaryXineramaScreen\fP)" 10
-This resource specifies the index of a Xinerama screen that is preferred when
-placing newly mapped application windows and modal dialog boxes.
+This resource specifies the index of a Xinerama screen that is preferred for
+placing newly mapped application windows, modal dialog boxes and client icons
+(see also \fIxineramaIconifyToPrimary\fP and \fIxineramaFollowPointer\fP
+resources)\.
 .IP "\fIquitTimeout\fP\ (class\  \fIQuitTimeout\fP)" 10
 This resource specifies the amount of time (in milliseconds) that \fBemwm\fP will wait for a client to update the \fIWM_COMMAND\fP
 property after \fBemwm\fP has sent the \fBWM_SAVE_YOURSELF\fP message\&. The default value of this resource is 1000 (ms)\&. (Refer
@@ -833,8 +836,12 @@ default value for this resource\&.
 .IP "\fIwMenuButtonClick2\fP\ (class\  \fIWMenuButtonClick2\fP)" 10
 When this resource is given the default value of True, a double-click
 action on the window menu button does an \fIf\&.kill function\fP\&.
+.IP "\fIxineramaIconifyToPrimary\fP\  (class\  \fIXineramaIconifyToPrimary\fP)" 10
+If this resource is set to True, client windows will be initially iconified to
+the primary Xinerama screen (see \fIprimaryXineramaScreen\fP resource), rather
+than the screen they reside on\.
 .IP "\fIxineramaFollowPointer\fP\ (class\  \fIXineramaFollowPointer\fP)" 10
-If this resource is True, new windows will be placed on Xinerama screen that
+If this resource is set to True, new windows will be placed on Xinerama screen that
 contains the pointer\&. By default, new windows are placed on Xinerama screen
 containing the currently focused window\&.
 .SS "Screen Specific Appearance and Behavior Resources"

@@ -54,7 +54,11 @@
 #endif /* WSM */
 #include "WmEwmh.h"
 #include "WmXinerama.h"
+#include "WmIPlace.h"
+#include "WmError.h"
 
+
+static void HandleRRScreenChangeNotify(XEvent*);
 
 /*
  * Global Variables:
@@ -493,55 +497,8 @@ Boolean HandleEventsOnSpecialWindows (XEvent *pEvent)
 
 	/* Check for Xrandr screen change event; update configuration */
 	if(wmGD.xrandr_present && pEvent->type == 
-		wmGD.xrandr_base_evt + RRScreenChangeNotify) {
-
-		ClientListEntry *e = ACTIVE_PSD->clientList;
-
-		XRRUpdateConfiguration(pEvent);
-		UpdateXineramaInfo();
-
-		while(e) {
-			XineramaScreenInfo xsi;
-			unsigned int swidth, sheight;
-
-			if(e->type == MINIMIZED_STATE) {
-				e = e->nextSibling;
-				continue;
-			}
-			
-			if(e->pCD->fullScreen) ConfigureEwmhFullScreen(e->pCD, False);
-
-			if(GetXineramaScreenFromLocation(
-				e->pCD->clientX, e->pCD->clientY, &xsi)){
-				swidth = xsi.width;
-				sheight = xsi.height;
-			} else {
-				swidth = XDisplayWidth(DISPLAY, e->pCD->pSD->screen);
-				sheight = XDisplayHeight(DISPLAY, e->pCD->pSD->screen);
-			}
-			e->pCD->maxWidth = swidth - e->pCD->clientOffset.x * 2;
-			e->pCD->maxHeight = sheight -
-				(e->pCD->clientOffset.x + e->pCD->clientOffset.y);
-
-			if(e->pCD->maxWidth > e->pCD->maxWidthLimit)
-				e->pCD->maxWidth = e->pCD->maxWidthLimit;
-
-			if(e->pCD->maxHeight > e->pCD->maxHeightLimit)
-				e->pCD->maxHeight = e->pCD->maxHeightLimit;
-
-			e->pCD->maxWidth -=
-				((e->pCD->maxWidth - e->pCD->baseWidth) % e->pCD->widthInc);
-			e->pCD->maxHeight -=
-				((e->pCD->maxHeight - e->pCD->baseHeight) % e->pCD->heightInc);
-
-			PlaceFrameOnScreen(e->pCD, &e->pCD->maxX, &e->pCD->maxY,
-				e->pCD->maxWidth, e->pCD->maxHeight);
-
-			ProcessNewConfiguration (e->pCD, e->pCD->clientX, e->pCD->clientY,
-				e->pCD->clientWidth, e->pCD->clientHeight, True);
-
-			e = e->nextSibling;
-		}
+		(wmGD.xrandr_base_evt + RRScreenChangeNotify) ) {
+		HandleRRScreenChangeNotify(pEvent);
 	}
 
     /*
@@ -2808,3 +2765,105 @@ WmScreenData * GetScreenForWindow (win)
     return (pSD);
 
 } /* END OF FUNCTION GetScreenForWindow */
+
+/*
+ * Updates client and icon placement data.
+ * Called on XRandr screen change notification event.
+ */
+static void HandleRRScreenChangeNotify(XEvent *evt)
+{
+	ClientListEntry *e = ACTIVE_PSD->clientList;
+
+	XRRUpdateConfiguration(evt);
+	UpdateXineramaInfo();
+	InitIconPlacement(ACTIVE_PSD->pWS);
+
+	while(e) {
+		ClientData *cd = e->pCD;
+		XineramaScreenInfo xsi;
+		int swidth;
+		int sheight;
+		
+		/* Skip icon entries */
+		if(e->type == MINIMIZED_STATE) {
+			e = e->nextSibling;
+			continue;
+		}
+		
+		/* Update minimized client's icon position */
+		if((cd->clientState == MINIMIZED_STATE) &&
+			wmGD.iconAutoPlace && !P_ICON_BOX(cd)) {
+
+			int sorgx = 0;
+			int sorgy = 0;
+
+			if(GetXineramaScreenFromLocation(cd->iconX, cd->iconY, &xsi) ||
+				GetPrimaryXineramaScreen(&xsi)) {
+				cd->IPData = ACTIVE_PSD->pWS->IPData + xsi.screen_number;
+				swidth = xsi.width;
+				sheight = xsi.height;
+				sorgx = xsi.x_org;
+				sorgy = xsi.y_org;
+			} else {
+				swidth = XDisplayWidth(DISPLAY, cd->pSD->screen);
+				sheight = XDisplayHeight(DISPLAY, cd->pSD->screen);
+				cd->IPData = ACTIVE_PSD->pWS->IPData;
+			}
+
+			if((cd->iconX - sorgx) >= swidth ||
+				(cd->iconY - sorgy) >= sheight) {
+				cd->iconX = 0;
+				cd->iconY = 0;
+				cd->iconPlace = NO_ICON_PLACE;
+			} else {
+				cd->iconPlace = FindIconPlace(cd,
+					cd->IPData, cd->iconX, cd->iconY);
+			}
+
+			if( (cd->iconPlace != NO_ICON_PLACE) || (cd->iconPlace =
+				GetNextIconPlace(cd->IPData)) != NO_ICON_PLACE) {
+				CvtIconPlaceToPosition(cd->IPData,
+					cd->iconPlace, &cd->iconX, &cd->iconY);
+				cd->IPData->placeList[cd->iconPlace].pCD = cd;
+				XMoveWindow(DISPLAY, ICON_FRAME_WIN(cd),
+					ICON_X(cd), ICON_Y(cd));
+			}
+			
+			/* Next client */
+			e = e->nextSibling;
+			continue;
+		}
+
+		/* Reconfigure client position and size if necessary */
+		if(GetXineramaScreenFromLocation(cd->clientX, cd->clientY, &xsi)){
+			swidth = xsi.width;
+			sheight = xsi.height;
+		} else {
+			swidth = XDisplayWidth(DISPLAY, cd->pSD->screen);
+			sheight = XDisplayHeight(DISPLAY, cd->pSD->screen);
+		}
+
+		if(cd->fullScreen) ConfigureEwmhFullScreen(cd, False);
+
+		cd->maxWidth = swidth - cd->clientOffset.x * 2;
+		cd->maxHeight = sheight - (cd->clientOffset.x + cd->clientOffset.y);
+
+		if(cd->maxWidth > cd->maxWidthLimit)
+			cd->maxWidth = cd->maxWidthLimit;
+
+		if(cd->maxHeight > cd->maxHeightLimit)
+			cd->maxHeight = cd->maxHeightLimit;
+
+		cd->maxWidth -=	((cd->maxWidth - cd->baseWidth) % cd->widthInc);
+		cd->maxHeight -= ((cd->maxHeight - cd->baseHeight) % cd->heightInc);
+
+		PlaceFrameOnScreen(cd, &cd->maxX, &cd->maxY,
+			cd->maxWidth, cd->maxHeight);
+
+		ProcessNewConfiguration(cd, cd->clientX,cd->clientY,
+			cd->clientWidth, cd->clientHeight, True);
+
+		/* Next client */
+		e = e->nextSibling;
+	}
+}

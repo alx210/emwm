@@ -1111,41 +1111,42 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
 		int centerX;
 		int centerY;
 		int place;
-		IconPlacementData *pIPD;
+		IconPlacementData *pIPD, *pIPDnew;
 
 		/* 
 		 * Get correct icon placement data
 		 */
 		if (inIconBox) 
 		{
-		    pIPD = &P_ICON_BOX(pcd)->IPD;
+		    pIPDnew = pIPD = &P_ICON_BOX(pcd)->IPD;
 		    moveX -= moveIBbbX;
 		    moveY -= moveIBbbY;
 		}
 		else
 		{
-		    pIPD = &(ACTIVE_WS->IPData);
+			pIPDnew = PositionToPlacementData(ACTIVE_WS, moveX, moveY);
+		    pIPD = pcd->IPData ? pcd->IPData : pIPDnew;
 		}
 
-                /*
+        /*
 		 * Check to make sure that there is an unoccupied place
 		 * where the icon is being moved to:
 		 */
 
 		centerX = moveX + ICON_WIDTH(pcd) / 2;
 		centerY = moveY + ICON_HEIGHT(pcd) / 2;
-		place = CvtIconPositionToPlace (pIPD, centerX, centerY);
+		place = CvtIconPositionToPlace (pIPDnew, centerX, centerY);
 
-		if (place != ICON_PLACE(pcd))
+		if ( (pcd->IPData != pIPDnew) || (place != ICON_PLACE(pcd)) )
 		{
-		    if (pIPD->placeList[place].pCD)
+		    if (pIPDnew->placeList[place].pCD)
 		    {
 			/*
 			 * Primary place occupied, try to find an unoccupied
 			 * place in the proximity.
 			 */
 
-			place = FindIconPlace (pcd, pIPD, centerX, centerY);
+			place = FindIconPlace (pcd, pIPDnew, centerX, centerY);
 			if (place == NO_ICON_PLACE)
 			{
 			    /*
@@ -1173,8 +1174,8 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
 			    }
 			}
 		    }
-		    if ((place != NO_ICON_PLACE) && 
-			(place != ICON_PLACE(pcd)))
+		    if ((place != NO_ICON_PLACE) &&
+				((pcd->IPData != pIPDnew) || (place != ICON_PLACE(pcd))) )
 		    {
 			if (inIconBox)
 			{
@@ -1187,7 +1188,7 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
 				 * Move the icon to the new place.
 				 */
 
-				MoveIconInfo (pIPD, ICON_PLACE(pcd), place);
+				MoveIconInfo (pIPD, ICON_PLACE(pcd), pIPD, place);
 				CvtIconPlaceToPosition (pIPD, place, 
 						&ICON_X(pcd), &ICON_Y(pcd));
 
@@ -1208,13 +1209,13 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
 				F_Beep (NULL, pcd, (XEvent *)NULL);
 			    }
 			}
-			else 
+			else /* not in icon box */
 			{
 			    /*
 			     * Move the icon to the new place.
 			     */
-			    MoveIconInfo (pIPD, ICON_PLACE(pcd), place);
-			    CvtIconPlaceToPosition (pIPD, place, &ICON_X(pcd), 
+			    MoveIconInfo (pIPD, ICON_PLACE(pcd), pIPDnew, place);
+			    CvtIconPlaceToPosition (pIPDnew, place, &ICON_X(pcd), 
 						    &ICON_Y(pcd));
 
 			    XMoveWindow (DISPLAY, ICON_FRAME_WIN(pcd), 
@@ -1228,6 +1229,8 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
 				MoveActiveIconText(pcd);
 				ShowActiveIconText(pcd);
 			    }
+				
+				pcd->IPData = pIPDnew;
 			}
 		    }
 		}
@@ -1285,7 +1288,7 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
 			marqueeX, marqueeY, marqueeWidth, marqueeHeight);
     }
 #endif /* WSM */
-
+	
     /*
      * Clear configuration flags and data.
      */

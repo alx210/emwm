@@ -530,6 +530,9 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
     _XmColorObjCreate ( wmGD.topLevelW, NULL, NULL);
 #endif
 
+	/* Check for Xinerama support and initialize session data */
+	SetupXinerama();
+
     XtAddEventHandler(wmGD.topLevelW, NoEventMask, True,
 			MappingEventHandler, NULL);
 
@@ -989,24 +992,22 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
     sAttributes.override_redirect = True;
     XChangeWindowAttributes (DISPLAY, XtWindow (wmGD.topLevelW),
 		CWOverrideRedirect, &sAttributes);
-	
-	/* Check for Xinerama support and initialize session data */
-	SetupXinerama();
 
+	/* Initialize Xrandr and set up for screen change notifications */
+	if(XRRQueryExtension(wmGD.display,
+		&wmGD.xrandr_base_evt, &wmGD.xrandr_base_err)){
+		wmGD.xrandr_present = True;
+		XRRSelectInput(wmGD.display, XtWindow(wmGD.topLevelW),
+			RRScreenChangeNotifyMask);
+	} else {
+		wmGD.xrandr_present = False;
+	}
+	
     /* setup window manager inter-client communications conventions handling */
     SetupWmICCC ();
 
     /* Initialize EWMH support */
     SetupWmEwmh();
-	
-	/* Initialize Xrandr and set up for screen change notifications */
-	if(XRRQueryExtension(DISPLAY,&wmGD.xrandr_base_evt,&wmGD.xrandr_base_err)){
-		wmGD.xrandr_present = True;
-		XRRSelectInput(DISPLAY,XtWindow(wmGD.topLevelW),
-			RRScreenChangeNotifyMask);
-	} else {
-		wmGD.xrandr_present = False;
-	}
 	
     /*
      * Use the WM_SAVE_YOURSELF protocol
@@ -1502,6 +1503,7 @@ void InitWmWorkspace (WmWorkspaceData *pWS, WmScreenData *pSD)
     pWS->pSD = pSD;
     pWS->pIconBox = NULL;
     pWS->dataType = WORKSPACE_DATA_TYPE;
+	pWS->IPData = NULL;
 #ifdef WSM
     pWS->backdrop.window = 0;
     pWS->backdrop.nameAtom = 0;

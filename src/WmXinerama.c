@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 alx@fastestcode.org
+ * Copyright (C) 2018-2023 alx@fastestcode.org
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -24,10 +24,10 @@
 #include "WmError.h"
 #include <X11/extensions/Xinerama.h>
 
-static Boolean is_active=False;
-static Boolean is_present=False;
-static XineramaScreenInfo *g_xsi=NULL;
-static int g_nxsi=0;
+static Bool is_active = False;
+static Bool is_present = False;
+static XineramaScreenInfo *g_xsi = NULL;
+static int g_nxsi = 0;
 
 /*
  * Checks for xinerama availability and fetches screen info.
@@ -39,11 +39,11 @@ void SetupXinerama(void)
 		&major_opcode,&first_event,&first_error))) {
 
 		if(!XineramaIsActive(DISPLAY) ||
-			(g_xsi=XineramaQueryScreens(DISPLAY,&g_nxsi))==NULL){
-			is_active=False;
+			(g_xsi = XineramaQueryScreens(DISPLAY,&g_nxsi)) == NULL){
+			is_active = False;
 			return; 
 		}
-		is_active=True;
+		is_active = True;
 	}
 }
 
@@ -58,11 +58,21 @@ void UpdateXineramaInfo(void)
 	g_xsi = NULL;
 	
 	if(!XineramaIsActive(DISPLAY) ||
-		(g_xsi=XineramaQueryScreens(DISPLAY,&g_nxsi))==NULL){
-		is_active=False;
+		(g_xsi = XineramaQueryScreens(DISPLAY,&g_nxsi)) == NULL){
+		is_active = False;
 		return; 
 	}
 	is_active = True;
+}
+
+/*
+ * Retrieves the count of xinerama screens available.
+ */
+Bool GetXineramaScreenCount(int *i)
+{
+	if(!is_active) return False;
+	*i = g_nxsi;
+	return True;
 }
 
 /*
@@ -127,7 +137,7 @@ Bool GetActiveXineramaScreen(XineramaScreenInfo *xsi)
  * Retrieves user's preferred xinerama screen.
  * Returns True on success, False if xinerama is inactive or on error.
  */
-Bool GetPreferredXineramaScreen(XineramaScreenInfo *xsi)
+Bool GetPrimaryXineramaScreen(XineramaScreenInfo *xsi)
 {
 	if(!is_active) return False;
 
