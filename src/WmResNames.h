@@ -205,6 +205,7 @@
 #define WmNsystemMenu			"windowMenu"
 #define WmNuseClientIcon		"useClientIcon"
 #define WmNusePPosition			"usePPosition"
+#define WmNoverrideGeometry		"overrideGeometry"
 #ifdef WSM
 #define WmNworkspaceList	        "workspaceList"
 #define WmNworkspaceCount	        "workspaceCount"
@@ -412,6 +413,7 @@
 #define WmCSystemMenu			"WindowMenu"
 #define WmCUseClientIcon		"UseClientIcon"
 #define WmCUsePPosition			"UsePPosition"
+#define WmCOverrideGeometry		"OverrideGeometry"
 
 /* window manager part resource names: */
 

@@ -1681,6 +1681,7 @@ typedef struct _ClientData
     MenuSpec	*systemMenuSpec;
     Boolean	useClientIcon;			/* resource */
     int		wmSaveHintFlags;		/* WMSAVE_HINT */
+	String  overrideGeometry;
 
     /* client frame data: */
 

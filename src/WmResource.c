@@ -1819,7 +1819,7 @@ XtResource wmWsPresenceResources[] =
  *  window manager resources.  These resources are specified with the
  *  following syntax:
  *
- *      "Mwm*<client_name_or_class>*<resource_identifier>"
+ *      "Emwm*<client_name_or_class>*<resource_identifier>"
  *
  *************************************<->***********************************/
 
@@ -2011,7 +2011,17 @@ XtResource wmClientResources[] =
 	XtOffsetOf (ClientData, usePPosition),
 	XtRImmediate,
 	(XtPointer)(USE_PPOSITION_NONZERO)
-    }
+    },
+	
+	{
+	WmNoverrideGeometry,
+	WmCOverrideGeometry,
+	XmRString,
+	sizeof(String),
+	XtOffsetOf(ClientData, overrideGeometry),
+	XtRImmediate,
+	(XtPointer)NULL
+	}
 
 }; /* END OF STRUCTURE wmClientResources */
 

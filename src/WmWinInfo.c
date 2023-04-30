@@ -1514,11 +1514,7 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
     /*
      * Parse the WM_NORMAL_HINTS information:
      */
-
-    if (((flags = pNormalHints->flags) == 0) && !firstTime)
-    {
-	return;
-    }
+    if (((flags = pNormalHints->flags) == 0) && !firstTime) return;
 
 
     /*
@@ -1526,36 +1522,47 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
      * being processed for the window.
      */
 
-    if (firstTime)
-    {
-        /*
-         * Process client window size flags and information:
-         */
+	if (firstTime)
+	{
+		int x = wmGD.windowAttributes.x;
+		int y = wmGD.windowAttributes.y;
+		unsigned int width = wmGD.windowAttributes.width;
+		unsigned int height = wmGD.windowAttributes.height;
+		
+		if(pCD->overrideGeometry) {
+			int mask;
 
-        pCD->sizeFlags = flags & (US_POSITION | US_SIZE | P_POSITION | P_SIZE);
+			mask = XParseGeometry(pCD->overrideGeometry,
+				&x, &y, &width, &height);
 
-        /*
-         * The R2 conventions and Xlib manual indicate that the window size
-         * and position should be taken out of the WM_NORMAL_HINTS property
-         * if they are specified there.  The current conventions indicate that
-         * the size and position information should be gotten from the window
-         * configuration. Mwm 1.1 always uses the current conventions.
-         */
+			flags |= (mask & (XValue | YValue)) ? US_POSITION : 0;
+			flags |= (mask & (WidthValue | HeightValue)) ? US_SIZE : 0;
+		}
 
-	if (!(pCD->clientFlags & SM_X))
-	    pCD->clientX = wmGD.windowAttributes.x;
-	if (!(pCD->clientFlags & SM_Y))
-	    pCD->clientY = wmGD.windowAttributes.y;
+		pCD->sizeFlags = flags & (US_POSITION | US_SIZE | P_POSITION | P_SIZE);
 
-	/*
-	 * Use current conventions for initial window dimensions.
-	 */
+		/*
+		 * The R2 conventions and Xlib manual indicate that the window size
+		 * and position should be taken out of the WM_NORMAL_HINTS property
+		 * if they are specified there.  The current conventions indicate that
+		 * the size and position information should be gotten from the window
+		 * configuration. Mwm 1.1 always uses the current conventions.
+		 */
 
-	if (!(pCD->clientFlags & SM_WIDTH))
-	    pCD->clientWidth = wmGD.windowAttributes.width;
-	if (!(pCD->clientFlags & SM_HEIGHT))
-	    pCD->clientHeight = wmGD.windowAttributes.height;
-    }
+		if (!(pCD->clientFlags & SM_X))
+			pCD->clientX = x;
+		if (!(pCD->clientFlags & SM_Y))
+			pCD->clientY = y;
+
+		/*
+		 * Use current conventions for initial window dimensions.
+		 */
+
+		if (!(pCD->clientFlags & SM_WIDTH))
+			pCD->clientWidth = width;
+		if (!(pCD->clientFlags & SM_HEIGHT))
+			pCD->clientHeight = height;
+	}
 
     /*
      * Process the minimum size:

@@ -433,7 +433,7 @@ ListRenderTableT{
 string\(dg\(dg\(dg
 T}"fixed"
 foregroundForegroundcolorvaries\(dg
-saveUnderSaveUnderT/FF
+saveUnderSaveUnderTrue/FalseFalse
 topShadowColorBackgroundcolorvaries\(dg
 topShadowPixmapTopShadowPixmapstring\(dg\(dgvaries\(dg
 .TE
@@ -498,7 +498,7 @@ activeBottomShadowPixmapBottomShadowPixmapstring\(dg\(dgvaries\(dg
 activeForegroundForegroundcolorvaries\(dg
 activeTopShadowColorBackgroundcolorvaries\(dg
 activeTopShadowPixmapTopShadowPixmapstring\(dg\(dgvaries\(dg
-titleLeftTitleLeftBooleanFalse
+titleLeftTitleLeftTrue/FalseFalse
 .TE
 .PP
 \(dgThe default is chosen based on the visual type of the screen\&.
@@ -547,46 +547,46 @@ The following general appearance and behavior resources can be specified:
 tab();
 lw(1.528376i) lw(1.592955i) lw(1.054795i) lw(1.323875i).
 NameClassValue TypeDefault
-autoKeyFocusAutoKeyFocusT/FT
+autoKeyFocusAutoKeyFocusTrue/FalseTrue
 autoRaiseDelayAutoRaiseDelaymillisec500
 bitmap-Bitmap-directory/usr/include
 DirectoryDirectory/X11/bitmaps
-clientAutoPlaceClientAutoPlaceT/FT
+clientAutoPlaceClientAutoPlaceTrue/FalseTrue
 colormapFocus-ColormapFocus-stringkeyboard
 PolicyPolicy
 configFileConfigFilefile$HOME/.emwmrc
-deiconifyKeyFocusDeiconifyKeyFocusT/FT
+deiconifyKeyFocusDeiconifyKeyFocusTrue/FalseTrue
 doubleClick-DoubleClick-millisec\&.multi-click
 TimeTimetime\(dg
-enableWarpenableWarpT/FT
-enforceKeyFocusEnforceKeyFocusT/FT
+enableWarpenableWarpTrue/FalseTrue
+enforceKeyFocusEnforceKeyFocusTrue/FalseTrue
 frameStyleFrameStylestringrecessed
-iconAutoPlaceIconAutoPlaceT/FT
-iconClickIconClickT/FT
-interactivePlacementInteractivePlacementT/FT
+iconAutoPlaceIconAutoPlaceTrue/FalseTrue
+iconClickIconClickTrue/FalseTrue
+interactivePlacementInteractivePlacementTrue/FalseTrue
 keyboardFocus-KeyboardFocus-stringexplicit
 PolicyPolicy
-lowerOnIconifyLowerOnIconifyT/FT
+lowerOnIconifyLowerOnIconifyTrue/FalseTrue
 moveThresholdMoveThresholdpixels4
-multiScreenMultiScreenT/FF
+multiScreenMultiScreenTrue/FalseFalse
 outlineWidthOutlineWidthpixels2
-passButtonsPassButtonsT/FF
-passSelectButtonPassSelectButtonT/FT
-positionOnScreenPositionOnScreenT/FT
+passButtonsPassButtonsTrue/FalseFalse
+passSelectButtonPassSelectButtonTrue/FalseTrue
+positionOnScreenPositionOnScreenTrue/FalseTrue
 primaryXineramaScreenPrimaryXineramaScreenindex0
 quitTimeoutQuitTimeoutmillisec\&.1000
-raiseKeyFocusRaiseKeyFocusT/FF
-refreshByClearingRefreshByClearingT/FT
-rootButtonClickRootButtonClickT/FF
+raiseKeyFocusRaiseKeyFocusTrue/FalseFalse
+refreshByClearingRefreshByClearingTrue/FalseTrue
+rootButtonClickRootButtonClickTrue/FalseFalse
 screensScreensstringvaries
 sessionClientDBSessionClientDBstring$HOME/\&.emwmclientdb
 showFeedbackShowFeedbackstringall
-startupKeyFocusStartupKeyFocusT/FT
-useWindowOutlineUseWindowOutlineT/FT
-wMenuButtonClickWMenuButtonClickT/FT
-wMenuButtonClick2WMenuButtonClick2T/FT
-xineramaIconifyToPrimaryXineramaIconifyToPrimaryT/FF
-xineramaFollowPointerXineramaFollowPointerT/FF
+startupKeyFocusStartupKeyFocusTrue/FalseTrue
+useWindowOutlineUseWindowOutlineTrue/FalseTrue
+wMenuButtonClickWMenuButtonClickTrue/FalseTrue
+wMenuButtonClick2WMenuButtonClick2True/FalseTrue
+xineramaIconifyToPrimaryXineramaIconifyToPrimaryTrue/FalseFalse
+xineramaFollowPointerXineramaFollowPointerTrue/FalseFalse
 .TE
 .PP
 \(dgThe resource doubleClickTime is included for backward compatibility\&.
@@ -854,8 +854,8 @@ tab();
 lw(1.768627i) lw(1.790196i) lw(0.927451i) lw(1.013725i).
 NameClassValue TypeDefault
 buttonBindingsButtonBindingsstringDefaultButtonBindings
-cleanTextCleanTextT/FT
-fadeNormalIconFadeNormalIconT/FF
+cleanTextCleanTextTrue/FalseTrue
+fadeNormalIconFadeNormalIconTrue/FalseFalse
 feedbackGeometryFeedbackGeometrystringcenter on screen
 frameBorderWidthFrameBorderWidthpixelsvaries
 iconBoxGeometryIconBoxGeometrystring6x1+0-0
@@ -868,13 +868,13 @@ iconImageMinimumIconImageMinimumwxh16x16
 iconPlacementIconPlacementstringleft bottom
 iconPlacementMarginIconPlacementMarginpixelsvaries
 keyBindingsKeyBindingsstringDefaultKeyBindings
-limitResizeLimitResizeT/FT
-moveOpaqueMoveOpaqueT/FF
+limitResizeLimitResizeTrue/FalseTrue
+moveOpaqueMoveOpaqueTrue/FalseFalse
 resizeBorderWidthResizeBorderWidthpixelsvaries
-resizeCursorsResizeCursorsT/FT
+resizeCursorsResizeCursorsTrue/FalseTrue
 transientDecorationTransientDecorationstringmenu title
 transientFunctionsTransientFunctionsstring-minimize-maximize
-useIconBoxUseIconBoxT/FF
+useIconBoxUseIconBoxTrue/FalseFalse
 utilityDecorationutilityDecorationstringmenu title
 utilityFunctionsutilityFunctionsstring-minimize-maximize
 
@@ -1086,7 +1086,7 @@ lw(1.999018i) lw(1.458743i) lw(0.918468i) lw(1.123772i).
 NameClassValue TypeDefault
 clientDecorationClientDecorationstringall\&.
 clientFunctionsClientFunctionsstringall\&.
-focusAutoRaiseFocusAutoRaiseT/Fvaries
+focusAutoRaiseFocusAutoRaiseTrue/Falsevaries
 iconImageIconImagepathname(image)
 iconImage-Backgroundcoloricon background
 Background
@@ -1112,7 +1112,8 @@ matteTopShadowPixmapTopShadowPixmapcolortop
 matteWidthMatteWidthpixels0
 maximumClientSizeMaximumClientSizewxh
 vertical horizontalfill the screen
-useClientIconUseClientIconT/FT
+overrideGeometryOverrideGeometryWxH{+-}X{+-}Ynone
+useClientIconUseClientIconTrue/FalseTrue
 usePPositionUsePPositionstringnonzero
 windowMenuWindowMenustringDefaultWindowMenu
 .TE
@@ -1264,6 +1265,10 @@ If this resource is not specified, the maximum size from the \fIWM_NORMAL_HINTS\
 value is the size where the client window with window management borders fills
 the screen\&. When the maximum client size is not determined by the \fImaximumClientSize\fP resource, the screen size 
 is used as a constraint on the maximum size\&.
+.IP "\fIoverrideGeometry\fP\ (class\  \fIOverrideGeometry\fP)" 10
+This resource allows to override client window position and size for clients
+that don't allow to do so in a conventional way. The resource has
+the form Emwm*\fI<client name or class>\fP*overrideGeometry: WIDTHxHEIGHT+X+Y\&.
 .IP "\fIuseClientIcon\fP\ (class\  \fIUseClientIcon\fP)" 10
 If the value given for this resource is True, a client-supplied icon
 image takes precedence over a user-supplied icon image\&. The default value
