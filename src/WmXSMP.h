@@ -44,7 +44,7 @@
 
 extern void AddSMCallbacks(void);
 extern void ResignFromSM(void);
-extern void ExitWM(int exitCode);
+extern _X_NORETURN void ExitWM(int exitCode);
 extern XrmDatabase LoadClientResourceDB(void);
 extern XrmDatabase SaveClientResourceDB(void);
 extern Boolean FindClientDBMatch(ClientData *, char **);

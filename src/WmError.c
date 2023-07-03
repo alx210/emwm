@@ -27,6 +27,7 @@
 
 #include "WmGlobal.h"
 #include <stdio.h>
+#include <stdlib.h>
 #ifdef WSM
 #include <Dt/UserMsg.h>
 #endif /* WSM */
@@ -67,6 +68,10 @@ static char *pchErrorFormat [NUM_E_STRINGS];
 
 #endif /* DEBUG */
 
+static int WmXErrorHandler (Display *display, XErrorEvent *errorEvent);
+static int WmXIOErrorHandler (Display *display);
+static _X_NORETURN void WmXtErrorHandler (char *message);
+static void WmXtWarningHandler (char *message);
 
 
 
@@ -149,7 +154,7 @@ WmInitErrorHandler (Display *display)
  *
  *************************************<->***********************************/
 
-int
+static int
 WmXErrorHandler (Display *display, XErrorEvent *errorEvent)
 {
     ClientData *pCD;
@@ -221,7 +226,7 @@ WmXErrorHandler (Display *display, XErrorEvent *errorEvent)
  * 
  *************************************<->***********************************/
 
-int
+static int
 WmXIOErrorHandler (Display *display)
 {
   char  err[100];
@@ -253,7 +258,7 @@ WmXIOErrorHandler (Display *display)
  *
  *************************************<->***********************************/
 
-void
+static _X_NORETURN void
 WmXtErrorHandler (char *message)
 {
 
@@ -280,7 +285,7 @@ WmXtErrorHandler (char *message)
  * 
  *************************************<->***********************************/
 
-void
+static void
 WmXtWarningHandler (char *message)
 {
 
