@@ -44,6 +44,7 @@ common_install:
 	install -m 775 emwm $(PREFIX)/bin/emwm
 	install -m 775 -d $(MANDIR)/man1
 	install -m 664 emwm.1 $(MANDIR)/man1/emwm.1
+	install -m 664 emwmrc.4 $(MANDIR)/man4/emwmrc.4
 	install -m 775 -d $(RCDIR)
 	install -m 664 system.emwmrc $(RCDIR)/system.emwmrc
 	install -m 775 -d $(APPLRESDIR)
@@ -52,6 +53,7 @@ common_install:
 uninstall:
 	rm -f $(PREFIX)/bin/emwm
 	rm -f $(MANDIR)/man1/emwm.1
+	rm -f $(MANDIR)/man4/emwmrc.4
 	rm -f $(RCDIR)/system.emwmrc
 	rmdir $(RCDIR)
 	rm -f $(APPLRESDIR)/Emwm

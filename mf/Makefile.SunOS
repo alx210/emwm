@@ -13,6 +13,7 @@ include common.mf
 install:
 	install -m 775 -f $(PREFIX)/bin emwm
 	install -m 664 -f $(MANDIR)/man1 emwm.1
+	install -m 664 -f $(MANDIR)/man4 emwmrc.4
 	install -m 775 -d $(RCDIR)
 	install -m 664 -f $(RCDIR) system.emwmrc
 	# If Tribblix packages Xft enabled Motif

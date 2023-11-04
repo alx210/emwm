@@ -1,0 +1,590 @@
+.ta 8n 16n 24n 32n 40n 48n 56n 64n 72n 
+.TH "emwmrc" "special file"
+.SH "NAME"
+\fBemwmrc\fP \(em the
+Enhanced Motif Window Manager Resource Description File
+.SH "DESCRIPTION"
+.PP
+The \fBemwmrc\fP file is a supplementary resource
+file that controls much of the behavior of the Enhanced Motif window manager \fBemwm\fP\&. 
+It contains descriptions of resources that cannot easily be
+written using standard X Window System, Version 11 resource syntax\&. The resource
+description file contains entries that are referred to by X resources in
+defaults files (for example, \fB/usr/X11R6/lib/X11/app-defaults/Emwm\fP)
+or in the \fBRESOURCE_MANAGER\fP property on the
+root window\&. For example, the resource description file enables you to specify
+different types of window menus; however, an X resource is used to specify
+which of these window menus \fBemwm\fP should use for a particular
+window\&. 
+.SS "Location"
+.PP
+The window manager searches for one of the following resource description
+files, where \fI$LANG\fP is the value of the language environment
+on a per-user basis:
+.PP
+.nf
+\f(CW$HOME/$LANG/\&.emwmrc
+$HOME/\&.emwmrc
+/usr/X11R6/lib/X11/$LANG/system\&.emwmrc \(dg
+/usr/X11R6/lib/X11/system\&.emwmrc\fR \(dg
+.fi
+.PP
+\(dg Paths may vary depending on system/distribution.
+.PP
+The first file found is the first used\&. If no file is found, a
+set of built-in specifications is used\&. A particular resource description
+file can be selected using the \fIconfigFile\fP
+resource\&. The following shows how a different resource description file can
+be specified from the command line:
+.PP
+.nf
+\f(CWemwm -xrm "emwm*configFile: mymwmrc"\fR
+.fi
+.PP
+.SS "Resource Types"
+.PP
+The following types of resources can be described in the emwm resource
+description file:
+.IP "\fBButtons\fP" 10
+Window manager functions can be bound (associated) with button events\&.
+.IP "\fBKeysq\fP" 10
+Window manager functions can be bound (associated) with key press
+events\&.
+.IP "\fBMenus\fP" 10
+Menu panes can be used for the window menu and other menus posted with
+key bindings and button bindings\&.
+.SH "EMWM RESOURCE DESCRIPTION FILE SYNTAX"
+.PP
+The \fBemwm\fP resource description file is a standard
+text file that contains items of information separated by blanks, tabs, and
+new lines characters\&. Blank lines are ignored\&. Items or characters can be
+quoted to avoid special interpretation (for example, the comment character
+can be quoted to prevent it from being interpreted as the comment character)\&.
+A quoted item can be contained in double quotes (\fB" "\fP)\&.
+Single characters can be quoted by preceding them by the back-slash character
+(\fB\\\fP)\&. If a line ends with a back-slash, the next line is considered
+a continuation of that line\&. All text from an unquoted \fB#\fP
+to the end of the line is regarded as a comment and is not interpreted as
+part of a resource description\&. If \fB!\fP is the first character
+in a line, the line is regarded as a comment\&.
+.SS "Window Manager Functions"
+.PP
+Window manager functions can be accessed with button and key bindings,
+and with window manager menus\&. Functions are indicated as part of the specifications
+for button and key binding sets, and menu panes\&. The function specification
+has the following syntax:
+.PP
+.nf
+\f(CW\fBfunction\fP = \fBfunction_name\fP [\fBfunction_args\fP]
+\fBfunction_name\fP = \fBwindow manager function\fP
+\fBfunction_args\fP = {\fBquoted_item\fP | \fBunquoted_item\fP}\fR
+.fi
+.PP
+.PP
+The following functions are supported\&. If a function is specified that
+isn\&'t one of the supported functions then it is interpreted by \fBemwm\fP as \fBf\&.nop\fP\&.
+.IP "\fBf\&.beep\fP" 10
+This function causes a beep\&.
+.IP "\fBf\&.circle_down\fP [ \fIicon\fP | \fIwindow\fP]" 10
+This function causes the window or icon that is on the top of the window
+stack to be put on the bottom of the window stack (so that it is no longer
+obscuring any other window or icon)\&. This function affects only those windows
+and icons that are obscuring other windows and icons, or that are obscured
+by other windows and icons\&. Secondary windows (that is, transient windows)
+are restacked with their associated primary window\&. Secondary windows always
+stay on top of the associated primary window and there can be no other primary
+windows between the secondary windows and their primary window\&. If an
+\fIicon\fP function argument is specified, then the function
+applies only to icons\&. If a \fIwindow\fP function
+argument is specified then the function applies only to windows\&.
+.IP "\fBf\&.circle_up\fP [ \fIicon\fP | \fIwindow\fP]" 10
+This function raises the window or icon on the bottom of the window
+stack (so that it is not obscured by any other windows)\&. This function affects
+only those windows and icons that are obscuring other windows and icons, or
+that are obscured by other windows and icons\&. Secondary windows (that is,
+transient windows) are restacked with their associated primary window\&. If
+an \fIicon\fP function argument is specified then
+the function applies only to icons\&. If an \fIwindow\fP
+function argument is specified then the function applies only to windows\&.
+.IP "\fBf\&.exec\fP \fBcommand\fP (or \fI!\fP \fBcommand\fP)" 10
+This function causes \fIcommand\fP to be
+executed (using the value of the \fI$MWMSHELL\fP or \fI$SHELL\fP environment variable if set; otherwise, \fB/bin/sh\fP )\&. The \fI!\fP notation can be used in place of the \fBf\&.exec\fP function name\&.
+.IP "\fBf\&.focus_color\fP" 10
+This function sets the colormap focus to a client window\&. If this function
+is done in a root context, then the default colormap (setup by the X Window
+System for the screen where \fBemwm\fP is running) is installed
+and there is no specific client window colormap focus\&. This function is treated
+as \fBf\&.nop\fP if \fIcolormapFocusPolicy\fP
+is not explicit\&.
+.IP "\fBf\&.focus_key\fP" 10
+This function sets the keyboard input focus to a client window or icon\&.
+This function is treated as \fBf\&.nop\fP if \fIkeyboardFocusPolicy\fP is not explicit or the function is executed in a root context\&.
+.IP "\fBf\&.kill\fP" 10
+This function is used to close application windows\&. The actual processing
+that occurs depends on the protocols that the application observes\&. The application
+lists the protocols it observes in the \fBWM_PROTOCOLS\fP property
+on its top level window\&. If the application observes the \fBWM_DELETE_WINDOW\fP protocol, it is sent a message that requests the window be deleted\&.
+If the application observes both \fBWM_DELETE_WINDOW\fP and \fBWM_SAVE_YOURSELF\fP, it is sent one message requesting the window
+be deleted and another message advising it to save its state\&. If the application
+observes only the \fBWM_SAVE_YOURSELF\fPprotocol \fI,\fP it is sent a message advising it to save its state\&. After a
+delay (specified by the resource \fIquitTimeout\fP), the application\&'s
+connection to the X server is terminated\&. If the application observes neither
+of these protocols, its connection to the X server is terminated\&.
+.IP "\fBf\&.lower\fP\ [\fI-\fP \fBclient\fP | \fIwithin\fP\ | \fIfreeFamily\fP]" 10
+This function lowers a primary window to the bottom of the global window
+stack (where it obscures no other window) and lowers the secondary window
+(transient window or dialog box) within the client family\&. The arguments to
+this function are mutually exclusive\&. The \fIclient\fP
+argument indicates the name or class of a client to lower\&. The name or class
+of a client appears in the \fBWM_CLASS\fP property on the
+client\&'s top-level window\&. If the \fIclient\fP
+argument is not specified, the context that the function was invoked in indicates
+the window or icon to lower\&. Specifying \fIwithin\fP
+lowers the secondary window within the family (staying above the parent) but
+does not lower the client family in the global window stack\&. Specifying \fIfreeFamily\fP lowers the window to the bottom of the global windows
+stack from its local family stack\&.
+.IP "\fBf\&.maximize\fP" 10
+This function causes a client window to be displayed with its maximum
+size\&. Refer to the \fImaximumClientSize\fP, \fImaximumMaximumSize\fP, and \fIlimitResize\fP resources in \fBemwm\fP(1)\&.
+.IP "\fBf\&.menu\fP \fImenu_name\fP" 10
+This function associates a cascading (pull-right) menu with a menu
+pane entry or a menu with a button or key binding\&. The \fImenu_name\fP function argument identifies the menu to be used\&.
+.IP "\fBf\&.minimize\fP" 10
+This function causes a client window to be minimized (iconified)\&. When
+a window is minimized with no icon box in use, and if the \fIlowerOnIconify\fP resource has the value True (the default), the icon is placed
+on the bottom of the window stack (such that it obscures no other window)\&.
+If an icon box is used, then the client\&'s icon changes to its iconified form
+inside the icon box\&. Secondary windows (that is, transient windows) are minimized
+with their associated primary window\&. There is only one icon for a primary
+window and all its secondary windows\&.
+.IP "\fBf\&.move\fP" 10
+This function initiates an interactive move of a client window\&.
+.IP "\fBf\&.next_cmap\fP" 10
+This function installs the next colormap in the list of colormaps for
+the window with the colormap focus\&.
+.IP "\fBf\&.next_key\fP [ \fIicon\fP | \fIwindow\fP | \fItransient\fP]" 10
+This function sets the keyboard input focus to the next window/icon
+in the set of windows/icons managed by the window manager (the ordering
+of this set is based on the stacking of windows on the screen)\&. This function
+is treated as \fBf\&.nop\fP if \fBkeyboardFocusPolicy\fP
+is not explicit\&. The keyboard input focus is only moved to windows that do
+not have an associated secondary window that is application modal\&. If the
+\fItransient\fP argument is specified, then transient (secondary)
+windows are traversed (otherwise, if only \fIwindow\fP
+is specified, traversal is done only to the last focused window in a transient
+group)\&. If an \fIicon\fP function argument is specified,
+then the function applies only to icons\&. If a \fIwindow\fP function argument is specified, then the function applies only to
+windows\&.
+.IP "\fBf\&.nop\fP" 10
+This function does nothing\&.
+.IP "\fBf\&.normalize\fP" 10
+This function causes a client window to be displayed with its normal
+size\&. Secondary windows (that is, transient windows) are placed in their normal
+state along with their associated primary window\&.
+.IP "\fBf\&.normalize_and_raise\fP" 10
+This function causes a client window to be displayed with its normal
+size and raised to the top of the window stack\&. Secondary windows (that is,
+transient windows) are placed in their normal state along with their associated
+primary window\&.
+.IP "\fBf\&.pack_icons\fP" 10
+This function is used to relayout icons (based on the layout policy
+being used) on the root window or in the icon box\&. In general this causes
+icons to be "packed" into the icon grid\&.
+.IP "\fBf\&.pass_keys\fP" 10
+This function is used to enable/disable (toggle) processing of key bindings
+for window manager functions\&. When it disables key binding processing all
+keys are passed on to the window with the keyboard input focus and no window
+manager functions are invoked\&. If the \fBf\&.pass_keys\fP function
+is invoked with a key binding to disable key binding processing the same key
+binding can be used to enable key binding processing\&.
+.IP "\fBf\&.post_wmenu\fP" 10
+This function is used to post the window menu\&. If a key is used to post
+the window menu and a window menu button is present, the window menu is automatically
+placed with its top-left corner at the bottom-left corner of the window menu
+button for the client window\&. If no window menu button is present, the window
+menu is placed at the top-left corner of the client window\&.
+.IP "\fBf\&.prev_cmap\fP" 10
+This function installs the previous colormap in the list of colormaps
+for the window with the colormap focus\&.
+.IP "\fBf\&.prev_key\fP [ \fIicon\fP | \fIwindow\fP | \fItransient\fP]" 10
+This function sets the keyboard input focus to the previous window/icon
+in the set of windows/icons managed by the window manager (the ordering
+of this set is based on the stacking of windows on the screen)\&. This function
+is treated as \fBf\&.nop\fP if \fIkeyboardFocusPolicy\fP is not explicit\&. The keyboard input focus is only moved to windows
+that do not have an associated secondary window that is application modal\&.
+If the \fItransient\fP argument is specified, then
+transient (secondary) windows are traversed (otherwise, if only \fIwindow\fP is specified, traversal is done only to the last focused window
+in a transient group)\&. If an \fIicon\fP function
+argument is specified then the function applies only to icons\&. If an
+\fIwindow\fP function argument is specified then the function
+applies only to windows\&.
+.IP "\fBf\&.quit_wm\fP" 10
+This function terminates emwm (but NOT the X window system)\&.
+.IP "\fBf\&.raise\fP\ [\fI-\fP\fIclient\fP | \fIwithin\fP | \fIfreeFamily\fP]" 10
+This function raises a primary window to the top of the global window
+stack (where it is obscured by no other window) and raises the secondary window
+(transient window or dialog box) within the client family\&. The arguments to
+this function are mutually exclusive\&. The \fIclient\fP
+argument indicates the name or class of a client to lower\&. If the \fIclient\fP
+is not specified, the context that the function
+was invoked in indicates the window or icon to lower\&. Specifying \fIwithin\fP raises the secondary window within the family but does not
+raise the client family in the global window stack\&. Specifying \fIfreeFamily\fP raises the window to the top of its local family stack
+and raises the family to the top of the global window stack\&.
+.IP "\fBf\&.raise_lower\fP\ [ \fIwithin\fP | \fIfreeFamily\fP]" 10
+This function raises a primary window to the top of the global window
+stack if it is partially obscured by another window; otherwise, it lowers
+the window to the bottom of the window stack\&. The arguments to this function
+are mutually exclusive\&. Specifying \fIwithin\fP
+raises a secondary window within the family (staying above the parent window),
+if it is partially obscured by another window in the application\&'s family;
+otherwise, it lowers the window to the bottom of the family stack\&. It has
+no effect on the global window stacking order\&. Specifying \fIfreeFamily\fP raises the window to the top of its local family stack, if obscured
+by another window, and raises the family to the top of the global window
+stack; otherwise, it lowers the window to the bottom of its local family stack
+and lowers the family to the bottom of the global window stack\&.
+.IP "\fBf\&.refresh\fP" 10
+This function causes all windows to be redrawn\&.
+.IP "\fBf\&.refresh_win\fP" 10
+This function causes a client window to be redrawn\&.
+.IP "\fBf\&.resize\fP" 10
+This function initiates an interactive resize of a client window\&.
+.IP "\fBf\&.restore\fP" 10
+This function restores the previous state of an icon\&'s associated window\&.
+If a maximized window is iconified, then \fBf\&.restore\fP restores
+it to its maximized state\&. If a normal window is iconified, then \fBf\&.restore\fP restores it to its normalized state\&.
+.IP "\fBf\&.restore_and_raise\fP" 10
+This function restores the previous state of an icon\&'s associated window
+and raises the window to the top of the window stack\&. If a maximized window
+is iconified, then \fBf\&.restore_and_raise\fP restores it to
+its maximized state and raises it to the top of the window stack\&. If a normal
+window is iconified, then \fBf\&.restore_and_raise\fP restores
+it to its normalized state and raises it to the top of the window stack\&.
+.IP "\fBf\&.restart\fP" 10
+This function causes emwm to be restarted (effectively terminated and
+re-executed)\&. Restart is necessary for \fBmwm\fP to incorporate
+changes in both the \fBemwmrc\fP file and X resources\&.
+.IP "\fBf\&.screen\fP\ [ \fInext\fP | \fIprev\fP | \fIback\fP | \fIscreen_number\fP]" 10
+This function causes the pointer to be warp to a specific screen number
+or to the \fInext\fP, \fIprevious\fP, or last visited (\fIback\fP)
+screen\&. The arguments to this function are mutually exclusive\&. The
+\fIscreen_number\fP argument indicates the screen number
+that the pointer is to be warped\&. Screens are numbered starting from screen
+0\&. Specifying \fInext\fP cause the pointer to warp
+to the next managed screen (skipping over any unmanaged screens)\&. Specifying
+\fIprev\fP cause the pointer to warp to the previous managed
+screen (skipping over any unmanaged screens)\&. Specifying \fIback\fP cause the pointer to warp to the last visited screen\&.
+.IP "\fBf\&.send_msg\fP \fImessage_number\fP" 10
+This function sends an \fBXClientMessageEvent\fR of type \fB_MOTIF_WM_MESSAGES\fP with
+\fImessage_type\fP set to \fImessage_number\fP\&.
+The client message is sent only if \fImessage_number\fP
+is included in the client\&'s \fB_MOTIF_WM_MESSAGES\fP
+property\&. A menu item label is grayed out if the menu item is used to do \fBf\&.send_msg\fP of a message that is not included in the client\&'s \fB_MOTIF_WM_MESSAGES\fP property\&.
+.IP "\fBf\&.separator\fP" 10
+This function causes a menu separator to be put in the menu pane at
+the specified location (the label is ignored)\&.
+.IP "\fBf\&.set_behavior\fP" 10
+This function causes the window manager to restart with the default
+behavior (if a custom behavior is configured) or a custom behavior (if a
+default behavior is configured)\&. By default this is bound to \fIShift\ Ctrl\ Alt\ <Key>!\fP\&.
+.IP "\fBf\&.title\fP" 10
+This function inserts a title in the menu pane at the specified location\&.
+.IP "\fBf\&.version\fP" 10
+This function causes the window manager to display its release version
+in a dialog box\&.
+.SS "Function Constraints"
+.PP
+Each function may be constrained as to which resource types can specify
+the function (for example, menu pane) and also what context the function
+can be used in (for example, the function is done to the selected client window)\&.
+Function contexts are:
+.IP "\fIroot\fP" 10
+No client window or icon has been selected as an object for the function\&.
+.IP "\fIwindow\fP" 10
+A client window has been selected as an object for the function\&. This
+includes the window\&'s title bar and frame\&. Some functions are applied only
+when the window is in its normalized state (for example, \fBf\&.maximize\fP) or its maximized state (for example, \fBf\&.normalize\fP)\&.
+.IP "\fIicon\fP" 10
+An icon has been selected as an object for the function\&.
+.PP
+If a function is specified in a type of resource where it is not supported
+or is invoked in a context that does not apply then the function is treated
+as \fBf\&.nop\fP\&. The following table indicates the resource
+types and function contexts in which window manager functions apply\&.
+.PP
+.TS
+tab();
+lw(2.289841i) lw(1.851594i) lw(1.358566i).
+FunctionContextsResources
+_
+\fBf\&.beep\fProot,icon,windowbutton,key,menu
+\fBf\&.circle_down\fProot,icon,windowbutton,key,menu
+\fBf\&.circle_up\fProot,icon,windowbutton,key,menu
+\fBf\&.exec\fProot,icon,windowbutton,key,menu
+\fBf\&.focus_color\fProot,icon,windowbutton,key,menu
+\fBf\&.focus_key\fProot,icon,windowbutton,key,menu
+\fBf\&.kill\fPicon,windowbutton,key,menu
+\fBf\&.lower\fProot,icon,windowbutton,key,menu
+\fBf\&.maximize\fPicon,window(normal)button,key,menu
+\fBf\&.menu\fProot,icon,windowbutton,key,menu
+\fBf\&.minimize\fPwindowbutton,key,menu
+\fBf\&.move\fPicon,windowbutton,key,menu
+\fBf\&.next_cmap\fProot,icon,windowbutton,key,menu
+\fBf\&.next_key\fProot,icon,windowbutton,key,menu
+\fBf\&.nop\fProot,icon,windowbutton,key,menu
+\fBf\&.normalize\fPicon,window(maximized)button,key,menu
+\fBf\&.normalize_and_raise\fPicon,windowbutton,key,menu
+\fBf\&.pack_icons\fProot,icon,windowbutton,key,menu
+\fBf\&.pass_keys\fProot,icon,windowbutton,key,menu
+\fBf\&.post_wmenu\fProot,icon,windowbutton,key
+\fBf\&.prev_cmap\fProot,icon,windowbutton,key,menu
+\fBf\&.prev_key\fProot,icon,windowbutton,key,menu
+\fBf\&.quit_mwm\fProotbutton,key,menu (root only)
+\fBf\&.raise\fProot,icon,windowbutton,key,menu
+\fBf\&.raise_lower\fPicon,windowbutton,key,menu
+\fBf\&.refresh\fProot,icon,windowbutton,key,menu
+\fBf\&.refresh_win\fPwindowbutton,key,menu
+\fBf\&.resize\fPwindowbutton,key,menu
+\fBf\&.restart\fProotbutton,key,menu (root only)
+\fBf\&.restore\fPicon,windowbutton,key,menu
+\fBf\&.restore_and_raise\fPicon,windowbutton,key,menu
+\fBf\&.screen\fProot,icon,windowbutton,key,menu
+\fBf\&.send_msg\fPicon,windowbutton,key,menu
+\fBf\&.separator\fProot,icon,windowmenu
+\fBf\&.set_behavior\fProot,icon,windowbutton,key,menu
+\fBf\&.title\fProot,icon,windowmenu
+\fBf\&.version\fProot,icon,windowbutton,key,menu
+.TE
+.SH "WINDOW MANAGER EVENT SPECIFICATION"
+.PP
+Events are indicated as part of the specifications for button and key
+binding sets, and menu panes\&. Button events have the following syntax:
+.PP
+.nf
+\f(CW\fBbutton\fP =~[\fBmodifier_list\fP ]\fI<\fP\fBbutton_event_name\fP \fI>\fP
+\fBmodifier_list\fP =~\fBmodifier_name\fP { \fBmodifier_name\fP}\fR
+.fi
+.PP
+.PP
+The following table indicates the values that can be used for \fBmodifier_name\fP\&. Note that [Alt] and [Meta] can be used interchangably
+on some hardware\&.
+.PP
+.TS
+tab();
+lw(1.097588i) lw(4.402412i).
+ModifierDescription
+_
+CtrlControl Key
+ShiftShift Key
+AltAlt Key
+MetaMeta Key
+Mod1Modifier1
+Mod2Modifier2
+Mod3Modifier3
+Mod4Modifier4
+Mod5Modifier5
+.TE
+.PP
+Locking modifiers are ignored when processing button and key bindings\&.
+The following table lists keys that are interpreted as locking modifiers\&.
+The X server may map some of these symbols to the Mod1 - Mod5 modifier keys\&.
+These keys may or may not be available on your hardware: Key Symbol Caps Lock
+Shift Lock Kana Lock Num Lock Scroll Lock The following table indicates the
+values that can be used for \fBbutton_event_name\fP\&.
+.PP
+.TS
+tab();
+lw(1.290570i) lw(4.209430i).
+ButtonDescription
+_
+Btn1DownButton 1 Press
+Btn1UpButton 1 Release
+Btn1ClickButton 1 Press and Release
+Btn1Click2Button 1 Double Click
+Btn2DownButton 2 Press
+Btn2UpButton 2 Release
+Btn2ClickButton 2 Press and Release
+Btn2Click2Button 2 Double Click
+Btn3DownButton 3 Press
+Btn3UpButton 3 Release
+Btn3ClickButton 3 Press and Release
+Btn3Click2Button 3 Double Click
+Btn4DownButton 4 Press
+Btn4UpButton 4 Release
+Btn4ClickButton 4 Press and Release
+Btn4Click2Button 4 Double Click
+Btn5DownButton 5 Press
+Btn5UpButton 5 Release
+Btn5ClickButton 5 Press and Release
+Btn5Click2Button 5 Double Click
+.TE
+.PP
+Key events that are used by the window manager for menu mnemonics
+and for binding to window manager functions are single key presses; key
+releases are ignored\&. Key events have the following syntax:
+.PP
+.nf
+\f(CW\fBkey\fP =~[\fBmodifier_list\fP] \fB<Key>\fP\fBkey_name\fP
+\fBmodifier_list\fP =~\fBmodifier_name\fP { \fBmodifier_name\fP}\fR
+.fi
+.PP
+.PP
+All modifiers specified are interpreted as being exclusive (this means
+that only the specified modifiers can be present when the key event occurs)\&.
+Modifiers for keys are the same as those that apply to buttons\&. The \fBkey_name\fP is an X11 keysym name\&. Keysym names can be found in the
+\fBkeysymdef\&.h\fP file (remove the \fBXK_\fP
+prefix)\&.
+.SH "BUTTON BINDINGS"
+.PP
+The \fBbuttonBindings\fP resource value is the name of
+a set of button bindings that are used to configure window manager behavior\&.
+A window manager function can be done when a button press occurs with
+the pointer over a framed client window, an icon or the root window\&. The
+context for indicating where the button press applies is also the context
+for invoking the window manager function when the button press is done
+(significant for functions that are context sensitive)\&. The button binding
+syntax is
+.PP
+.nf
+\f(CW\fIButtons\fP \fBbindings_set_name\fP
+\fI{\fP
+    \fBbutton\fP    \fBcontext\fP    \fBfunction\fP
+    \fBbutton\fP    \fBcontext\fP    \fBfunction\fP
+    \&.\&.\&.
+    \fBbutton\fP    \fBcontext\fP    \fBfunction\fP
+\fI}\fP\fR
+.fi
+.PP
+.PP
+The syntax for the \fBcontext\fP specification is: \fBcontext\fP = \fBobject\fP[\fI|\fP \fBcontext\fP] \fBobject\fP = \fIroot\fP | \fIicon\fP | \fIwindow\fP | \fItitle\fP | \fIframe\fP | \fIborder\fP | \fIapp\fP The context specification indicates where the pointer must be
+for the button binding to be effective\&. For example, a context of
+\fIwindow\fP indicates that the pointer must be over a
+client window or window management frame for the button binding to be effective\&.
+The \fIframe\fP context is for the window management
+frame around a client window (including the border and titlebar), the
+\fIborder\fP context is for the border part of the window
+management frame (not including the titlebar), the \fItitle\fP context is for the title area of the window management frame,
+and the \fIapp\fP context is for the application
+window (not including the window management frame)\&. If an \fBf\&.nop\fP function is specified for a button binding, the button binding
+is not done\&.
+.SH "KEY BINDINGS"
+.PP
+The \fBkeyBindings\fP resource value is the name of a set
+of key bindings that are used to configure window manager behavior\&. A
+window manager function can be done when a particular key is pressed\&. The
+context in which the key binding applies is indicated in the key binding specification\&.
+The valid contexts are the same as those that apply to button bindings\&. The
+key binding syntax is:
+.PP
+.nf
+\f(CW\fIKeys\fP \fBbindings_set_name\fP
+\fI{\fP
+    \fBkey\fP    \fBcontext\fP    \fBfunction\fP
+    \fBkey\fP    \fBcontext\fP    \fBfunction\fP
+    \&.\&.\&.
+    \fBkey\fP    \fBcontext\fP    \fBfunction\fP
+\fI}\fP\fR
+.fi
+.PP
+.PP
+If an \fBf\&.nop\fP function is specified for a key binding,
+the key binding is not done\&. If an \fBf\&.post_wmenu\fP or \fBf\&.menu\fP function is bound to a key, \fBmwm\fP automatically
+uses the same key for removing the menu from the screen after it has been
+popped up\&. The \fBcontext\fP specification syntax is the same
+as for button bindings with one addition\&. The context \fIifkey\fP
+may be specified for binding keys that may not be available on all displays\&.
+If the key is not available and if \fIifkey\fP is in the context,
+then reporting of the error message to the error log is suppressed\&. This feature
+is useful for networked, heterogeneous environments\&. For key bindings, the
+\fIframe\fP, \fItitle\fP,
+\fIborder\fP, and \fIapp\fP
+contexts are equivalent to the \fIwindow\fP context\&.
+The context for a key event is the window or icon that has the keyboard input
+focus (\fIroot\fP if no window or icon has the
+keyboard input focus)\&.
+.SH "MENU PANES"
+.PP
+Menus can be popped up using the \fBf\&.post_wmenu\fP and \fBf\&.menu\fP window manager functions\&. The context for window manager
+functions that are done from a menu is \fIroot\fP,
+\fIicon\fP or \fIwindow\fP depending
+on how the menu was popped up\&. In the case of the \fIwindow\fP menu or menus popped up with a key binding, the location of
+the keyboard input focus indicates the context\&. For menus popped up using
+a button binding, the context of the button binding is the context of the
+menu\&. The menu pane specification syntax is:
+.PP
+.nf
+\f(CW\fIMenu\fP \fBmenu_name\fP
+\fI{\fP
+    \fBlabel\fP  [\fBmnemonic\fP]  [\fBaccelerator\fP ]   \fBfunction\fP
+    \fBlabel\fP  [\fBmnemonic\fP]  [\fBaccelerator\fP ]   \fBfunction\fP
+    \&.\&.\&.
+    \fBlabel\fP  [\fBmnemonic\fP]  [\fBaccelerator\fP ]   \fBfunction\fP
+\fI}\fP\fR
+.fi
+.PP
+.PP
+Each line in the \fIMenu\fP specification identifies
+the label for a menu item and the function to be done if the menu item is
+selected\&. Optionally a menu button mnemonic and a menu button keyboard accelerator
+may be specified\&. Mnemonics are functional only when the menu is posted and
+keyboard traversal applies\&. The \fBlabel\fP may be a string or
+a bitmap file\&. The label specification has the following syntax:
+.PP
+.nf
+\f(CW\fBlabel\fP = \fBtext\fP | \fBbitmap_file\fP
+\fBbitmap_file\fP = \fI@\fP\fBfile_name\fP
+\fBtext\fP = \fBquoted_item\fP | \fBunquoted_item\fP\fR
+.fi
+.PP
+.PP
+The string encoding for labels must be compatible with the menu font
+that is used\&. Labels are greyed out for menu items that do the \fBf\&.nop\fP function or an invalid function or a function that doesn\&'t
+apply in the current context\&. A \fBmnemonic\fP specification
+has the following syntax:
+.PP
+.nf
+\f(CW\fBmnemonic\fP = \fI_\fP \fBcharacter\fP\fR
+.fi
+.PP
+.PP
+The first matching \fBcharacter\fP in the label is underlined\&.
+If there is no matching \fBcharacter\fP in the label, no mnemonic
+is registered with the window manager for that label\&. Although the \fBcharacter\fP must exactly match a character in the label, the mnemonic
+does not execute if any modifier (such as Shift) is pressed with the character
+key\&. The \fBaccelerator\fP specification is a key event specification
+with the same syntax as is used for key bindings to window manager functions\&.
+.SH "INCLUDING FILES"
+.PP
+You may include other files into your emwmrc file by using the
+\fIinclude\fP construct\&. For example,
+.PP
+.nf
+\f(CWINCLUDE
+{
+    /usr/local/shared/emwm\&.menus
+    /home/kmt/personal/my\&.bindings
+}\fR
+.fi
+.PP
+.PP
+causes the files named to be read in and interpreted in order as an
+additional part of the emwmrc file\&. \fIInclude\fP is a top-level
+construct\&. It cannot be nested inside another construct\&.
+.SH "WARNINGS"
+.PP
+Errors that occur during the processing of the resource description
+file are printed to \fBstderr(3)\fP. Be sure to check session manager log file if
+the appearance or behavior of \fBemwm\fP is not what you expect\&.
+.SH "FILES"
+.PP
+.nf
+\fB$HOME/$LANG/\&.emwmrc
+$HOME/\&.emwmrc
+/usr/X11R6/lib/X11/$LANG/system\&.emwmrc \(dg
+/usr/X11R6/lib/X11/system\&.emwmrc\fP \(dg
+.fi
+.PP
+\(dg Paths may vary depending on system/distribution.
+.SH "RELATED INFORMATION"
+.PP
+\fBemwm\fP(1),
+\fBX\fP(1)\&.
