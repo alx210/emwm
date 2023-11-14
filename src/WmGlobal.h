@@ -585,9 +585,7 @@ typedef struct _ClickData
 {
     Boolean	clickPending;
     Boolean	doubleClickPending;
-#ifdef WSM
     Boolean	bReplayed;
-#endif /* WSM */
     unsigned int button;
     unsigned int state;
     unsigned int releaseState;
@@ -2168,9 +2166,9 @@ typedef struct _WmGlobalData
     Boolean     multiScreen;                  	/* resource */
     String	screenList;			/* resource */
     int		showFeedback;			/* resource */
+    Boolean	rootButtonClick;		/* resource */
 #ifdef WSM
     Boolean	refreshByClearing;		/* resource */
-    Boolean	rootButtonClick;		/* resource */
 #endif /* WSM */
     Boolean	startupKeyFocus;		/* resource */
     Boolean	systemButtonClick;		/* resource */
@@ -2182,13 +2180,13 @@ typedef struct _WmGlobalData
 #endif /* WSM */
     Boolean	waitForClicks;			/* resource */
     FrameStyle	frameStyle;			/* resource */
+    XButtonEvent evLastButton;			/* for detecting replayed button events */
+    Boolean	bReplayedButton;		/* true if button replayed */
+
 #ifdef WSM
     Dimension	iconExternalShadowWidth;	/* resource */
     Dimension	frameExternalShadowWidth;	/* resource */
     int		marqueeSelectGranularity;	/* resource */
-    XButtonEvent evLastButton;			/* for detecting replayed 
-						   button events */
-    Boolean	bReplayedButton;		/* true if button replayed */
     Boolean	bSuspendSecondaryRestack;	/* overrides transient stacking */
 #endif /* WSM */
 

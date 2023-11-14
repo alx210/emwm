@@ -65,8 +65,8 @@ extern void WmGrabKey (Display *display, int keycode, unsigned int modifiers,
 		int keyboard_mode);
 extern void WmUngrabButton (Display *display, unsigned int button,
 		unsigned int modifiers, Window grab_window);
+extern Boolean ReplayedButtonEvent (XButtonEvent *pevB1, XButtonEvent *pevB2);
 #ifdef WSM
 extern void HandleDtWmClientMessage (XClientMessageEvent *clientEvent);
 extern void HandleDtWmRequest (WmScreenData *pSD, XEvent *pev);
-extern Boolean ReplayedButtonEvent (XButtonEvent *pevB1, XButtonEvent *pevB2);
 #endif /* WSM */
