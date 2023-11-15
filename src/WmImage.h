@@ -34,3 +34,5 @@ extern Pixmap MakeCachedLabelPixmap (WmScreenData *pSD, Widget menuW, int bitmap
 extern Pixmap MakeClientIconPixmap (ClientData *pCD, Pixmap iconBitmap, Pixmap iconMask);
 extern Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int width, unsigned int height, unsigned int depth);
 extern Pixmap MakeNamedIconPixmap (ClientData *pCD, String iconName);
+Boolean GetPixmapInfo(Pixmap pixmap,
+	unsigned int *width, unsigned int *height, unsigned int *depth);

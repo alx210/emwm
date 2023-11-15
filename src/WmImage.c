@@ -27,21 +27,8 @@
 
 #include "WmGlobal.h"
 
-#define MWM_NEED_IIMAGE
-#include "WmIBitmap.h"
-
-#ifdef MOTIF_ONE_DOT_ONE
-#include <stdio.h>
-#include <pwd.h>
-#define MATCH_CHAR 'P'		/* Default match character - defined in Xmos.p */
-#else
 #include <Xm/XmosP.h> 
-/* Copied from XmosI.h */
-extern String _XmOSInitPath( 
-                        String file_name,
-                        String env_pathname,
-                        Boolean *user_path) ;
-#endif
+
 #ifdef WSM
 #include <Xm/IconFile.h>
 #include <Dt/GetDispRes.h>
@@ -61,9 +48,8 @@ extern String _XmOSInitPath(
 #include "WmMenu.h"
 #include "WmError.h"
 
-#ifdef MOTIF_ONE_DOT_ONE
-extern char    *getenv ();
-#endif
+/* XmosI.h */
+extern String _XmOSInitPath(String, String, Boolean*) ;
 
 
 /******************************<->*************************************
@@ -97,20 +83,15 @@ Pixmap MakeClientIconPixmap (
 	Pixmap iconBitmap, 
 	Pixmap iconMask)
 {
-  Window root;
-  int x;
-  int y;
   unsigned int  bitmapWidth;
   unsigned int  bitmapHeight;
-  unsigned int  border;
   unsigned int  depth;
     
   /*
    * Get pixmap attributes and ensure that it is usable.
    */
    
-  if (!XGetGeometry (DISPLAY, iconBitmap, &root, &x, &y,
-      &bitmapWidth, &bitmapHeight, &border, &depth))
+  if (!GetPixmapInfo(iconBitmap, &bitmapWidth, &bitmapHeight, &depth))
   {
     Warning (((char *)GETMESSAGE(38, 1, "Invalid icon pixmap")));
     return ((Pixmap)NULL);
@@ -123,7 +104,6 @@ Pixmap MakeClientIconPixmap (
 			  bitmapWidth, bitmapHeight, depth));
 
 } /* END OF FUNCTION MakeClientIconPixmap */
-
 
 
 /*************************************<->*************************************
@@ -218,8 +198,6 @@ Pixmap MakeNamedIconPixmap (ClientData *pCD, String iconName)
 {
   Pixmap pixmap;
   unsigned int width, height;
-  int depth;
-
 
   if (iconName)
     {
@@ -235,6 +213,7 @@ Pixmap MakeNamedIconPixmap (ClientData *pCD, String iconName)
 	}
       else
 	{
+	  int depth = 0;
 	  XmeGetPixmapData(ScreenOfDisplay(DISPLAY, pCD->pSD->screen), pixmap,
 			   NULL, &depth, NULL, NULL, NULL, NULL,
 			   &width, &height);
@@ -251,8 +230,10 @@ Pixmap MakeNamedIconPixmap (ClientData *pCD, String iconName)
 
   if (!iconName || (!PIXMAP_IS_VALID( pixmap )))
     {
-      pixmap = MakeIconPixmap (pCD, pCD->pSD->builtinIconPixmap, None,
-			       iImage_width, iImage_height, 1);
+		unsigned int depth = 0;
+		GetPixmapInfo(pCD->pSD->builtinIconPixmap, &width, &height, &depth);
+		pixmap = MakeIconPixmap (pCD, pCD->pSD->builtinIconPixmap,
+			None, width, height, depth);
     }
   
 
@@ -861,8 +842,8 @@ int GetBitmapIndex (WmScreenData *pSD, char *name)
     {
         bitmapc->path   = NULL;
         bitmapc->bitmap = pSD->builtinIconPixmap;
-        bitmapc->width  = iImage_width;
-        bitmapc->height = iImage_height;
+        GetPixmapInfo(pSD->builtinIconPixmap,
+			&bitmapc->width, &bitmapc->height, NULL);
     }
 
     bitmapc->pixmapCache = NULL;
@@ -912,9 +893,7 @@ char *BitmapPathName (string)
     static char  fileName[MAXWMPATH+1];
     char *retname;
     SubstitutionRec subs[1];
-#ifndef MOTIF_ONE_DOT_ONE
     char *homeDir = XmeGetHomeDirName();
-#endif
 
     if (!string || !*string)
     {
@@ -934,12 +913,9 @@ char *BitmapPathName (string)
      * Handle "~/.." 
      */
     {
-#ifdef MOTIF_ONE_DOT_ONE
-	GetHomeDirName(fileName);
-#else
+
 	strcpy (fileName, homeDir);
-#endif
-        strncat (fileName, &(string[1]), MAXWMPATH - strlen (fileName));
+    strncat (fileName, &(string[1]), MAXWMPATH - strlen (fileName));
 	return (fileName);
     }
 
@@ -956,12 +932,8 @@ char *BitmapPathName (string)
 	if ((wmGD.bitmapDirectory[0] == '~') &&
 	    (wmGD.bitmapDirectory[1] == '/'))
 	{
-#ifdef MOTIF_ONE_DOT_ONE
-	    GetHomeDirName(fileName);
-#else
 	    strcpy (fileName, homeDir);
-#endif
-            strncat (fileName, &wmGD.bitmapDirectory[1],
+        strncat (fileName, &wmGD.bitmapDirectory[1],
 		     MAXWMPATH - strlen (fileName));
 	} else {
 	    strcpy (fileName, wmGD.bitmapDirectory);
@@ -980,10 +952,6 @@ char *BitmapPathName (string)
     }
 
     /* Fall back on a path search */
-
-#ifdef MOTIF_ONE_DOT_ONE
-    return (NULL);
-#else
     {
 	char *search_path;
 	Boolean user_path;
@@ -1003,10 +971,29 @@ char *BitmapPathName (string)
 	XtFree(retname);
 	return (fileName);
     }
-#endif
+
 
 } /* END OF FUNCTION BitmapPathName */
 
-#ifdef WSM
-/****************************   eof    ***************************/
-#endif /* WSM */
+Boolean GetPixmapInfo(Pixmap pixmap,
+	unsigned int *rwidth, unsigned int *rheight, unsigned int *rdepth)
+{
+	Window root;
+	int x;
+	int y;
+	unsigned int width;
+	unsigned int height;
+	unsigned int border;
+	unsigned int depth;
+	
+	if(!XGetGeometry (DISPLAY, pixmap, &root, &x, &y,
+		&width, &height, &border, &depth)) {
+		return False;
+	}
+
+	if(rwidth) *rwidth = width;
+	if(rheight) *rheight = height;
+	if(rdepth) *rdepth = depth;
+
+	return True;
+}
