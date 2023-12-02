@@ -125,7 +125,7 @@ main (int argc, char *argv [], char *environ [])
 
 	wmGD.attributesWindow = 0L;
 
-#ifdef WSM
+
 	if ((event.type == ButtonPress) || 
 	    (event.type == ButtonRelease))
 	{
@@ -142,7 +142,7 @@ main (int argc, char *argv [], char *environ [])
 		wmGD.bReplayedButton = False;
 	    }
 	}
-#endif /* WSM */
+
 	dispatchEvent = True;
 	if (wmGD.menuActive)
 	{

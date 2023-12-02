@@ -28,7 +28,7 @@
 #include "WmResNames.h"
 #include "WmXmP.h"
 
-#define MWM_NEED_TIME16
+#define MWM_NEED_TIME_XBM
 #include "WmBitmap.h"
 
 #include <Xm/Xm.h>
@@ -960,7 +960,7 @@ void ShowWaitState (Boolean flag)
 
     if (!waitCursor)
     {
-#ifdef LARGECURSORS
+
 	if (wmGD.useLargeCursors)
 	{
 	    width = time32_width;
@@ -971,8 +971,6 @@ void ShowWaitState (Boolean flag)
 	    yHotspot = time32_y_hot;
 	}
 	else
-#endif /* LARGECURSORS */
-
 	{
 	    width = time16_width;
 	    height = time16_height;
@@ -989,15 +987,10 @@ void ShowWaitState (Boolean flag)
         maskPixmap = XCreateBitmapFromData (DISPLAY, 
 		         DefaultRootWindow(DISPLAY), maskBits, 
 			 width, height);
-#ifdef INTEGRATION_TESTING_
-        xcolors[1].pixel = BlackPixelOfScreen(DefaultScreenOfDisplay(DISPLAY));
-        xcolors[0].pixel = WhitePixelOfScreen(DefaultScreenOfDisplay(DISPLAY));
-#else /* INTEGRATION_TESTING */
 
         xcolors[0].pixel = BlackPixelOfScreen(DefaultScreenOfDisplay(DISPLAY));
         xcolors[1].pixel = WhitePixelOfScreen(DefaultScreenOfDisplay(DISPLAY));
 
-#endif /* INTEGRATION_TESTING */
         XQueryColors (DISPLAY, 
 		      DefaultColormapOfScreen(DefaultScreenOfDisplay
 					      (DISPLAY)), 

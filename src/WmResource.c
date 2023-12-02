@@ -897,6 +897,15 @@ XtResource wmGlobalResources[] =
 	XtRImmediate,
 	(XtPointer)False
     },
+    {
+	WmNrootButtonClick,
+	WmCRootButtonClick,
+	XtRBoolean,
+	sizeof (Boolean),
+        XtOffsetOf(WmGlobalData, rootButtonClick),
+	XtRImmediate,
+	(XtPointer)False
+    },
 #ifdef WSM
 
     {
@@ -905,16 +914,6 @@ XtResource wmGlobalResources[] =
 	XtRBoolean,
 	sizeof (Boolean),
         XtOffsetOf(WmGlobalData, refreshByClearing),
-	XtRImmediate,
-	(XtPointer)True
-    },
-
-    {
-	WmNrootButtonClick,
-	WmCRootButtonClick,
-	XtRBoolean,
-	sizeof (Boolean),
-        XtOffsetOf(WmGlobalData, rootButtonClick),
 	XtRImmediate,
 	(XtPointer)True
     },

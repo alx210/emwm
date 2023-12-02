@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include "WmGlobal.h"
 
-#define MWM_NEED_NOENTER16
+#define MWM_NEED_NOENTER_XBM
 #include "WmBitmap.h"
 
 
@@ -2152,8 +2152,6 @@ void SetupSystemModalState (ClientData *pCD)
 	XUngrabKeyboard (DISPLAY, CurrentTime);
     }
 
-#ifdef LARGECURSORS
-
     if (wmGD.useLargeCursors)
     {
 	width = noenter32_width;
@@ -2164,8 +2162,6 @@ void SetupSystemModalState (ClientData *pCD)
 	mask_bits = noenter32m_bits;
     }
     else
-
-#endif /* LARGECURSORS */
 
     {
 	width = noenter16_width;

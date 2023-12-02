@@ -2142,7 +2142,6 @@ Boolean F_Menu (String args, ClientData *pCD, XEvent *event)
 	{
 	    flags |= POST_TRAVERSAL_ON;
 	}
-#ifdef WSM
 	/*
 	 * Root menu, if posted with button press, then 
 	 * set up to handle root menu click to make the menu
@@ -2150,19 +2149,21 @@ Boolean F_Menu (String args, ClientData *pCD, XEvent *event)
 	 */
 	else if (wmGD.rootButtonClick && (event->type == ButtonPress))
 	{
+
 	    if (wmGD.bReplayedButton)
 	    {
 		/* This button was replayed, it most likely dismissed
 		   a previous sticky menu, don't post a menu here */
 		return (False);
 	    }
+
 	    wmGD.checkHotspot = True;
 	    wmGD.hotspotRectangle.x = x - wmGD.moveThreshold/2;
 	    wmGD.hotspotRectangle.y = y - wmGD.moveThreshold/2;
 	    wmGD.hotspotRectangle.width = wmGD.moveThreshold;
 	    wmGD.hotspotRectangle.height = wmGD.moveThreshold;
 	}
-#endif /* WSM */
+
     }
     else if (event && 
 	((event->type == KeyPress) || (event->type == KeyRelease)))

@@ -655,12 +655,7 @@ Boolean WmDispatchMenuEvent (XButtonEvent *event)
 	                       (short) wmGD.hotspotRectangle.width)) &&
 	     (event->y_root < (wmGD.hotspotRectangle.y + 
 	                       (short) wmGD.hotspotRectangle.height))&&
-#ifdef WSM
-	     (pCD || 
-	      (wmGD.rootButtonClick && wmGD.clickData.clickPending)))
-#else /* WSM */
-	     pCD)
-#endif /* WSM */
+	     (pCD || (wmGD.rootButtonClick && wmGD.clickData.clickPending)))
     {
 	/*   ^^^
 	 * Added check for NULL pCD in the above condition.
@@ -678,10 +673,10 @@ Boolean WmDispatchMenuEvent (XButtonEvent *event)
 
 	if (event->type == ButtonRelease)
 	{
-#ifdef WSM
-          if (pCD)
+
+      if (pCD)
 	  {
-#endif /* WSM */
+
 	    /*
 	     * The system menu is posted from a system menu button or an
 	     * icon.  By doing a button release over the system menu button
@@ -696,15 +691,9 @@ Boolean WmDispatchMenuEvent (XButtonEvent *event)
 	    {
 		PopGadgetOut (pCD, FRAME_SYSTEM);
 	    }
-#ifdef MOTIF_ONE_DOT_ONE
-	    TraversalOn (pCD->systemMenuSpec);
-	    doXtDispatchEvent = False;
-#else
  	    _XmGetMenuState(XtParent(pCD->systemMenuSpec->menuWidget))
 		->MS_LastManagedMenuTime = ((XButtonEvent *)event)->time;
 	    doXtDispatchEvent = True;
-#endif
-#ifdef WSM
           }
 	  else if ((!wmGD.clickData.pCD) && 
 	      (((XButtonEvent *)event)->button == wmGD.clickData.button) &&
@@ -736,19 +725,13 @@ Boolean WmDispatchMenuEvent (XButtonEvent *event)
 
 		 if (timeDiff < wmGD.doubleClickTime)
 		 {
-#ifdef MOTIF_ONE_DOT_ONE
-		   TraversalOn (wmGD.menuActive);
-		   doXtDispatchEvent = False;
-#else
 		   _XmGetMenuState (XtParent(wmGD.menuActive->menuWidget))
 		       ->MS_LastManagedMenuTime =
 			   ((XButtonEvent *)event)->time;
 		   doXtDispatchEvent = True;
-#endif
 		 }
 	    wmGD.clickData.clickPending = False;
 	    }
-#endif /* WSM */
 	}
 	else
 	{
@@ -2689,8 +2672,6 @@ void PullExposureEvents (void)
 
 } /* END OF FUNCTION PullExposureEvents */
 
-#ifdef WSM
-
 /*************************************<->*************************************
  *
  *  ReplayedButtonEvent ()
@@ -2741,4 +2722,4 @@ ReplayedButtonEvent (
 
     return (rval);
 }
-#endif /* WSM */
+
