@@ -750,8 +750,8 @@ void HandleCPropertyNotify (ClientData *pCD, XPropertyEvent *propertyEvent)
 	    break;
 	}
 
-        case XA_WM_TRANSIENT_FOR:
-        {
+    case XA_WM_TRANSIENT_FOR:
+    {
 	    /*
 	     * here we handle the special case of dialogs that are
 	     * mapped before the windows they are transient for are
@@ -825,12 +825,61 @@ void HandleCPropertyNotify (ClientData *pCD, XPropertyEvent *propertyEvent)
 		    ProcessColormapList (ACTIVE_PSD, pCD);
 		}
 	    }
+        else if(propertyEvent->atom == wmGD.xa_MWM_HINTS) {
+            unsigned long prev_decor = pCD->decor;
+            unsigned long prev_func = pCD->clientFunctions;
+            unsigned long decor_diff;
+            
+            ProcessMwmHints(pCD, False);
+            decor_diff = prev_decor ^ pCD->decor;
+                        
+            if(decor_diff || (prev_func != pCD->clientFunctions)) {
+                Boolean full_screen = pCD->fullScreen;
+                
+                if(full_screen) ConfigureEwmhFullScreen(pCD, False);
+                
+                /* Context for decoupled title window event handling is
+                 * initially set up in ManageWindow(), update it if title-bar
+                 * needs to be added or removed */
+                if((decor_diff & WM_DECOR_TITLE) &&
+                    (DECOUPLE_TITLE_APPEARANCE(pCD) && pCD->clientTitleWin)) {
+               		XDeleteContext(DISPLAY,
+                        pCD->clientTitleWin, wmGD.windowContextType);
+                }
+
+                if(!UpdateClientDecorations(pCD)) {
+                    UnManageWindow(pCD);
+                    break;
+                }
+
+	            if((decor_diff & WM_DECOR_TITLE) &&
+		            (DECOUPLE_TITLE_APPEARANCE(pCD) && pCD->clientTitleWin)) {
+		            XSaveContext(DISPLAY, pCD->clientTitleWin,
+			            wmGD.windowContextType, (caddr_t)pCD);
+                }
+                
+                /* Adjust maximized config if border dimensions had changed */
+                if(decor_diff & (WM_DECOR_TITLE|WM_DECOR_RESIZE)) {
+                    Boolean maximized = (Boolean)
+                        (pCD->clientState == MAXIMIZED_STATE);
+                    
+                    if(maximized)
+                        SetClientState(pCD, NORMAL_STATE, GetTimestamp());
+
+                    RecomputeMaxConfig(pCD);
+
+                    if(maximized)
+                        SetClientState(pCD, MAXIMIZED_STATE, GetTimestamp());
+                }
+                if(full_screen) ConfigureEwmhFullScreen(pCD, True);
+            }
+            
+        }
 	    break;
 	}
     }
 
 } /* END OF FUNCTION HandleCPropertyNotify */
-
 
 
 /*************************************<->*************************************

@@ -975,9 +975,7 @@ Boolean ExtendRList (RList *prl, unsigned int amt)
  *  --------
  *			
  *************************************<->***********************************/
-RList *AllocateRList (amt)
-
-    unsigned int amt;
+RList *AllocateRList (unsigned int amt)
 {
     RList *prl;
 

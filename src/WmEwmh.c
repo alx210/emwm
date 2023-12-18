@@ -108,7 +108,7 @@ void SetupWmEwmh(void)
 			ewmh_atoms[_NET_SUPPORTED],XA_ATOM,32,PropModeReplace,
 			(unsigned char*)&ewmh_atoms[1],	_NUM_EWMH_ATOMS-1);
 	
-		/* Set up the device for _NET_SUPPORTING_WM_CHECK */
+		/* Set up _NET_SUPPORTING_WM_CHECK */
 		XChangeProperty(DISPLAY,wmGD.Screens[i].rootWindow,
 			ewmh_atoms[_NET_SUPPORTING_WM_CHECK],XA_WINDOW,32,PropModeReplace,
 			(unsigned char*)&check_wnd,1);
@@ -502,10 +502,14 @@ void ConfigureEwmhFullScreen(ClientData *pCD, Boolean set)
 
 		pCD->clientFunctions = pCD->clientFunctions & 
 			(~(MWM_FUNC_RESIZE|MWM_FUNC_MOVE|MWM_FUNC_MAXIMIZE));
+		
+		if(pCD->decor & MWM_DECOR_TITLE)
+			XUnmapWindow(DISPLAY,pCD->clientTitleWin);
 
-		XUnmapWindow(DISPLAY,pCD->clientTitleWin);
-		for(i = 0; i < STRETCH_COUNT; i++){
-			XUnmapWindow(DISPLAY,pCD->clientStretchWin[i]);
+		if(pCD->decor & MWM_DECOR_RESIZEH) {
+			for(i = 0; i < STRETCH_COUNT; i++){
+				XUnmapWindow(DISPLAY,pCD->clientStretchWin[i]);
+			}
 		}
 		XMoveResizeWindow(DISPLAY,pCD->clientFrameWin,xorg,yorg,swidth,sheight);
 		XMoveResizeWindow(DISPLAY,pCD->clientBaseWin,0,0,swidth,sheight);
@@ -529,9 +533,14 @@ void ConfigureEwmhFullScreen(ClientData *pCD, Boolean set)
 				pCD->clientWidth, pCD->clientHeight);
 		}
 		RegenerateClientFrame(pCD);
-		XMapWindow(DISPLAY,pCD->clientTitleWin);
-		for(i = 0; i < STRETCH_COUNT; i++){
-			XMapWindow(DISPLAY,pCD->clientStretchWin[i]);
+		
+		if(pCD->decor & MWM_DECOR_TITLE)
+			XMapWindow(DISPLAY,pCD->clientTitleWin);
+
+		if(pCD->decor & MWM_DECOR_RESIZEH) {
+			for(i = 0; i < STRETCH_COUNT; i++){
+				XMapWindow(DISPLAY,pCD->clientStretchWin[i]);
+			}
 		}
 
 		pCD->fullScreen = False;

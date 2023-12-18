@@ -40,7 +40,7 @@ extern void MakeSystemMenu (ClientData *pCD);
 extern void PlaceFrameOnScreen (ClientData *pCD, int *pX, int *pY, int w, 
 				int h);
 extern void PlaceIconOnScreen (ClientData *pCD, int *pX, int *pY);
-extern void ProcessMwmHints (ClientData *pCD);
+extern void ProcessMwmHints (ClientData *pCD, Boolean firstTime);
 extern void ProcessWmClass (ClientData *pCD);
 extern void ProcessWmHints (ClientData *pCD, Boolean firstTime);
 extern void ProcessWmIconTitle (ClientData *pCD, Boolean firstTime);

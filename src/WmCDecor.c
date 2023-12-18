@@ -50,6 +50,11 @@
 #include "WmWinInfo.h"
 #include "WmXinerama.h"
 
+static Boolean ConstructFrame(ClientData *pcd);
+static void GenerateFrameDisplayLists(ClientData *pcd);
+static void CreateStretcherWindows(ClientData *pcd);
+static Boolean AllocateGadgetRectangles(ClientData *pcd);
+static void ComputeGadgetRectangles(ClientData *pcd);
 
 /*
  * Global Variables:
@@ -311,6 +316,24 @@ void BaseWinExposureProc (ClientData *pcd)
     }
 }
 
+/*
+ * Update client frame according to decor and functions in pcd
+ */
+Boolean UpdateClientDecorations(ClientData *pcd)
+{
+	SetClientOffset(pcd);
+
+	if(!ConstructFrame(pcd)) return False;
+
+	RegenerateClientFrame(pcd);
+
+	if(pcd == wmGD.keyboardFocus)
+		ShowActiveClientFrame(pcd);
+	else
+		ShowInactiveClientFrame(pcd);
+
+	return True;
+}
 
 
 /*************************************<->*************************************
@@ -337,7 +360,7 @@ void BaseWinExposureProc (ClientData *pcd)
  * 
  *************************************<->***********************************/
 
-Boolean ConstructFrame (ClientData *pcd)
+static Boolean ConstructFrame (ClientData *pcd)
 {
     unsigned long 	 decoration = pcd->decor;
     unsigned int 	 wclass;		/* window class */
@@ -349,69 +372,80 @@ Boolean ConstructFrame (ClientData *pcd)
     SetFrameInfo (pcd);
 
     /* allocate space */
-    if (!AllocateFrameDisplayLists(pcd)) {
-	return(FALSE);
-    }
+    if (!AllocateFrameDisplayLists(pcd)) return(FALSE);
 
     /* create frame window  */
+	if(!pcd->clientFrameWin) {
+    	attr_mask =  CWEventMask;
+    	window_attribs.event_mask = (ButtonPressMask | ButtonReleaseMask |
+					 SELECT_BUTTON_MOTION_MASK | 
+					 DMANIP_BUTTON_MOTION_MASK |
+					 ExposureMask);
 
-    attr_mask =  CWEventMask;
-    window_attribs.event_mask = (ButtonPressMask | ButtonReleaseMask |
-				 SELECT_BUTTON_MOTION_MASK | 
-				 DMANIP_BUTTON_MOTION_MASK |
-				 ExposureMask);
+    	if ((wmGD.keyboardFocusPolicy == KEYBOARD_FOCUS_POINTER) ||
+		(wmGD.colormapFocusPolicy == CMAP_FOCUS_POINTER))
+    	{
+		window_attribs.event_mask |= EnterWindowMask | LeaveWindowMask;
+    	}
 
-    if ((wmGD.keyboardFocusPolicy == KEYBOARD_FOCUS_POINTER) ||
-	(wmGD.colormapFocusPolicy == CMAP_FOCUS_POINTER))
-    {
-	window_attribs.event_mask |= EnterWindowMask | LeaveWindowMask;
-    }
+    	/* 
+    	 * Use background pixmap if one is specified, otherwise set the
+    	 * appropriate background color. 
+    	 */
 
-    /* 
-     * Use background pixmap if one is specified, otherwise set the
-     * appropriate background color. 
-     */
+    	if (CLIENT_APPEARANCE(pcd).backgroundPixmap)
+    	{
+		attr_mask |= CWBackPixmap;
+		window_attribs.background_pixmap =
+			CLIENT_APPEARANCE(pcd).backgroundPixmap;
+    	}
+    	else
+    	{
+		attr_mask |= CWBackPixel;
+		window_attribs.background_pixel = CLIENT_APPEARANCE(pcd).background;
+    	}
 
-    if (CLIENT_APPEARANCE(pcd).backgroundPixmap)
-    {
-	attr_mask |= CWBackPixmap;
-	window_attribs.background_pixmap =
-		CLIENT_APPEARANCE(pcd).backgroundPixmap;
-    }
-    else
-    {
-	attr_mask |= CWBackPixel;
-	window_attribs.background_pixel = CLIENT_APPEARANCE(pcd).background;
-    }
+    	attr_mask |= CWCursor;
+    	window_attribs.cursor = wmGD.workspaceCursor;
 
-    attr_mask |= CWCursor;
-    window_attribs.cursor = wmGD.workspaceCursor;
+    	frmY = pcd->frameInfo.y;
+    	frmX = pcd->frameInfo.x;
 
-    frmY = pcd->frameInfo.y;
-    frmX = pcd->frameInfo.x;
-
-    if (CLIENT_APPEARANCE(pcd).saveUnder &&
-	WmGetWindowAttributes (pcd->client) &&
-	wmGD.windowAttributes.save_under)
-    {
-	attr_mask |= CWSaveUnder;
-	window_attribs.save_under = True;
-    }
+    	if (CLIENT_APPEARANCE(pcd).saveUnder &&
+		WmGetWindowAttributes (pcd->client) &&
+		wmGD.windowAttributes.save_under)
+    	{
+		attr_mask |= CWSaveUnder;
+		window_attribs.save_under = True;
+    	}
 
 	    pcd->clientFrameWin = XCreateWindow(DISPLAY, 
-				RootWindow (DISPLAY,
-				    SCREEN_FOR_CLIENT(pcd)),
-				frmX, 
-				frmY, 
-				pcd->frameInfo.width, 
+			RootWindow (DISPLAY,
+		    SCREEN_FOR_CLIENT(pcd)),
+			frmX, 
+			frmY, 
+			pcd->frameInfo.width, 
 			pcd->frameInfo.height, 0, 
 			CopyFromParent,InputOutput,CopyFromParent,
 			attr_mask, &window_attribs);
+	} else {
+		XMoveResizeWindow(DISPLAY, pcd->clientFrameWin,
+			pcd->frameInfo.x, pcd->frameInfo.y,
+			pcd->frameInfo.width, pcd->frameInfo.height);
+	}
 
     /* create resizing windows with cursors*/
     if (SHOW_RESIZE_CURSORS(pcd) && (decoration & MWM_DECOR_RESIZEH)) {
-	CreateStretcherWindows (pcd);
-    }
+		if(!pcd->clientStretchWin[0])
+			CreateStretcherWindows (pcd);
+    } else if(pcd->clientStretchWin[0]) {
+		int i;
+		
+		for(i = 0; i < STRETCH_COUNT; i++) {
+			XDestroyWindow(DISPLAY, pcd->clientStretchWin[i]);
+			pcd->clientStretchWin[i] = None;
+		}
+	}
 
     /* 
      * Create title bar window. If the title bar has its own appearance,
@@ -419,58 +453,62 @@ Boolean ConstructFrame (ClientData *pcd)
      * then we need to create an input/output window to draw in. Otherwise
      * we can use an input-only window (to clip the corner resize windows).
      */
-    if (decoration & MWM_DECOR_TITLE) {
+    if ((decoration & MWM_DECOR_TITLE) && !pcd->clientTitleWin) {
 
-	attr_mask = CWCursor;
-	window_attribs.cursor = wmGD.workspaceCursor;
+		attr_mask = CWCursor;
+		window_attribs.cursor = wmGD.workspaceCursor;
 
-	if (DECOUPLE_TITLE_APPEARANCE(pcd)) 
-	{
-	    /* title bar has a different appearance than rest of frame */
-	    wclass = InputOutput;
+		if (DECOUPLE_TITLE_APPEARANCE(pcd)) 
+		{
+	    	/* title bar has a different appearance than rest of frame */
+	    	wclass = InputOutput;
 
-	    /* need to handle exposure events */
-	    attr_mask |= CWEventMask;
-	    window_attribs.event_mask = ExposureMask;
+	    	/* need to handle exposure events */
+	    	attr_mask |= CWEventMask;
+	    	window_attribs.event_mask = ExposureMask;
 
-	    /* 
-	     * Use background pixmap if one is specified, otherwise set the
-	     * appropriate background color. 
-	     */
+	    	/* 
+	    	 * Use background pixmap if one is specified, otherwise set the
+	    	 * appropriate background color. 
+	    	 */
 
-	    if (CLIENT_TITLE_APPEARANCE(pcd).backgroundPixmap)
-	    {
-		attr_mask |= CWBackPixmap;
-		window_attribs.background_pixmap =
-			    CLIENT_TITLE_APPEARANCE(pcd).backgroundPixmap;
-	    }
-	    else
-	    {
-		attr_mask |= CWBackPixel;
-		window_attribs.background_pixel = 
-			    CLIENT_TITLE_APPEARANCE(pcd).background;
-	    }
+	    	if (CLIENT_TITLE_APPEARANCE(pcd).backgroundPixmap)
+	    	{
+			attr_mask |= CWBackPixmap;
+			window_attribs.background_pixmap =
+			    	CLIENT_TITLE_APPEARANCE(pcd).backgroundPixmap;
+	    	}
+	    	else
+	    	{
+			attr_mask |= CWBackPixel;
+			window_attribs.background_pixel = 
+			    	CLIENT_TITLE_APPEARANCE(pcd).background;
+	    	}
+		}
+		else 
+		{
+	    	/* title bar has same appearance as rest of frame */
+	    	wclass = InputOnly;
+		}
+
+		pcd->clientTitleWin = XCreateWindow(DISPLAY, pcd->clientFrameWin,
+					(int) pcd->frameInfo.upperBorderWidth, 
+					(int) pcd->frameInfo.upperBorderWidth, 
+					pcd->frameInfo.width - 
+				    	2*pcd->frameInfo.upperBorderWidth, 
+					pcd->frameInfo.titleBarHeight, 
+					0, 
+					CopyFromParent,wclass,CopyFromParent,
+					attr_mask, &window_attribs);
+    } else if(!(decoration & MWM_DECOR_TITLE) && pcd->clientTitleWin) {
+		XDestroyWindow(DISPLAY, pcd->clientTitleWin);
+		pcd->clientTitleWin = None;
+	} else if(pcd->clientTitleWin) {
+		XRaiseWindow(DISPLAY, pcd->clientTitleWin);
 	}
-	else 
-	{
-	    /* title bar has same appearance as rest of frame */
-	    wclass = InputOnly;
-	}
-
-	pcd->clientTitleWin = XCreateWindow(DISPLAY, pcd->clientFrameWin,
-				(int) pcd->frameInfo.upperBorderWidth, 
-				(int) pcd->frameInfo.upperBorderWidth, 
-				pcd->frameInfo.width - 
-				    2*pcd->frameInfo.upperBorderWidth, 
-				pcd->frameInfo.titleBarHeight, 
-				0, 
-				CopyFromParent,wclass,CopyFromParent,
-				attr_mask, &window_attribs);
-    }
 
     /* generate gadget position search structure */
-    if (!AllocateGadgetRectangles (pcd))
-	return(FALSE);
+    if (!AllocateGadgetRectangles (pcd)) return(FALSE);
     ComputeGadgetRectangles (pcd);
 
 
@@ -478,35 +516,40 @@ Boolean ConstructFrame (ClientData *pcd)
      * Create base window for reparenting. Save rectangle data for use
      * in event dispatching.
      */
+	if(pcd->clientBaseWin == None) {
+    	window_attribs.event_mask = (SubstructureRedirectMask |
+					 SubstructureNotifyMask | FocusChangeMask);
+    	if (pcd->matteWidth > 0)
+    	{
+			window_attribs.event_mask |= ExposureMask;
+			window_attribs.background_pixel = pcd->matteBackground;
+    	}
+    	else
+    	{
+			window_attribs.background_pixel = 
+	    		CLIENT_TITLE_APPEARANCE(pcd).background;
+    	}
 
-    window_attribs.event_mask = (SubstructureRedirectMask |
-				 SubstructureNotifyMask |
-				 FocusChangeMask);
-    if (pcd->matteWidth > 0)
-    {
-	window_attribs.event_mask |= ExposureMask;
-	window_attribs.background_pixel = pcd->matteBackground;
-    }
-    else
-    {
-	window_attribs.background_pixel = 
-	    CLIENT_TITLE_APPEARANCE(pcd).background;
-    }
-
-    attr_mask = CWBackPixel | CWEventMask;
+    	attr_mask = CWBackPixel | CWEventMask;
 
     	pcd->clientBaseWin = XCreateWindow(DISPLAY, pcd->clientFrameWin,
-				BaseWindowX (pcd),
-				BaseWindowY (pcd),
-				BaseWindowWidth (pcd),
-				BaseWindowHeight (pcd),
-				0, 
-				CopyFromParent,InputOutput,CopyFromParent,
-				attr_mask, &window_attribs);
+			BaseWindowX (pcd),
+			BaseWindowY (pcd),
+			BaseWindowWidth (pcd),
+			BaseWindowHeight (pcd),
+			0, 
+			CopyFromParent,InputOutput,CopyFromParent,
+			attr_mask, &window_attribs);
+	} else {
+		XRaiseWindow(DISPLAY, pcd->clientBaseWin);
+		XMoveResizeWindow(DISPLAY, pcd->clientBaseWin,
+			BaseWindowX (pcd), BaseWindowY (pcd),
+			BaseWindowWidth (pcd), BaseWindowHeight (pcd));
+	}
 
     /* map all subwindows of client frame */
 
-    XMapSubwindows(DISPLAY, pcd->clientFrameWin);
+	XMapSubwindows(DISPLAY, pcd->clientFrameWin);
     return(TRUE);
 }
 
@@ -550,7 +593,7 @@ Boolean ConstructFrame (ClientData *pcd)
  * 
  *************************************<->***********************************/
 
-void GenerateFrameDisplayLists (ClientData *pcd)
+static void GenerateFrameDisplayLists (ClientData *pcd)
 {
     unsigned long decoration   = pcd->decor;
     int           matte_width  = pcd->matteWidth;
@@ -566,7 +609,6 @@ void GenerateFrameDisplayLists (ClientData *pcd)
     unsigned int jW, jH;
  
     /* zero out part counts */
-
     if (pcd->pclientTopShadows)
 	pcd->pclientTopShadows->used = 0;
     if (pcd->pclientBottomShadows)
@@ -1259,7 +1301,7 @@ void DrawWindowTitle (ClientData *pcd, Boolean eraseFirst)
  * 
  *************************************<->***********************************/
 
-void CreateStretcherWindows (ClientData *pcd)
+static void CreateStretcherWindows (ClientData *pcd)
 {
     int iWin;
     int x, y;
@@ -1408,7 +1450,8 @@ void CountFrameRectangles (WmScreenData *pSD)
  *
  *  Comments:
  *  --------
- *  
+ *  Successive calls to this function will allocate additional list if needed
+ *  according to current frame config, or leave them unchanged otherwise.
  * 
  *************************************<->***********************************/
 
@@ -1420,8 +1463,8 @@ Boolean AllocateFrameDisplayLists (ClientData *pcd)
      *	If the title bar has it's own appearance, then allocate
      *  separate display lists for it. 
      */
-    if (DECOUPLE_TITLE_APPEARANCE(pcd) && 
-	(pcd->decor & MWM_DECOR_TITLE))
+    if (DECOUPLE_TITLE_APPEARANCE(pcd) && (pcd->decor & MWM_DECOR_TITLE) &&
+		(pcd->pclientTitleTopShadows == NULL))
     {
 	if (((pcd->pclientTitleTopShadows = 
 	      AllocateRList ((unsigned)NUM_TITLE_TS_ELEMENTS(pcd))) == NULL) ||
@@ -1543,10 +1586,11 @@ void InitClientDecoration (WmScreenData *pSD)
  *
  *  Comments:
  *  --------
- * 
+ *  Successive calls to this function will allocate additional gadgets if
+ *  needed according to current frame config, or make no changes otherwise.
  *************************************<->***********************************/
 
-Boolean AllocateGadgetRectangles (ClientData *pcd)
+static Boolean AllocateGadgetRectangles (ClientData *pcd)
 {
     int num_rects;
     unsigned long decor = pcd->decor;
@@ -1626,7 +1670,7 @@ Boolean AllocateGadgetRectangles (ClientData *pcd)
  * 
  *************************************<->***********************************/
 
-void ComputeGadgetRectangles (ClientData *pcd)
+static void ComputeGadgetRectangles (ClientData *pcd)
 {
     unsigned long decor = pcd->decor;
     GadgetRectangle *pgr;
@@ -2240,13 +2284,15 @@ void RegenerateClientFrame (ClientData *pcd)
 	   pcd->frameInfo.y, pcd->frameInfo.width, pcd->frameInfo.height);
 
 
-    /* resize title bar window */
-    if (decor & MWM_DECOR_TITLE)
-    {
-	XResizeWindow (DISPLAY, pcd->clientTitleWin, 
-	   pcd->frameInfo.width - 2*pcd->frameInfo.upperBorderWidth, 
-	   pcd->frameInfo.titleBarHeight);
-    }
+	/* resize title bar window */
+	if (decor & MWM_DECOR_TITLE)
+	{
+		XMoveResizeWindow (DISPLAY, pcd->clientTitleWin, 
+			pcd->frameInfo.upperBorderWidth,
+			pcd->frameInfo.upperBorderWidth,
+			pcd->frameInfo.width - 2*pcd->frameInfo.upperBorderWidth, 
+			pcd->frameInfo.titleBarHeight);
+	}
 
     /* resize base window */
     XResizeWindow (DISPLAY, pcd->clientBaseWin, BaseWindowWidth (pcd),

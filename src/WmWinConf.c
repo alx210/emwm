@@ -1739,6 +1739,50 @@ Boolean WindowIsOnScreen (ClientData *pCD, int *dx, int *dy)
   return ((*dx == 0) && (*dy == 0));
 }
 
+/*************************************<->*************************************
+ *
+ *  RecomputeMaxConfig (pCD)
+ *
+ *
+ *  Description:
+ *  -----------
+ *  Updates client's maximized configuration position and size according
+ *  to current decorations and xinerama screen the client resides on.
+ *
+ *
+ *  Inputs:
+ *  ------
+ *  pCD = pointer to client data (identifies client window)
+ *
+ *************************************<->***********************************/
+void RecomputeMaxConfig(ClientData *pCD)
+{
+	XineramaScreenInfo si;
+    int frmWidth = pCD->clientOffset.x * 2;
+    int frmHeight = pCD->clientOffset.x + pCD->clientOffset.y;
+    
+   	if(!GetXineramaScreenFromLocation(pCD->clientX, pCD->clientY, &si)) {
+        si.width = DisplayWidth(DISPLAY, SCREEN_FOR_CLIENT(pCD));
+        si.height = DisplayHeight(DISPLAY, SCREEN_FOR_CLIENT(pCD));
+    }
+
+    pCD->oldMaxWidth = pCD->maxWidth;
+    pCD->maxWidth = si.width - frmWidth;
+    pCD->oldMaxHeight = pCD->maxHeight;
+    pCD->maxHeight = si.height - frmHeight;
+
+    if(pCD->maxWidth > pCD->maxWidthLimit)
+	    pCD->maxWidth = pCD->maxWidthLimit;
+
+    if(pCD->maxHeight > pCD->maxHeightLimit)
+	    pCD->maxHeight = pCD->maxHeightLimit;
+
+    pCD->maxWidth -= ((pCD->maxWidth - pCD->baseWidth) % pCD->widthInc);
+    pCD->maxHeight -= ((pCD->maxHeight - pCD->baseHeight) % pCD->heightInc);
+
+    PlaceFrameOnScreen(pCD, &pCD->maxX, &pCD->maxY,
+	    pCD->maxWidth, pCD->maxHeight);
+}
 
 
 /*************************************<->*************************************
@@ -1782,8 +1826,8 @@ void ProcessNewConfiguration (ClientData *pCD, int x, int y, unsigned int width,
 	Boolean xineramaActive = False;
 	XineramaScreenInfo xsi;
 	
-	xineramaActive = GetXineramaScreenFromLocation(x,y,&xsi);
-	
+	xineramaActive = GetXineramaScreenFromLocation(x, y, &xsi);
+
     /*
      * Fix the configuration values to be compatible with the configuration
      * constraints for this class of windows.
@@ -1933,30 +1977,9 @@ void ProcessNewConfiguration (ClientData *pCD, int x, int y, unsigned int width,
 	    pCD->clientY = y + yoff;
 	}
 	
-	/* If Xinerama is active, update client's maximized position and size
-	 * according to screen the window resides on. */
+	/* If Xinerama is active, update client's maximized config data */
 	if(xineramaActive && !toNewMax && (changedValues & (CWX|CWY))){
-		int frmWidth = pCD->clientOffset.x * 2;
-		int frmHeight = pCD->clientOffset.x + pCD->clientOffset.y;
-
-		pCD->oldMaxWidth = pCD->maxWidth;
-		pCD->maxWidth = xsi.width - frmWidth;
-		pCD->oldMaxHeight = pCD->maxHeight;
-		pCD->maxHeight = xsi.height - frmHeight;
-
-		if(pCD->maxWidth > pCD->maxWidthLimit)
-			pCD->maxWidth = pCD->maxWidthLimit;
-
-		if(pCD->maxHeight > pCD->maxHeightLimit)
-			pCD->maxHeight = pCD->maxHeightLimit;
-
-		pCD->maxWidth -=
-			((pCD->maxWidth - pCD->baseWidth) % pCD->widthInc);
-		pCD->maxHeight -=
-			((pCD->maxHeight - pCD->baseHeight) % pCD->heightInc);
-
-		PlaceFrameOnScreen(pCD, &pCD->maxX, &pCD->maxY,
-			pCD->maxWidth, pCD->maxHeight);
+		RecomputeMaxConfig(pCD);
 	}
     }
 

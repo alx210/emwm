@@ -154,7 +154,19 @@ GetClientInfo (WmScreenData *pSD, Window clientWindow, long manageFlags)
 
     pCD->clientClass = NULL;
     pCD->clientName = NULL;
+	pCD->clientTitleWin = (Window)0L;
     pCD->clientFrameWin = (Window)0L;
+	pCD->clientBaseWin = (Window)0L;
+	pCD->pTitleGadgets = NULL;
+	pCD->pResizeGadgets = NULL;
+	pCD->pclientTitleTopShadows = NULL;
+	pCD->pclientTitleBottomShadows = NULL;
+	pCD->pclientTopShadows = NULL;
+	pCD->pclientBottomShadows = NULL;
+	pCD->pclientMatteTopShadows = NULL;
+	pCD->pclientMatteBottomShadows = NULL;
+	memset(pCD->clientStretchWin, 0, sizeof(Window) * STRETCH_COUNT);
+
 #ifndef WSM
     pCD->iconFrameWin = (Window)0L;
 #endif /* WSM */
@@ -348,7 +360,7 @@ GetClientInfo (WmScreenData *pSD, Window clientWindow, long manageFlags)
      * Retrieve and process M_CLIENT_DECOR client window property info:
      */
 
-    ProcessMwmHints (pCD);
+    ProcessMwmHints (pCD, True);
 
 
     /*
@@ -3666,8 +3678,7 @@ SetupClientIconWindow (ClientData *pCD, Window window)
  *
  *************************************<->***********************************/
 
-void 
-ProcessMwmHints (ClientData *pCD)
+void ProcessMwmHints (ClientData *pCD, Boolean first_time)
 {
     PropMwmHints *pHints;
 	
@@ -3677,31 +3688,31 @@ ProcessMwmHints (ClientData *pCD)
      * Fix the client functions and decorations fields if they have
      * default resource values.
      */
+	if(first_time) {
+    	if (pCD->clientFunctions & WM_FUNC_DEFAULT)
+    	{
+		if (pCD->clientFlags & CLIENT_TRANSIENT)
+		{
+	    	pCD->clientFunctions = TRANSIENT_FUNCTIONS(pCD);
+		}
+		else
+		{
+	    	pCD->clientFunctions = WM_FUNC_ALL;
+		}
+    	}
 
-    if (pCD->clientFunctions & WM_FUNC_DEFAULT)
-    {
-	if (pCD->clientFlags & CLIENT_TRANSIENT)
-	{
-	    pCD->clientFunctions = TRANSIENT_FUNCTIONS(pCD);
+    	if (pCD->clientDecoration & WM_DECOR_DEFAULT)
+    	{
+		if (pCD->clientFlags & CLIENT_TRANSIENT)
+		{
+	    	pCD->clientDecoration = TRANSIENT_DECORATION(pCD);
+		}
+		else
+		{
+	    	pCD->clientDecoration = WM_DECOR_ALL;
+		}
+    	}
 	}
-	else
-	{
-	    pCD->clientFunctions = WM_FUNC_ALL;
-	}
-    }
-
-    if (pCD->clientDecoration & WM_DECOR_DEFAULT)
-    {
-	if (pCD->clientFlags & CLIENT_TRANSIENT)
-	{
-	    pCD->clientDecoration = TRANSIENT_DECORATION(pCD);
-	}
-	else
-	{
-	    pCD->clientDecoration = WM_DECOR_ALL;
-	}
-    }
-
 
     /*
      * Retrieve the _MWM_HINTS property if it exists.
@@ -3711,8 +3722,11 @@ ProcessMwmHints (ClientData *pCD)
 
     if ((pHints = GetMwmHints (pCD)) != NULL)
     {
+	
 	if (pHints->flags & MWM_HINTS_FUNCTIONS)
 	{
+		if(!first_time) pCD->clientFunctions = WM_FUNC_ALL;
+		
 	    if (pHints->functions & MWM_FUNC_ALL)
 	    {
 		/* client indicating inapplicable functions */
@@ -3742,6 +3756,8 @@ ProcessMwmHints (ClientData *pCD)
 
 	if (pHints->flags & MWM_HINTS_DECORATIONS)
 	{
+		if(!first_time) pCD->clientDecoration = WM_DECOR_ALL;
+
 	    if (pHints->decorations & MWM_DECOR_ALL)
 	    {
 		/* client indicating decorations to be removed */

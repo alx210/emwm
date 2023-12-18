@@ -82,3 +82,4 @@ extern Boolean HandleMarqueeKeyPress (WmScreenData *pSD, XEvent *pev);
 #endif /* WSM */
 extern void WindowOutline (int x, int y, unsigned int width, 
 			 unsigned int height);
+extern void RecomputeMaxConfig(ClientData *pCD);
