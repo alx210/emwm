@@ -1,29 +1,5 @@
 !! EMWM application defaults
 
-!! Root menu and dialogs font style
-Emwm*renderTable: variable
-Emwm*renderTable.variable.fontType: FONT_IS_XFT
-Emwm*renderTable.variable.fontName: Liberation Sans
-Emwm*renderTable.variable.fontSize: 10
-
-!! Title bar font style
-Emwm*title.renderTable: title
-Emwm*renderTable.title.fontType: FONT_IS_XFT
-Emwm*renderTable.title.fontName: Liberation Sans
-Emwm*renderTable.title.fontSize: 10
-Emwm*renderTable.title.fontStyle: Bold
-
-!! Icon label font style
-Emwm*icon.renderTable: icon
-Emwm*renderTable.icon.fontType: FONT_IS_XFT
-Emwm*renderTable.icon.fontName: Liberation Sans
-Emwm*renderTable.icon.fontSize: 10
-Emwm*renderTable.icon.fontStyle: Italic
-
-!! Core fonts - sample
-!Emwm*renderTable.variable.fontType: FONT_IS_FONT
-!Emwm*renderTable.variable.fontName: -adobe-helvetica-medium-r-normal-*-12-*-*-*-*-*-*-*
-
 !! Window decoration colors
 Emwm*client*background: #8C8C8C
 Emwm*client*activeBackground: #7399BA
@@ -35,3 +11,30 @@ Emwm*icon*activeBackground: #7399BA
 !Emwm*client*activeTopShadowPixmap: 1x1
 !Emwm*client*activeBottomShadowPixmap: 1x1
 
+!! Root and window menu appearance - sample
+!Emwm*menu*menuTitle.background: #7399BA
+!Emwm*menu*menuTitle.renderTable: title
+
+!! Default font (menus and dialogs)
+Emwm*renderTable: variable
+Emwm*renderTable.variable.fontType: FONT_IS_XFT
+Emwm*renderTable.variable.fontName: Liberation Sans
+Emwm*renderTable.variable.fontSize: 10
+
+!! Title bar font
+Emwm*title.renderTable: title
+Emwm*renderTable.title.fontType: FONT_IS_XFT
+Emwm*renderTable.title.fontName: Liberation Sans
+Emwm*renderTable.title.fontSize: 10
+Emwm*renderTable.title.fontStyle: Bold
+
+!! Icon label font
+Emwm*icon.renderTable: icon
+Emwm*renderTable.icon.fontType: FONT_IS_XFT
+Emwm*renderTable.icon.fontName: Liberation Sans
+Emwm*renderTable.icon.fontSize: 10
+Emwm*renderTable.icon.fontStyle: Italic
+
+!! Core fonts - sample
+!Emwm*renderTable.variable.fontType: FONT_IS_FONT
+!Emwm*renderTable.variable.fontName: -adobe-helvetica-medium-r-normal-*-12-*-*-*-*-*-*-*

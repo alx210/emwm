@@ -53,7 +53,7 @@
 
 #define SHELL_NAME "menu"
 #define SEPARATOR_NAME "separator"
-#define TITLE_NAME "title_name"
+#define TITLE_NAME "menuTitle"
 #define CASCADE_BTN_NAME "cascadebutton"
 #define PUSH_BTN_NAME "pushbutton"
 
