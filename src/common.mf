@@ -19,7 +19,7 @@ mwm_objs = \
 	WmWinState.o	WmWsm.o		WmXSMP.o\
 	WmCmd.o 	WmImage.o	WmInitWs.o\
 	WmMenu.o	WmProtocol.o	WmXinerama.o \
-	WmEwmh.o
+	WmEwmh.o	WmVersion.o
 
 wsm_objs = \
 	WmWsmLib/debug.o WmWsmLib/disp.o\

@@ -35,6 +35,7 @@
 #include "WmResource.h"
 #include "WmWinConf.h"
 #include "WmXmP.h"
+#include "WmVersion.h"
 
 #include <Xm/VirtKeysP.h>
 
@@ -6551,6 +6552,7 @@ static void ProcessAccelText (unsigned char *startP, unsigned char *endP,
  *************************************<->***********************************/
 #define SCREENS_OPT		"-screens"
 #define MULTI_SCREEN_OPT	"-multiscreen"
+#define VERSION_OPT "-version"
 
 void ProcessCommandLine (int argc,  char *argv[])
 {
@@ -6576,6 +6578,10 @@ void ProcessCommandLine (int argc,  char *argv[])
 	    argnum++;		/* skip to next arg */
             ParseScreensArgument (argc, argv, &argnum, lineP);
         }
+	else if (!strcmp((char *)string, VERSION_OPT))
+	{
+		PrintVersionInfo();
+		}
     }
 
 } /* END OF FUNCTION ProcessCommandLine */
