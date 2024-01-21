@@ -1671,8 +1671,6 @@ XtResource wmWorkspaceResources[] =
     }
 
 };
-#else /* WSM */
-XtResource *wmWorkspaceResources = NULL;
 #endif /* WSM */
 
 
@@ -1706,8 +1704,6 @@ XtResource wmStdWorkspaceResources[] =
 	(XtPointer)NULL
     }
 };
-#else /* WSM */
-XtResource *wmStdWorkspaceResources = NULL;
 #endif /* WSM */
 
 #ifdef WSM
@@ -5218,7 +5214,7 @@ ProcessWorkspaceResources (WmWorkspaceData *pWS)
      */
 #ifdef WSM
     pResWS = pWS;	/* save current ws for default processing */
-#endif /* WSM */
+
 
     if (wmGD.useStandardBehavior)
     {
@@ -5231,9 +5227,9 @@ ProcessWorkspaceResources (WmWorkspaceData *pWS)
 	 *
 	 * (no code for this right now)
 	 */
-#ifdef WSM
+
         pWS->iconBoxGeometry = NULL;
-#endif /* WSM */
+
     }
     else
     {
@@ -5241,17 +5237,17 @@ ProcessWorkspaceResources (WmWorkspaceData *pWS)
 	    pWS->name, pWS->name, wmWorkspaceResources, 
 	    XtNumber (wmWorkspaceResources), NULL, 0);
 
-#ifdef WSM
+
         /*  Dup iconbox geometry, it may be free'd later on.  */
 
         if (pWS->iconBoxGeometry)
         {
             pWS->iconBoxGeometry = XtNewString (pWS->iconBoxGeometry);
         }
-#endif /* WSM */
+
     }
 
-#ifdef WSM
+
     if (pWS->title == NULL)
     {
 	/*
