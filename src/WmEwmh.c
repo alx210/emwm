@@ -722,7 +722,7 @@ static Pixmap GetIconPixmap(const ClientData *pCD)
 		return None;
 	}
 	
-	/* loop trough available images looking for usable size */
+	/* loop through available images looking for usable size */
 	fptr.i = prop_data;
 	rgb_width = fptr.i[0];
 	rgb_height = fptr.i[1];

@@ -12,11 +12,9 @@ libxm (open-motif/motif)
 
 BUILDING AND INSTALLING
 =======================
+To modify installation prefix and other options, edit the target platform
+specific makefile in the "mf" subdirectory (The target platform name is picked
+from uname(1)).
+
 Run 'make' in the top-level directory of the source distribution.
 When the build process finishes, run 'make install' as root.
-
-Note On MWM Compatibility
-=========================
-Initially EMWM used same configuration files and X resources as MWM, this needed
-to change in order to avoid conflicts. Future releases will only recognize Emwm
-class in X resources, mwmrc becomes emwmrc also.
