@@ -2963,11 +2963,11 @@ PlaceFrameOnScreen (ClientData *pCD, int *pX, int *pY, int w, int h)
     if(pX) frameX = *pX - (clientOffsetX + xOrg);
     if(pY) frameY = *pY - (clientOffsetY + yOrg);
 
-    if ((frameX + frameWidth) > screenWidth)
+    if ((frameX + frameWidth) >= screenWidth)
     {
         frameX -= (frameX + frameWidth) - screenWidth;
     }
-    if ((frameY + frameHeight) > screenHeight)
+    if ((frameY + frameHeight) >= screenHeight)
     {
         frameY -= (frameY + frameHeight) - screenHeight;
     }

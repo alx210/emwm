@@ -1758,6 +1758,7 @@ Boolean WindowIsOnScreen (ClientData *pCD, int *dx, int *dy)
 void RecomputeMaxConfig(ClientData *pCD)
 {
 	XineramaScreenInfo si;
+ 
     int frmWidth = pCD->clientOffset.x * 2;
     int frmHeight = pCD->clientOffset.x + pCD->clientOffset.y;
     
@@ -1780,11 +1781,14 @@ void RecomputeMaxConfig(ClientData *pCD)
     pCD->maxWidth -= ((pCD->maxWidth - pCD->baseWidth) % pCD->widthInc);
     pCD->maxHeight -= ((pCD->maxHeight - pCD->baseHeight) % pCD->heightInc);
 
+	pCD->maxX = pCD->clientX;
+	pCD->maxY = pCD->clientY;
+
     PlaceFrameOnScreen(pCD, &pCD->maxX, &pCD->maxY,
 	    pCD->maxWidth, pCD->maxHeight);
 }
 
-
+
 /*************************************<->*************************************
  *
  *  ProcessNewConfiguration (pCD, x, y, width, height, clientRequest)
@@ -1820,13 +1824,14 @@ void ProcessNewConfiguration (ClientData *pCD, int x, int y, unsigned int width,
     unsigned int changedValues = 0;
     int          xoff = 0, yoff = 0;
     int          dx, dy;
+	int          oldX = pCD->clientX - pCD->clientOffset.x;
+	int          oldY = pCD->clientY - pCD->clientOffset.y;
     Boolean      originallyOnScreen = WindowIsOnScreen(pCD, &dx, &dy);
     Boolean newMax = False;
     Boolean toNewMax = False;
-	Boolean xineramaActive = False;
-	XineramaScreenInfo xsi;
+	int nxs;
 	
-	xineramaActive = GetXineramaScreenFromLocation(x, y, &xsi);
+	GetXineramaScreenCount(&nxs);
 
     /*
      * Fix the configuration values to be compatible with the configuration
@@ -1977,9 +1982,15 @@ void ProcessNewConfiguration (ClientData *pCD, int x, int y, unsigned int width,
 	    pCD->clientY = y + yoff;
 	}
 	
-	/* If Xinerama is active, update client's maximized config data */
-	if(xineramaActive && !toNewMax && (changedValues & (CWX|CWY))){
-		RecomputeMaxConfig(pCD);
+	/* If Xinerama is active and the client was moved to another
+	 * screen, update its maximized config dimensions */
+	if((nxs > 1) && !toNewMax && (changedValues & (CWX|CWY))){
+		XineramaScreenInfo prev_xs, cur_xs;
+		if( (GetXineramaScreenFromLocation(oldX, oldY, &prev_xs) &&
+			GetXineramaScreenFromLocation(x, y, &cur_xs) &&
+			(prev_xs.screen_number != cur_xs.screen_number)) ) {
+				RecomputeMaxConfig(pCD);
+		}
 	}
     }
 

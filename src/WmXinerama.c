@@ -70,7 +70,10 @@ void UpdateXineramaInfo(void)
  */
 Bool GetXineramaScreenCount(int *i)
 {
-	if(!is_active) return False;
+	if(!is_active) {
+		*i = 0;
+		return False;
+	}
 	*i = g_nxsi;
 	return True;
 }
@@ -89,13 +92,13 @@ Bool GetXineramaScreenFromLocation(int x, int y, XineramaScreenInfo *xsi)
 	if(y < 0) y=0;
 
 	for(i=0; i < g_nxsi; i++){
-		if((x >= g_xsi[i].x_org && x <= (g_xsi[i].x_org+g_xsi[i].width)) &&
-			(y >= g_xsi[i].y_org &&	y <= (g_xsi[i].y_org+g_xsi[i].height)))
+		if((x >= g_xsi[i].x_org && x < (g_xsi[i].x_org+g_xsi[i].width)) &&
+			(y >= g_xsi[i].y_org &&	y < (g_xsi[i].y_org+g_xsi[i].height)))
 			break;
 	}
 
 	if(i < g_nxsi){
-		memcpy(xsi,&g_xsi[i],sizeof(XineramaScreenInfo));
+		memcpy(xsi, &g_xsi[i], sizeof(XineramaScreenInfo));
 		return True;
 	}
 	return False;
