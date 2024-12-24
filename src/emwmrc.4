@@ -25,8 +25,8 @@ on a per-user basis:
 .nf
 \f(CW$HOME/$LANG/\&.emwmrc
 $HOME/\&.emwmrc
-/usr/X11R6/lib/X11/$LANG/system\&.emwmrc \(dg
-/usr/X11R6/lib/X11/system\&.emwmrc\fR \(dg
+/usr/etc/X11/$LANG/system\&.emwmrc \(dg
+/usr/etc/X11/system\&.emwmrc\fR \(dg
 .fi
 .PP
 \(dg Paths may vary depending on system/distribution.
@@ -288,9 +288,6 @@ behavior (if a custom behavior is configured) or a custom behavior (if a
 default behavior is configured)\&. By default this is bound to \fIShift\ Ctrl\ Alt\ <Key>!\fP\&.
 .IP "\fBf\&.title\fP" 10
 This function inserts a title in the menu pane at the specified location\&.
-.IP "\fBf\&.version\fP" 10
-This function causes the window manager to display its release version
-in a dialog box\&.
 .SS "Function Constraints"
 .PP
 Each function may be constrained as to which resource types can specify
@@ -352,7 +349,6 @@ _
 \fBf\&.separator\fProot,icon,windowmenu
 \fBf\&.set_behavior\fProot,icon,windowbutton,key,menu
 \fBf\&.title\fProot,icon,windowmenu
-\fBf\&.version\fProot,icon,windowbutton,key,menu
 .TE
 .SH "WINDOW MANAGER EVENT SPECIFICATION"
 .PP
@@ -579,8 +575,8 @@ the appearance or behavior of \fBemwm\fP is not what you expect\&.
 .nf
 \fB$HOME/$LANG/\&.emwmrc
 $HOME/\&.emwmrc
-/usr/X11R6/lib/X11/$LANG/system\&.emwmrc \(dg
-/usr/X11R6/lib/X11/system\&.emwmrc\fP \(dg
+/usr/etc/X11/$LANG/system\&.emwmrc \(dg
+/usr/etc/X11/system\&.emwmrc\fP \(dg
 .fi
 .PP
 \(dg Paths may vary depending on system/distribution.
