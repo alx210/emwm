@@ -71,6 +71,7 @@
 #include "WmIconBox.h"
 #include "WmImage.h"
 #include "WmError.h"
+#include "WmXinerama.h"
 #ifdef WSM
 #include "WmWrkspace.h"
 #endif /* WSM */
@@ -79,6 +80,8 @@
 static void UnmapCallback (Widget w, XtPointer client_data,
 			   XtPointer call_data);
 static MenuItem *DuplicateMenuItems (MenuItem *menuItems);
+static void AdjustMenuPosition(ClientData*, int *x, int *y,
+	unsigned int width, unsigned int height);
 
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
 static MenuExclusion *DuplicateMenuExclusions(MenuExclusion *exclusions);
@@ -216,6 +219,7 @@ MenuSpec *MakeMenu (WmScreenData *pSD,
 	newMenuSpec->name = NULL;  /* distinguishes this as custom */
 	newMenuSpec->whichButton = SELECT_BUTTON;
 	newMenuSpec->height = 0;
+	newMenuSpec->width = 0;
 	newMenuSpec->menuItems = menuSpec->menuItems; /* temporary */
 	newMenuSpec->accelContext = menuSpec->accelContext;
 	newMenuSpec->accelKeySpecs = NULL;
@@ -420,6 +424,7 @@ MakeMenuSpec (String menuName, CARD32 commandID)
     menuSpec->currentContext = F_CONTEXT_ALL;
     menuSpec->menuWidget = (Widget) NULL;
     menuSpec->whichButton = SELECT_BUTTON;
+	menuSpec->width = 0;
     menuSpec->height = 0;
     menuSpec->menuItems = (MenuItem *) NULL;
     menuSpec->menuButtons = (MenuButton *) NULL;
@@ -638,6 +643,7 @@ DuplicateMenuSpec (MenuSpec *menuSpec)
     newMenuSpec->currentContext = menuSpec->currentContext;
     newMenuSpec->menuWidget = (Widget) NULL;
     newMenuSpec->whichButton = menuSpec->whichButton;
+	newMenuSpec->width = menuSpec->width;
     newMenuSpec->height = menuSpec->height;
     newMenuSpec->menuItems = DuplicateMenuItems(menuSpec->menuItems);
     newMenuSpec->menuButtons = (MenuButton *) NULL;
@@ -3229,7 +3235,32 @@ AdjustTearOffControl (Widget cascade,
 
   return (False);
 }
-
+
+/*************************************<->*************************************
+ *
+ * Adjusts menu coordinates so that it doesn't appear off-screen, or
+ * split across Xinerama screns.
+ *
+ *************************************<->***********************************/
+static void AdjustMenuPosition(ClientData *pCD, int *x, int *y,
+	unsigned int width, unsigned int height)
+{
+	XineramaScreenInfo xsi;
+
+	if(!GetXineramaScreenFromLocation(*x, *y, &xsi)){
+		xsi.x_org = 0;
+		xsi.y_org = 0;
+		xsi.width = XDisplayWidth(DISPLAY, pCD->pSD->screen);
+		xsi.height = XDisplayHeight(DISPLAY, pCD->pSD->screen);
+	}
+	
+	if((*x + width) >= (xsi.x_org + xsi.width)) {
+		*x -= ((*x + width) - (xsi.x_org + xsi.width));
+	}
+	if((*y + height) >= (xsi.y_org + xsi.height)) {
+		*y -= ((*y + height) - (xsi.y_org + xsi.height));
+	}
+}
 
 /*************************************<->*************************************
  *
@@ -3390,6 +3421,7 @@ Widget CreateMenuWidget (WmScreenData *pSD,
     Pixmap      labelPixmap;
     KeySpec    *accelKeySpec;
     Dimension   menuHeight;
+	Dimension   menuWidth;
     Boolean     fUseTitleSep = False;
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
     Boolean     labelIsClientCommand = False;
@@ -3843,9 +3875,11 @@ Widget CreateMenuWidget (WmScreenData *pSD,
     if (fTopLevelPane)
     {
 	i = 0;
-	XtSetArg (args[i], XtNheight, &menuHeight);  i++;
+	XtSetArg(args[i], XtNwidth, &menuWidth); i++;
+	XtSetArg(args[i], XtNheight, &menuHeight);  i++;
 	XtGetValues (menuW, (ArgList)args, i);
 	topMenuSpec->height = (unsigned int) menuHeight;
+	topMenuSpec->width = (unsigned int) menuWidth;
     }
 
     /*
@@ -3902,7 +3936,7 @@ Widget CreateMenuWidget (WmScreenData *pSD,
  *  button =        button number posting the menu or NoButton (WmGlobal.h) if
  *                  posted by a key
  *  newContext =    context that the menu is to be posted under.
- *  flags =         POST_AT_XY bit set iff x,y are valid, else compute from pCD
+ *  flags =         POST_AT_XY bit set if x,y are valid, else compute from pCD
  *                  POST_TRAVERSAL_ON bit set if set traversal on
  * 
  *  Outputs:
@@ -3926,7 +3960,8 @@ void PostMenu (MenuSpec *menuSpec, ClientData *pCD, int x, int y, unsigned int b
     int              i;
     Arg              args[3];
     unsigned int     whichButton;
-    Dimension        menuHeight;
+	Dimension menuWidth;
+    Dimension menuHeight;
     XButtonPressedEvent event;
     Window           saveWindow;
     Display          *saveDisplay;
@@ -3938,7 +3973,6 @@ void PostMenu (MenuSpec *menuSpec, ClientData *pCD, int x, int y, unsigned int b
     {
 	return;
     }
-
 
     /* 
      * Don't post a menu from an icon in the iconbox if the
@@ -3991,9 +4025,11 @@ void PostMenu (MenuSpec *menuSpec, ClientData *pCD, int x, int y, unsigned int b
 	)
     {
         i = 0;
+		XtSetArg (args[i], XtNwidth, &menuWidth); i++;
         XtSetArg (args[i], XtNheight, &menuHeight);  i++;
         XtGetValues (menuSpec->menuWidget, (ArgList)args, i);
         menuSpec->height = (unsigned int) menuHeight;
+		menuSpec->width = (unsigned int) menuWidth;
     }
     menuSpec->currentContext = newContext;
 
@@ -4015,11 +4051,11 @@ void PostMenu (MenuSpec *menuSpec, ClientData *pCD, int x, int y, unsigned int b
      *  Determine the position of the popup menu.
      *  Compute position if necessary (system menu).
      */
-
-    if (!(flags & POST_AT_XY))
-    /* compute the position */
-    {
-	GetSystemMenuPosition (pCD, &x, &y, menuSpec->height, newContext);
+    if (flags & POST_AT_XY) {
+		AdjustMenuPosition(pCD, &x, &y, menuSpec->width, menuSpec->height);
+    } else {
+		GetSystemMenuPosition (pCD, &x, &y, menuSpec->width,
+			menuSpec->height, newContext);
     }
 
     event.x_root = x;

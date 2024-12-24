@@ -1896,6 +1896,8 @@ static void ComputeGadgetRectangles (ClientData *pcd)
  *
  *  py = pointer to y location
  *
+ *  width = width of the system menu
+ *
  *  height = height of the system menu
  *
  *  context =  context that the menu is to be posted under.
@@ -1912,15 +1914,15 @@ static void ComputeGadgetRectangles (ClientData *pcd)
  *************************************<->***********************************/
 
 void GetSystemMenuPosition (ClientData *pcd, int *px, int *py, 
-			    unsigned int height, Context context)
+			    unsigned int width, unsigned int height, Context context)
 {
 	XineramaScreenInfo xsi;
-	int dispBottom;
 
-	if(GetXineramaScreenFromLocation(pcd->clientX,pcd->clientY,&xsi)){
-		dispBottom = xsi.y_org + xsi.height;
-	}else{
-		dispBottom = XDisplayHeight(DISPLAY,pcd->pSD->screen);
+	if(!GetXineramaScreenFromLocation(pcd->clientX, pcd->clientY, &xsi)){
+		xsi.x_org = 0;
+		xsi.y_org = 0;
+		xsi.width = XDisplayWidth(DISPLAY, pcd->pSD->screen);
+		xsi.height = XDisplayHeight(DISPLAY, pcd->pSD->screen);
 	}
 
     if ((pcd->clientState == MINIMIZED_STATE) ||
@@ -2007,7 +2009,7 @@ void GetSystemMenuPosition (ClientData *pcd, int *px, int *py,
 	    *py = pcd->frameInfo.y + pcd->frameInfo.upperBorderWidth + 
 		  pcd->frameInfo.titleBarHeight;
 	}
-	if (*py + height >= dispBottom)
+	if (*py + height >= (xsi.y_org + xsi.height))
 	{
 	    if ((pcd->decor & MWM_DECOR_TITLE) &&
 		!(pcd->decor & (MWM_DECOR_RESIZEH | MWM_DECOR_BORDER)))
@@ -2016,21 +2018,22 @@ void GetSystemMenuPosition (ClientData *pcd, int *px, int *py,
 	    }
 	    else
 	    {
-		*py = pcd->frameInfo.y + pcd->frameInfo.upperBorderWidth - 
-		    height;
+		*py = pcd->frameInfo.y + pcd->frameInfo.upperBorderWidth - height;
 	    }
 	    if (*py < 0)
 	    {
 		wmGD.checkHotspot = FALSE;
 	    }
 	}
+	if(*px + width > (xsi.x_org + xsi.width)) {
+		*px -= (*px + width - (xsi.x_org + xsi.width));
+	}
 
 	/* setup the hotspot rectangle data */
-
 	wmGD.hotspotRectangle.x = pcd->frameInfo.x + 
-				  pcd->frameInfo.lowerBorderWidth;
+		pcd->frameInfo.lowerBorderWidth;
 	wmGD.hotspotRectangle.y = pcd->frameInfo.y + 
-	                          pcd->frameInfo.upperBorderWidth;
+		pcd->frameInfo.upperBorderWidth;
 
 	    /* assume square button */
 	wmGD.hotspotRectangle.width = pcd->frameInfo.titleBarHeight;

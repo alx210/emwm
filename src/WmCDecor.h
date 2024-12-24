@@ -31,7 +31,8 @@ extern void DrawWindowTitle (ClientData *pcd, Boolean eraseFirst);
 extern void CountFrameRectangles (WmScreenData *pSD);
 extern Boolean AllocateFrameDisplayLists (ClientData *pcd);
 extern void InitClientDecoration (WmScreenData *pSD);
-extern void GetSystemMenuPosition (ClientData *pcd, int *px, int *py, unsigned int height, Context context);
+extern void GetSystemMenuPosition (ClientData *pcd, int *px, int *py,
+	unsigned int width, unsigned int height, Context context);
 extern void ShowActiveClientFrame (ClientData *pcd);
 extern void ShowInactiveClientFrame (ClientData *pcd);
 extern void RegenerateClientFrame (ClientData *pcd);

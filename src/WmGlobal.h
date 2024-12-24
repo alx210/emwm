@@ -804,6 +804,7 @@ typedef struct _MenuSpec
     Context	  currentContext;
     Widget	  menuWidget;      /* RowColumn widget */
     unsigned int  whichButton;    /* tracks whichButton resource for top menu */
+	unsigned int  width;
     unsigned int  height;          /* height of top menu */
     MenuItem	 *menuItems;       /* linked list of MenuItem structures */
     MenuButton   *menuButtons;     /* array of MenuButton structures */
