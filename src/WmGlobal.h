@@ -216,6 +216,7 @@ extern Pixel		FPselectcolor;
 
 
 /* number of rectangles to allocate */
+#define NUM_TITLE_GADGET_RECTS 4
 #define NUM_MATTE_TS_RECTS	(6)
 #define NUM_MATTE_BS_RECTS	(6)
 
@@ -240,7 +241,6 @@ extern Pixel		FPselectcolor;
 
 #define NUM_STATIC_TOP_RECTS	(2*ICON_INTERNAL_SHADOW_WIDTH)
 #define NUM_STATIC_BOTTOM_RECTS	(2*ICON_INTERNAL_SHADOW_WIDTH)
-
 
 /* client frame shadow widths */
 #ifdef WSM

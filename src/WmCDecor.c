@@ -1592,54 +1592,46 @@ void InitClientDecoration (WmScreenData *pSD)
 
 static Boolean AllocateGadgetRectangles (ClientData *pcd)
 {
-    int num_rects;
     unsigned long decor = pcd->decor;
     GadgetRectangle *pgr;
     
     if (decor & MWM_DECOR_TITLE) {
+		/* allocate memory if no memory is allocated */
+		if ( pcd->pTitleGadgets == NULL) {
+			/* allocate memory for these guys */
+			pgr = (GadgetRectangle *) 
+			   XtMalloc (NUM_TITLE_GADGET_RECTS * sizeof(GadgetRectangle));
+			if (pgr == NULL)
+			{
+			/* out of memory! */
+				Warning (((char *)GETMESSAGE(8, 6, "Insufficient memory for client window framing")));
+			return (FALSE);
+			}
 
-	/* count how many rectangles to allocate for titlebar */
-	num_rects = 1;		
-	if (decor & MWM_DECOR_MENU)	num_rects += 1;
-	if (decor & MWM_DECOR_MINIMIZE)	num_rects += 1;
-	if (decor & MWM_DECOR_MAXIMIZE)	num_rects += 1;
-    
-	/* allocate memory if no memory is allocated */
-	if ( pcd->pTitleGadgets == NULL) {
-	    /* allocate memory for these guys */
-	    pgr = (GadgetRectangle *) 
-		   XtMalloc (num_rects * sizeof(GadgetRectangle));
-	    if (pgr == NULL)
-	    {
-		/* out of memory! */
-	        Warning (((char *)GETMESSAGE(8, 6, "Insufficient memory for client window framing")));
-		return (FALSE);
-	    }
-
-	    /* update client data */
-	    pcd->pTitleGadgets = pgr;
-	    pcd->cTitleGadgets = 0;
+			/* update client data */
+			pcd->pTitleGadgets = pgr;
+			pcd->cTitleGadgets = 0;
+		}
 	}
-    }
 
     if (decor & MWM_DECOR_RESIZEH) {
 
 	/* allocate memory if no memory is allocated */
 	if ( pcd->pResizeGadgets == NULL) {
-	    /* allocate memory for these guys */
-	    pgr = (GadgetRectangle *) 
-		  XtMalloc (STRETCH_COUNT * sizeof(GadgetRectangle));
-	    if (pgr == NULL) 
-	    {
+		/* allocate memory for these guys */
+		pgr = (GadgetRectangle *) 
+			XtMalloc (STRETCH_COUNT * sizeof(GadgetRectangle));
+		if (pgr == NULL) 
+		{
 		/* out of memory! */
-	        Warning (((char *)GETMESSAGE(8, 7, "Insufficient memory for client window framing")));
+	    	Warning (((char *)GETMESSAGE(8, 7, "Insufficient memory for client window framing")));
 		return (FALSE);
-	    }
+		}
 
-	    /* update client data */
-	    pcd->pResizeGadgets = pgr;
+		/* update client data */
+		pcd->pResizeGadgets = pgr;
 	}
-    }
+	}
     return(TRUE);
 } /* END OF FUNCTION  AllocateGadgetRectangles  */
 
