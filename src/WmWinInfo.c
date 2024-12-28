@@ -1503,14 +1503,6 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 	dispWidth = DisplayWidth (DISPLAY, SCREEN_FOR_CLIENT(pCD));
 	dispHeight = DisplayHeight (DISPLAY, SCREEN_FOR_CLIENT(pCD));
 
-	if(GetXineramaScreenFromLocation(pCD->clientX,pCD->clientY,&xsi)){
-		scrWidth = xsi.width;
-		scrHeight = xsi.height;
-	}else{
-		scrWidth = dispWidth;
-		scrHeight = dispHeight;
-	}
-
     /*
      * Use a custom verion of the Xlib routine to get WM_NORMAL_HINTS.
      * A custom version is necessary to handle the different versions
@@ -1574,6 +1566,15 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
 			pCD->clientWidth = width;
 		if (!(pCD->clientFlags & SM_HEIGHT))
 			pCD->clientHeight = height;
+	}
+	
+	/* Now that client's coordinates are known, obtain the xinerama screen */
+	if(GetXineramaScreenFromLocation(pCD->clientX, pCD->clientY, &xsi)){
+		scrWidth = xsi.width;
+		scrHeight = xsi.height;
+	}else{
+		scrWidth = dispWidth;
+		scrHeight = dispHeight;
 	}
 
     /*
@@ -2787,40 +2788,54 @@ InitClientPlacement (ClientData *pCD, long manageFlags)
      * the constraints.
      */
 
-    FixWindowConfiguration (pCD, (unsigned int *) &(pCD->clientWidth), 
-	                         (unsigned int *) &(pCD->clientHeight),
-				 (unsigned int) (pCD->widthInc), 
-	                         (unsigned int) (pCD->heightInc));
+	FixWindowConfiguration(pCD,
+		(unsigned int *) &(pCD->clientWidth),
+		(unsigned int *) &(pCD->clientHeight),
+		(unsigned int) (pCD->widthInc), 
+		(unsigned int) (pCD->heightInc));
 
-    /*
-     * Do autoplacement of the client window if appropriate.
-     */
-
-    if ((manageFlags == MANAGEW_NORMAL) && !interactivelyPlaced &&
-	(!(pCD->clientFlags & (SM_X | SM_Y))) &&
-	!(pCD->sizeFlags & US_POSITION) &&
-	!(pCD->clientFlags & CLIENT_TRANSIENT) &&
-	(pCD->inputMode != MWM_INPUT_SYSTEM_MODAL) && wmGD.clientAutoPlace)
-    {
 	/*
-	 * if (PPosition is on or nonzero), then use current value for
-	 * clientX and clientY which was set to windowAttributes.x,y
-	 * by ProcessWmNormalHints(), else autoplace client.
+	 * Do autoplacement of the client window if appropriate.
 	 */
 
-	if ((pCD->sizeFlags & P_POSITION) &&
-	    ((pCD->usePPosition == USE_PPOSITION_ON) ||
-	     ((pCD->usePPosition == USE_PPOSITION_NONZERO) &&
-	      ((pCD->clientX != 0) || (pCD->clientY != 0)))))
-	{
-	    /* do nothing */
+	if ((manageFlags == MANAGEW_NORMAL) && !interactivelyPlaced &&
+		(!(pCD->clientFlags & (SM_X | SM_Y))) &&
+		!(pCD->sizeFlags & US_POSITION) &&
+		!(pCD->clientFlags & CLIENT_TRANSIENT) &&
+		(pCD->inputMode != MWM_INPUT_SYSTEM_MODAL) && wmGD.clientAutoPlace) {
+
+		/*
+		 * if (PPosition is on or nonzero), then use current value for
+		 * clientX and clientY which was set to windowAttributes.x,y
+		 * by ProcessWmNormalHints(), else autoplace client.
+		 */
+
+		if ( !((pCD->sizeFlags & P_POSITION) &&
+			((pCD->usePPosition == USE_PPOSITION_ON) ||
+			((pCD->usePPosition == USE_PPOSITION_NONZERO) &&
+			((pCD->clientX != 0) || (pCD->clientY != 0))))) ){
+
+			XineramaScreenInfo xsi;
+
+			FindClientPlacement (pCD);
+			autoPlaced = True;
+
+			/* If xinerama is active, we'll need to update max config as well */
+			if(GetXineramaScreenFromLocation(pCD->clientX, pCD->clientY, &xsi)) {
+				pCD->maxWidth = xsi.width - (pCD->clientOffset.x * 2);
+				pCD->maxHeight = xsi.height - (pCD->clientOffset.x + pCD->clientOffset.y);
+
+				if(pCD->maxWidth > pCD->maxWidthLimit)
+					pCD->maxWidth = pCD->maxWidthLimit;
+
+				if(pCD->maxHeight > pCD->maxHeightLimit)
+					pCD->maxHeight = pCD->maxHeightLimit;
+
+				pCD->maxWidth -= ((pCD->maxWidth - pCD->baseWidth) % pCD->widthInc);
+				pCD->maxHeight -= ((pCD->maxHeight - pCD->baseHeight) % pCD->heightInc);
+			}
+		}
 	}
-	else
-	{
-	    FindClientPlacement (pCD);
-	    autoPlaced = True;
-	}
-    }
 
     /*
      * Use window gravity to allow the user to specify the window 
