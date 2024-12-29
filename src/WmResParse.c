@@ -135,6 +135,7 @@ static MaskTableEntry modifierStrings[] = {
     {"shift",	ShiftMask},
     {"alt",	Mod1Mask},
     {"meta",	Mod1Mask},
+	{"super",	Mod4Mask},
     {"lock",	LockMask},
     {"mod1",	Mod1Mask},
     {"mod2",	Mod2Mask},
@@ -146,6 +147,7 @@ static MaskTableEntry modifierStrings[] = {
 
 #define ALT_INDEX 3
 #define META_INDEX 4
+#define SUPER_INDEX 5
 
 typedef struct {
    char         *event;
@@ -1714,6 +1716,10 @@ void SyncModifierStrings(void)
 		else if (nm && !strncmp("Meta", nm, 4))
 		{
 		    modifierStrings[META_INDEX].mask = (1<<i);
+		}
+		else if (nm && !strncmp("Super", nm, 5))
+		{
+		    modifierStrings[SUPER_INDEX].mask = (1<<i);
 		}
 	    }
 	    k++;
