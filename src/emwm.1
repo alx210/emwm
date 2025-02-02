@@ -315,7 +315,7 @@ The \fBemwm\fP command is configured from its resource
 database\&. This database is built from the following sources\&. They are listed
 in order of precedence, low to high:
 .PP
-\fB/usr/etc/X11/app-defaults/Emwm\fP
+\fB/etc/X11/app-defaults/Emwm\fP
 .PP
 \fB$HOME/Emwm\fP
 .PP
@@ -325,7 +325,7 @@ in order of precedence, low to high:
 .PP
 \fBemwm\fP command line options
 .PP
-The file names \fB/usr/etc/X11/app-defaults/Emwm\fP and \fB$HOME/Emwm\fP represent customary locations for these files\&. The actual
+The file names \fB/etc/X11/app-defaults/Emwm\fP and \fB$HOME/Emwm\fP represent customary locations for these files\&. The actual
 location of the system-wide class resource file may depend on the \fBXFILESEARCHPATH\fP environment variable and the
 current language environment\&. The actual location of the user-specific class
 resource file may depend on the \fBXUSERFILESEARCHPATH\fP and \fBXAPPLRESDIR\fP
@@ -638,8 +638,8 @@ is set, \fBemwm\fP looks for \fI$HOME/$LANG\fP/ \fBconfigFile\fP\&. If that file
 \fB$HOME\fP/\fBconfigFile\fP\&. If the \fIconfigFile\fP pathname does not begin with "~/" or "/", \fBemwm\fP considers it to be relative to the current working directory\&. If
 the \fIconfigFile\fP resource is not specified
 or if that file does not exist, \fBemwm\fP uses several default
-paths to find a configuration file\&. The order of the search is shown below: \fB/usr/etc/X11/$LANG/system\&.emwmrc\fP\(dg
-\fB/usr/etc/X11/system\&.emwmrc\fP\(dg Paths marked with \&'\(dg\&' are
+paths to find a configuration file\&. The order of the search is shown below: \fB/etc/X11/$LANG/system\&.emwmrc\fP\(dg
+\fB/etc/X11/system\&.emwmrc\fP\(dg Paths marked with \&'\(dg\&' are
 implementation dependent\&.
 .IP "\fIdeiconifyKeyFocus\fP\ (class\  \fIDeiconifyKeyFocus\fP)" 10
 This resource applies only when the keyboard input focus policy is explicit\&.
@@ -1331,11 +1331,11 @@ the shell to use when executing commands via the \fBf\&.exec\fP
 function\&.
 .SS "Files"
 .PP
-\fB/usr/etc/X11/$LANG/system\&.emwmrc\fP\(dg
+\fB/etc/X11/$LANG/system\&.emwmrc\fP\(dg
 .PP
-\fB/usr/etc/X11/system\&.emwmrc\fP\(dg
+\fB/etc/X11/system\&.emwmrc\fP\(dg
 .PP
-\fB/usr/etc/X11/app-defaults/Emwm\fP\(dg
+\fB/etc/X11/app-defaults/Emwm\fP\(dg
 .PP
 \fB$HOME/Emwm\fP
 .PP

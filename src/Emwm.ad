@@ -5,16 +5,6 @@ Emwm*client*background: #8C8C8C
 Emwm*client*activeBackground: #7399BA
 Emwm*icon*activeBackground: #7399BA
 
-!! Dithered window borders - sample
-!Emwm*client*topShadowPixmap: 1x1
-!Emwm*client*bottomShadowPixmap: 1x1
-!Emwm*client*activeTopShadowPixmap: 1x1
-!Emwm*client*activeBottomShadowPixmap: 1x1
-
-!! Root and window menu appearance - sample
-!Emwm*menu*menuTitle.background: #7399BA
-!Emwm*menu*menuTitle.renderTable: title
-
 !! Default font (menus and dialogs)
 Emwm*renderTable: variable
 Emwm*renderTable.variable.fontType: FONT_IS_XFT
@@ -34,7 +24,3 @@ Emwm*renderTable.icon.fontType: FONT_IS_XFT
 Emwm*renderTable.icon.fontName: Liberation Sans
 Emwm*renderTable.icon.fontSize: 10
 Emwm*renderTable.icon.fontStyle: Italic
-
-!! Core fonts - sample
-!Emwm*renderTable.variable.fontType: FONT_IS_FONT
-!Emwm*renderTable.variable.fontName: -adobe-helvetica-medium-r-normal-*-12-*-*-*-*-*-*-*
