@@ -1,5 +1,5 @@
  /*
- * Copyright (C) 2018-2023 alx@fastestcode.org
+ * Copyright (C) 2018-2025 alx@fastestcode.org
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -22,7 +22,6 @@
  
  #define WM_NAME "EMWM"
  #define WM_VERSION	1
- #define WM_REVISION 2
- #define WM_UPDATE 0
+ #define WM_REVISION 3
 
  void PrintVersionInfo(void);

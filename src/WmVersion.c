@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 alx@fastestcode.org
+ * Copyright (C) 2018-2025 alx@fastestcode.org
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -26,7 +26,7 @@
 
  void PrintVersionInfo(void)
  {
-	fprintf(stdout, "%s - Version %d.%d.%d (Motif %d.%d.%d)\n\n",
-		WM_NAME, WM_VERSION, WM_REVISION, WM_UPDATE,
+	fprintf(stdout, "%s - Version %d.%d (Motif %d.%d.%d)\n\n",
+		WM_NAME, WM_VERSION, WM_REVISION,
 		XmVERSION, XmREVISION, XmUPDATE_LEVEL);
  }
