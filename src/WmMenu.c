@@ -80,7 +80,7 @@
 static void UnmapCallback (Widget w, XtPointer client_data,
 			   XtPointer call_data);
 static MenuItem *DuplicateMenuItems (MenuItem *menuItems);
-static void AdjustMenuPosition(ClientData*, int *x, int *y,
+static void AdjustMenuPosition(int *x, int *y,
 	unsigned int width, unsigned int height);
 
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
@@ -3242,7 +3242,7 @@ AdjustTearOffControl (Widget cascade,
  * split across Xinerama screns.
  *
  *************************************<->***********************************/
-static void AdjustMenuPosition(ClientData *pCD, int *x, int *y,
+static void AdjustMenuPosition(int *x, int *y,
 	unsigned int width, unsigned int height)
 {
 	XineramaScreenInfo xsi;
@@ -3250,8 +3250,8 @@ static void AdjustMenuPosition(ClientData *pCD, int *x, int *y,
 	if(!GetXineramaScreenFromLocation(*x, *y, &xsi)){
 		xsi.x_org = 0;
 		xsi.y_org = 0;
-		xsi.width = XDisplayWidth(DISPLAY, pCD->pSD->screen);
-		xsi.height = XDisplayHeight(DISPLAY, pCD->pSD->screen);
+		xsi.width = XDisplayWidth(DISPLAY, ACTIVE_SCREEN);
+		xsi.height = XDisplayHeight(DISPLAY, ACTIVE_SCREEN);
 	}
 	
 	if((*x + width) >= (xsi.x_org + xsi.width)) {
@@ -4052,7 +4052,7 @@ void PostMenu (MenuSpec *menuSpec, ClientData *pCD, int x, int y, unsigned int b
      *  Compute position if necessary (system menu).
      */
     if (flags & POST_AT_XY) {
-		AdjustMenuPosition(pCD, &x, &y, menuSpec->width, menuSpec->height);
+		AdjustMenuPosition(&x, &y, menuSpec->width, menuSpec->height);
     } else {
 		GetSystemMenuPosition (pCD, &x, &y, menuSpec->width,
 			menuSpec->height, newContext);
