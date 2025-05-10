@@ -406,12 +406,13 @@ typedef Atom WorkspaceID;
  *  window manager functions (e.g., set the colormap focus).
  *
  *************************************<->***********************************/
-
 typedef unsigned long Context;
 typedef unsigned long Behavior;
 typedef unsigned long GroupArg;
 
-typedef Boolean (*WmFunction) ();
+typedef struct _ClientData ClientData;
+
+typedef Boolean (*WmFunction) (String, ClientData*, XEvent*);
 
 #define NO_MODIFIER	0		/* value for state field */
 

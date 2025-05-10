@@ -80,9 +80,9 @@
 #include "WmXSMP.h"
 #include "WmCmd.h"
 #include "WmEwmh.h"
+#include "WmXmP.h"
 
 #include <Xm/RowColumnP.h> /* for MS_LastManagedMenuTime */
-extern XmMenuState _XmGetMenuState();
 
 static unsigned int GetEventInverseMask(XEvent *event);
 
@@ -4137,7 +4137,7 @@ Boolean F_InvokeCommand (String args, ClientData *pCD, XEvent *event)
 
     if (args == (String) NULL) return(FALSE);
 
-    if (sscanf(args, "%d %d %ld", (int *)&commandID, (int *)&clientWindow,
+    if (sscanf(args, "%d %d %lu", (int *)&commandID, (int *)&clientWindow,
 	       &notifySelection) != 3)
       return(FALSE);
 

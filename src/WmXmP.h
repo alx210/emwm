@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022 alx@fastestcode.org
+ * Copyright (C) 2018-2025 alx@fastestcode.org
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -23,10 +23,14 @@
 #ifndef WmXmp_h
 #define WmXmp_h
 
+#include <Xm/RowColumnP.h> /* For XmMenuState */
+
 extern void XmRenderTableGetDefaultFontExtents(XmRenderTable,
 	int *height, int *ascent, int *descent);
 
 extern Boolean _XmVirtKeysLoadFileBindings(char *fileName, String *binding);
 extern int _XmVirtKeysLoadFallbackBindings(Display *display, String *binding);
+
+extern XmMenuState _XmGetMenuState(Widget);
 
 #endif /* WmXmp_h */

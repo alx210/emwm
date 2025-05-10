@@ -149,10 +149,13 @@ static MaskTableEntry modifierStrings[] = {
 #define META_INDEX 4
 #define SUPER_INDEX 5
 
+typedef Boolean (*EventTableParseProcT)
+	(unsigned char**, unsigned int, unsigned int*);
+
 typedef struct {
    char         *event;
    unsigned int  eventType;
-   Boolean       (*parseProc)();
+   EventTableParseProcT parseProc;
    unsigned int  closure;
    Boolean       fClick;
 } EventTableEntry;
@@ -270,6 +273,7 @@ void ProcessCommandLine (int argc,  char *argv[]);
 static void ParseScreensArgument (int argc, char *argv[], int *pArgnum,
 				  unsigned char *lineP);
 void ProcessMotifBindings (void);
+static char *ExtractLocaleName(String);
 
 static EventTableEntry buttonEvents[] = {
 
@@ -315,6 +319,8 @@ unsigned int buttonModifierMasks[] = {
 /*
  * FUNCTION PARSER TABLE (function names must be in alphabetic order)
  */
+typedef Boolean (*FunctionTableParseProcT)
+	(unsigned char**, WmFunction, String*);
 
 typedef struct {
    char         * funcName;
@@ -322,7 +328,7 @@ typedef struct {
    unsigned int   resource;
    long           mgtMask;
    WmFunction     wmFunction;
-   Boolean       (*parseProc)();
+   FunctionTableParseProcT parseProc;
 } FunctionTableEntry;
 
 
@@ -355,12 +361,12 @@ FunctionTableEntry functionTable[] = {
 			CRS_ANY,
 			0,
 			F_Circle_Down,
-			ParseWmFuncGrpArg},
+			(FunctionTableParseProcT)ParseWmFuncGrpArg},
     {"f.circle_up",	F_SUBCONTEXT_IB_IICON|F_SUBCONTEXT_IB_WICON,
 			CRS_ANY,
 			0,
 			F_Circle_Up,
-			ParseWmFuncGrpArg},
+			(FunctionTableParseProcT)ParseWmFuncGrpArg},
 #ifdef WSM
     {"f.create_workspace", 0,
 			CRS_ANY,
@@ -462,7 +468,7 @@ FunctionTableEntry functionTable[] = {
 			CRS_ANY,
 			0,
 			F_Next_Key,
-			ParseWmFuncGrpArg},
+			(FunctionTableParseProcT)ParseWmFuncGrpArg},
 #ifdef WSM
     {"f.next_workspace",	0,
 			CRS_ANY,
@@ -525,7 +531,7 @@ FunctionTableEntry functionTable[] = {
 			CRS_ANY,
 			0,
 			F_Prev_Key,
-			ParseWmFuncGrpArg},
+			(FunctionTableParseProcT)ParseWmFuncGrpArg},
 #ifdef WSM
     {"f.prev_workspace",	0,
 			CRS_ANY,
@@ -610,7 +616,7 @@ FunctionTableEntry functionTable[] = {
 			CRS_ANY,
 			0,
 			F_Send_Msg,
-			ParseWmFuncNbrArg},
+			(FunctionTableParseProcT)ParseWmFuncNbrArg},
     {"f.separator",	0,
 			CRS_MENU,
 			0,
@@ -1887,8 +1893,7 @@ void ProcessWmFile (WmScreenData *pSD)
 /**** This function stolen from Xt/Intrinsic.c ****/
 /* The implementation of this routine is operating system dependent */
 
-static char *ExtractLocaleName(lang)
-    String	lang;
+static char *ExtractLocaleName(String lang)
 {
 
 #ifdef hpux	 /* hpux-specific parsing of the locale string */
