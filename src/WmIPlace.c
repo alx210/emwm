@@ -48,6 +48,7 @@
 
 static Boolean InitIconPlacementData(WmScreenData*, IconPlacementData*,
 	int scr_width, int scr_height);
+static void ResetClientIconPlacementData(WmWorkspaceData*);
 
 /*
  * Global Variables:
@@ -66,7 +67,6 @@ extern Position clipY;
  *  -----------
  *  This function intializes icon placement information.
  *
- *
  *  Inputs:
  *  ------
  *  pWS = pointer to workspace data
@@ -74,19 +74,19 @@ extern Position clipY;
  * 
  *  Outputs:
  *  -------
- *  IconPlacmementData
+ *  IconPlacementData
  *
  *************************************<->***********************************/
 
 void InitIconPlacement (WmWorkspaceData *pWS)
 {
 	int i, nxs = 0;
-	IconPlacementData *ipd;
 	XineramaScreenInfo xsi;
 	Boolean xinerama = False;
 	int scr_width = 0;
 	int scr_height = 0;
-	static int prior_nxs = 0;
+	IconPlacementData *ipd;
+	Boolean realloc = False;
 	
 	xinerama = GetXineramaScreenCount(&nxs);
 	
@@ -96,22 +96,20 @@ void InitIconPlacement (WmWorkspaceData *pWS)
 		scr_height = DisplayHeight(DISPLAY, pWS->pSD->screen);
 	}
 	
-	if(prior_nxs < nxs) {
-		ipd = (IconPlacementData*) XtRealloc((char*)
-			pWS->IPData, sizeof(IconPlacementData) * nxs);
+	ipd = (IconPlacementData*) XtCalloc(nxs, sizeof(IconPlacementData));
 
-		if(!ipd) {
-			Warning (((char *)GETMESSAGE(34, 2,
-				"Insufficient memory for icon placement")));
-			wmGD.iconAutoPlace = False;
-			return;
-		}
-		pWS->IPData = ipd;
-		memset((pWS->IPData + prior_nxs), 0,
-			((nxs - prior_nxs) * sizeof(IconPlacementData)) );
-
-		prior_nxs = nxs;
+	if(!ipd) {
+		Warning (((char *)GETMESSAGE(34, 2,
+			"Insufficient memory for icon placement")));
+		wmGD.iconAutoPlace = False;
+		return;
 	}
+	
+	if(pWS->IPData) {
+		XtFree((char*)pWS->IPData);
+		realloc = True;
+	}
+	pWS->IPData = ipd;
 
 	for(i = 0; i < nxs; i++) {
 		if(xinerama && GetXineramaScreenInfo(i, &xsi)) {
@@ -130,6 +128,8 @@ void InitIconPlacement (WmWorkspaceData *pWS)
 			return;
 		}
 	}
+
+	if(realloc) ResetClientIconPlacementData(pWS);
 }
 
 static Boolean InitIconPlacementData(WmScreenData *pSD,
@@ -995,6 +995,74 @@ void MoveIconInfo (IconPlacementData *pIPD1,
 	pIPD1->placeList[p1].pCD =  NULL;
 	pIPD1->placeList[p1].theWidget = NULL;
     }
+}
+
+/*
+ * Resets icon placement data for all clients. This is done after
+ * reallocating placement data e.g. on screen changes.
+ */
+static void ResetClientIconPlacementData(WmWorkspaceData *pWS)
+{
+	ClientListEntry *e = pWS->pSD->clientList;
+	
+	while(e) {
+		XineramaScreenInfo xsi;
+		int s_width, s_height;
+		int s_xorg = 0, s_yorg = 0;
+		ClientData *cd = e->pCD;
+
+		/* Skip icon entries */
+		if(e->type == MINIMIZED_STATE) {
+			e = e->nextSibling;
+			continue;
+		}
+		
+		/* If the icon was placed before, try to find an appropriate
+		 * location according to it's coordinates, falling back to next free */
+		if(cd->iconPlace != NO_ICON_PLACE && !P_ICON_BOX(cd)) {
+			if(GetXineramaScreenFromLocation(cd->iconX, cd->iconY, &xsi) ||
+				GetXineramaScreenFromLocation(cd->clientX, cd->clientY, &xsi) ||
+				GetPrimaryXineramaScreen(&xsi)) {
+				cd->IPData = pWS->IPData + xsi.screen_number;
+				s_width = xsi.width;
+				s_height = xsi.height;
+				s_xorg = xsi.x_org;
+				s_yorg = xsi.y_org;
+			} else {
+				s_width = XDisplayWidth(DISPLAY, cd->pSD->screen);
+				s_height = XDisplayHeight(DISPLAY, cd->pSD->screen);
+				cd->IPData = pWS->IPData;
+			}
+
+			if((cd->iconX - s_xorg) >= s_width ||
+				(cd->iconY - s_yorg) >= s_height) {
+				cd->iconX = 0;
+				cd->iconY = 0;
+				cd->iconPlace = NO_ICON_PLACE;
+			} else {
+				cd->iconPlace = FindIconPlace(cd,
+					cd->IPData, cd->iconX, cd->iconY);
+			}
+
+			if( (cd->iconPlace != NO_ICON_PLACE) || (cd->iconPlace =
+				GetNextIconPlace(cd->IPData)) != NO_ICON_PLACE) {
+				
+				CvtIconPlaceToPosition(cd->IPData,
+					cd->iconPlace, &cd->iconX, &cd->iconY);
+				cd->IPData->placeList[cd->iconPlace].pCD = cd;
+
+				XMoveWindow(DISPLAY, ICON_FRAME_WIN(cd),
+						ICON_X(cd), ICON_Y(cd));
+			} else {
+				cd->IPData = NULL;
+			}
+		} else {
+			cd->IPData = NULL;
+		}
+
+		/* Next client */
+		e = e->nextSibling;
+	}
 }
 
 /****************************   eof    ***************************/

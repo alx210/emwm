@@ -2788,9 +2788,7 @@ void DetermineActiveScreen (XEvent *pEvent)
  * 
  *************************************<->***********************************/
 
-WmScreenData * GetScreenForWindow (win)
-    Window win;
-
+WmScreenData * GetScreenForWindow(Window win)
 {
     XWindowAttributes attribs;
     WmScreenData *pSD = NULL;
@@ -2821,12 +2819,17 @@ WmScreenData * GetScreenForWindow (win)
  */
 static void HandleRRScreenChangeNotify(XEvent *evt)
 {
-	ClientListEntry *e = ACTIVE_PSD->clientList;
+	ClientListEntry *e;
+	WmScreenData *pSD = GetScreenForWindow(evt->xany.window);
 
+	if(!pSD) return;
+		
 	XRRUpdateConfiguration(evt);
 	UpdateXineramaInfo();
-	InitIconPlacement(ACTIVE_PSD->pWS);
+	InitIconPlacement(pSD->pWS);
 
+	e = pSD->clientList;
+	
 	while(e) {
 		ClientData *cd = e->pCD;
 		XineramaScreenInfo xsi;
@@ -2835,50 +2838,6 @@ static void HandleRRScreenChangeNotify(XEvent *evt)
 		
 		/* Skip icon entries */
 		if(e->type == MINIMIZED_STATE) {
-			e = e->nextSibling;
-			continue;
-		}
-		
-		/* Update minimized client's icon position */
-		if((cd->clientState == MINIMIZED_STATE) &&
-			wmGD.iconAutoPlace && !P_ICON_BOX(cd)) {
-
-			int sorgx = 0;
-			int sorgy = 0;
-
-			if(GetXineramaScreenFromLocation(cd->iconX, cd->iconY, &xsi) ||
-				GetPrimaryXineramaScreen(&xsi)) {
-				cd->IPData = ACTIVE_PSD->pWS->IPData + xsi.screen_number;
-				swidth = xsi.width;
-				sheight = xsi.height;
-				sorgx = xsi.x_org;
-				sorgy = xsi.y_org;
-			} else {
-				swidth = XDisplayWidth(DISPLAY, cd->pSD->screen);
-				sheight = XDisplayHeight(DISPLAY, cd->pSD->screen);
-				cd->IPData = ACTIVE_PSD->pWS->IPData;
-			}
-
-			if((cd->iconX - sorgx) >= swidth ||
-				(cd->iconY - sorgy) >= sheight) {
-				cd->iconX = 0;
-				cd->iconY = 0;
-				cd->iconPlace = NO_ICON_PLACE;
-			} else {
-				cd->iconPlace = FindIconPlace(cd,
-					cd->IPData, cd->iconX, cd->iconY);
-			}
-
-			if( (cd->iconPlace != NO_ICON_PLACE) || (cd->iconPlace =
-				GetNextIconPlace(cd->IPData)) != NO_ICON_PLACE) {
-				CvtIconPlaceToPosition(cd->IPData,
-					cd->iconPlace, &cd->iconX, &cd->iconY);
-				cd->IPData->placeList[cd->iconPlace].pCD = cd;
-				XMoveWindow(DISPLAY, ICON_FRAME_WIN(cd),
-					ICON_X(cd), ICON_Y(cd));
-			}
-			
-			/* Next client */
 			e = e->nextSibling;
 			continue;
 		}
