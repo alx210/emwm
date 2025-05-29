@@ -1018,7 +1018,7 @@ static void ResetClientIconPlacementData(WmWorkspaceData *pWS)
 		}
 		
 		/* If the icon was placed before, try to find an appropriate
-		 * location according to it's coordinates, falling back to next free */
+		 * location according to its coordinates, falling back to next free */
 		if(cd->iconPlace != NO_ICON_PLACE && !P_ICON_BOX(cd)) {
 			if(GetXineramaScreenFromLocation(cd->iconX, cd->iconY, &xsi) ||
 				GetXineramaScreenFromLocation(cd->clientX, cd->clientY, &xsi) ||

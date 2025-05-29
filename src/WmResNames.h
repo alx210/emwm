@@ -117,9 +117,9 @@
 #define WmNresizeBorderWidth		"resizeBorderWidth"
 #define WmNresizeCursors		"resizeCursors"
 #define WmNrootButtonClick		"rootButtonClick"
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
+#ifndef WSM
 # define WmNrootMenu			"rootMenu"
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
+#endif /* WSM */
 #ifdef WSM
 #define WmNsecondariesOnTop		"secondariesOnTop"
 #define WmNsessionVersion               "sessionVersion"
@@ -321,9 +321,9 @@
 #define WmCResizeBorderWidth		"ResizeBorderWidth"
 #define WmCResizeCursors		"ResizeCursors"
 #define WmCRootButtonClick		"RootButtonClick"
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
+#ifndef WSM
 # define WmCRootMenu			"RootMenu"
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
+#endif /* WSM */
 #ifdef WSM
 #define WmCSecondariesOnTop		"SecondariesOnTop"
 #define WmCSessionVersion               "SessionVersion"

@@ -100,11 +100,6 @@
 
 #include "WmInitWs.h"
 
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
-# include "WmWsmLib/wsm_proto.h"
-# include "WmWsmLib/utm_send.h"
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
-
 #ifdef WSM
 static void InsureDefaultBackdropDir(char **ppchBackdropDirs);
 #endif /* WSM */
@@ -1205,9 +1200,6 @@ InitWmScreen (WmScreenData *pSD, int sNum)
     pSD->bitmapCacheCount = 0;
     pSD->dataType = SCREEN_DATA_TYPE;
     pSD->managed = False;
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
-    pSD->cciTree = NULL;
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
 
 #ifdef WSM
     pSD->initialWorkspace=NULL;
@@ -1297,28 +1289,6 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 					       wmGD.topLevelW,
 					       args,
 					       argnum);
-
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
-    /* Create a DrawingArea as a child of the popupShell.  This will be used
-     * to handle UTM traffic relating to cci.  We need this
-     * particular widget to get the callbacks from conversion requests made
-     * against Mwm and the requests Mwm makes against other clients.
-     */
-    pSD->utmShell = XmCreateDrawingArea(pSD->screenTopLevelW, "UTM_Shell",
-					NULL, 0);
-    XtManageChild(pSD->utmShell);
-
-    /*
-     * Setup the destinationCallback handler to handle conversion
-     * requests made by Mwm against other clients.
-     */
-    XtAddCallback(pSD->utmShell, XmNdestinationCallback, UTMDestinationProc,
-		  NULL);
-
-    /* Must realize to own WM_i if unmapped, causes mwm to
-       freeze when menu is displayed. */
-    XtPopup(pSD->screenTopLevelW, XtGrabNone);
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
 
 #ifdef WSM
     argnum = 0;
@@ -1896,7 +1866,7 @@ void MakeWmFunctionResources (WmScreenData *pSD)
 		menuContext = F_CONTEXT_ROOT;
 	    }
 
-	    menuSpec = MAKE_MENU (pSD, NULL, buttonSpec->wmFuncArgs,
+	    menuSpec = MakeMenu (pSD, buttonSpec->wmFuncArgs,
 				 menuContext,
 	                         buttonSpec->context, 
 				 (MenuItem *) NULL, FALSE);
@@ -1941,7 +1911,7 @@ void MakeWmFunctionResources (WmScreenData *pSD)
 		menuContext = F_CONTEXT_ROOT;
 	    }
 
-	    menuSpec = MAKE_MENU (pSD, NULL, keySpec->wmFuncArgs, menuContext,
+	    menuSpec = MakeMenu (pSD, keySpec->wmFuncArgs, menuContext,
 	                         keySpec->context, 
 				 (MenuItem *) NULL, FALSE);
 

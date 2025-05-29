@@ -98,9 +98,3 @@ extern void		SyncModifierStrings(void);
 #define GetString(s)		(_DtWmParseNextTokenC (s, False))
 #define ScanWhitespace(s)	(_DtWmParseSkipWhitespaceC (s))
 #endif /* WSM */
-
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
-extern Boolean IsClientCommand (String);
-extern Boolean SetGreyedContextAndMgtMask (MenuItem *menuItem,
-					   WmFunction wmFunction);
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */

@@ -78,7 +78,6 @@
 #include "WmWinList.h"
 #include "WmWinState.h"
 #include "WmXSMP.h"
-#include "WmCmd.h"
 #include "WmEwmh.h"
 #include "WmXmP.h"
 
@@ -2220,7 +2219,7 @@ Boolean F_Menu (String args, ClientData *pCD, XEvent *event)
      */
 
     pSD = (pCD) ? PSD_FOR_CLIENT(pCD) : ACTIVE_PSD;
-    if ((menuSpec = MAKE_MENU (pSD, pCD, args, menuContext, 
+    if ((menuSpec = MakeMenu (pSD, args, menuContext, 
 			      menuContext, (MenuItem *) NULL, FALSE)) != NULL)
     {
         PostMenu (menuSpec, pCD, x, y, button, menuContext, flags, event);
@@ -2627,7 +2626,7 @@ Boolean F_Pack_Icons (String args, ClientData *pCD, XEvent *event)
 } /* END OF FUNCTION F_Pack_Icons */
 
 
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
+#ifndef WSM
 /*************************************<->*************************************
  *
  *  F_Post_RMenu (args, pCD, event)
@@ -2680,7 +2679,7 @@ Boolean F_Post_RMenu (String args, ClientData *pCD, XEvent *event)
     return (False);
 
 } /* END OF FUNCTION F_Post_RMenu */
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
+#endif /* WSM */
 
 
 /*************************************<->*************************************
@@ -4116,41 +4115,6 @@ Boolean F_Screen (String args, ClientData *pCD, XEvent *event)
 }
 
 
-
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
-/*************************************<->*************************************
- *
- *  F_InvokeCommand (args, pCD, event)
- *
- *
- *  Description:
- *  -----------
- *  This is the window manager function for invoking client inserted menu
- *  commands.
- *
- *************************************<->***********************************/
-
-Boolean F_InvokeCommand (String args, ClientData *pCD, XEvent *event)
-{
-    CARD32 commandID, clientWindow;
-    Atom notifySelection;
-
-    if (args == (String) NULL) return(FALSE);
-
-    if (sscanf(args, "%d %d %lu", (int *)&commandID, (int *)&clientWindow,
-	       &notifySelection) != 3)
-      return(FALSE);
-
-    SendInvokeMessage(commandID,
-		      (pCD == (ClientData *) NULL ? 0 : pCD->client),
-		      notifySelection,
-		      LastTime());
-
-    return (True);
-} /* END OF FUNCTION F_InvokeCommand */
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
-
-
 /*************************************<->*************************************
  *
  *  GetFunctionTimestamp (pEvent)

@@ -119,9 +119,6 @@ static int moveLastPointerY= 0;
 
 static Boolean anyMotion = FALSE;
 static Boolean configGrab = FALSE;
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
-static Boolean grabServer = TRUE;
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
 
 Dimension clipWidth = 0;
 Dimension clipHeight = 0;
@@ -2476,38 +2473,6 @@ Boolean StartClientMove (ClientData *pcd, XEvent *pev)
 } /* END OF FUNCTION StartClientMove */
 
 
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
-/*************************************<->*************************************
- *
- *  SetGrabServer ()
- *
- *
- *  Description:
- *  -----------
- *  Sets Boolean grabServer to False
- *
- *  Inputs:
- *  ------
- *  None
- *  
- *  Outputs:
- *  -------
- *  None
- *  
- *  Comments
- *  -------
- *  This will only get called when an automated test is running. The
- *  purpose of this is to prevent mwm from grbbing the server, since
- *  this confuses the automation input synthesis code
- *  
- *************************************<->***********************************/
-void SetGrabServer (void)
-{
-    grabServer = FALSE;
-}
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
-
-
 /*************************************<->*************************************
  *
  *  DoGrabs (grab_win, cursor, pmask, grabTime, alwaysGrab)
@@ -2609,7 +2574,7 @@ Boolean DoGrabs (Window grab_win, Cursor cursor, unsigned int pmask, Time grabTi
     }
     
    
-    if (!wmGD.useWindowOutline && grabServer) 
+    if (!wmGD.useWindowOutline) 
     {
 #ifdef WSM
 	if (!pCD || ((pCD->pSD->moveOpaque && alwaysGrab) ||
@@ -2655,7 +2620,7 @@ void UndoGrabs (void)
     XSync (DISPLAY, FALSE /*don't discard events*/);
 
     /* give up grabs */
-    if (!wmGD.useWindowOutline && grabServer) {
+    if (!wmGD.useWindowOutline) {
 		XUngrabServer(DISPLAY);
     }
 

@@ -24,33 +24,15 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
-# define MAKE_MENU(pSD, pCD, mName, iC, aC, moreItems, sysMenu) \
-	MakeMenu(pSD, pCD, mName, iC, aC, moreItems, sysMenu)
-# define CREATE_MENU_WIDGET(pSD, pCD, mName, parent, fTLP, tSpec, moreItems) \
-	CreateMenuWidget(pSD, pCD, mName, parent, fTLP, tSpec, moreItems)
-#else
-# define MAKE_MENU(pSD, pCD, mName, iC, aC, moreItems, sysMenu) \
-	MakeMenu(pSD, mName, iC, aC, moreItems, sysMenu)
-# define CREATE_MENU_WIDGET(pSD, pCD, mName, parent, fTLP, tSpec, moreItems) \
-	CreateMenuWidget(pSD, mName, parent, fTLP, tSpec, moreItems)
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
-
 extern void ActivateCallback (Widget w, caddr_t client_data, 
 			      caddr_t call_data);
 extern Widget CreateMenuWidget (WmScreenData *pSD,
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
-				ClientData *pCD,
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
 				String menuName, Widget parent,
 				Boolean fTopLevelPane, MenuSpec *topMenuSpec,
 				MenuItem *moreMenuItems);
 extern void FreeCustomMenuSpec (MenuSpec *menuSpec);
 extern void MWarning (char *format, char *message);
 extern MenuSpec *MakeMenu (WmScreenData *pSD,
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
-			   ClientData *pCD,
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
 			   String menuName, 
 			   Context initialContext, Context accelContext, 
 			   MenuItem *moreMenuItems, Boolean fSystemMenu);
@@ -60,24 +42,6 @@ extern void PostMenu (MenuSpec *menuSpec, ClientData *pCD, int x, int y,
 extern void TraversalOff (MenuSpec *menuSpec);
 extern void TraversalOn (MenuSpec *menuSpec);
 extern void UnpostMenu (MenuSpec *menuSpec);
-
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
-extern void InsertTreeOnAllClients (WmScreenData *pSD, CmdTree *tree,
-				    Atom selection, Context active_context,
-				    Boolean in_line);
-extern void InsertTreeOnSingleClient (WmScreenData *pSD, ClientData *pCD,
-				      CmdTree *tree, Atom selection,
-				      Context active_context, Boolean in_line);
-extern void InsertTreeOnRootMenu (WmScreenData *pSD, CmdTree *tree,
-				  Atom selection, Boolean in_line);
-extern void ModifyClientCommandTree (WmScreenData *pSD, ClientData *pCD,
-				     OpRange range, CmdTree *tree,
-				     CmdModifier modifier, Context context,
-				     String newname);
-extern void DestroyMenuSpecWidgets (MenuSpec *menuspec);
-extern void DestroyMenuSpec (WmScreenData *pSD, CARD32 commandID);
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
-
 extern MenuSpec *DuplicateMenuSpec (MenuSpec *menuSpec);
 
 #endif /* _WM_MENU_H */

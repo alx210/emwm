@@ -781,45 +781,11 @@ int i;
 
     if (manageFlags & MANAGEW_ICON_BOX)
     {
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
-	/** BEGIN FIX CR 6941 **/
-	MenuItem *iconBoxMenuItems, *lastItem;
-
-	/* This MenuSpec is not added to pSD->acceleratorMenuSpecs */
 	pCD->systemMenuSpec = 
-	    MAKE_MENU (PSD_FOR_CLIENT(pCD), pCD, pCD->systemMenu,
-		      F_CONTEXT_WINDOW, F_CONTEXT_WINDOW|F_CONTEXT_ICON,
-		      NULL, TRUE);
-	if (pCD->systemMenuSpec != (MenuSpec *) NULL)
-	{
-	    pCD->systemMenuSpec = DuplicateMenuSpec(pCD->systemMenuSpec);
-	    XtFree(pCD->systemMenuSpec->name);
-	    pCD->systemMenuSpec->name = XtNewString("IconBoxMenu");
-	    iconBoxMenuItems = GetIconBoxMenuItems (PSD_FOR_CLIENT(pCD));
-	    
-	    /* Find the last menu item in the menu spec's list. */
-	    for (lastItem = pCD->systemMenuSpec->menuItems;
-		 lastItem->nextMenuItem != (MenuItem *) NULL;
-		 lastItem = lastItem->nextMenuItem)
-	      /*EMPTY*/;
-	    lastItem->nextMenuItem = iconBoxMenuItems;
-	    
-	    /* Now recreate the menu widgets since we've appended the
-	       icon box menu items */
-	    DestroyMenuSpecWidgets(pCD->systemMenuSpec);
-	    pCD->systemMenuSpec->menuWidget =
-	      CreateMenuWidget (PSD_FOR_CLIENT(pCD), pCD, "IconBoxMenu",
-				PSD_FOR_CLIENT(pCD)->screenTopLevelW, TRUE,
-				pCD->systemMenuSpec, NULL);
-	}
-	/** END FIX CR 6941 **/
-#else
-	pCD->systemMenuSpec = 
-	    MAKE_MENU (PSD_FOR_CLIENT(pCD), pCD, pCD->systemMenu,
+	    MakeMenu (PSD_FOR_CLIENT(pCD), pCD->systemMenu,
 		       F_CONTEXT_WINDOW, F_CONTEXT_WINDOW|F_CONTEXT_ICON,
 		       GetIconBoxMenuItems(PSD_FOR_CLIENT(pCD)),
 		       TRUE);
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
     }
 
 
@@ -2518,7 +2484,7 @@ MakeSystemMenu (ClientData *pCD)
 {
     pCD->mwmMenuItems = GetMwmMenuItems(pCD);
     pCD->systemMenuSpec = 
-       MAKE_MENU (PSD_FOR_CLIENT(pCD), pCD, pCD->systemMenu, F_CONTEXT_WINDOW,
+       MakeMenu (PSD_FOR_CLIENT(pCD), pCD->systemMenu, F_CONTEXT_WINDOW,
 	         F_CONTEXT_WINDOW|F_CONTEXT_ICON, pCD->mwmMenuItems, TRUE);
 
 #ifdef NO_MESSAGE_CATALOG
@@ -2530,7 +2496,7 @@ MakeSystemMenu (ClientData *pCD)
 	Warning("Retrying - using builtin window menu\n");
 
 	pCD->systemMenuSpec =
-	  MAKE_MENU(PSD_FOR_CLIENT(pCD), pCD, builtinSystemMenuName,
+	  MakeMenu(PSD_FOR_CLIENT(pCD), builtinSystemMenuName,
 		    F_CONTEXT_WINDOW,
 		    F_CONTEXT_WINDOW|F_CONTEXT_ICON, pCD->mwmMenuItems, TRUE);
     }

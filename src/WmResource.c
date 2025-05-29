@@ -521,7 +521,7 @@ char builtinKeyBindings[];
 char defaultButtonBindingsName[] = "DefaultButtonBindings";
 char builtinButtonBindingsName[] = "_MwmButtonBindings_";
 #ifndef MCCABE
-# if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
+# ifndef WSM
 #  define BUILTINBUTTONBINDINGS "_MwmButtonBindings_\n\
 {\n\
 	<Btn1Down>	icon|frame	f.raise\n\
@@ -535,7 +535,7 @@ char builtinButtonBindingsName[] = "_MwmButtonBindings_";
 	<Btn3Down>	icon|frame	f.post_wmenu\n\
 	<Btn3Down>	root		f.menu DefaultRootMenu\n\
 }";
-# endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
+# endif /* WSM */
 char builtinButtonBindings[] = BUILTINBUTTONBINDINGS
 
 #else
@@ -1412,7 +1412,7 @@ XtResource wmScreenResources[] =
 	(XtPointer)True
     },
 
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
+#ifndef WSM
     {
 	WmNrootMenu,
 	WmCRootMenu,
@@ -1422,7 +1422,7 @@ XtResource wmScreenResources[] =
 	XtRString,
 	(XtPointer)builtinRootMenuName
     },
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
+#endif /* WSM */
 
     {
 	WmNtransientDecoration,
@@ -5710,9 +5710,9 @@ SetStdClientResourceValues (ClientData *pCD)
 void 
 SetStdScreenResourceValues (WmScreenData *pSD)
 {
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
+#ifndef WSM
     pSD->rootMenu = builtinRootMenuName;
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
+#endif /* WSM */
     pSD->buttonBindings = builtinButtonBindingsName;
     pSD->cleanText = True;
     pSD->iconDecoration =
@@ -6285,7 +6285,7 @@ WmScreenData *pSD;
 	 * set.
 	 */
 
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
+#ifndef WSM
         /*
 	 * Before parsing the string, substitute the real name for
 	 * the default rootmenu using the resource rootMenu
@@ -6301,7 +6301,7 @@ WmScreenData *pSD;
 	ParseKeyStr (pSD, (unsigned char *)buffer);
 #else
 	ParseKeyStr (pSD, (unsigned char *)builtinKeyBindings);
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
+#endif /* WSM */
     }
 
     if (pSD->buttonBindings == builtinButtonBindingsName)
@@ -6312,7 +6312,7 @@ WmScreenData *pSD;
 	 * set.
 	 */
 
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
+#ifndef WSM
         /*
 	 * Before parsing the string, substitute the real name for
 	 * the default rootmenu using the resource rootMenu
@@ -6328,7 +6328,7 @@ WmScreenData *pSD;
 	ParseButtonStr (pSD, (unsigned char *)buffer);
 #else
 	ParseButtonStr (pSD, (unsigned char *)builtinButtonBindings);
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
+#endif /* WSM */
     }
 
 #ifdef NO_MESSAGE_CATALOG
