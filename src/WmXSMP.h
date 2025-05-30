@@ -27,8 +27,8 @@
 #include "WmGlobal.h"
 
 /* Atoms used for session management capabilities. */
-#define _XA_DT_SM_CLIENT_ID		"SM_CLIENT_ID"
-#define _XA_DT_WMSAVE_HINT		"_DT_WMSAVE_HINT"
+#define _XA_MWM_SM_CLIENT_ID		"SM_CLIENT_ID"
+#define _XA_MWM_WMSAVE_HINT		"_MWM_WMSAVE_HINT"
 
 /* _DT_WMSAVE_HINT flag definitions */
 #define WMSAVE_X		(1L << 0)
@@ -36,22 +36,19 @@
 #define WMSAVE_WIDTH		(1L << 2)
 #define WMSAVE_HEIGHT		(1L << 3)
 #define WMSAVE_STATE		(1L << 4)
-#ifdef WSM
-# define WMSAVE_WORKSPACES	(1L << 5)
-#endif
+#define WMSAVE_WORKSPACES	(1L << 5)
 #define WMSAVE_ICON_X		(1L << 6)
 #define WMSAVE_ICON_Y		(1L << 7)
 
-extern void AddSMCallbacks(void);
-extern void ResignFromSM(void);
-extern _X_NORETURN void ExitWM(int exitCode);
-extern XrmDatabase LoadClientResourceDB(void);
-extern XrmDatabase SaveClientResourceDB(void);
-extern Boolean FindClientDBMatch(ClientData *, char **);
-extern Boolean GetSmClientIdClientList(ClientData ***, int *);
-extern void SortClientListByWorkspace(ClientData **, int);
-#ifdef WSM
-extern void LoadClientIconPositions(ClientData *);
-#endif
+void AddSMCallbacks(void);
+void ResignFromSM(void);
+_X_NORETURN void ExitWM(int exitCode);
+XrmDatabase LoadClientResourceDB(void);
+XrmDatabase SaveClientResourceDB(void);
+Boolean FindClientDBMatch(ClientData *, char **);
+Boolean GetSmClientIdClientList(ClientData ***, int *);
+void SortClientListByWorkspace(ClientData **, int);
+void LoadClientIconPositions(ClientData *);
+
 
 #endif /* _WmXSMP_h */

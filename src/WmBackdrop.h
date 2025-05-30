@@ -19,18 +19,16 @@
  * License along with these librararies and programs; if not, write
  * to the Free Software Foundation, Inc., 51 Franklin Street, Fifth
  * Floor, Boston, MA 02110-1301 USA
-*/ 
+ */
 
-void ConfirmAction (WmScreenData *pSD, int nbr);
-void HideFeedbackWindow (WmScreenData *pSD);
-void InitCursorInfo (void);
-void PaintFeedbackWindow (WmScreenData *pSD);
-void ShowFeedbackWindow (WmScreenData *pSD, int x, int y, 
-				unsigned int width, unsigned int height, 
-				unsigned long style);
-void ShowWaitState (Boolean flag);
-void UpdateFeedbackInfo (WmScreenData *pSD, int x, int y, 
-				unsigned int width, unsigned int height);
-void UpdateFeedbackText (WmScreenData *pSD, int x, int y, 
-				unsigned int width, unsigned int height);
+/********    Public Function Declarations    ********/
 
+void ChangeBackdrop(WmWorkspaceData *pWS);
+
+void ProcessBackdropResources(WmWorkspaceData *pWS, unsigned long callFlags);
+
+String FullBitmapFilePath(String pch);
+
+void SetNewBackdrop(WmWorkspaceData *pWS, Pixmap pixmap, String bitmapFile);
+
+Boolean IsBackdropWindow(WmScreenData *pSD, Window win);

@@ -21,30 +21,30 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-extern void AutoResetKeyFocus (ClientData *pcdNoFocus, Time focusTime);
-extern void ClearFocusIndication (ClientData *pCD, Boolean refresh);
-extern Boolean CheckForKeyFocus (ClientListEntry *pNextEntry, 
+void AutoResetKeyFocus (ClientData *pcdNoFocus, Time focusTime);
+void ClearFocusIndication (ClientData *pCD, Boolean refresh);
+Boolean CheckForKeyFocus (ClientListEntry *pNextEntry, 
 				 unsigned long type, Boolean focusNext, 
 				 Time focusTime);
-extern void DoExplicitSelectGrab (Window window);
-extern ClientData *FindLastTransientTreeFocus (ClientData *pCD, 
+void DoExplicitSelectGrab (Window window);
+ClientData *FindLastTransientTreeFocus (ClientData *pCD, 
 					       ClientData *pcdNoFocus);
-extern ClientData *FindNextTFocusInSeq (ClientData *pCD, 
+ClientData *FindNextTFocusInSeq (ClientData *pCD, 
 					unsigned long startAt);
-extern ClientData *FindPrevTFocusInSeq (ClientData *pCD, 
+ClientData *FindPrevTFocusInSeq (ClientData *pCD, 
 					unsigned long startAt);
-extern Boolean FocusNextTransient (ClientData *pCD, unsigned long type, 
+Boolean FocusNextTransient (ClientData *pCD, unsigned long type, 
 				   Boolean initiate, Time focusTime);
-extern Boolean FocusNextWindow (unsigned long type, Time focusTime);
-extern Boolean FocusPrevTransient (ClientData *pCD, unsigned long type, 
+Boolean FocusNextWindow (unsigned long type, Time focusTime);
+Boolean FocusPrevTransient (ClientData *pCD, unsigned long type, 
 				   Boolean initiate, Time focusTime);
-extern Boolean FocusPrevWindow (unsigned long type, Time focusTime);
-extern ClientData *GetClientUnderPointer (Boolean *pSameScreen);
-extern void InitKeyboardFocus (void);
-extern void RepairFocus (void);
-extern void ResetExplicitSelectHandling (ClientData *pCD);
-extern void SetFocusIndication (ClientData *pCD);
-extern void SetKeyboardFocus (ClientData *pCD, long focusFlags);
+Boolean FocusPrevWindow (unsigned long type, Time focusTime);
+ClientData *GetClientUnderPointer (Boolean *pSameScreen);
+void InitKeyboardFocus (void);
+void RepairFocus (void);
+void ResetExplicitSelectHandling (ClientData *pCD);
+void SetFocusIndication (ClientData *pCD);
+void SetKeyboardFocus (ClientData *pCD, long focusFlags);
 
 
 

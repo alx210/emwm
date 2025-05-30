@@ -1128,8 +1128,7 @@ void WmDrawXmString (Display *dpy, Window w, XmRenderTable xmrendertable,
     XSetClipMask(dpy,gc,None);
 } /* END OF FUNCTION WmDrawXmString */
 
-#ifdef WSM
-
+
 /*************************************<->*************************************
  *
  *  WmInstallBitmapIntoXmCache (pchName, bitmap, width, height)
@@ -1207,7 +1206,7 @@ void WmInstallBitmapDataIntoXmCache (WmScreenData *pSD,
 {
     XImage *pImage;
 
-    if (pImage = (XImage *) XtMalloc (sizeof (XImage)))
+    if ( (pImage = (XImage *) XtMalloc (sizeof (XImage))) )
     {
 	pImage->width = width; 
 	pImage->height = height;
@@ -1226,4 +1225,3 @@ void WmInstallBitmapDataIntoXmCache (WmScreenData *pSD,
     }
 
 } /* END OF FUNCTION WmInstallBitmapDataIntoXmCache */
-#endif /* WSM */

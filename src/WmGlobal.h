@@ -40,23 +40,20 @@
 #include <X11/StringDefs.h>
 #include <Xm/MwmUtil.h>
 #include <Xm/Xm.h>
-#ifdef WSM
 #include <Xm/ColorObjP.h>
-#include <Dt/Service.h>
-#include <Dt/Wsm.h>
-#include <Dt/WsmP.h>
-#include "WmParse.h"
-#endif /* WSM */
 
 /*
  * Value definitions and macros:
  */
 
+/* Version info */
+#define MWM_NAME "EMWM [WSM Branch - Alpha]"
+#define MWM_VERSION  1
+#define MWM_REVISION 4
+
 /* window manager name and class used to get resources: */
 #define	WM_RESOURCE_CLASS	"Emwm"
 #define WM_RESOURCE_NAME	"emwm"
-
-#ifdef WSM
 
 /*
  * Color server defines
@@ -76,16 +73,11 @@ extern Pixel		FPselectcolor;
 #define  USE_PRIMARY_PIXELSET		2
 #define  USE_SECONDARY_PIXELSET		3
 
-#define MWM	        	     0
-#define DT_MWM		 	     1
-
-#define MwmBehavior		(WmIdentity == MWM)
-#define DtwmBehavior		(WmIdentity == DT_MWM)
-
-#else
+/* These need to be figured out */
 #define MwmBehavior		(True)
+#define LOW_RES_DISPLAY 0
+#define VGA_RES_DISPLAY 1
 
-#endif /* WSM */
 
 /* ICCC atom names: */
 #define _XA_WM_STATE		"WM_STATE"
@@ -95,6 +87,18 @@ extern Pixel		FPselectcolor;
 #define _XA_WM_DELETE_WINDOW	"WM_DELETE_WINDOW"
 #define _XA_WM_TAKE_FOCUS	"WM_TAKE_FOCUS"
 #define _XA_WM_COLORMAP_WINDOWS	"WM_COLORMAP_WINDOWS"
+
+/* Workspace atom names */
+#define _XA_DT_MARQUEE_SELECTION	"_MWM_MARQUEE_SELECTION"
+#define _XA_DT_WM_REQUEST		"_MWM_WM_REQUEST"
+#define _XA_DT_WORKSPACE_HINTS		"_MWM_WORKSPACE_HINTS"
+#define _XA_DT_WORKSPACE_PRESENCE	"_MWM_WORKSPACE_PRESENCE"
+#define _XA_DT_WORKSPACE_INFO		"_MWM_WORKSPACE_INFO"
+#define _XA_DT_WM_HINTS			"_MWM_WM_HINTS"
+#define _XA_DT_WORKSPACE_LIST		"_MWM_WORKSPACE_LIST"
+#define _XA_DT_WORKSPACE_CURRENT	"_MWM_WORKSPACE_CURRENT"
+#define _XA_DT_WORKSPACE_ALL		"all"
+
 
 /* window manager exit value on fatal errors: */
 #define WM_ERROR_EXIT_VALUE	1
@@ -130,12 +134,7 @@ extern Pixel		FPselectcolor;
 #define MANAGEW_CONFIRM_BOX	(1L << 4)
 #define MANAGEW_WM_RESTART_ICON	(1L << 5)
 
-#ifdef WSM
-#define MANAGEW_WM_CLIENTS	(MANAGEW_ICON_BOX | \
-				 MANAGEW_CONFIRM_BOX )
-#else /* WSM */
 #define MANAGEW_WM_CLIENTS	(MANAGEW_ICON_BOX | MANAGEW_CONFIRM_BOX)
-#endif /* WSM */
 
 /* keyboard input focus flag values (for calls to SetKeyboardFocus) */
 #define ALWAYS_SET_FOCUS	(1L << 0)
@@ -162,11 +161,7 @@ extern Pixel		FPselectcolor;
 #define QUIT_MWM_ACTION		3
 
 /* icon frame shadow widths */
-#ifdef WSM
 #define ICON_EXTERNAL_SHADOW_WIDTH	(wmGD.iconExternalShadowWidth)
-#else /* WSM */
-#define ICON_EXTERNAL_SHADOW_WIDTH	2
-#endif /* WSM */
 #define ICON_INTERNAL_SHADOW_WIDTH	1
 
 /* padding widths */
@@ -215,11 +210,7 @@ extern Pixel		FPselectcolor;
 #define NUM_STATIC_BOTTOM_RECTS	(2*ICON_INTERNAL_SHADOW_WIDTH)
 
 /* client frame shadow widths */
-#ifdef WSM
 #define FRAME_EXTERNAL_SHADOW_WIDTH	(wmGD.frameExternalShadowWidth)
-#else /* WSM */
-#define FRAME_EXTERNAL_SHADOW_WIDTH	2
-#endif /* WSM */
 #define FRAME_INTERNAL_SHADOW_WIDTH	1
 #define FRAME_CLIENT_SHADOW_WIDTH	1
 #define FRAME_MATTE_SHADOW_WIDTH	1
@@ -248,14 +239,12 @@ extern Pixel		FPselectcolor;
 
 #define STRETCH_COUNT		8
 
-#ifdef WSM
-
 /* Workspace allocation granularity */
 #define WS_ALLOC_AMOUNT			8
 
 /* Window list allocation granularity */
 #define WINDOW_ALLOC_AMOUNT		16
-#endif /* WSM */
+
 
 /* function flag masks */
 #define WM_FUNC_DEFAULT		MWM_FUNC_ALL
@@ -282,13 +271,15 @@ extern Pixel		FPselectcolor;
 #define ICON_BOX_FUNCTIONS	(MWM_FUNC_RESIZE | MWM_FUNC_MOVE |\
 				 MWM_FUNC_MINIMIZE | MWM_FUNC_MAXIMIZE)
 
-#ifdef WSM
 /* workspace controller definitions */
 #define CONTROL_BOX_FUNCTIONS	(MWM_FUNC_MOVE)
 
 /* workspace presence definitions */
 #define PRESENCE_BOX_FUNCTIONS	(MWM_FUNC_MOVE)
-#endif /* WSM */
+
+#define WSM_FUNC_ALL		(1L << 0)
+#define WSM_FUNC_OCCUPY_WS		(1L << 16)
+
 
 /* show feedback definitions */
 #define WM_SHOW_FB_BEHAVIOR	(1L << 0)
@@ -308,21 +299,7 @@ extern Pixel		FPselectcolor;
 
 #define WM_SHOW_FB_DEFAULT	WM_SHOW_FB_ALL
 
-#ifdef WSM
-/* flags identifying resources to save */
 
-#define WM_RES_WORKSPACE_LIST		(1L << 0)
-#define WM_RES_BACKDROP_IMAGE		(1L << 1)
-#define WM_RES_WORKSPACE_TITLE		(1L << 2)
-#define WM_RES_INITIAL_WORKSPACE	(1L << 3)
-#define WM_RES_FP_POSITION      	(1L << 4)
-#define WM_RES_ICONBOX_GEOMETRY      	(1L << 5)
-#define WM_RES_WORKSPACE_COUNT		(1L << 6)
-
-#endif /* WSM */
-
-
-
 /*************************************<->*************************************
  *
  *  Miscellaneous utility window manager data structures ...
@@ -361,11 +338,9 @@ typedef struct _WmColorData
 
 } WmColorData;
 
-#ifdef WSM
 typedef Atom WorkspaceID;
-#endif
 
-
+
 /*************************************<->*************************************
  *
  *  Event processing data structures ...
@@ -425,9 +400,7 @@ typedef struct _ButtonSpec
 #define F_CONTEXT_NORMAL	(1L << 2)
 #define F_CONTEXT_MAXIMIZE	(1L << 3)
 #define F_CONTEXT_ICONBOX	(1L << 4)
-#ifdef WSM
 #define F_CONTEXT_IFKEY		(1L << 7)
-#endif /* WSM */
 #define F_CONTEXT_WINDOW	(F_CONTEXT_NORMAL|F_CONTEXT_MAXIMIZE)
 #define F_CONTEXT_ALL		(F_CONTEXT_ROOT|F_CONTEXT_ICON|F_CONTEXT_WINDOW)
 
@@ -464,9 +437,7 @@ typedef struct _ButtonSpec
 #define FRAME_NBORDER		14
 #define FRAME_MATTE		15
 #define FRAME_MISC		FRAME_MATTE
-#ifdef WSM
 #define FRAME_TITLEBAR		17
-#endif /* WSM */
 
 /* icon part contexts */
 #define ICON_PART_NONE		0
@@ -604,8 +575,6 @@ typedef struct _Gadget_Rectangle
 #define F_GROUP_ALL		(F_GROUP_DEFAULT | F_GROUP_TRANSIENT)
 #define F_GROUP_GROUP		(1L << 3)
 
-#ifdef WSM
-
 /*************************************<->*************************************
  *
  *  Workspace data structures ...
@@ -649,18 +618,16 @@ typedef struct _WsPresenceData
 
 typedef struct _WsPresenceData *PtrWsPresenceData;
 
-
 /*************************************<->*************************************
  *
- *  DtSessionItems
- *
+ *  Session save/restore support data structures
  *
  *  Description:
  *  -----------
  *
  *************************************<->***********************************/
 
-typedef struct _DtSessionItem
+typedef struct _WmSessionItem
 {
     Boolean                processed;
     int                    clientState;
@@ -670,7 +637,7 @@ typedef struct _DtSessionItem
     int                    commandArgc;
     char                   **commandArgv;
     struct _SessionGeom    *sessionGeom;
-} DtSessionItem;
+} WmSessionItem;
 
 typedef struct _SessionGeom
 {
@@ -686,11 +653,9 @@ typedef struct _SessionGeom
  */
 #define  SM_UNITIALIZED			 0
 #define  SM_START_ACK			 1
-#define  SM_STOP_ACK                	 2
+#define  SM_STOP_ACK             2
 
-#endif /* WSM */
 
-
 /*************************************<->*************************************
  *
  *  Menu specification data structures ...
@@ -723,18 +688,13 @@ typedef struct _MenuItem
 
 } MenuItem;
 
-#ifdef WSM
-
 /*
  * We use the top part of mgtMask for workspace function bits.
  * When OSF MWM outgrows the lower 16 bits, we'll have to
  * change how we do things.
  */
-
 #define MWM_MGT_MASK	0x0000FFFF
-#define DTWM_MGT_MASK	0xFFFF0000
-
-#endif /* WSM */
+#define WSM_MGT_MASK	0xFFFF0000
 
 typedef struct _MenuButton
 {
@@ -983,9 +943,7 @@ typedef struct _IconBoxData
     int		currentCol;
     int		lastRow;
     int		lastCol;
-#ifdef WSM
     WorkspaceID		wsID;		/* workspace identifier */
-#endif /* WSM */
     struct _ClientData	*pCD_iconBox;	/* ptr to its own clientdata */
     struct _IconBoxData *pNextIconBox;	/* ptr to next icon box */
     struct _IconPlacementData IPD;	/* icon placement data */
@@ -1115,19 +1073,15 @@ typedef struct _WmScreenData
     Widget	screenTopLevelW;
     Widget	screenTopLevelW1;       /* for internal WM components */
     Widget      confirmboxW[4];
-#ifdef WSM
     WsPresenceData	presence;	/* workspace presence dialog*/
     Widget	switcherW;		/* workspace switcher */
     Widget	switcherShellW;		/* shell for ws switcher */
-#endif /* WSM */
     Window	wmWorkspaceWin;		/* holds wm properties */
     Window	feedbackWin;
     Window	activeIconTextWin;
     Window	activeLabelParent;
     String	displayString;		/* used for putenv in F_Exec */
-#ifdef WSM
     int displayResolutionType;
-#endif /* WSM */
 
     /* wm state info: */
 
@@ -1138,9 +1092,7 @@ typedef struct _WmScreenData
     Colormap	workspaceColormap;
     Colormap	lastInstalledColormap;
     struct _WmWorkspaceData	*pActiveWS;	/* for this screen */
-#ifdef WSM
     struct _WmWorkspaceData	*pLastWS;	/* previously active WS */
-#endif /* WSM */
 
     /* per screen caches */
     BitmapCache *bitmapCache;
@@ -1188,9 +1140,6 @@ typedef struct _WmScreenData
     int     actionNbr;
 
     /* resource description file data: */
-#ifndef WSM
-    String	rootMenu;			/* resource */
-#endif /* WSM */
     String	buttonBindings;			/* resource */
     ButtonSpec	*buttonSpecs;
     String	keyBindings;			/* resource */
@@ -1210,9 +1159,6 @@ typedef struct _WmScreenData
     Boolean	decoupleTitleAppearance;	/* see clientTitleAppearance */
     int		frameBorderWidth;		/* resource */
     String	feedbackGeometry;		/* resource */
-#ifndef WSM
-    String	iconBoxGeometry;		/* resource */
-#endif /* WSM */
     String	iconBoxName;			/* resource */
     String      iconBoxSBDisplayPolicy;         /* resource */
     int		iconBoxScheme;			/* resource - testing */
@@ -1231,8 +1177,6 @@ typedef struct _WmScreenData
     Boolean moveOpaque;    /* move window not outlines */
     Boolean titleLeft;
 
-#ifdef WSM
-
     /* pixel set info (from color object) */
     XmPixelSet	*pPixelData;		/* all pixel data */
     XmPixelSet	*pActivePixelSet;	/* ptr into pPixelData */
@@ -1241,7 +1185,6 @@ typedef struct _WmScreenData
     XmPixelSet	*pSecondaryPixelSet;	/* ptr into pPixelData */
     XmPixelSet	*pTextPixelSet;		/* ptr into pPixelData */
     int		colorUse;		/* indication from color obj */
-#endif /* WSM */
 
     /* client frame component appearance resources and data: */
 
@@ -1266,9 +1209,8 @@ typedef struct _WmScreenData
     ClientListEntry 	*clientList;
     ClientListEntry 	*lastClient;
 
-#ifdef WSM
-    /* DtSessionHints for clients */
-    struct _DtSessionItem     *pDtSessionItems;
+    /* Session data for clients */
+    struct _WmSessionItem     *pSessionItems;
     int                        totalSessionItems;
     int                        remainingSessionItems;
 
@@ -1280,17 +1222,7 @@ typedef struct _WmScreenData
     int				numWsDataAllocated;
     struct _WmWorkspaceData	*pWS;
     Window			lastBackdropWin;
-    struct _WsDtHelpData        dtHelp;
-    struct _CacheListStruct     *cachedHelp;
-    String                      helpResources;  /* to restore help */
-    DtSvcHandle	hWsm;		/* WORKSPACEMGR message handle */
     Boolean	bMarqueeSelectionInitialized;
-
-#else /* WSM */
-    /* workspace for this screen */
-
-    struct _WmWorkspaceData	*pWS;
-#endif /* WSM */
 
 } WmScreenData;
 
@@ -1323,28 +1255,18 @@ typedef struct _WmScreenData *PtrScreenData;
 #define FADE_ICON_GC(pcd) ((pcd)->pSD->fadeIconGC)
 #define FADE_ICON_TEXT_GC(pcd) ((pcd)->pSD->fadeIconTextGC)
 #define DEFAULT_PIXMAP(pcd) ((pcd)->pSD->defaultPixmap)
-#ifdef WSM
 #define ICON_PLACE(pcd) ((pcd)->pWsList[(pcd)->currentWsc].iconPlace)
 #define ICON_X(pcd) ((pcd)->pWsList[(pcd)->currentWsc].iconX)
 #define ICON_Y(pcd) ((pcd)->pWsList[(pcd)->currentWsc].iconY)
 #define P_ICON_BOX(pcd) ((pcd)->pWsList[(pcd)->currentWsc].pIconBox)
 #define ICON_FRAME_WIN(pcd) ((pcd)->pWsList[(pcd)->currentWsc].iconFrameWin)
-#else /* WSM */
-#define ICON_PLACE(pcd) ((pcd)->iconPlace)
-#define ICON_X(pcd) ((pcd)->iconX)
-#define ICON_Y(pcd) ((pcd)->iconY)
-#define P_ICON_BOX(pcd) ((pcd)->pIconBox)
-#define ICON_FRAME_WIN(pcd) ((pcd)->iconFrameWin)
-#endif /* WSM */
 
-#ifdef WSM
 /*
  * Definitions for Screen data
  */
 #define MAX_WORKSPACE_COUNT	64
 
 
-
 /*************************************<->*************************************
  *
  *  BackdropData
@@ -1379,12 +1301,9 @@ typedef struct _WmBackdropData
 
 typedef struct _WmBackdropData *PtrBackdropData;
 
-#define DEFAULT_BACKDROP_DIR CDE_INSTALLATION_TOP "/backdrops"
+#define DEFAULT_BACKDROP_DIR "/usr/share/backdrops"
 
-#endif /* WSM */
- 
 
-
 /*************************************<->*************************************
  *
  *  WmWorkspaceData
@@ -1401,15 +1320,12 @@ typedef struct _WmBackdropData *PtrBackdropData;
 typedef struct _WmWorkspaceData
 {
     int			dataType;
-
-#ifdef WSM
     WorkspaceID		id;
     int         	map_state;
     BackdropData	backdrop;
     Widget		buttonW;
     XmString		title;		/* resource (visible name) */
     String	        iconBoxGeometry;/* resource */
-#endif /* WSM */
     String		name;		/* workspace name */
 					/* (used for resource fetching) */
 
@@ -1423,11 +1339,9 @@ typedef struct _WmWorkspaceData
 
     struct _ClientData	*keyboardFocus;	/* ptr to client with the key focus */
     struct _ClientData	*nextKeyboardFocus; /* next client to get focus */
-#ifdef WSM
     struct _ClientData **ppClients;	/* list of client data ptrs */
     unsigned int	numClients; 	/* number of client in list */
     unsigned int	sizeClientList;	/* size of client list */
-#endif  /* WSM */
 
 } WmWorkspaceData;
 
@@ -1454,18 +1368,12 @@ typedef struct _WmWorkspaceData *PtrWorkspaceData;
 #define NUM_RESIZE_TS_ELEMENTS(pcd) ((pcd)->pSD->Num_Resize_Ts_Elements)
 #define NUM_RESIZE_BS_ELEMENTS(pcd) ((pcd)->pSD->Num_Resize_Bs_Elements)
 #define ICON_APPEARANCE(pcd) ((pcd)->pSD->iconAppearance)
-
 #define ACTIVE_LABEL_PARENT(pcd) ((pcd)->pSD->activeLabelParent)
-
-#ifndef WSM
 #define ICON_BOX_GEOMETRY(pcd) ((pcd)->pSD->iconBoxGeometry)
-#endif /* WSM */
 #define ICON_BOX_TITLE(pcd) ((pcd)->pSD->iconBoxTitle)
-
 #define TRANSIENT_DECORATION(pcd) ((pcd)->pSD->transientDecoration)
 #define TRANSIENT_FUNCTIONS(pcd) ((pcd)->pSD->transientFunctions)
 
-
 /*************************************<->*************************************
  *
  *  ClientData
@@ -1497,10 +1405,8 @@ typedef struct _ClientData
     long	focusPriority;
     unsigned long clientID;
     int		wmUnmapCount;
-#ifdef WSM
     Atom *	paInitialProperties;	/* initial window properties */
     int		numInitialProperties;	/* number of initial properties */
-#endif /* WSM */
 
     /* client supported protocols: */
 
@@ -1528,9 +1434,8 @@ typedef struct _ClientData
 #ifndef NO_OL_COMPAT
     Boolean	bPseudoTransient;		/* transientFor window group */
 #endif /* NO_OL_COMPAT */
-#ifndef WSM
+
     IconBoxData *pIconBox;			/* icon box for this win */
-#endif /* WSM */
     IconBoxData *thisIconBox;			/* icon box data for self */
     						/*   if this is an icon box */
     Context    grabContext;                     /* used to support icon box */
@@ -1539,10 +1444,8 @@ typedef struct _ClientData
     struct _ClientData *transientLeader;	/* trans leader of this win */
     struct _ClientData *transientChildren;	/* transients of this win */
     struct _ClientData *transientSiblings;	/* related transient win's */
-#ifdef WSM
     int		primaryStackPosition;		/* stack pos'n of primary */
     Boolean	secondariesOnTop;		/* resource */
-#endif /* WSM */
     int		primaryModalCount;		/* primary modal win count */
     int		fullModalCount;			/* full modal win count */
 
@@ -1660,13 +1563,6 @@ typedef struct _ClientData
     long	iconFlags;
     XmString	iconTitle;			/* WM_ICON_NAME field */
     XmString	ewmhIconTitle;		/* _NET_WM_ICON_NAME */
-#ifndef WSM
-    int		iconX;				/* WM_HINTS field */
-    int		iconY;				/* WM_HINTS field */
-    int		iconPlace; /* Position in IPData */
-	IconPlacementData *IPData; /* For xinerama screen the icon is on */
-    Window	iconFrameWin;
-#endif /* WSM */
     Pixmap	iconPixmap;			/* WM_HINTS field */
     Pixmap	iconMask;			/* WM_HINTS field */
     Window	iconWindow;			/* WM_HINTS field */
@@ -1676,10 +1572,8 @@ typedef struct _ClientData
     						/* to reflect the 	*/
     RList	*piconBottomShadows;		/* depressed icon image */
 
-#ifdef WSM
     /* workspace data */
-
-    int         absentMapBehavior;              /* resource */
+    int		absentMapBehavior;              /* resource */
     int		numInhabited;		/* number of WS's inhabited */
     int		sizeWsList;		/* size of wsc data list */
     struct _WsClientData *pWsList;	/* list of workspace-client data */
@@ -1690,13 +1584,12 @@ typedef struct _ClientData
     long	dtwmFunctions;		/* _DT_WM_HINTS */
     long	dtwmBehaviors;		/* _DT_WM_HINTS */	
     Window	attachWindow;		/* _DT_WM_HINTS */
-#endif /* WSM */
+
 #ifndef NO_SHAPE
     short       wShaped;                /* this window has a bounding shape */
 #endif /* NO_SHAPE  */
 
     int		usePPosition;		/* indicate whether to use PPosition */
-
     long	window_status;			/* used for Tear-off Menus */
 
 } ClientData;
@@ -1721,9 +1614,7 @@ typedef struct _ClientData *PtrClientData;
 #define NORMAL_STATE		1
 #define MINIMIZED_STATE		2
 #define MAXIMIZED_STATE		3
-#ifdef WSM
 #define UNSEEN_STATE            8
-#endif /* WSM */
 
 /* clientFlags field values: */
 #define CLIENT_HINTS_TITLE		(1L << 0)
@@ -1740,15 +1631,12 @@ typedef struct _ClientData *PtrClientData;
 #define ICON_BOX                        (1L << 11)  /* one of our icon boxes */
 #define CONFIRM_BOX                     (1L << 12)  /* a confirmation box */
 
-#ifdef WSM
-#define SM_LAUNCHED                     (1L << 17) /* launched by dtsession */
-#endif /* WSM */
-
+#define SM_LAUNCHED                     (1L << 17) /* launched by session manager */
 #define SM_X                     	(1L << 18) /* X from DB/dtsession */
 #define SM_Y                     	(1L << 19) /* Y from DB/dtsession */
-#define SM_WIDTH                     	(1L << 20) /* width fm DB/dtsession */
-#define SM_HEIGHT                    	(1L << 21) /* height fm DB/dtsession */
-#define SM_CLIENT_STATE                	(1L << 22) /* clientState fm DB/dtsession */
+#define SM_WIDTH                     	(1L << 20) /* width fm DB */
+#define SM_HEIGHT                    	(1L << 21) /* height fm DB */
+#define SM_CLIENT_STATE                	(1L << 22) /* clientState fm DB */
 #define SM_ICON_X                       (1L << 23) /* icon X from DB */
 #define SM_ICON_Y                       (1L << 24) /* icon Y from DB */
 
@@ -1787,8 +1675,6 @@ typedef struct _ClientData *PtrClientData;
 #define PIXMAP_IS_VALID(pix) \
   ((pix) != XmUNSPECIFIED_PIXMAP && (pix) != None && (pix) != (Pixmap)NULL)
   
-#ifdef WSM
-
 /*************************************<->*************************************
  *
  *  WsClientData
@@ -1810,8 +1696,6 @@ typedef struct _WsClientData
     Window	iconFrameWin;
     IconBoxData *pIconBox;		/* icon box for this win */
 } WsClientData;
-
-#endif /* WSM */
 
 /*
  * frame style types
@@ -1843,30 +1727,21 @@ typedef struct _WmGlobalData
     char	**environ;		/* environment vector */	
     char	*mwmName;		/* name of our executable */
     Widget	topLevelW;
-#ifdef WSM
     Widget	topLevelW1;             /* from which WM components hang */
-#endif /* WSM */
     Boolean     confirmDialogMapped;    /* confirm dialog is mapped */
     XtAppContext	mwmAppContext;	/* application context for mwm */
     XContext	windowContextType;	/* window context for XSaveContext */
     XContext	screenContextType;	/* screen context for XSaveContext */
     XContext  cmapWindowContextType;  /* list of pCD's in WM_COLORMAP_WINDOWS                                              context for XSaveContext */
-
-#ifdef WSM
     XContext	mwmWindowContextType;	/* mwm win context for XSaveContext */
-    Window      dtSmWindow;            /* used for contention management */
     Window      commandWindow;          /* WM_SAVE_YOURSELF win for dtwm */
-#endif /* WSM */
 
     /* presentation resource id's: */
 
     String	displayString;		/* used for putenv in F_Exec */
     Display	*display;		/* display we are running to */
-#ifdef WSM
     Display	*display1;		/* second display connection */
     int         statusColorServer;      /* CSERVE_NORMAL, CSERVE_NOT_AVAILABLE */
-    DtWmpParseBuf	*pWmPB;		/* global parse buffer */
-#endif /* WSM */
     int		numScreens;		/* number of screens */
     unsigned char	**screenNames;	/* default names for screens */
     WmScreenData	*Screens;	/* array of screen info */
@@ -1931,10 +1806,8 @@ typedef struct _WmGlobalData
 
     /* Resource database used to restore client geometries, etc. */
     XrmDatabase clientResourceDB;
-#ifndef WSM
     char	*dbFileName;
     String	sessionClientDB;		/* resource */
-#endif
 
     /* atoms used in inter-client communication: */
 
@@ -1957,8 +1830,6 @@ typedef struct _WmGlobalData
     Atom	xa_WMSAVE_HINT;
 
 
-#ifdef WSM
-
     /* atoms used for workspace management: */
 
     Atom	xa_DT_WORKSPACE_HINTS;
@@ -1979,7 +1850,7 @@ typedef struct _WmGlobalData
     Atom        xa_DT_WM_EXIT_SESSION;
     Atom        xa_DT_WM_LOCK_DISPLAY;
     Atom        xa_DT_WM_READY;
-#endif /* WSM */
+
 #ifndef NO_OL_COMPAT
     Atom	xa_OL_WIN_ATTR;
     Atom	xa_OL_DECOR_RESIZE;
@@ -2004,15 +1875,11 @@ typedef struct _WmGlobalData
     Boolean	autoKeyFocus;			/* resource */
     int		autoRaiseDelay;			/* resource */
     String	bitmapDirectory;		/* resource */
-#ifdef WSM
     String	backdropDirs;			/* resource */
-#endif /* WSM */
     Boolean	clientAutoPlace;		/* resource */
     int		colormapFocusPolicy;		/* resource */
     String	configFile;			/* resource */
-#ifdef WSM
     String	cppCommand;			/* resource */
-#endif /* WSM */
     Boolean	deiconifyKeyFocus;		/* resource */
     int		doubleClickTime;		/* resource */
     Boolean	enableWarp;			/* resource */
@@ -2036,28 +1903,21 @@ typedef struct _WmGlobalData
     String	screenList;			/* resource */
     int		showFeedback;			/* resource */
     Boolean	rootButtonClick;		/* resource */
-#ifdef WSM
     Boolean	refreshByClearing;		/* resource */
-#endif /* WSM */
     Boolean	startupKeyFocus;		/* resource */
     Boolean	systemButtonClick;		/* resource */
     Boolean	systemButtonClick2;		/* resource */
     Boolean	useLargeCursors;
-#ifdef WSM
-    String      helpDirectory;		        /* resource */
     Window	requestContextWin;		/* for WmRequest f.fcns */
-#endif /* WSM */
     Boolean	waitForClicks;			/* resource */
     FrameStyle	frameStyle;			/* resource */
     XButtonEvent evLastButton;			/* for detecting replayed button events */
     Boolean	bReplayedButton;		/* true if button replayed */
 
-#ifdef WSM
     Dimension	iconExternalShadowWidth;	/* resource */
     Dimension	frameExternalShadowWidth;	/* resource */
     int		marqueeSelectGranularity;	/* resource */
     Boolean	bSuspendSecondaryRestack;	/* overrides transient stacking */
-#endif /* WSM */
 
     XmString	clientDefaultTitle;
     XmString	iconDefaultTitle;
@@ -2094,9 +1954,7 @@ typedef struct _WmGlobalData
 
 /* quick references to global data: */
 #define DISPLAY		wmGD.display
-#ifdef WSM
 #define DISPLAY1	wmGD.display1
-#endif /* WSM */
 #define ACTIVE_PSD	(wmGD.pActiveSD)
 #define ACTIVE_SCREEN	(wmGD.pActiveSD->screen)
 #define ACTIVE_WS	(wmGD.pActiveSD->pActiveWS)
@@ -2107,12 +1965,10 @@ typedef struct _WmGlobalData
 /* two-bit unsigned numeric value and report the state keyboard group */
 #define NOLOCKMOD(state)  ((state) & ~wmGD.lockingModMask & ~(3 << 13))
 
-#ifdef WSM
 /* absent map behavior policy values (absentMapBehavior): */
 #define AMAP_BEHAVIOR_ADD       0
 #define AMAP_BEHAVIOR_MOVE      1
 #define AMAP_BEHAVIOR_IGNORE    2 
-#endif /* WSM */
 
 /* colormap focus policy values (colormapFocus): */
 #define CMAP_FOCUS_EXPLICIT	0
@@ -2165,9 +2021,7 @@ typedef struct _WmGlobalData
 #define MOVE_CLIENT			1
 #define RESIZE_CLIENT			2
 #define PLACE_CLIENT			3
-#ifdef WSM
 #define MARQUEE_SELECT			4
-#endif /* WSM */
 
 /* Motif input bindings file name */
 #define MOTIF_BINDINGS_FILE		".motifbind"
@@ -2199,8 +2053,6 @@ typedef struct _NlsStrings
     char *builtinKeyBindings;
     char *defaultButtonBindings;
     char *defaultVersionTitle;
-    char *defaultDtwmHelpTitle;
-    char *defaultHelpTitle;
 } NlsStrings;
 
 
@@ -2240,24 +2092,16 @@ extern const char	_75_foreground[];
 extern const char	_50_foreground[];
 extern const char	_25_foreground[];
 
+void PrintVersionInfo(void); /* in WmMain.c */
+
 /*
  * macro to get message catalog strings
  */
 #ifndef NO_MESSAGE_CATALOG
-extern char *_DtGetMessage(char *filename, int set, int n, char *s);
-# ifdef __ultrix
-#  define _CLIENT_CAT_NAME "dtwm.cat"
-# else  /* __ultrix */
-#  define _CLIENT_CAT_NAME "dtwm"
-# endif /* __ultrix */
-# ifdef WSM
-#  define GETMESSAGE(set, number, string)\
-    _DtGetMessage(_CLIENT_CAT_NAME, set, number, string)
-# else
-#  define GETMESSAGE(set, number, string) (string)
-# endif /* WSM */
+#define GETMESSAGE(set, number, string)\
+    catgets(_CLIENT_CAT, set, number, string)
 #else
-# define GETMESSAGE(set, number, string)\
-    string
+#define GETMESSAGE(set, number, string) (string)
 #endif
+
 #endif /* _WmGlobal_h */

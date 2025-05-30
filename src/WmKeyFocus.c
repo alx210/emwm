@@ -351,14 +351,12 @@ void SetKeyboardFocus (ClientData *pCD, long focusFlags)
 
 void ResetExplicitSelectHandling (ClientData *pCD)
 {
-#ifdef WSM
     Boolean bUnseen;
 
     bUnseen = (pCD->clientState & UNSEEN_STATE) ? True : False;
     if (bUnseen)
 	pCD->clientState &= ~UNSEEN_STATE;
 
-#endif /* WSM */
     if ((pCD->clientState == NORMAL_STATE) ||
 	(pCD->clientState == MAXIMIZED_STATE))
     {
@@ -376,11 +374,10 @@ void ResetExplicitSelectHandling (ClientData *pCD)
 
 	/* !!! grab reset if client icon window? !!! */
     }
-#ifdef WSM
 
-    if (bUnseen)
-	pCD->clientState |= UNSEEN_STATE;
-#endif /* WSM */
+
+    if (bUnseen) pCD->clientState |= UNSEEN_STATE;
+
     
 
 } /* END OF FUNCTION ResetExplicitSelectHandling */    
@@ -493,9 +490,7 @@ void SetFocusIndication (ClientData *pCD)
 void ClearFocusIndication (ClientData *pCD, Boolean refresh)
 {
     ClientData *saveCD;
-#ifdef WSM
     Boolean bUnseen;
-#endif /* WSM */
 
     /* 
      * Set the "focus" to NULL to insure correct display of the frame 
@@ -505,11 +500,10 @@ void ClearFocusIndication (ClientData *pCD, Boolean refresh)
 
     saveCD = wmGD.keyboardFocus;
     wmGD.keyboardFocus = NULL;
-#ifdef WSM
+
     bUnseen = (pCD->clientState & UNSEEN_STATE) ? True : False;
-    if (bUnseen)
-	pCD->clientState &= ~UNSEEN_STATE;
-#endif /* WSM */
+    if (bUnseen) pCD->clientState &= ~UNSEEN_STATE;
+
 
     if ((pCD->clientState == NORMAL_STATE) ||
 	(pCD->clientState == MAXIMIZED_STATE))
@@ -529,10 +523,9 @@ void ClearFocusIndication (ClientData *pCD, Boolean refresh)
 	ShowInactiveIcon (pCD, refresh);
     }
 
-#ifdef WSM
-    if (bUnseen) 
-	pCD->clientState |= UNSEEN_STATE;
-#endif /* WSM */
+
+    if (bUnseen) pCD->clientState |= UNSEEN_STATE;
+
 
     /* restore old keyboard focus */
     wmGD.keyboardFocus = saveCD;
@@ -1306,9 +1299,7 @@ Boolean CheckForKeyFocus (ClientListEntry *pNextEntry, unsigned long type, Boole
      */
 
     if (((pNextEntry->type == NORMAL_STATE) &&
-#ifdef WSM
          (!(pCD->clientState & UNSEEN_STATE)) &&
-#endif /* WSM */
 	 (pCD->clientState != MINIMIZED_STATE)) ||
 	((pNextEntry->type == MINIMIZED_STATE) &&
 	 (pCD->clientState == MINIMIZED_STATE)))
@@ -1468,9 +1459,7 @@ void AutoResetKeyFocus (ClientData *pcdNoFocus, Time focusTime)
 	{
 	    if ((pNextEntry->type != MINIMIZED_STATE) &&
 	        (pCD->clientState != MINIMIZED_STATE) &&
-#ifdef WSM
 	        (!(pCD->clientState & UNSEEN_STATE)) &&
-#endif /* WSM */
 	        (pCD != pcdNoFocus))
 	    {
 	        if (pCD->transientChildren)

@@ -49,9 +49,7 @@
 #include "WmWinInfo.h"
 #include "WmWinList.h"
 #include "WmWinState.h"
-#ifdef WSM
 #include "WmWrkspace.h"
-#endif /* WSM */
 #include "WmEwmh.h"
 #include "WmXinerama.h"
 #include "WmIPlace.h"
@@ -233,10 +231,8 @@ Boolean WmDispatchClientEvent (XEvent *event)
     {
 	SetActiveScreen (PSD_FOR_CLIENT(pCD));
     }
-#ifdef WSM
     /* Get workspace specific client data */
     SetClientWsIndex (pCD);
-#endif /* WSM */
 
     /*
      * Handle events on top-level client windows.
@@ -388,8 +384,7 @@ Boolean WmDispatchClientEvent (XEvent *event)
 	     * This is a request to change the state of the client window from
 	     * iconic (minimized) to normal.
 	     */
-#ifdef WSM
-            if (!ClientInWorkspace (ACTIVE_WS, pCD))
+        if (!ClientInWorkspace (ACTIVE_WS, pCD))
 	    {
 		if (pCD->absentMapBehavior == AMAP_BEHAVIOR_IGNORE)
 		{
@@ -406,9 +401,6 @@ Boolean WmDispatchClientEvent (XEvent *event)
 	    {
 		SetClientState (pCD, NORMAL_STATE, GetTimestamp ());
 	    }
-#else /* WSM */
-	    SetClientState (pCD, NORMAL_STATE, GetTimestamp ());
-#endif /* WSM */
 	    break;
 	}
 
@@ -491,9 +483,7 @@ Boolean WmDispatchClientEvent (XEvent *event)
 Boolean HandleEventsOnSpecialWindows (XEvent *pEvent)
 {
     Boolean dispatchEvent = True;
-#ifdef WSM
     WmScreenData *pSD;
-#endif /* WSM */
 
 	/* Check for Xrandr screen change event; update configuration */
 	if(wmGD.xrandr_present && pEvent->type == 
@@ -538,22 +528,14 @@ Boolean HandleEventsOnSpecialWindows (XEvent *pEvent)
 	}
 	dispatchEvent = False; /* don't have the toolkit dispatch the event */
     }
-#ifdef  WSM
     else if (!XFindContext (DISPLAY, pEvent->xany.window,
 		    wmGD.mwmWindowContextType, (caddr_t *)&pSD))
     {
-	if ((pEvent->type == PropertyNotify) &&
-	    (pEvent->xproperty.atom == wmGD.xa_DT_WM_REQUEST) &&
-	    (pEvent->xproperty.state == PropertyNewValue))
-	{
-	    HandleDtWmRequest (pSD, pEvent);
-	}
 	if (pEvent->type == ClientMessage)
 	{
-	    HandleDtWmClientMessage ((XClientMessageEvent *)pEvent);
+	    HandleWmClientMessage ((XClientMessageEvent *)pEvent);
 	}
     }
-#endif /* WSM */
     else
     {
 	/*
@@ -778,12 +760,6 @@ void HandleCPropertyNotify (ClientData *pCD, XPropertyEvent *propertyEvent)
 	    {
 		ProcessWmProtocols (pCD);
 	    }
-#ifdef WSM
-	    else if (propertyEvent->atom == wmGD.xa_DT_WORKSPACE_HINTS)
-	    {
-		(void) ProcessWorkspaceHints (pCD);
-	    }
-#endif /* WSM */
 	    else if (propertyEvent->atom == wmGD.xa_MWM_MESSAGES)
 	    {
 		if (pCD->protocolFlags & PROTOCOL_MWM_MESSAGES)
@@ -2620,12 +2596,10 @@ void HandleClientMessage (ClientData *pCD, XClientMessageEvent *clientEvent)
 	{
 	    newState = NORMAL_STATE;
 	}
-#ifdef WSM
 	if (!ClientInWorkspace (ACTIVE_WS, pCD))
 	{
 	    newState |= UNSEEN_STATE;
 	}
-#endif /* WSM */
 
 	SetClientState (pCD, newState, GetTimestamp ());
 
@@ -2821,12 +2795,15 @@ static void HandleRRScreenChangeNotify(XEvent *evt)
 {
 	ClientListEntry *e;
 	WmScreenData *pSD = GetScreenForWindow(evt->xany.window);
+	int iws;
 
 	if(!pSD) return;
 		
 	XRRUpdateConfiguration(evt);
 	UpdateXineramaInfo();
-	InitIconPlacement(pSD->pWS);
+	
+	for(iws = 0; iws < pSD->numWorkspaces; iws++)
+		InitIconPlacement(pSD->pWS);
 
 	e = pSD->clientList;
 	

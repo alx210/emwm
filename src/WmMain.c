@@ -28,10 +28,7 @@
 #include "WmGlobal.h"
 
 #include <X11/Xlocale.h>
-#ifdef WSM
-#include <Dt/Message.h>
-#include <Dt/EnvControlP.h>
-#endif /* WSM */
+
 /*
  * include extern functions
  */
@@ -39,23 +36,15 @@
 #include "WmCEvent.h"
 #include "WmEvent.h"
 #include "WmInitWs.h"
-#ifdef WSM
-#include "WmIPC.h"
 #include "WmBackdrop.h"
-#endif /* WSM */
 
 
 /*
  * Function Declarations:
  */
-#ifdef WSM
 #define ManagedRoot(w) (!XFindContext (DISPLAY, (w), wmGD.screenContextType, \
 (caddr_t *)&pSD) ? (SetActiveScreen (pSD), True) : \
 (IsBackdropWindow (ACTIVE_PSD, (w))))
-#else /* WSM */
-#define ManagedRoot(w) (!XFindContext (DISPLAY, (w), wmGD.screenContextType, \
-(caddr_t *)&pSD) ? (SetActiveScreen (pSD), True) : False)
-#endif /* WSM */
 
 WmScreenData *pSD;
 
@@ -91,8 +80,7 @@ NlsStrings wmNLS;
  *
  *************************************<->***********************************/
 
-int
-main (int argc, char *argv [], char *environ [])
+int main (int argc, char *argv [], char *environ [])
 {
     XEvent	event;
     Boolean	dispatchEvent;
@@ -180,3 +168,11 @@ main (int argc, char *argv [], char *environ [])
     }
 
 } /* END OF FUNCTION main */
+
+
+void PrintVersionInfo(void)
+{
+	fprintf(stdout, "%s - Version %d.%d (Motif %d.%d.%d)\n\n",
+		MWM_NAME, MWM_VERSION, MWM_REVISION,
+		XmVERSION, XmREVISION, XmUPDATE_LEVEL);
+}

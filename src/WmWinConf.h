@@ -21,62 +21,61 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-extern void AdjustPos (int *pX, int *pY, unsigned int oWidth, 
+void AdjustPos (int *pX, int *pY, unsigned int oWidth, 
 		       unsigned int oHeight, unsigned int nWidth, 
 		       unsigned int nHeight);
-extern unsigned int ButtonStateBit (unsigned int button);
-extern void CancelFrameConfig (ClientData *pcd);
-extern void	CheckEatButtonRelease (ClientData *pcd, XEvent *pev);
-extern Boolean CheckVisualPlace (ClientData *pCD, int tmpX, int tmpY);
-extern void CompleteFrameConfig (ClientData *pcd, XEvent *pev);
-extern Cursor ConfigCursor (int frame_part);
-extern void DoFeedback (ClientData *pcd, int x, int y, unsigned int width, 
+unsigned int ButtonStateBit (unsigned int button);
+void CancelFrameConfig (ClientData *pcd);
+void	CheckEatButtonRelease (ClientData *pcd, XEvent *pev);
+Boolean CheckVisualPlace (ClientData *pCD, int tmpX, int tmpY);
+void CompleteFrameConfig (ClientData *pcd, XEvent *pev);
+Cursor ConfigCursor (int frame_part);
+void DoFeedback (ClientData *pcd, int x, int y, unsigned int width, 
 			unsigned int height, unsigned long newStyle, 
 			Boolean resizing);
-extern Boolean DoGrabs (Window grab_win, Cursor cursor, unsigned int pmask, 
+Boolean DoGrabs (Window grab_win, Cursor cursor, unsigned int pmask, 
 			Time grabTime, ClientData *pCD, Boolean alwaysGrab);
-extern void DrawOutline (int x, int y, unsigned int width, 
+void DrawOutline (int x, int y, unsigned int width, 
 			 unsigned int height);
-extern void	EatButtonRelease (unsigned int releaseButtons);
-extern void FixFrameValues (ClientData *pcd, int *pfX, int *pfY, 
+void	EatButtonRelease (unsigned int releaseButtons);
+void FixFrameValues (ClientData *pcd, int *pfX, int *pfY, 
 			    unsigned int *pfWidth, unsigned int *pfHeight, 
 			    Boolean resizing);
-extern void FlashOutline (int x, int y, unsigned int width, 
+void FlashOutline (int x, int y, unsigned int width, 
 			  unsigned int height);
-extern void ForceOnScreen (int screen, int *pX, int *pY);
-extern void GetClipDimensions (ClientData *pCD, Boolean fromRoot);
-extern void GetConfigEvent (Display *display, Window window, 
+void ForceOnScreen (int screen, int *pX, int *pY);
+void GetClipDimensions (ClientData *pCD, Boolean fromRoot);
+void GetConfigEvent (Display *display, Window window, 
 			    unsigned long mask, int curX, int curY, 
 			    int oX, int oY, unsigned oWidth, 
 			    unsigned oHeight, XEvent *pev);
-extern Window GrabWin (ClientData *pcd, XEvent *pev);
-extern void HandleClientFrameMove (ClientData *pcd, XEvent *pev);
-extern void HandleClientFrameResize (ClientData *pcd, XEvent *pev);
-extern Boolean HandleResizeKeyPress (ClientData *pcd, XEvent *pev);
-extern void    MoveOpaque (ClientData *pcd, int x, int y,
+Window GrabWin (ClientData *pcd, XEvent *pev);
+void HandleClientFrameMove (ClientData *pcd, XEvent *pev);
+void HandleClientFrameResize (ClientData *pcd, XEvent *pev);
+Boolean HandleResizeKeyPress (ClientData *pcd, XEvent *pev);
+void    MoveOpaque (ClientData *pcd, int x, int y,
 		 unsigned int width, unsigned int height);
-extern void MoveOutline (int x, int y, unsigned int width, 
+void MoveOutline (int x, int y, unsigned int width, 
 			 unsigned int height);
-extern void ProcessNewConfiguration (ClientData *pCD, int x, int y, 
+void ProcessNewConfiguration (ClientData *pCD, int x, int y, 
 				     unsigned int width, unsigned int height, 
 				     Boolean clientRequest);
-extern void ReGrabPointer (Window grab_win, Time grabTime);
-extern void SetOutline (XSegment *pOutline, int x, int y, unsigned int width, 
+void ReGrabPointer (Window grab_win, Time grabTime);
+void SetOutline (XSegment *pOutline, int x, int y, unsigned int width, 
 			unsigned int height, int fatness);
-extern void SetPointerPosition (int newX, int newY, int *actualX, 
+void SetPointerPosition (int newX, int newY, int *actualX, 
 				int *actualY);
-extern Boolean SetPointerResizePart (ClientData *pcd, XEvent *pev);
-extern Boolean StartClientMove (ClientData *pcd, XEvent *pev);
-extern void StartClientResize (ClientData *pcd, XEvent *pev);
-extern Boolean StartResizeConfig (ClientData *pcd, XEvent *pev);
-extern int ResizeType (ClientData *pcd, XEvent *pev);
-extern void UndoGrabs (void);
-#ifdef WSM
-extern void HandleMarqueeSelect (WmScreenData *pSD, XEvent *pev);
-extern void StartMarqueeSelect(WmScreenData *pSD, XEvent *pev);
-extern void UpdateMarqueeSelectData (WmScreenData *pSD);
-extern Boolean HandleMarqueeKeyPress (WmScreenData *pSD, XEvent *pev);
-#endif /* WSM */
-extern void WindowOutline (int x, int y, unsigned int width, 
+Boolean SetPointerResizePart (ClientData *pcd, XEvent *pev);
+Boolean StartClientMove (ClientData *pcd, XEvent *pev);
+void StartClientResize (ClientData *pcd, XEvent *pev);
+Boolean StartResizeConfig (ClientData *pcd, XEvent *pev);
+int ResizeType (ClientData *pcd, XEvent *pev);
+void UndoGrabs (void);
+void HandleMarqueeSelect (WmScreenData *pSD, XEvent *pev);
+void StartMarqueeSelect(WmScreenData *pSD, XEvent *pev);
+void UpdateMarqueeSelectData (WmScreenData *pSD);
+Boolean HandleMarqueeKeyPress (WmScreenData *pSD, XEvent *pev);
+void WindowOutline (int x, int y, unsigned int width, 
 			 unsigned int height);
-extern void RecomputeMaxConfig(ClientData *pCD);
+void RecomputeMaxConfig(ClientData *pCD);
+Boolean WindowIsOnScreen (ClientData *pCD, int *dx, int *dy);

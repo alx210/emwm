@@ -22,36 +22,31 @@
 */ 
 
 #ifndef NO_MESSAGE_CATALOG
-extern void InitBuiltinSystemMenu(void);
+void InitBuiltinSystemMenu(void);
 #endif
-extern void GetAppearanceGCs (WmScreenData *pSD, Pixel fg, Pixel bg, Pixmap bg_pixmap, Pixel ts_color, Pixmap ts_pixmap, Pixel bs_color, Pixmap bs_pixmap, GC *pGC, GC *ptsGC, GC *pbsGC);
-extern GC   GetHighlightGC (WmScreenData *pSD, Pixel fg, Pixel bg, Pixmap pixmap);
-extern void MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean makeActiveResources);
-#ifdef WSM
-extern Boolean Monochrome (Screen *screen);
-extern void ProcessWmColors (WmScreenData *pSD);
-#endif /* WSM */
-extern void ProcessWmResources (void);
-extern void SetStdGlobalResourceValues (void);
-extern void ProcessScreenListResource (void);
-extern void ProcessAppearanceResources (WmScreenData *pSD);
-extern void ProcessGlobalScreenResources (void);
-extern void ProcessScreenResources (WmScreenData *pSD, unsigned char *screenName);
-#ifdef WSM
-extern void ProcessWorkspaceList (WmScreenData *pSD);
-#endif /* WSM */
-extern void ProcessWorkspaceResources (WmWorkspaceData *pWS);
-extern void ProcessClientResources (ClientData *pCD);
-extern void SetStdClientResourceValues (ClientData *pCD);
-extern void SetStdScreenResourceValues (WmScreenData *pSD);
-extern char *WmRealloc (char *ptr, unsigned size);
-extern char *WmMalloc (char *ptr, unsigned size);
-extern void SetupDefaultResources (WmScreenData *pSD);
-extern Boolean SimilarAppearanceData (AppearanceData *pAD1, AppearanceData *pAD2);
-#ifdef WSM
-extern String ResCat (String s1, String s2, String s3, String s4);
+void GetAppearanceGCs (WmScreenData *pSD, Pixel fg, Pixel bg, Pixmap bg_pixmap, Pixel ts_color, Pixmap ts_pixmap, Pixel bs_color, Pixmap bs_pixmap, GC *pGC, GC *ptsGC, GC *pbsGC);
+GC   GetHighlightGC (WmScreenData *pSD, Pixel fg, Pixel bg, Pixmap pixmap);
+void MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean makeActiveResources);
+Boolean Monochrome (Screen *screen);
+void ProcessWmColors (WmScreenData *pSD);
+void ProcessWmResources (void);
+void SetStdGlobalResourceValues (void);
+void ProcessScreenListResource (void);
+void ProcessAppearanceResources (WmScreenData *pSD);
+void ProcessGlobalScreenResources (void);
+void ProcessScreenResources (WmScreenData *pSD, unsigned char *screenName);
+void ProcessWorkspaceList (WmScreenData *pSD);
+void ProcessWorkspaceResources (WmWorkspaceData *pWS);
+void ProcessClientResources (ClientData *pCD);
+void SetStdClientResourceValues (ClientData *pCD);
+void SetStdScreenResourceValues (WmScreenData *pSD);
+char *WmRealloc (char *ptr, unsigned size);
+char *WmMalloc (char *ptr, unsigned size);
+void SetupDefaultResources (WmScreenData *pSD);
+Boolean SimilarAppearanceData (AppearanceData *pAD1, AppearanceData *pAD2);
+String ResCat (String s1, String s2, String s3, String s4);
 void CheckForNoDither (AppearanceData *pAD);
-#endif /* WSM */
+void ProcessPresenceResources (WmScreenData *pSD);
 
 #ifndef NO_MESSAGE_CATALOG
 extern char *builtinSystemMenu;
@@ -61,7 +56,3 @@ extern char builtinSystemMenu[];
 extern char builtinKeyBindings[];
 extern char builtinRootMenu[];
 extern char builtinSystemMenuName[];
-
-#ifndef WSM
-#define Monochrome(screen) ( DefaultDepthOfScreen(screen) == 1 )
-#endif /* not WSM */

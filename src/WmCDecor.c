@@ -734,7 +734,6 @@ static void GenerateFrameDisplayLists (ClientData *pcd)
 
     /* produce default border with no resizing functions */
 
-#ifdef WSM
 	BevelRectangle (pcd->pclientTopShadows, 	/* outside */
 		    pcd->pclientBottomShadows, 
 		    0, 0, 
@@ -743,13 +742,6 @@ static void GenerateFrameDisplayLists (ClientData *pcd)
 		    FRAME_EXTERNAL_SHADOW_WIDTH,
 		    FRAME_EXTERNAL_SHADOW_WIDTH,
 		    FRAME_EXTERNAL_SHADOW_WIDTH);
-#else /* WSM */
-	BevelRectangle (pcd->pclientTopShadows, 	/* outside */
-		    pcd->pclientBottomShadows, 
-		    0, 0, 
-		    pcd->frameInfo.width, pcd->frameInfo.height,
-		    2, 2, 2, 2);
-#endif /* WSM */
 
 	if ((pcd->internalBevel > 1) &&
 	    !matte_width && 
@@ -1132,13 +1124,8 @@ void AdoptClient (ClientData *pcd)
 
 void GetTextBox (ClientData *pcd, XRectangle *pBox)
 {
-    int x,y;
-    unsigned int width,height;
-#ifdef WSM
-    Dimension textWidth;
-    Dimension offset;
-    XmRenderTable  renderTable;
-#endif /* WSM */
+    int x, y;
+    unsigned int width, height;
 
     /* get size of title area */
 
@@ -1168,8 +1155,6 @@ void GetTextBox (ClientData *pcd, XRectangle *pBox)
     pBox->height = height;
 
 }
-
-
 
 
 /*************************************<->*************************************

@@ -107,9 +107,9 @@ typedef struct _old_OLWinAttr {
 /*
  * Public Functions
  */
-extern Boolean HasOpenLookHints( ClientData *pCD );
-extern OLWinAttr * GetOLWinAttr( ClientData *pCD );
-extern Boolean GetOLDecorFlags(ClientData *pCD, Atom property,
+Boolean HasOpenLookHints( ClientData *pCD );
+OLWinAttr * GetOLWinAttr( ClientData *pCD );
+Boolean GetOLDecorFlags(ClientData *pCD, Atom property,
 	unsigned long *pDecor);
 
 

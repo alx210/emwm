@@ -21,12 +21,10 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-extern void SetClientState (ClientData *pCD, int newState, Time setTime);
-extern void SetClientStateWithEventMask (ClientData *pCD, int newState, Time setTime, unsigned int event_mask);
-extern void ConfigureNewState (ClientData *pcd);
-extern void SetClientWMState (ClientData *pCD, int wmState, int mwmState);
-extern void MapClientWindows (ClientData *pCD);
-extern void ShowIconForMinimizedClient (WmWorkspaceData *pWS, ClientData *pCD);
-#ifdef WSM
-extern void ShowAllIconsForMinimizedClient (ClientData *pCD);
-#endif /* WSM */
+void SetClientState (ClientData *pCD, int newState, Time setTime);
+void SetClientStateWithEventMask (ClientData *pCD, int newState, Time setTime, unsigned int event_mask);
+void ConfigureNewState (ClientData *pcd);
+void SetClientWMState (ClientData *pCD, int wmState, int mwmState);
+void MapClientWindows (ClientData *pCD);
+void ShowIconForMinimizedClient (WmWorkspaceData *pWS, ClientData *pCD);
+void ShowAllIconsForMinimizedClient (ClientData *pCD);

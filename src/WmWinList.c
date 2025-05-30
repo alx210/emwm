@@ -41,9 +41,7 @@
 #include "WmMenu.h"
 #include "WmResource.h"
 #include "WmWinInfo.h"
-#ifdef WSM
 #include "WmWrkspace.h"
-#endif /* WSM */
 #include "WmEvent.h"
 #include "WmICCC.h"
 #include "WmProperty.h"
@@ -93,9 +91,7 @@ void AddClientToList (WmWorkspaceData *pWS, ClientData *pCD, Boolean onTop)
     Boolean belowSystemModal = False;
     XWindowChanges windowChanges;
     WmScreenData *pSD = pWS->pSD;
-#ifdef WSM
     WsClientData *pWsc = GetWsClientData (pWS, pCD);
-#endif /* WSM */
 
 
     if (pCD->inputMode == MWM_INPUT_SYSTEM_MODAL)
@@ -159,11 +155,7 @@ void AddClientToList (WmWorkspaceData *pWS, ClientData *pCD, Boolean onTop)
 	}
 
 
-#ifdef WSM
 	if (!pWsc->pIconBox && pWsc->iconFrameWin)
-#else /* WSM */
-	if (!pCD->pIconBox && pCD->iconFrameWin)
-#endif /* WSM */
 	{
 	    /*
 	     * Put the icon on the bottom of the stack.
@@ -171,27 +163,19 @@ void AddClientToList (WmWorkspaceData *pWS, ClientData *pCD, Boolean onTop)
 
 	    if (pSD->lastClient->type == MINIMIZED_STATE)
 	    {
-#ifdef WSM
 		WsClientData *pWsib;
 
 		pWsib = &pSD->lastClient->pCD->pWsList[0];
 		windowChanges.sibling = pWsib->iconFrameWin;
-#else /* WSM */
-		windowChanges.sibling = pSD->lastClient->pCD->iconFrameWin;
-#endif /* WSM */
 	    }
 	    else
 	    {
 		windowChanges.sibling = pSD->lastClient->pCD->clientFrameWin;
 	    }
 	    windowChanges.stack_mode = Below;
-#ifdef WSM
+
 	    XConfigureWindow (DISPLAY, pWsc->iconFrameWin,
 	        CWSibling | CWStackMode, &windowChanges);
-#else /* WSM */
-	    XConfigureWindow (DISPLAY, pCD->iconFrameWin,
-	        CWSibling | CWStackMode, &windowChanges);
-#endif /* WSM */
 
 	    pCD->iconEntry.type = MINIMIZED_STATE;
 	    pCD->iconEntry.pCD = pCD;
@@ -433,9 +417,7 @@ void DeleteEntryFromList (WmWorkspaceData *pWS, ClientListEntry *pListEntry)
 
 void DeleteClientFromList (WmWorkspaceData *pWS, ClientData *pCD)
 {
-#ifdef WSM
     WsClientData *pWsc = GetWsClientData (pWS, pCD);
-#endif /* WSM */
     WmScreenData *pSD = pWS->pSD;
 
     if (pCD->transientLeader)
@@ -458,11 +440,7 @@ void DeleteClientFromList (WmWorkspaceData *pWS, ClientData *pCD)
 	 * Remove the client and icon entries from the window list.
 	 */
 
-#ifdef WSM
 	if (!pWsc->pIconBox && pWsc->iconFrameWin)
-#else /* WSM */
-	if (!pCD->pIconBox && pCD->iconFrameWin)
-#endif /* WSM */
 	{
 	    if (pCD->iconEntry.prevSibling)
 	    {
@@ -1002,12 +980,11 @@ Boolean PutTransientOnTop (ClientData *pcd)
 	{
 	    restack = True;
 	}
-#ifdef WSM
+
 	if (BumpPrimaryToBottom (pcdLeader))
 	{
 	    restack = True;
 	}
-#endif /* WSM */
     }
 
     return (restack);
@@ -1106,9 +1083,6 @@ void RestackTransients (ClientData *pcd)
     int count;
     static int size = 0;
     static Window *windows = NULL;
-#ifndef WSM
-    Window *nextWindow;
-#endif /* WSM */
     XWindowChanges windowChanges;
     int i;
     int leaderIndex;
@@ -1140,13 +1114,7 @@ void RestackTransients (ClientData *pcd)
 	size = count + 5;
     }
 
-#ifdef WSM
     MakeTransientFamilyStackingList (windows, pcdLeader);
-#else /* WSM */
-    nextWindow = MakeTransientWindowList (windows, pcdLeader);
-    *nextWindow = pcdLeader->clientFrameWin;
-#endif /* WSM */
-
     /*
      *  Changes for CDExc19397.
      *  XRestackWindows may move pcdLeader; that messes up the
@@ -1461,7 +1429,7 @@ ClientData * FindTransientOnTop (ClientData *pcd)
      */
 
     pcd = FindTransientTreeLeader (pcd);
-#ifdef WSM
+
     if (!(pcd->secondariesOnTop) &&
 	(LeaderOnTop (pcd)))
     {
@@ -1479,8 +1447,6 @@ ClientData * FindTransientOnTop (ClientData *pcd)
 		return (pcdSub);
 	}
     }
-#endif /* WSM */
-
 
     /*
      * Find the top-most transient window (the window in the transient tree
@@ -1645,7 +1611,6 @@ void StackWindow (WmWorkspaceData *pWS, ClientListEntry *pEntry, Boolean onTop, 
     }
     else
     {
-#ifdef WSM
 	/*
 	 * Adjust stack entry window if we're stacking below a
 	 * transient tree.
@@ -1655,7 +1620,6 @@ void StackWindow (WmWorkspaceData *pWS, ClientListEntry *pEntry, Boolean onTop, 
 	    stackWindow = LowestWindowInTransientFamily (pStackEntry->pCD);
 	}
 
-#endif /* WSM */
 	if (stackWindow == 0)
 	{
 	    if (pSD->lastClient->type == MINIMIZED_STATE)
@@ -1664,14 +1628,12 @@ void StackWindow (WmWorkspaceData *pWS, ClientListEntry *pEntry, Boolean onTop, 
 	    }
 	    else
 	    {
-#ifdef WSM
 		if (pSD->lastClient->pCD->transientChildren)
 		{
 		    stackWindow = 
 			LowestWindowInTransientFamily (pSD->lastClient->pCD);
 		}
 		else
-#endif /* WSM */
 		stackWindow = pSD->lastClient->pCD->clientFrameWin;
 	    }
 	}
@@ -1872,7 +1834,6 @@ Boolean CheckIfObscuring (ClientData *pcdA, ClientData *pcdB)
     int bY1;
     int bY2;
 
-#ifdef WSM
     /*
      * For workspace stuff: if either is unseen, then neither
      * is obscured.
@@ -1882,7 +1843,6 @@ Boolean CheckIfObscuring (ClientData *pcdA, ClientData *pcdB)
     {
 	return (False);
     }
-#endif /* WSM */
 
     if (pcdA->clientState == NORMAL_STATE)
     {
@@ -2409,8 +2369,8 @@ ClientListEntry * FindClientNameMatch (ClientListEntry *pEntry,
     return (pEntry);
 
 } /* END OF FUNCTION FindClientNameMatch */
-#ifdef WSM
-
+
+
 /*************************************<->*************************************
  *
  *  BumpPrimaryToTop (pcdLeader)
@@ -2541,7 +2501,7 @@ LowestWindowInTransientFamily (ClientData *pcdLeader)
 	{
 	    /* cannot get memory space */
 	    size = 0;
-	    return;
+	    return None;
 	}
 	size = count + 5;
     }
@@ -2649,7 +2609,7 @@ MakeTransientFamilyStackingList (
 	ClientData *pcdLeader)
 
 {
-    ClientData *pcdNext, *pcdSub;
+    ClientData *pcdSub;
     Window *nextWindow, wSave, wTemp, wTop;
     int count = CountTransientChildren (pcdLeader);
     register int i, j;
@@ -2806,5 +2766,3 @@ LeaderOnTop (
 
     return (bOnTop);
 }
-
-#endif /* WSM */

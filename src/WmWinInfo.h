@@ -21,34 +21,34 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-extern void FindClientPlacement (ClientData *pCD);
-extern void FixWindowConfiguration (ClientData *pCD, unsigned int *pWidth, 
+void FindClientPlacement (ClientData *pCD);
+void FixWindowConfiguration (ClientData *pCD, unsigned int *pWidth, 
 				    unsigned int *pHeight, 
 				    unsigned int widthInc, 
 				    unsigned int heightInc);
-extern void FixWindowSize (ClientData *pCD, unsigned int *pWidth, 
+void FixWindowSize (ClientData *pCD, unsigned int *pWidth, 
 			   unsigned int *pHeight, unsigned int widthInc, 
 			   unsigned int heightInc);
-extern ClientData *GetClientInfo (WmScreenData *pSD, Window clientWindow, 
+ClientData *GetClientInfo (WmScreenData *pSD, Window clientWindow, 
 				  long manageFlags);
-extern ClientData *GetWmClientInfo (WmWorkspaceData *pWS, ClientData *pCD, 
+ClientData *GetWmClientInfo (WmWorkspaceData *pWS, ClientData *pCD, 
 				    long manageFlags);
-extern void CalculateGravityOffset (ClientData *pCD, int *xoff, int *yoff);
-extern Boolean InitClientPlacement (ClientData *pCD, long manageFlags);
-extern void InitCColormapData (ClientData *pCD);
-extern void MakeSystemMenu (ClientData *pCD);
-extern void PlaceFrameOnScreen (ClientData *pCD, int *pX, int *pY, int w, 
+void CalculateGravityOffset (ClientData *pCD, int *xoff, int *yoff);
+Boolean InitClientPlacement (ClientData *pCD, long manageFlags);
+void InitCColormapData (ClientData *pCD);
+void MakeSystemMenu (ClientData *pCD);
+void PlaceFrameOnScreen (ClientData *pCD, int *pX, int *pY, int w, 
 				int h);
-extern void PlaceIconOnScreen (ClientData *pCD, int *pX, int *pY);
-extern void ProcessMwmHints (ClientData *pCD, Boolean firstTime);
-extern void ProcessWmClass (ClientData *pCD);
-extern void ProcessWmHints (ClientData *pCD, Boolean firstTime);
-extern void ProcessWmIconTitle (ClientData *pCD, Boolean firstTime);
-extern void ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, 
+void PlaceIconOnScreen (ClientData *pCD, int *pX, int *pY);
+void ProcessMwmHints (ClientData *pCD, Boolean firstTime);
+void ProcessWmClass (ClientData *pCD);
+void ProcessWmHints (ClientData *pCD, Boolean firstTime);
+void ProcessWmIconTitle (ClientData *pCD, Boolean firstTime);
+void ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, 
 				  long manageFlags);
-extern void ProcessWmTransientFor (ClientData *pCD);
-extern void ProcessWmWindowTitle (ClientData *pCD, Boolean firstTime);
-extern Boolean SetupClientIconWindow (ClientData *pCD, Window window);
-extern Boolean WmGetWindowAttributes (Window window);
-extern void ProcessSmClientID (ClientData *pCD);
-extern void ProcessWmSaveHint (ClientData *pCD);
+void ProcessWmTransientFor (ClientData *pCD);
+void ProcessWmWindowTitle (ClientData *pCD, Boolean firstTime);
+Boolean SetupClientIconWindow (ClientData *pCD, Window window);
+Boolean WmGetWindowAttributes (Window window);
+void ProcessSmClientID (ClientData *pCD);
+void ProcessWmSaveHint (ClientData *pCD);

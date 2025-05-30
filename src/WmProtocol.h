@@ -21,10 +21,10 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-extern void SetupWmICCC (void);
-extern void SendConfigureNotify (ClientData *pCD);
-extern void SendClientOffsetMessage (ClientData *pCD);
-extern void SendClientMsg (Window window, long type, long data0, Time time, long *pData, int dataLen);
-extern Boolean AddWmTimer (unsigned int timerType, unsigned long timerInterval, ClientData *pCD);
-extern void DeleteClientWmTimers (ClientData *pCD);
-extern void TimeoutProc (caddr_t client_data, XtIntervalId *id);
+void SetupWmICCC (void);
+void SendConfigureNotify (ClientData *pCD);
+void SendClientOffsetMessage (ClientData *pCD);
+void SendClientMsg (Window window, long type, long data0, Time time, long *pData, int dataLen);
+Boolean AddWmTimer (unsigned int timerType, unsigned long timerInterval, ClientData *pCD);
+void DeleteClientWmTimers (ClientData *pCD);
+void TimeoutProc (caddr_t client_data, XtIntervalId *id);

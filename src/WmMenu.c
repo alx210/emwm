@@ -69,9 +69,7 @@
 #include "WmImage.h"
 #include "WmError.h"
 #include "WmXinerama.h"
-#ifdef WSM
 #include "WmWrkspace.h"
-#endif /* WSM */
 
 
 static void UnmapCallback (Widget w, XtPointer client_data,
@@ -79,6 +77,8 @@ static void UnmapCallback (Widget w, XtPointer client_data,
 static MenuItem *DuplicateMenuItems (MenuItem *menuItems);
 static void AdjustMenuPosition(int *x, int *y,
 	unsigned int width, unsigned int height);
+static void CheckTerminalSeparator(MenuSpec *menuSpec,
+	Widget buttonWidget, Boolean manage);
 
 
 /*************************************<->*************************************
@@ -181,27 +181,22 @@ MenuSpec *MakeMenu (WmScreenData *pSD,
 
     if (moreMenuItems != NULL)
     {
-#ifndef WSM
-	if ((newMenuSpec = DuplicateMenuSpec(menuSpec)) == (MenuSpec *)NULL)
-	    return NULL;
-#else
-        if ((newMenuSpec = (MenuSpec *) XtMalloc (sizeof (MenuSpec))) == NULL)
-	/* Handle insufficent memory */
-        {
-            MWarning(((char *)GETMESSAGE(48, 2, "Insufficient memory for menu %s\n")), menuName);
-	    return (NULL);
-        }
-	newMenuSpec->name = NULL;  /* distinguishes this as custom */
-	newMenuSpec->whichButton = SELECT_BUTTON;
-	newMenuSpec->height = 0;
-	newMenuSpec->width = 0;
-	newMenuSpec->menuItems = menuSpec->menuItems; /* temporary */
-	newMenuSpec->accelContext = menuSpec->accelContext;
-	newMenuSpec->accelKeySpecs = NULL;
-	newMenuSpec->nextMenuSpec = NULL;
-#endif
+		if ((newMenuSpec = (MenuSpec *) XtMalloc (sizeof (MenuSpec))) == NULL)
+		/* Handle insufficent memory */
+		{
+   			MWarning(((char *)GETMESSAGE(48, 2, "Insufficient memory for menu %s\n")), menuName);
+		return (NULL);
+		}
+		newMenuSpec->name = NULL;  /* distinguishes this as custom */
+		newMenuSpec->whichButton = SELECT_BUTTON;
+		newMenuSpec->height = 0;
+		newMenuSpec->width = 0;
+		newMenuSpec->menuItems = menuSpec->menuItems; /* temporary */
+		newMenuSpec->accelContext = menuSpec->accelContext;
+		newMenuSpec->accelKeySpecs = NULL;
+		newMenuSpec->nextMenuSpec = NULL;
 
-	menuSpec = newMenuSpec;
+		menuSpec = newMenuSpec;
     }
     else if (menuSpec->menuWidget)
     {
@@ -301,10 +296,8 @@ MenuSpec *MakeMenu (WmScreenData *pSD,
 
 
 /*************************************<->***********************************/
-void CheckTerminalSeparator(menuSpec, buttonWidget, manage)
-     MenuSpec *menuSpec;
-     Widget buttonWidget;
-     Boolean manage;
+static void CheckTerminalSeparator(MenuSpec *menuSpec,
+	Widget buttonWidget, Boolean manage)
 {
     CompositeWidget cw;
     WidgetList      children;
@@ -416,9 +409,7 @@ DuplicateMenuItems (MenuItem *menuItems)
 	if ((curMenuItem->wmFunction == F_Send_Msg)
 	    || (curMenuItem->wmFunction == F_Circle_Up)
 	    || (curMenuItem->wmFunction == F_Circle_Down)
-#ifdef WSM
 	    || (curMenuItem->wmFunction == F_Set_Context)
-#endif /* WSM */
 	    )
 	  newMenuItem->wmFuncArgs = curMenuItem->wmFuncArgs;
 	else if (curMenuItem->wmFuncArgs != (String) NULL)
@@ -609,7 +600,7 @@ static Boolean AdjustPBs (MenuSpec *menuSpec, ClientData  *pCD,
 	            XtSetSensitive (menuButton->buttonWidget, FALSE);
 	        }
 	    }
-#ifdef WSM
+
 	    if (menuItem->wmFunction == F_Remove)
 	    {
 		/*
@@ -619,17 +610,13 @@ static Boolean AdjustPBs (MenuSpec *menuSpec, ClientData  *pCD,
 		fSupported = (pCD && (pCD->numInhabited > 1));
 		XtSetSensitive (menuButton->buttonWidget, fSupported);
 	    }
-#endif /* WSM */
+
 
 	    if ((menuItem->mgtMask) && pCD)
 	    /* PushButton might not apply */
 	    {
-#ifdef WSM
 	        if ((pCD->clientFunctions & menuItem->mgtMask & MWM_MGT_MASK) ||
-		    (pCD->dtwmFunctions & menuItem->mgtMask & DTWM_MGT_MASK))
-#else /* WSM */
-	        if (pCD->clientFunctions & menuItem->mgtMask)
-#endif /* WSM */
+		    (pCD->dtwmFunctions & menuItem->mgtMask & WSM_MGT_MASK))
 	        /* function applies -- manage it */
 	        {
 	            if (!menuButton->managed)
@@ -1369,13 +1356,10 @@ void PostMenu (MenuSpec *menuSpec, ClientData *pCD, int x, int y, unsigned int b
      *  change, we may need to remeasure things. (CR 9316)
      */
     
-#ifdef WSM
     if(pCD && pCD->clientFlags & ICON_BOX)
     {
         newContext |= F_CONTEXT_ICONBOX;
     }
-
-#endif /* WSM */
 
     if (AdjustPBs (menuSpec, pCD, newContext))
     {

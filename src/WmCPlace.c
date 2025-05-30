@@ -48,6 +48,7 @@
 #include "WmCDecor.h"
 #include "WmFeedback.h"
 #include "WmWinConf.h"
+#include "WmCPlace.h"
 
 /*
  * Global Variables:

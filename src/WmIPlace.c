@@ -36,9 +36,7 @@
 #include "WmIconBox.h"
 #include "WmWinConf.h"
 #include "WmXinerama.h"
-#ifdef WSM
 #include "WmWrkspace.h"
-#endif /* WSM */
 
 
 /*
@@ -861,9 +859,7 @@ void PackRootIcons (void)
     ClientData *pCD_active;
     int hasActiveText = 1;
 	int nxsi, xsi;
-#ifdef WSM
     WsClientData *pWsc;
-#endif /* WSM */
 
     /* 
      * find context of the activeIconTextWin to get pCD and then 
@@ -905,39 +901,23 @@ void PackRootIcons (void)
 			MoveIconInfo (IPData, iOld, IPData, iNew);
 
 			pCD = IPData->placeList[iNew].pCD;
-	#ifdef WSM
 			pWsc = GetWsClientData (ACTIVE_WS, pCD);
-			pWsc->iconPlace[xsi] = iNew;
+			pWsc->iconPlace = iNew;
 			CvtIconPlaceToPosition(IPData, 
 		    	pWsc->iconPlace, &pWsc->iconX, &pWsc->iconY);
-	#else /* WSM */
-			pCD->iconPlace = iNew;
-			CvtIconPlaceToPosition (IPData, 
-		    	pCD->iconPlace, &pCD->iconX, &pCD->iconY);
-	#endif /* WSM */
 
 			if (hasActiveText && (pCD == pCD_active))
 			{
 		    	/* hide activeIconTextWin first */
 		    	HideActiveIconText ((WmScreenData *)NULL);
-	#ifdef WSM
 		    	XMoveWindow (DISPLAY, pWsc->iconFrameWin, pWsc->iconX, 
 			    	 pWsc->iconY);
-	#else /* WSM */
-		    	XMoveWindow (DISPLAY, ICON_FRAME_WIN(pCD), pCD->iconX, 
-			    	 pCD->iconY);
-	#endif /* WSM */
 		    	ShowActiveIconText (pCD);
 			}
 			else
 			{
-	#ifdef WSM
 		    	XMoveWindow (DISPLAY, pWsc->iconFrameWin, pWsc->iconX, 
 			    	 pWsc->iconY);
-	#else /* WSM */
-		    	XMoveWindow (DISPLAY, ICON_FRAME_WIN(pCD), pCD->iconX, 
-			    	 pCD->iconY);
-	#endif /* WSM */
 			}
 	    	}
 		}
@@ -974,23 +954,17 @@ void PackRootIcons (void)
 void MoveIconInfo (IconPlacementData *pIPD1,
 	 int p1, IconPlacementData *pIPD2, int p2)
 {
-#ifdef WSM
     WsClientData *pWsc;
-#endif /* WSM */
 
     /* only move if destination is empty */
     if (pIPD2->placeList[p2].pCD == NULL)
     {
 	pIPD2->placeList[p2].pCD = pIPD1->placeList[p1].pCD;
 	pIPD2->placeList[p2].theWidget = pIPD1->placeList[p1].theWidget;
-#ifdef WSM
 
 	pWsc = GetWsClientData (pIPD2->placeList[p2].pCD->pSD->pActiveWS,
 				pIPD2->placeList[p2].pCD);
 	pWsc->iconPlace = p2;
-#else /* WSM */
-	pIPD2->placeList[p2].pCD->iconPlace = p2;
-#endif /* WSM */
 
 	pIPD1->placeList[p1].pCD =  NULL;
 	pIPD1->placeList[p1].theWidget = NULL;
@@ -1010,6 +984,9 @@ static void ResetClientIconPlacementData(WmWorkspaceData *pWS)
 		int s_width, s_height;
 		int s_xorg = 0, s_yorg = 0;
 		ClientData *cd = e->pCD;
+		WsClientData *wscd;
+		int iws;
+		
 
 		/* Skip icon entries */
 		if(e->type == MINIMIZED_STATE) {
@@ -1017,47 +994,53 @@ static void ResetClientIconPlacementData(WmWorkspaceData *pWS)
 			continue;
 		}
 		
-		/* If the icon was placed before, try to find an appropriate
-		 * location according to its coordinates, falling back to next free */
-		if(cd->iconPlace != NO_ICON_PLACE && !P_ICON_BOX(cd)) {
-			if(GetXineramaScreenFromLocation(cd->iconX, cd->iconY, &xsi) ||
-				GetXineramaScreenFromLocation(cd->clientX, cd->clientY, &xsi) ||
-				GetPrimaryXineramaScreen(&xsi)) {
-				cd->IPData = pWS->IPData + xsi.screen_number;
-				s_width = xsi.width;
-				s_height = xsi.height;
-				s_xorg = xsi.x_org;
-				s_yorg = xsi.y_org;
-			} else {
-				s_width = XDisplayWidth(DISPLAY, cd->pSD->screen);
-				s_height = XDisplayHeight(DISPLAY, cd->pSD->screen);
-				cd->IPData = pWS->IPData;
-			}
+		for(iws = 0; iws < cd->sizeWsList; iws++) {
+			wscd = &cd->pWsList[iws];
+			
+			/* If the icon was placed before, try to find an appropriate
+			 * location according to its coordinates, falling back to next free */
+			if(wscd->iconPlace != NO_ICON_PLACE && !P_ICON_BOX(cd)) {
+				if(GetXineramaScreenFromLocation(
+						wscd->iconX, wscd->iconY, &xsi) ||
+					GetXineramaScreenFromLocation(
+						cd->clientX, cd->clientY, &xsi) ||
+					GetPrimaryXineramaScreen(&xsi)) {
+					wscd->IPData = pWS->IPData + xsi.screen_number;
+					s_width = xsi.width;
+					s_height = xsi.height;
+					s_xorg = xsi.x_org;
+					s_yorg = xsi.y_org;
+				} else {
+					s_width = XDisplayWidth(DISPLAY, cd->pSD->screen);
+					s_height = XDisplayHeight(DISPLAY, cd->pSD->screen);
+					wscd->IPData = pWS->IPData;
+				}
 
-			if((cd->iconX - s_xorg) >= s_width ||
-				(cd->iconY - s_yorg) >= s_height) {
-				cd->iconX = 0;
-				cd->iconY = 0;
-				cd->iconPlace = NO_ICON_PLACE;
-			} else {
-				cd->iconPlace = FindIconPlace(cd,
-					cd->IPData, cd->iconX, cd->iconY);
-			}
+				if((wscd->iconX - s_xorg) >= s_width ||
+					(wscd->iconY - s_yorg) >= s_height) {
+					wscd->iconX = 0;
+					wscd->iconY = 0;
+					wscd->iconPlace = NO_ICON_PLACE;
+				} else {
+					wscd->iconPlace = FindIconPlace(cd,
+						wscd->IPData, wscd->iconX, wscd->iconY);
+				}
 
-			if( (cd->iconPlace != NO_ICON_PLACE) || (cd->iconPlace =
-				GetNextIconPlace(cd->IPData)) != NO_ICON_PLACE) {
-				
-				CvtIconPlaceToPosition(cd->IPData,
-					cd->iconPlace, &cd->iconX, &cd->iconY);
-				cd->IPData->placeList[cd->iconPlace].pCD = cd;
+				if( (wscd->iconPlace != NO_ICON_PLACE) || (wscd->iconPlace =
+					GetNextIconPlace(wscd->IPData)) != NO_ICON_PLACE) {
 
-				XMoveWindow(DISPLAY, ICON_FRAME_WIN(cd),
-						ICON_X(cd), ICON_Y(cd));
+					CvtIconPlaceToPosition(wscd->IPData,
+						wscd->iconPlace, &wscd->iconX, &wscd->iconY);
+					wscd->IPData->placeList[wscd->iconPlace].pCD = cd;
+
+					XMoveWindow(DISPLAY, ICON_FRAME_WIN(cd),
+							ICON_X(cd), ICON_Y(cd));
+				} else {
+					wscd->IPData = NULL;
+				}
 			} else {
-				cd->IPData = NULL;
+				wscd->IPData = NULL;
 			}
-		} else {
-			cd->IPData = NULL;
 		}
 
 		/* Next client */

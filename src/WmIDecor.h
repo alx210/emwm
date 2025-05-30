@@ -21,27 +21,27 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-extern void CreateActiveIconTextWindow (WmScreenData *pSD);
-extern void DrawIconTitle (ClientData *pcd);
-extern void GetIconDimensions (WmScreenData *pSD, unsigned int *pWidth, 
+void CreateActiveIconTextWindow (WmScreenData *pSD);
+void DrawIconTitle (ClientData *pcd);
+void GetIconDimensions (WmScreenData *pSD, unsigned int *pWidth, 
 			       unsigned int *pLabelHeight, 
 			       unsigned int *pImageHeight);
-extern void GetIconTitleBox (ClientData *pcd, XRectangle *pBox);
-extern void HideActiveIconText (WmScreenData *pSD);
-extern void IconExposureProc (ClientData *pcd, Boolean clearFirst);
-extern void InitIconSize (WmScreenData *pSD);
-extern Boolean MakeIcon (WmWorkspaceData *pWS, ClientData *pcd);
-extern void MakeIconShadows (ClientData *pcd, int xOffset, int yOffset);
-extern void MoveActiveIconText (ClientData *pcd);
-extern void PaintActiveIconText (ClientData *pcd, Boolean erase);
-extern void PutBoxInIconBox (ClientData *pCD, int *px, int *py, 
+void GetIconTitleBox (ClientData *pcd, XRectangle *pBox);
+void HideActiveIconText (WmScreenData *pSD);
+void IconExposureProc (ClientData *pcd, Boolean clearFirst);
+void InitIconSize (WmScreenData *pSD);
+Boolean MakeIcon (WmWorkspaceData *pWS, ClientData *pcd);
+void MakeIconShadows (ClientData *pcd, int xOffset, int yOffset);
+void MoveActiveIconText (ClientData *pcd);
+void PaintActiveIconText (ClientData *pcd, Boolean erase);
+void PutBoxInIconBox (ClientData *pCD, int *px, int *py, 
 			     unsigned int *width, unsigned int *height);
-extern void PutBoxOnScreen (int screen, int *px, int *py, unsigned int width, 
+void PutBoxOnScreen (int screen, int *px, int *py, unsigned int width, 
 			    unsigned int height);
-extern void RedisplayIconTitle (ClientData *pcd);
-extern void ReparentIconWindow (ClientData *pcd, int xOffset, int yOffset);
-extern void ShowActiveIcon (ClientData *pcd);
-extern void ShowActiveIconText (ClientData *pcd);
-extern void ShowInactiveIcon (ClientData *pcd, Boolean refresh);
+void RedisplayIconTitle (ClientData *pcd);
+void ReparentIconWindow (ClientData *pcd, int xOffset, int yOffset);
+void ShowActiveIcon (ClientData *pcd);
+void ShowActiveIconText (ClientData *pcd);
+void ShowInactiveIcon (ClientData *pcd, Boolean refresh);
 
 

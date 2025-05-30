@@ -28,11 +28,7 @@
 #include "WmGlobal.h"
 
 #include <Xm/XmosP.h> 
-
-#ifdef WSM
 #include <Xm/IconFile.h>
-#include <Dt/GetDispRes.h>
-#endif
 
 #define MATCH_XBM 'B'		/* .xbm character: see XmGetPixmap */
 #define MATCH_PATH "XBMLANGPATH"
@@ -281,9 +277,7 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
     XGCValues    gcv;
 
     unsigned long gc_mask;
-#ifdef WSM
     XmPixelSet   *pPS = NULL;
-#endif /* WSM */
     unsigned int imageWidth;
     unsigned int imageHeight;
     int          dest_x, dest_y;
@@ -386,7 +380,6 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
     }
 
     /* create a GC to use */
-#ifdef WSM
     gc_mask = GCForeground | GCBackground | GCGraphicsExposures;
     if (mask)
     {
@@ -412,24 +405,6 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
     gcv.graphics_exposures = False;
 
     imageGC = XCreateGC (DISPLAY, iconPixmap, gc_mask, &gcv);
-#else /* WSM */
-    gc_mask = GCForeground | GCBackground | GCGraphicsExposures;
-    if (mask)
-	{
-	    gcv.background = ICON_APPEARANCE(pCD).background;
-	    /* set fg to bg color to clear it first */
-	    gcv.foreground = ICON_APPEARANCE(pCD).background;
-	}
-    else 
-    {
-	gcv.foreground = bg;	/* clear it first! */
-	gcv.background = bg;
-    }
-    gcv.graphics_exposures = False;
-
-    imageGC = XCreateGC (DISPLAY, iconPixmap, (GCForeground|GCBackground),
-		  &gcv);
-#endif /* WSM */
 
     /*
      * Format the image. 
@@ -455,23 +430,11 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
     dest_x = (imageWidth - width) / 2;
     dest_y = (imageHeight - height) / 2;
 
-    if (mask)
-    {
-#ifdef WSM
-	if (pPS != NULL)
-	{
-	    gcv.foreground = pPS->fg;
-	}
-	else
-#else /* WSM */
-	{
-	    gcv.foreground = ICON_APPEARANCE(pCD).foreground;
-	}
-#endif /* WSM */
-    }
-    else
-    {
-	gcv.foreground = fg;
+    if (mask) {
+		gcv.foreground = (pPS != NULL) ?
+			pPS->fg : ICON_APPEARANCE(pCD).foreground;
+    } else {
+		gcv.foreground = fg;
     }
 
 
@@ -523,8 +486,7 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
 	 * Shadowing
 	 */
 
-#ifdef WSM
-        if (mask && (pPS != NULL))
+	if (mask && (pPS != NULL))
 	{
 	topGC = GetHighlightGC (pSD, pPS->ts, pPS->bg,
 				  pCD->iconImageTopShadowPixmap);
@@ -534,7 +496,7 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
 	}
 	else
 	{
-#endif /* WSM */
+
 	topGC = GetHighlightGC (pSD, pCD->iconImageTopShadowColor, 
 				  pCD->iconImageBackground,
 				  pCD->iconImageTopShadowPixmap);
@@ -542,9 +504,7 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
 	botGC = GetHighlightGC (pSD, pCD->iconImageBottomShadowColor, 
 				  pCD->iconImageBackground,
 				  pCD->iconImageBottomShadowPixmap);
-#ifdef WSM
 	}
-#endif /* WSM */
 
        /*
         *  CR5208 - Better fix than from OSF!
@@ -740,11 +700,7 @@ Pixmap MakeCachedLabelPixmap (WmScreenData *pSD, Widget menuW, int bitmapIndex)
 
 #define BITMAP_CACHE_INC 5
 
-#ifdef WSM
 int GetBitmapIndex (WmScreenData *pSD, char *name, Boolean bReportError)
-#else /* WSM */
-int GetBitmapIndex (WmScreenData *pSD, char *name)
-#endif /* WSM */
 {
     char         *path;
     BitmapCache  *bitmapc;
@@ -810,31 +766,24 @@ int GetBitmapIndex (WmScreenData *pSD, char *name)
                  XtMalloc ((unsigned int)(strlen (path) + 1))) == NULL)
         {
             MWarning (((char *)GETMESSAGE(38, 6, "Insufficient memory for bitmap %s\n")), name);
-	    return (-1);
+	        return (-1);
         }
         strcpy (bitmapc->path, path);
 
         if (XReadBitmapFile (DISPLAY, pSD->rootWindow, path, 
 			     &bitmapc->width, &bitmapc->height, 
-			     &bitmapc->bitmap, &x, &y)
-            != BitmapSuccess)
+			     &bitmapc->bitmap, &x, &y) != BitmapSuccess)
         {
-#ifdef WSM
-	  if (bReportError)
-#endif /* WSM */
-            MWarning (((char *)GETMESSAGE(38, 7, "Unable to read bitmap file %s\n")), path);
-	    XtFree ((char *)bitmapc->path);
-	    return (-1);
+	        if (bReportError) MWarning (((char *)GETMESSAGE(38, 7, "Unable to read bitmap file %s\n")), path);
+	        XtFree ((char *)bitmapc->path);
+	        return (-1);
         }
 
         if (bitmapc->width == 0 || bitmapc->height == 0)
         {
-#ifdef WSM
-	  if (bReportError)
-#endif /* WSM */
-            MWarning (((char *)GETMESSAGE(38, 8, "Invalid bitmap file %s\n")), path);
-	    XtFree ((char *)bitmapc->path);
-	    return (-1);
+	        if(bReportError) MWarning (((char *)GETMESSAGE(38, 8, "Invalid bitmap file %s\n")), path);
+	        XtFree ((char *)bitmapc->path);
+	        return (-1);
         }
     }
     else

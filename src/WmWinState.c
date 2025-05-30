@@ -44,9 +44,7 @@
 #include "WmProperty.h"
 #include "WmWinInfo.h"
 #include "WmWinList.h"
-#ifdef WSM
 #include "WmWrkspace.h"
-#endif /* WSM */
 #include "WmEwmh.h"
 
 /*
@@ -104,9 +102,7 @@ void SetClientStateWithEventMask (ClientData *pCD, int newState, Time setTime, u
     ClientData *pcdLeader;
     int currentState;
     WmScreenData *pSD = PSD_FOR_CLIENT(pCD);
-#ifdef WSM
     Boolean notShowing = (newState & UNSEEN_STATE);
-#endif /* WSM */
 
     currentState = pCD->clientState;
     if (currentState == newState)
@@ -122,9 +118,8 @@ void SetClientStateWithEventMask (ClientData *pCD, int newState, Time setTime, u
      */
 
     pcdLeader = (pCD->transientLeader) ? FindTransientTreeLeader (pCD) : pCD;
-#ifdef WSM
     SetClientWsIndex (pCD);
-#endif /* WSM */
+
 
     if (pCD->transientLeader)
     {
@@ -132,12 +127,11 @@ void SetClientStateWithEventMask (ClientData *pCD, int newState, Time setTime, u
 	    (newState != WITHDRAWN_STATE))
 	{
 	    newState = MINIMIZED_STATE;
-#ifdef WSM
+
 	    if (notShowing)
 	    {
 		newState |= UNSEEN_STATE;
 	    }
-#endif /* WSM */
 	}
 	else if ((newState == MINIMIZED_STATE) &&
 		 (pcdLeader->clientState != MINIMIZED_STATE))
@@ -145,22 +139,22 @@ void SetClientStateWithEventMask (ClientData *pCD, int newState, Time setTime, u
 	    if (currentState == WITHDRAWN_STATE)
 	    {
 		newState = NORMAL_STATE;
-#ifdef WSM
+
 	    if (notShowing)
 	    {
 		newState |= UNSEEN_STATE;
 	    }
-#endif /* WSM */
+
 	    }
 	    else
 	    {
 		newState = currentState;
-#ifdef WSM
+
 	    if (notShowing)
 	    {
 		newState |= UNSEEN_STATE;
 	    }
-#endif /* WSM */
+
 	    }
 	}
 	if (newState == currentState)
@@ -172,11 +166,7 @@ void SetClientStateWithEventMask (ClientData *pCD, int newState, Time setTime, u
     switch (newState)
     {
 
-#ifdef WSM
-        case UNSEEN_STATE | WITHDRAWN_STATE:
-#else
-	case WITHDRAWN_STATE:
-#endif /* WSM */
+    case UNSEEN_STATE | WITHDRAWN_STATE:
 	{
 	    /*
 	     * Free window manager resources (frame and icon).  The
@@ -191,10 +181,8 @@ void SetClientStateWithEventMask (ClientData *pCD, int newState, Time setTime, u
 	case MAXIMIZED_STATE:
 	{
 	    SetupWindowStateWithEventMask (pCD, newState, setTime, event_mask);
-#ifdef WSM
 	    XMapWindow (DISPLAY, pCD->client);
 	    XMapWindow (DISPLAY, pCD->clientFrameWin);
-#endif /* WSM */
 	    break;
 	}
 
@@ -260,7 +248,7 @@ void SetClientStateWithEventMask (ClientData *pCD, int newState, Time setTime, u
 
 	    if (ICON_FRAME_WIN(pCD)) 
 	    {
-#ifdef WSM
+
 		if (pCD->clientState & UNSEEN_STATE)
 		{
 		    if (pCD->iconWindow)
@@ -271,9 +259,6 @@ void SetClientStateWithEventMask (ClientData *pCD, int newState, Time setTime, u
 		}
 
 		ShowAllIconsForMinimizedClient (pCD);
-#else /* WSM */
-		ShowIconForMinimizedClient (pSD->pActiveWS, pCD);
-#endif /* WSM */
 	    }
 
 	    SetClientWMState (pCD, IconicState, MINIMIZED_STATE);
@@ -302,11 +287,9 @@ void SetClientStateWithEventMask (ClientData *pCD, int newState, Time setTime, u
 	    break;
 	}
 
-#ifdef WSM 
-
-        case UNSEEN_STATE | NORMAL_STATE:
-        case UNSEEN_STATE | MAXIMIZED_STATE:
-        case UNSEEN_STATE | MINIMIZED_STATE:
+    case UNSEEN_STATE | NORMAL_STATE:
+    case UNSEEN_STATE | MAXIMIZED_STATE:
+    case UNSEEN_STATE | MINIMIZED_STATE:
 	{
 	    if (wmGD.keyboardFocus == pCD)
 	    {
@@ -354,7 +337,6 @@ void SetClientStateWithEventMask (ClientData *pCD, int newState, Time setTime, u
 	    }
         }
 	break;
-#endif /* WSM */
     }
 
 	UpdateEwmhClientState(pCD);
@@ -395,10 +377,7 @@ static void SetupWindowStateWithEventMask (ClientData *pCD, int newState,
 	Time setTime, unsigned int event_mask)
 {
     int currentState;
-#ifdef WSM
     int wsI, iplace;
-    WmWorkspaceData *pWS_i;
-#endif /* WSM */
     WmScreenData *pSD = PSD_FOR_CLIENT(pCD);
 
     currentState = pCD->clientState;
@@ -480,32 +459,23 @@ static void SetupWindowStateWithEventMask (ClientData *pCD, int newState,
 		    XUnmapWindow (DISPLAY, pCD->iconWindow);
 	        }
     		if (event_mask && doGrab)
-		{
+        	{
 			XEvent event;
 			XMaskEvent(DISPLAY, event_mask, &event);
 			XUngrabPointer(DISPLAY,CurrentTime);
-		}
-#ifdef WSM
+        	}
+
 	        if (wmGD.iconAutoPlace) 
 	        {
-                    for (wsI = 0; wsI < pCD->numInhabited; wsI++)
+	        for (wsI = 0; wsI < pCD->numInhabited; wsI++)
 		    {
 			iplace = pCD->pWsList[wsI].iconPlace;
 			if (iplace != NO_ICON_PLACE)
 			{
-			    pWS_i = GetWorkspaceData (pCD->pSD,
-						pCD->pWsList[wsI].wsID);
-			    pWS_i->IPData.placeList[iplace].pCD = 
-				    NULL;
+				pCD->pWsList[wsI].IPData->placeList[iplace].pCD = NULL;
 			}
 		    }
 	        }
-#else /* WSM */
-	        if ((wmGD.iconAutoPlace) && (ICON_PLACE(pCD) != NO_ICON_PLACE))
-	        {
-				pCD->IPData->placeList[ICON_PLACE(pCD)].pCD = NULL;
-	        }
-#endif /* WSM */
 	    }
 
 	    if (clearIconFocus)
@@ -530,13 +500,9 @@ static void SetupWindowStateWithEventMask (ClientData *pCD, int newState,
 	     */
 
 	    pCD->clientState = newState;
-#ifdef WSM
-		    wmGD.bSuspendSecondaryRestack = True;
-#endif /* WSM */
+	    wmGD.bSuspendSecondaryRestack = True;
 	    F_Raise (NULL, pCD, NULL);
-#ifdef WSM
-		    wmGD.bSuspendSecondaryRestack = False;
-#endif /* WSM */
+	    wmGD.bSuspendSecondaryRestack = False;
 	}
 
 	if ( (!(pCD->clientFlags & ICON_BOX)) || 
@@ -726,56 +692,38 @@ static void UnmapClients (ClientData *pCD, unsigned int event_mask)
 
 void SetClientWMState (ClientData *pCD, int wmState, int mwmState)
 {
-    ClientData *pNext;
-#ifdef WSM
-    Boolean bToUnseen;
+	ClientData *pNext;
+	Boolean bToUnseen;
 
-    bToUnseen = (mwmState & UNSEEN_STATE) != 0;
-    mwmState &= ~UNSEEN_STATE;
-#endif /* WSM */
+	bToUnseen = (mwmState & UNSEEN_STATE) != 0;
+	mwmState &= ~UNSEEN_STATE;
 
-#ifdef WSM
-    SetClientWsIndex (pCD);
-#endif /* WSM */
-    pNext = pCD->transientChildren;
-    while (pNext)
+	SetClientWsIndex (pCD);
+	pNext = pCD->transientChildren;
+	while (pNext)
     {
-	if (pNext->transientChildren)
-	{
-	    SetClientWMState (pNext, wmState, mwmState);
-	}
+		if (pNext->transientChildren)
+	    	SetClientWMState (pNext, wmState, mwmState);
 
-#ifdef WSM
-        SetClientWsIndex (pNext);
-#endif /* WSM */
-	SetWMState (pNext->client, wmState, ICON_FRAME_WIN(pNext));
-	if (pNext->maxConfig && mwmState == NORMAL_STATE)
-	{
-	    pNext->clientState = MAXIMIZED_STATE;
-	}
-#ifdef WSM
-	else if (!pNext->maxConfig && mwmState == MAXIMIZED_STATE)
-	{
-	    pNext->clientState = NORMAL_STATE;
-	}
-#endif /* WSM */
-	else
-	{
-	    pNext->clientState = mwmState;
-	}
-#ifdef WSM
-	if (bToUnseen)
-	    pNext->clientState |= UNSEEN_STATE;
-#endif /* WSM */
-	pNext = pNext->transientSiblings;
+    	SetClientWsIndex (pNext);
+		SetWMState (pNext->client, wmState, ICON_FRAME_WIN(pNext));
+
+		if (pNext->maxConfig && mwmState == NORMAL_STATE)
+	    	pNext->clientState = MAXIMIZED_STATE;
+		else if (!pNext->maxConfig && mwmState == MAXIMIZED_STATE)
+	    	pNext->clientState = NORMAL_STATE;
+		else
+	    	pNext->clientState = mwmState;
+
+		if (bToUnseen) pNext->clientState |= UNSEEN_STATE;
+
+		pNext = pNext->transientSiblings;
     }
 
     SetWMState (pCD->client, wmState, ICON_FRAME_WIN(pCD));
     pCD->clientState = mwmState;
-#ifdef WSM
-    if (bToUnseen)
-	pCD->clientState |= UNSEEN_STATE;
-#endif /* WSM */
+
+    if (bToUnseen) pCD->clientState |= UNSEEN_STATE;
 
 } /* END OF FUNCTION SetClientWMState */
 
@@ -848,45 +796,39 @@ void MapClientWindows (ClientData *pCD)
 void ShowIconForMinimizedClient (WmWorkspaceData *pWS, ClientData *pCD)
 {
     WmScreenData *pSD = PSD_FOR_CLIENT(pCD);
-
+		
     /*
      * Handle auto-placement for root icons (icons not in an icon box).
      */
     if (wmGD.iconAutoPlace && !P_ICON_BOX(pCD))
     {
-        if ( !pCD->IPData || (ICON_PLACE(pCD) == NO_ICON_PLACE) ||
-	    ((pCD->IPData->placeList[ICON_PLACE(pCD)].pCD) &&
-	     (pCD->IPData->placeList[ICON_PLACE(pCD)].pCD != pCD)))
+		IconPlacementData *ipd = pCD->pWsList[pCD->currentWsc].IPData;
+    
+	    if ( !ipd || (ICON_PLACE(pCD) == NO_ICON_PLACE) ||
+	    ((ipd->placeList[ICON_PLACE(pCD)].pCD) &&
+	     (ipd->placeList[ICON_PLACE(pCD)].pCD != pCD)))
         {
         /*
          * Icon place not defined or occupied by another client,
 	     * find a free place to put the icon.
          */
-		if(!pCD->IPData) {
-			pCD->IPData = PositionToPlacementData(pSD->pWS,
-				pCD->clientX, pCD->clientY);
+		if(!ipd) {
+			ipd = PositionToPlacementData(pSD->pWS, pCD->clientX, pCD->clientY);
 		}
 		
-	    if ((ICON_PLACE(pCD) = GetNextIconPlace (pCD->IPData)) 
-		== NO_ICON_PLACE)
+	    if ((ICON_PLACE(pCD) = GetNextIconPlace(ipd)) == NO_ICON_PLACE)
 	    {
 	        ICON_PLACE(pCD) = 
-		    CvtIconPositionToPlace(pCD->IPData, pCD->clientX, pCD->clientY);
+		    CvtIconPositionToPlace(ipd, pCD->clientX, pCD->clientY);
 	    }
-	    CvtIconPlaceToPosition (pCD->IPData, ICON_PLACE(pCD), 
+	    CvtIconPlaceToPosition (ipd, ICON_PLACE(pCD), 
 				    &ICON_X(pCD), &ICON_Y(pCD));
-
-#ifndef WSM
-	    XMoveWindow (DISPLAY, ICON_FRAME_WIN(pCD), 
-		ICON_X(pCD), ICON_Y(pCD));
-#endif /* WSM */
-
         }
 
-        pCD->IPData->placeList[ICON_PLACE(pCD)].pCD = pCD;
+        ipd->placeList[ICON_PLACE(pCD)].pCD = pCD;
+		pCD->pWsList[pCD->currentWsc].IPData = ipd;
     }
 
-#ifdef WSM
     /*
      * If icon on root window and this workspace is active, the
      * make sure it's in the right place.
@@ -896,7 +838,7 @@ void ShowIconForMinimizedClient (WmWorkspaceData *pWS, ClientData *pCD)
 	XMoveWindow (DISPLAY, ICON_FRAME_WIN(pCD), 
 	    ICON_X(pCD), ICON_Y(pCD));
     }
-#endif /* WSM */
+
     if (pCD->iconWindow)
     {
         XMapWindow (DISPLAY, pCD->iconWindow);
@@ -947,20 +889,15 @@ void ShowIconForMinimizedClient (WmWorkspaceData *pWS, ClientData *pCD)
 			     &pCD->clientEntry);
 	}
 
-#ifdef WSM
-        if (pWS == pSD->pActiveWS)
+    if (pWS == pSD->pActiveWS)
 	{
 	    XMapWindow (DISPLAY, ICON_FRAME_WIN(pCD));
 	}
-#else /* WSM */
-	XMapWindow (DISPLAY, ICON_FRAME_WIN(pCD));
-#endif /* WSM */
     }
 
 } /* END OF FUNCTION ShowIconForMinimizedClient */
 
-#ifdef WSM
-
+
 /*************************************<->*************************************
  *
  *  ShowAllIconsForMinimizedClient (pCD)
@@ -1003,5 +940,3 @@ void ShowAllIconsForMinimizedClient (ClientData *pCD)
     pCD->currentWsc = saveWsc;
 
 } /* END OF FUNCTION ShowAllIconsForMinimizedClient */
-#endif /* WSM */
-

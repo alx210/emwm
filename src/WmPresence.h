@@ -21,16 +21,16 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-void ConfirmAction (WmScreenData *pSD, int nbr);
-void HideFeedbackWindow (WmScreenData *pSD);
-void InitCursorInfo (void);
-void PaintFeedbackWindow (WmScreenData *pSD);
-void ShowFeedbackWindow (WmScreenData *pSD, int x, int y, 
-				unsigned int width, unsigned int height, 
-				unsigned long style);
-void ShowWaitState (Boolean flag);
-void UpdateFeedbackInfo (WmScreenData *pSD, int x, int y, 
-				unsigned int width, unsigned int height);
-void UpdateFeedbackText (WmScreenData *pSD, int x, int y, 
-				unsigned int width, unsigned int height);
+/********    Public Function Declarations    ********/
 
+Boolean MakePresenceBox(WmScreenData *pSD);
+void ShowPresenceBox(ClientData *pClient, Context wsContext);
+void HidePresenceBox(WmScreenData *pSD, Boolean  userDismissed);
+MenuItem * GetPresenceBoxMenuItems(WmScreenData *pSD);
+void UpdatePresenceWorkspaces( WmScreenData *pSD );
+
+#ifdef DEBUG
+void PrintWorkspaceList (WmScreenData *pSD);
+#endif
+
+/********    End Public Function Declarations    ********/

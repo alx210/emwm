@@ -21,80 +21,54 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-#include <stdio.h>
+void ProcessWmFile (WmScreenData *pSD);
+void ProcessCommandLine (int argc,  char *argv[]);
+void ProcessMotifBindings (void);
+Boolean FindSessionMatch(int commandArgc, char **commandArgv, ClientData *pCD,
+	WmScreenData *pSD, char **pWorkSpaceList, char *clientMachine);
+void GetActionIndex (int tableSize, int *actionIndex);
+void GetFunctionTableValues (int *execIndex, int *nopIndex, int *actionIndex);
+void GetNopIndex (int tableSize, int *nopIndex);
+void GetExecIndex (int tableSize, int *execIndex);
+Boolean GetSessionHintsInfo (WmScreenData *pSD, long numItems);
+FILE          * FopenConfigFile (void);
+void            FreeMenuItem (MenuItem *menuItem);
 
-
-extern void ProcessWmFile (WmScreenData *pSD);
-extern void ProcessCommandLine (int argc,  char *argv[]);
-extern void ProcessMotifBindings (void);
-#ifdef WSM
-extern Boolean         FindDtSessionMatch(int commandArgc, 
-					   char **commandArgv, 
-					   ClientData *pCD, 
-					   WmScreenData *pSD, 
-					   char **pWorkSpaceList,
-					   char *clientMachine);
-extern void            WmDtGetHelprgs(char *args, 
-				       unsigned char** volume, 
-				       unsigned char** topic, 
-				       int *argsCount);
-extern void GetActionIndex (int tableSize, int *actionIndex);
-extern void            GetFunctionTableValues (int *execIndex, int *nopIndex,
-		    int *actionIndex);
-extern void GetNopIndex (int tableSize, int *nopIndex);
-extern void GetExecIndex (int tableSize, int *execIndex);
-extern Boolean GetSessionHintsInfo (WmScreenData *pSD, long numItems);
-#endif /* WSM */
-extern FILE          * FopenConfigFile (void);
-extern void            FreeMenuItem (MenuItem *menuItem);
-#ifndef WSM
-extern unsigned char * GetNextLine (void);
-#endif /* not WSM */
-#ifdef WSM
-extern unsigned char * GetStringC (unsigned char **linePP, Boolean SmBehavior);
-extern void SystemCmd (char *pchCmd);
-#else /* WSM */
-extern unsigned char * GetString (unsigned char **linePP);
-#endif /* WSM */
-extern Boolean ParseBtnEvent (unsigned char  **linePP,
+unsigned char * GetNextLine (void);
+unsigned char * GetStringC (unsigned char **linePP, Boolean SmBehavior);
+void SystemCmd (char *pchCmd);
+unsigned char * GetString (unsigned char **linePP);
+unsigned int PeekAhead(unsigned char *currentChar,
+		       unsigned int currentLev);
+Boolean ParseBtnEvent (unsigned char  **linePP,
                               unsigned int *eventType,
                               unsigned int *button,
                               unsigned int *state,
                               Boolean      *fClick);
 
-extern void            ParseButtonStr (WmScreenData *pSD, unsigned char *buttonStr);
-extern void            ParseKeyStr (WmScreenData *pSD, unsigned char *keyStr);
-extern Boolean ParseKeyEvent (unsigned char **linePP, unsigned int *eventType,
+void            ParseButtonStr (WmScreenData *pSD, unsigned char *buttonStr);
+void            ParseKeyStr (WmScreenData *pSD, unsigned char *keyStr);
+Boolean ParseKeyEvent (unsigned char **linePP, unsigned int *eventType,
 		       KeyCode *keyCode,  unsigned int *state);
-extern MenuItem      * ParseMwmMenuStr (WmScreenData *pSD, unsigned char *menuStr);
-#ifdef WSM
-extern void ParseSessionClientState (WmScreenData *pSD, int count,
+MenuItem      * ParseMwmMenuStr (WmScreenData *pSD, unsigned char *menuStr);
+void ParseSessionClientState (WmScreenData *pSD, int count,
 			      unsigned char *string);
-extern void ParseSessionCommand (WmScreenData *pSD,  int count,
+void ParseSessionCommand (WmScreenData *pSD,  int count,
 			  unsigned char **commandString);
-extern void ParseSessionGeometry (WmScreenData *pSD, int count,
+void ParseSessionGeometry (WmScreenData *pSD, int count,
 			   unsigned char *string);
-extern void ParseSessionItems (WmScreenData *pSD);
-extern void ParseSessionWorkspaces (WmScreenData *pSD,  int count,
+void ParseSessionItems (WmScreenData *pSD);
+void ParseSessionWorkspaces (WmScreenData *pSD,  int count,
 			     unsigned char *string);
-extern void ParseSessionHost (WmScreenData *pSD,  int count,
+void ParseSessionHost (WmScreenData *pSD,  int count,
 			     unsigned char *string);
-extern void ParseDtSessionHints (WmScreenData *pSD, unsigned char *property);
-#endif /* WSM */
-extern int             ParseWmFunction (unsigned char **linePP, unsigned int res_spec, WmFunction *pWmFunction);
-extern void            PWarning (char *message);
-extern void            SaveMenuAccelerators (WmScreenData *pSD, MenuSpec *newMenuSpec);
-extern void      ScanAlphanumeric (unsigned char **linePP);
-#ifndef WSM
-extern void            ScanWhitespace(unsigned char  **linePP);
-#endif /* not WSM */
-extern void            ToLower (unsigned char  *string);
-extern void		SyncModifierStrings(void);
-#ifdef WSM
-#define ToLower(s)		(_DtWmParseToLower (s))
-#define GetNextLine()		(_DtWmParseNextLine (wmGD.pWmPB))
-#define GetSmartSMString(s)	(_DtWmParseNextTokenC (s, True))
-#define GetSmartString(s)	(_DtWmParseNextTokenC (s, False))
-#define GetString(s)		(_DtWmParseNextTokenC (s, False))
-#define ScanWhitespace(s)	(_DtWmParseSkipWhitespaceC (s))
-#endif /* WSM */
+void ParseDtSessionHints (WmScreenData *pSD, unsigned char *property);
+int             ParseWmFunction (unsigned char **linePP, unsigned int res_spec, WmFunction *pWmFunction);
+void            PWarning (char *message);
+void            SaveMenuAccelerators (WmScreenData *pSD, MenuSpec *newMenuSpec);
+void      ScanAlphanumeric (unsigned char **linePP);
+void            ScanWhitespace(unsigned char  **linePP);
+void            ToLower (unsigned char  *string);
+void		SyncModifierStrings(void);
+
+#define GetSmartString(s)	GetString (s)

@@ -28,10 +28,7 @@
 #include "WmGlobal.h"
 #include "WmICCC.h"
 #include <stdio.h>
-#ifdef WSM
-#include <Dt/WsmP.h>
-#include <X11/Xatom.h>
-#endif /* WSM */
+#include <Xm/AtomMgr.h>
 
 /*
  * include extern functions
@@ -48,7 +45,7 @@
  */
 
 #include "WmProperty.h"
-
+String WmXmStringToString(XmString xmString); /* In WmIconBox.c */
 
 /*
  * Global Variables:
@@ -103,7 +100,6 @@ GetNormalHints(
      *     ICCC_CURRENT version: nitems = PROP_SIZE_HINTS_ELEMENTS
      */
 
-#ifdef WSM
     if ((!HasProperty (pCD, XA_WM_NORMAL_HINTS)) ||
 	((Success != XGetWindowProperty (DISPLAY, pCD->client,
 			XA_WM_NORMAL_HINTS, 0L, (long)PROP_SIZE_HINTS_ELEMENTS,
@@ -112,15 +108,6 @@ GetNormalHints(
 	  (actualType != XA_WM_SIZE_HINTS) ||
 	  (nitems < (PROP_SIZE_HINTS_ELEMENTS - 3)) ||
 	  (actualFormat != 32)))
-#else /* WSM */
-    if ((Success != XGetWindowProperty (DISPLAY, pCD->client,
-			XA_WM_NORMAL_HINTS, 0L, (long)PROP_SIZE_HINTS_ELEMENTS,
-			False, XA_WM_SIZE_HINTS, &actualType, &actualFormat,
-			&nitems, &leftover, (unsigned char **)&property)) ||
-	 (actualType != XA_WM_SIZE_HINTS) ||
-	 (nitems < (PROP_SIZE_HINTS_ELEMENTS - 3)) ||
-	 (actualFormat != 32))
-#endif /* WSM */
     {
 	/*
 	 * Indicate no property values were retrieved:
@@ -248,26 +235,26 @@ void ProcessWmProtocols (ClientData *pCD)
      */
 
 #ifndef ICCC_COMPLIANT
-#ifdef WSM
-    if (!HasProperty (pCD, wmGD.xa_WM_PROTOCOLS))
-	rValue = -1;
-    else
-#endif /* WSM */
-    rValue = XGetWindowProperty (DISPLAY, pCD->client, wmGD.xa_WM_PROTOCOLS, 0L,
-		 (long)MAX_CLIENT_PROTOCOL_COUNT, False, AnyPropertyType,
-		 &actualType, &actualFormat, &nitems, &leftover,
-		 (unsigned char **)&property);
+    if (!HasProperty (pCD, wmGD.xa_WM_PROTOCOLS)) {
+		rValue = -1;
+    } else {
+    	rValue = XGetWindowProperty(DISPLAY, pCD->client,
+			wmGD.xa_WM_PROTOCOLS, 0L,
+			(long)MAX_CLIENT_PROTOCOL_COUNT, False, AnyPropertyType,
+			&actualType, &actualFormat, &nitems, &leftover,
+			(unsigned char **)&property);
+	}
 
 
     if ((rValue != Success) || (actualType == None) || (actualFormat != 32))
 #else
-#ifdef WSM
-    if (!HasProperty (pCD, wmGD.xa_WM_PROTOCOLS))
-	rValue = -1;
-    else
-#endif /* WSM */
-    rValue = XGetWMProtocols (DISPLAY, pCD->client, 
-		 (Atom **)&property, &nitems);
+
+    if (!HasProperty (pCD, wmGD.xa_WM_PROTOCOLS)) {
+		rValue = -1;
+	} else {
+    	rValue = XGetWMProtocols (DISPLAY, pCD->client, 
+		 	(Atom **)&property, &nitems);
+	}
 
     if (0 == rValue) 
 #endif /* ICCC_COMPLIANT */
@@ -373,19 +360,19 @@ void ProcessMwmMessages (ClientData *pCD)
      * Read the _MWM_MESSAGES property.
      */
 
-#ifdef WSM
-    if (!HasProperty (pCD, wmGD.xa_MWM_MESSAGES))
+    if (!HasProperty (pCD, wmGD.xa_MWM_MESSAGES)) {
         rValue = ~Success;
-    else
-#endif /* WSM */
-    rValue = XGetWindowProperty (DISPLAY, pCD->client, wmGD.xa_MWM_MESSAGES, 0L,
-		 (long)MAX_MWM_MESSAGES_COUNT, False, AnyPropertyType,
-		 &actualType, &actualFormat, &nitems, &leftover,
-		 (unsigned char **)&property);
+	} else {
+	    rValue = XGetWindowProperty (DISPLAY, pCD->client,
+			wmGD.xa_MWM_MESSAGES, 0L,
+			(long)MAX_MWM_MESSAGES_COUNT, False, AnyPropertyType,
+			&actualType, &actualFormat, &nitems, &leftover,
+			(unsigned char **)&property);
+	}
 
 
-    if ((rValue != Success) || (actualType == None) || (actualFormat != 32)
-	|| (nitems == 0))
+    if( (rValue != Success) || (actualType == None) ||
+		(actualFormat != 32) || (nitems == 0) )
     {
 	/*
 	 * _MWM_MESSAGES does not exist or it is an invalid type.
@@ -470,8 +457,7 @@ void SetMwmInfo (Window propWindow, long flags, Window wmWindow)
 
 } /* END OF FUNCTION SetMwmInfo */
 
-#ifdef WSM
-
+
 /*************************************<->*************************************
  *
  *  SetMwmSaveSessionInfo (wmWindow)
@@ -506,9 +492,9 @@ void SetMwmSaveSessionInfo (Window wmWindow)
     SetWMState(wmWindow, NORMAL_STATE, 0);
     
 } /* END OF FUNCTION SetMwmSaveSessionInfo */
-#endif /* WSM */
 
-
+
+
 /*************************************<->*************************************
  *
  *  GetWMState (window)
@@ -656,16 +642,15 @@ GetMwmHints(
     unsigned long leftover;
 
 
-#ifdef WSM
-    if (!HasProperty(pCD, wmGD.xa_MWM_HINTS))
-	ret_val = ~Success;
-    else
-#endif /* WSM */
-    ret_val = XGetWindowProperty (DISPLAY, pCD->client, wmGD.xa_MWM_HINTS, 
-		  0L, PROP_MWM_HINTS_ELEMENTS,
-		  False, wmGD.xa_MWM_HINTS, 
-		  &actual_type, &actual_format, 
-		  &nitems, &leftover, (unsigned char **)&property);
+    if (!HasProperty(pCD, wmGD.xa_MWM_HINTS)) {
+		ret_val = ~Success;
+    } else {
+		ret_val = XGetWindowProperty (DISPLAY, pCD->client, wmGD.xa_MWM_HINTS, 
+			0L, PROP_MWM_HINTS_ELEMENTS,
+			False, wmGD.xa_MWM_HINTS, 
+			&actual_type, &actual_format, 
+			&nitems, &leftover, (unsigned char **)&property);
+	}
 
     /*
      * Retrieve the property data.
@@ -1086,122 +1071,6 @@ GetMwmMenuItems(
 
 } /* END OF FUNCTION GetMwmMenuItems */
 
-#ifdef WSM
-
-
-/*************************************<->*************************************
- *
- *  GetWorkspaceHints (display, window, ppWsAtoms, pCount, pbAll)
- *
- *
- *  Description:
- *  -----------
- *  Get the contents of the WM_COMMAND property on a window
- *
- *
- *  Inputs:
- *  ------
- *  display	- X display 
- *  window	- window to get hints from
- *  ppWsAtoms	- pointer to a list of workspace atoms (to be returned)
- *  pCount	- ptr to a number of atoms (to be returned)
- *  pbAll	- ptr to a boolean (to be returned)
- *
- *
- *  Returns:
- *  --------
- *  Success if suceeded, otherwise failure code.
- * 
- *
- *  Outputs:
- *  -------
- *  *ppWsAtoms 	- list of workspace atoms
- *  *pCount	- number of atoms in *ppWsAtoms
- *  *pbAll	- True if should put in all workspaces
- *
- *
- *  Comments:
- *  --------
- *  The caller must XtFree *ppWsAtoms when done!!!
- * 
- *************************************<->***********************************/
-
-Status GetWorkspaceHints (Display *display, Window window, 
-			  Atom **ppWsAtoms, unsigned int *pCount,
-			  Boolean *pbAll)
-{
-    int rcode;
-    DtWorkspaceHints *pWsHints;
-    Atom *paWs;
-
-    rcode = _DtWsmGetWorkspaceHints(display, window, &pWsHints);
-    if (rcode == Success)
-    {
-	if (pWsHints->flags & DT_WORKSPACE_HINTS_WORKSPACES)
-	{
-	    paWs = (Atom *) 
-		XtMalloc (pWsHints->numWorkspaces * sizeof(Atom));
-	    memcpy (paWs, 
-		    pWsHints->pWorkspaces, 
-		    (pWsHints->numWorkspaces * sizeof(Atom)));
-
-	    *pCount = pWsHints->numWorkspaces;
-	    *ppWsAtoms = paWs;
-	}
-	else
-	{
-	    *pCount = 0;
-	    *ppWsAtoms = NULL;
-	}
-
-	if ((pWsHints->flags & DT_WORKSPACE_HINTS_WSFLAGS) &&
-	    (pWsHints->wsflags & DT_WORKSPACE_FLAGS_OCCUPY_ALL))
-	{
-	    *pbAll = True;
-	}
-	else
-	{
-	    *pbAll = False;
-	}
-
-
-	_DtWsmFreeWorkspaceHints (pWsHints);
-    }
-	
-    return(rcode);
-
-} /* END OF FUNCTION GetWorkspaceHints */
-
-
-/*************************************<->*************************************
- *
- *  SetEmbeddedClientsProperty (propWindow, pEmbeddedClients, 
- *  				cEmbeddedCLients)
- *
- *
- *  Description:
- *  -----------
- *  This function writes the _DT_WORKSPACE_EMBEDDED_CLIENTS property
- *
- *
- *  Inputs:
- *  ------
- *  propWindow = window on which the property is to be written
- *  pEmbeddedClients = pointer to data (array of window IDs)
- *  cEmbeddedClients = number of window IDs in the array
- *
- *************************************<->***********************************/
-
-void SetEmbeddedClientsProperty (Window propWindow, 
-    Window *pEmbeddedClients, unsigned long cEmbeddedClients)
-{
-    XChangeProperty (DISPLAY, propWindow, wmGD.xa_DT_EMBEDDED_CLIENTS, 
-	wmGD.xa_DT_EMBEDDED_CLIENTS,
-	32, PropModeReplace, (unsigned char *)pEmbeddedClients,
-	cEmbeddedClients);
-
-} /* END OF FUNCTION SetEmbeddedClientsProperty */
-
 #ifdef HP_VUE
 
 /*************************************<->*************************************
@@ -1331,20 +1200,18 @@ SetCurrentWorkspaceProperty (WmScreenData *pSD)
  * 
  *
  *************************************<->***********************************/
+#define WIP_NUMBER_SIZE		16
 
-void
-SetWorkspaceInfoProperty (WmWorkspaceData *pWS)
+void SetWorkspaceInfoProperty (WmWorkspaceData *pWS)
 {
     char *pch;
     Atom aProperty;
     String sTitle;
     char **ppchList;
     int iNumStrings;
-    int count, iwin;
-    int i, ix;
+    int count,  i, ix;
     Status status;
     XTextProperty tp;
-#define WIP_NUMBER_SIZE		16
 
     /*
      * Construct our property name
@@ -1377,8 +1244,8 @@ SetWorkspaceInfoProperty (WmWorkspaceData *pWS)
     i = 0;
 
     /* Convert workspace title to ascii */
-    sTitle = (String) WmXmStringToString (pWS->title);
-    ppchList[i++] = (char *) sTitle;
+    sTitle = WmXmStringToString (pWS->title);
+	ppchList[i++] = (char *) sTitle;
 
     /*  Pixel set id */
     ix = (i * WIP_NUMBER_SIZE);
@@ -1460,8 +1327,7 @@ SetWorkspaceInfoProperty (WmWorkspaceData *pWS)
  *
  *************************************<->***********************************/
 
-void
-DeleteWorkspaceInfoProperty (WmWorkspaceData *pWS)
+void DeleteWorkspaceInfoProperty(WmWorkspaceData *pWS)
 {
     char *pch;
     Atom aProperty;
@@ -1513,7 +1379,6 @@ WorkspacePropertyName (WmWorkspaceData *pWS)
     char *pch;
     char *pchName;
     int len;
-    Atom aProperty;
 
     /*
      * Construct our property name
@@ -1561,233 +1426,6 @@ void SetWorkspacePresence (Window propWindow, Atom *pWsPresence, unsigned long c
 } /* END OF FUNCTION SetWorkspacePresence */
 
 
-
-
-/*************************************<->*************************************
- *
- *  GetDtSessionHints (pSD, sNum)
- *
- *
- *  Description:
- *  -----------
- *  This function reads and processes _DT_SESSION_HINTS property that is
- *  associated with the root window of each screen managed by dtwm
- *
- *
- *  Inputs:
- *  ------
- *
- *
- *  Outputs:
- *  -------
- *
- *************************************<->***********************************/
-
-void GetDtSessionHints (WmScreenData *pSD, int sNum)
-
-{
-
-    int           rValue;
-    char          *property = NULL;
-    Atom          actualType;
-    int           actualFormat;
-    unsigned long leftover;
-    unsigned long nitems;
-
-    
-
-    /*
-     * Read the  property.
-     */
-
-    rValue = XGetWindowProperty (DISPLAY, pSD->rootWindow,
-                                 wmGD.xa_DT_SESSION_HINTS, 0L,
-                                 (long)1000000, False, AnyPropertyType,
-                                 &actualType, &actualFormat, &nitems,
-                                 &leftover, (unsigned char **)&property);
-
-
-    if ((rValue != Success) || (actualType == None) || (actualFormat != 8))
-        /* _DT_SESSION_HINTS does not exist or it is an invalid type.  */
-    {
-        pSD->pDtSessionItems = NULL;
-
-    }
-
-    else
-        /* parse the property string */
-    {
-	ParseDtSessionHints (pSD, (unsigned char *)property);
-    }
-
-
-    if (property)
-    {
-        XFree ((char *)property);
-    }
-    
-    /*
-     * Delete the property so we don't see it if the user
-     * restarts dtwm.
-     */
-#ifndef DEBUG_SESSION_HINTS
-    XDeleteProperty (DISPLAY, pSD->rootWindow, wmGD.xa_DT_SESSION_HINTS);
-#endif /* DEBUG_SESSION_HINTS */
-} /* END OF FUNCTION GetDtSessionHints */
-
-
-
-
-/*************************************<->*************************************
- *
- *  GetDtWmRequest (pSD, pszReq, pmore)
- *
- *
- *  Description:
- *  -----------
- *  This function returns the next request
- *
- *
- *  Inputs:
- *  ------
- *  pSD - pointer to screen data
- *  psdReq - pointer to a char pointer
- *
- *
- *  Outputs:
- *  -------
- *  *pszReq	- pointer to null terminated string containing next
- *                request
- *  *pmore	- set to true if more data is left in the property
- *
- *  Comments:
- *  ---------
- *  The data for pszReq is allocated in here. The caller must free up
- *  this space using XtFree.
- *
- *
- *************************************<->***********************************/
-
-void 
-GetDtWmRequest (
-		WmScreenData *pSD, 
-		char **pszReq, 
-		Boolean *pmore)
-
-{
-
-    int           rValue;
-    char	 *chRequest = NULL;
-    static char  *property = NULL;
-    static int    iNext = -1;
-    int 	  i;
-    Atom          actualType;
-    int           actualFormat;
-    unsigned long leftover;
-    static unsigned long nitems = 0;
-
-    
-    /*
-     * We need to read the property again if we have no data left
-     * over from last time;
-     */
-    if (property == NULL)
-    {
-#ifdef PARANOID
-	/*
-	 * Lock down the server to prevent changes to this
-	 * property while we "edit" it.
-	 */
-	XGrabServer(DISPLAY);
-#endif /* PARANOID */
-
-	/*
-	 * Read the property and delete it.
-	 */
-	rValue = XGetWindowProperty (DISPLAY, pSD->wmWorkspaceWin,
-				     wmGD.xa_DT_WM_REQUEST, 0L,
-				     (long)1000000, True, AnyPropertyType,
-				     &actualType, &actualFormat, &nitems,
-				     &leftover, (unsigned char **)&property);
-
-#ifdef PARANOID
-	/* Give the server back */ 
-	XUngrabServer(DISPLAY);
-#endif /* PARANOID */
-
-	/* 
-	 * Validate the property that we've read
-	 */
-	if ((rValue != Success) || 
-	    (actualType == None) || 
-	    (actualFormat != 8))
-	{
-	    /* The property does not exist or it is an invalid type. */
-	    property = NULL;
-	    iNext = -1;
-	    nitems = 0;
-	}
-	else
-	{
-	    /* the property is fine, set the index of the next char. */
-	    iNext = 0;
-	}
-    }
-
-
-    /* 
-     * If we've got something, then extract and return the next
-     * request.
-     */
-    if (property && iNext >= 0)
-    {
-	int len = 0;
-
-	for (i=iNext; i<nitems; i++)
-	{
-	    if (property [i] == '\0')
-	    {
-		break;
-	    }
-	}
-	if (i>=nitems) i=nitems;
-
-	len = i - iNext + 1 + ((property[i] == '\0') ? 0 : 1);
-
-        chRequest = (char *) XtMalloc (len);
-	if (chRequest == NULL)
-	{
-	    Warning (((char *)GETMESSAGE(54, 2, "Insufficient memory for window management data")));
-	}
-	else
-	{
-	    /* dequeue the request */
-	    strncpy (chRequest, &property[iNext], len);
-	    if (property[i] != '\0')
-	    {
-		chRequest[len-1]='\0';
-	    }
-	    iNext = i+1;
-	}
-	
-	if (iNext >= nitems)
-	{
-	    /*
-	     * Extracted the last request, free up the storage
-	     * and reset for next time.
-	     */
-	    XFree ((char *)property);
-	    iNext = -1;
-	    property = NULL;
-	}
-    }
-    
-    *pmore = (property != NULL);
-    *pszReq = chRequest;
-
-} /* END OF FUNCTION GetDtWmRequest */
-
-
 /*************************************<->*************************************
  *
  *  GetIntialPropertyList (ClientData *)
@@ -1939,7 +1577,7 @@ HasProperty (
     return (bFound);
 
 } /* END OF FUNCTION HasProperty */
-#endif /* WSM */
+
 
 
 

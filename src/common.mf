@@ -3,28 +3,28 @@
 SYSLIBS =  -lm -lXm -lXt -lXext -lXrandr -lXinerama -lX11
 
 DEFINES = -DUNMAP_ON_RESTART -DNO_OL_COMPAT \
-	-DNO_MESSAGE_CATALOG -DRCDIR='"$(RCDIR)"'
+	-DNO_MESSAGE_CATALOG -DWSM -DRCDIR='"$(RCDIR)"'
 
 CFLAGS += $(DEFINES)
 
 mwm_objs = \
-	WmCDInfo.o WmCDecor.o WmCEvent.o WmCPlace.o WmColormap.o WmError.o\
-	WmEvent.o WmFeedback.o WmFunction.o	WmGraphics.o WmIDecor.o WmIPlace.o\
+	WmCDInfo.o WmCDecor.o WmCEvent.o WmCPlace.o WmColormap.o WmError.o \
+	WmEvent.o WmFeedback.o WmFunction.o	WmGraphics.o WmIDecor.o WmIPlace.o \
 	WmIconBox.o WmKeyFocus.o WmMain.o WmManage.o WmProperty.o WmResCvt.o\
-	WmResParse.o WmResource.o WmSignal.o WmWinConf.o WmWinInfo.o WmWinList.o\
-	WmWinState.o WmXSMP.o WmImage.o WmInitWs.o WmMenu.o	WmProtocol.o\
-	WmXinerama.o WmEwmh.o WmVersion.o
+	WmResParse.o WmResource.o WmSignal.o WmWinConf.o WmWinInfo.o WmWinList.o \
+	WmWinState.o WmXSMP.o WmImage.o WmInitWs.o WmMenu.o	WmProtocol.o \
+	WmBackdrop.o WmPresence.o WmWrkspace.o WmXinerama.o WmEwmh.o
 
-emwm: $(mwm_objs)
+emwm-wsm: $(mwm_objs)
 	$(CC) $(LDFLAGS) $(LIBDIRS) -o $@ $(mwm_objs) $(SYSLIBS)
 
 .depend:
-	$(CC) -MM $(INCDIRS) $(mwm_objs:.o=.c) $(wsm_objs:.o=.c) > $@
+	$(CC) -MM $(INCDIRS) $(mwm_objs:.o=.c) > $@
 
 .PHONY: clean install common_install
 
 clean:
-	-rm -f $(mwm_objs) $(wsm_objs) emwm
+	-rm -f $(mwm_objs) $(wsm_objs) emwm-wsm
 	-rm .depend
 
 common_install:

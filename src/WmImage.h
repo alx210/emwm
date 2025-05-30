@@ -21,18 +21,19 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-extern char  *BitmapPathName (char *string);
-#ifdef WSM
-extern int    GetBitmapIndex (WmScreenData *pSD, 
-				char *name, 
-				Boolean bReportError);
-#else /* WSM */
-extern int    GetBitmapIndex (WmScreenData *pSD, char *name);
-#endif /* WSM */
-extern Pixmap MakeCachedIconPixmap (ClientData *pCD, int bitmapIndex, Pixmap mask);
-extern Pixmap MakeCachedLabelPixmap (WmScreenData *pSD, Widget menuW, int bitmapIndex);
-extern Pixmap MakeClientIconPixmap (ClientData *pCD, Pixmap iconBitmap, Pixmap iconMask);
-extern Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int width, unsigned int height, unsigned int depth);
-extern Pixmap MakeNamedIconPixmap (ClientData *pCD, String iconName);
+Pixmap GetNamedPixmap (Screen *scr, String iconName,
+	Pixel fg, Pixel bg, int depth);
+char* BitmapPathName (char *string);
+int GetBitmapIndex (WmScreenData *pSD,
+	char *name, Boolean bReportError);
+Pixmap MakeCachedIconPixmap (ClientData *pCD,
+	int bitmapIndex, Pixmap mask);
+Pixmap MakeCachedLabelPixmap (WmScreenData *pSD,
+	Widget menuW, int bitmapIndex);
+Pixmap MakeClientIconPixmap (ClientData *pCD,
+	Pixmap iconBitmap, Pixmap iconMask);
+Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask,
+	unsigned int width, unsigned int height, unsigned int depth);
+Pixmap MakeNamedIconPixmap (ClientData *pCD, String iconName);
 Boolean GetPixmapInfo(Pixmap pixmap,
 	unsigned int *width, unsigned int *height, unsigned int *depth);

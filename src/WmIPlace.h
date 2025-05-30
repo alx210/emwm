@@ -21,12 +21,12 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-extern void InitIconPlacement (WmWorkspaceData *pWS);
-extern int GetNextIconPlace (IconPlacementData *pIPD);
-extern void CvtIconPlaceToPosition (IconPlacementData *pIPD, int place, int *pX, int *pY);
-extern int FindIconPlace (ClientData *pCD, IconPlacementData *pIPD, int x, int y);
-extern int CvtIconPositionToPlace (IconPlacementData *pIPD, int x, int y);
-extern void PackRootIcons (void);
-extern void MoveIconInfo (IconPlacementData *pIPD1, int p1,
+void InitIconPlacement (WmWorkspaceData *pWS);
+int GetNextIconPlace (IconPlacementData *pIPD);
+void CvtIconPlaceToPosition (IconPlacementData *pIPD, int place, int *pX, int *pY);
+int FindIconPlace (ClientData *pCD, IconPlacementData *pIPD, int x, int y);
+int CvtIconPositionToPlace (IconPlacementData *pIPD, int x, int y);
+void PackRootIcons (void);
+void MoveIconInfo (IconPlacementData *pIPD1, int p1,
 	IconPlacementData *pIPD2, int p2);
 IconPlacementData* PositionToPlacementData(WmWorkspaceData *pWS, int x, int y);

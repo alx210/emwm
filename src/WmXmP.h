@@ -25,12 +25,12 @@
 
 #include <Xm/RowColumnP.h> /* For XmMenuState */
 
-extern void XmRenderTableGetDefaultFontExtents(XmRenderTable,
+void XmRenderTableGetDefaultFontExtents(XmRenderTable,
 	int *height, int *ascent, int *descent);
 
-extern Boolean _XmVirtKeysLoadFileBindings(char *fileName, String *binding);
-extern int _XmVirtKeysLoadFallbackBindings(Display *display, String *binding);
+Boolean _XmVirtKeysLoadFileBindings(char *fileName, String *binding);
+int _XmVirtKeysLoadFallbackBindings(Display *display, String *binding);
 
-extern XmMenuState _XmGetMenuState(Widget);
+XmMenuState _XmGetMenuState(Widget);
 
 #endif /* WmXmp_h */

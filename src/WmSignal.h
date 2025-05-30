@@ -21,8 +21,8 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-extern void SetupWmSignalHandlers (int);
-extern void QuitWmSignalHandler (int);
-extern void RestoreDefaultSignalHandlers (void);
-extern void ChildProcSignalHandler (int);
+void SetupWmSignalHandlers (int);
+void QuitWmSignalHandler (int);
+void RestoreDefaultSignalHandlers (void);
+void ChildProcSignalHandler (int);
 

@@ -680,7 +680,6 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 		    rval = TRUE;
 		}
 		break;
-#ifdef WSM
 
 	case FRAME_TITLEBAR:
 		if (decor & MWM_DECOR_TITLE) {
@@ -692,7 +691,6 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 		    rval = TRUE;
 		}
 		break;
-#endif /* WSM */
 
 	case FRAME_MINIMIZE:
 		if (decor & MWM_DECOR_MINIMIZE) {

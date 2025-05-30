@@ -38,9 +38,7 @@
 #include "WmIconBox.h"
 #include "WmMenu.h"
 #include "WmWinInfo.h"
-#ifdef WSM
 #include "WmWrkspace.h"
-#endif /* WSM */
 
 
 
@@ -91,9 +89,9 @@ Boolean MakeIcon (WmWorkspaceData *pWS, ClientData *pcd)
     unsigned long attr_mask;
     int xOffset;
     int yOffset;
-#ifdef WSM
+
     WsClientData *pWsc = GetWsClientData (pWS, pcd);
-#endif /* WSM */
+
 
 
     /*
@@ -136,24 +134,12 @@ Boolean MakeIcon (WmWorkspaceData *pWS, ClientData *pcd)
 				ICON_APPEARANCE(pcd).background;
     }
    
-#ifdef WSM
-    if ((!pcd->pSD->useIconBox) || 
-	(pcd->clientFlags & (CLIENT_WM_CLIENTS | FRONT_PANEL_BOX)))
-#else
-    if ((!pcd->pSD->useIconBox) || (pcd->clientFlags & ICON_BOX))
-#endif /* WSM */
+    if ((!pcd->pSD->useIconBox) || (pcd->clientFlags & (CLIENT_WM_CLIENTS)))
     {
-#ifdef WSM
 	pWsc->iconFrameWin = XCreateWindow (DISPLAY,
 			       ROOT_FOR_CLIENT(pcd),	/* parent */
 			       pWsc->iconX,
 			       pWsc->iconY,
-#else /* WSM */
-	pcd->iconFrameWin = XCreateWindow (DISPLAY,
-			       ROOT_FOR_CLIENT(pcd),	/* parent */
-			       pcd->iconX,
-			       pcd->iconY,
-#endif /* WSM */
 			       (unsigned int) ICON_WIDTH(pcd),
 			       (unsigned int) ICON_HEIGHT(pcd),
 			       0,		/* border width */
@@ -162,29 +148,23 @@ Boolean MakeIcon (WmWorkspaceData *pWS, ClientData *pcd)
 			       CopyFromParent,	/* visual */
 			       attr_mask,
 			       &window_attribs);
-
     }
     else
     {
-        /*
-         * Insert the icon into the icon box.
-         * Don't make icon in the box for any icon box (or any WM window)
-	 * OR any client that doesn't have the MWM_FUNC_MINIMIZE bit set
-	 * in pcd->clientFunctions
-         */
+		/*
+		 * Insert the icon into the icon box.
+		 * Don't make icon in the box for any icon box (or any WM window)
+		 * OR any client that doesn't have the MWM_FUNC_MINIMIZE bit set
+		 * in pcd->clientFunctions
+		 */
 
-        if ((pcd->pSD->useIconBox) && 
-#ifdef WSM
-	    (!(pcd->clientFlags & CLIENT_WM_CLIENTS)) &&
-#else
-	    (!(pcd->clientFlags & ICON_BOX)) &&
-#endif /* WSM */
-	    (pcd->clientFunctions & MWM_FUNC_MINIMIZE) )
-        {
-            if (!InsertIconIntoBox(pWS->pIconBox, pcd))
-		Warning(((char *)GETMESSAGE(30, 1, "Could not make icon to go in icon box")));
+		if ((pcd->pSD->useIconBox) && 
+			(!(pcd->clientFlags & CLIENT_WM_CLIENTS)) &&
+			(pcd->clientFunctions & MWM_FUNC_MINIMIZE) ) {
 
-	}
+    		if(!InsertIconIntoBox(pWS->pIconBox, pcd))
+			Warning(((char *)GETMESSAGE(30, 1, "Could not make icon to go in icon box")));
+		}
 
     }
 
@@ -231,15 +211,13 @@ Boolean MakeIcon (WmWorkspaceData *pWS, ClientData *pcd)
     if ((ICON_DECORATION(pcd) & ICON_IMAGE_PART) && 
 	(pcd->iconWindow))
     {
-	ReparentIconWindow (pcd, xOffset, yOffset);
+		ReparentIconWindow (pcd, xOffset, yOffset);
     }
 
-#ifdef WSM
-    if (pcd->piconTopShadows->used == 0)
-#endif /* WSM */
-    MakeIconShadows (pcd, xOffset, yOffset);
+    if(pcd->piconTopShadows->used == 0)
+	    MakeIconShadows (pcd, xOffset, yOffset);
 
-    return(TRUE);
+    return TRUE;
 
 } /* END OF FUNCTION MakeIcon */
 
@@ -847,11 +825,7 @@ void DrawIconTitle (ClientData *pcd)
     GetIconTitleBox (pcd, &textBox);
 
     /* get appropriate GCs */
-#ifdef WSM
     if ((ACTIVE_PSD->useIconBox && !(pcd->clientFlags & CLIENT_WM_CLIENTS)) || 
-#else
-    if ((ACTIVE_PSD->useIconBox && !(pcd->clientFlags & ICON_BOX)) || 
-#endif /* WSM */
 	!(wmGD.keyboardFocus == pcd)) 
     {
 	iconGC = ICON_APPEARANCE(pcd).inactiveGC;
@@ -927,13 +901,8 @@ void RedisplayIconTitle (ClientData *pcd)
 	 * Get appropriate GCs 
 	 * Dim text if this is in the icon box and the client is mapped 
 	 */
-#ifdef WSM
 	if ((ACTIVE_PSD->useIconBox && (P_ICON_BOX(pcd)) &&
 	    !(pcd->clientFlags & CLIENT_WM_CLIENTS)) || 
-#else
-	if ((ACTIVE_PSD->useIconBox && (P_ICON_BOX(pcd)) &&
-	    !(pcd->clientFlags & ICON_BOX)) || 
-#endif /* WSM */
 	    !(wmGD.keyboardFocus == pcd)) 
 	{
 	    iconGC = ICON_APPEARANCE(pcd).inactiveGC;

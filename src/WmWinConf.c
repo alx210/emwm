@@ -41,7 +41,7 @@
 #define NotGrabbed	0
 #define ResizeGrab	1
 #define MoveGrab	2
-#ifdef WSM
+
 
 /* Anchors */
 #define ANCHOR_NONE	0
@@ -53,7 +53,7 @@
 #ifndef ABS
 #define ABS(x) ((x)>0?(x):(-(x)))
 #endif /* ABS */
-#endif /* WSM */
+
 
 /* mask for all buttons */
 #define ButtonMask	\
@@ -75,10 +75,11 @@
 #include "WmKeyFocus.h"
 #include "WmProtocol.h"
 #include "WmWinInfo.h"
+#include "WmWrkspace.h"
 #include "WmXinerama.h"
 #include "WmEwmh.h"
 
-
+static void UpdateAndDrawResize(ClientData *pcd);
 
 /*
  * Global Variables:
@@ -99,12 +100,10 @@ static unsigned int resizeBigWidthInc, resizeBigHeightInc;
 static int startX, startY; 
 static unsigned int startWidth, startHeight;
 static unsigned int minWidth, minHeight, maxHeight, maxWidth;
-#ifdef WSM
 static int marqueeX, marqueeY;	/* root coords of UL corner of are */
 static long marqueeWidth, marqueeHeight;	/* size of area */
 static unsigned int marqueeAnchor;	/* id of anchor corner */
 static long marqueeWidth0, marqueeHeight0;	/* old size of area */
-#endif /* WSM */
 
 static int opaqueMoveX = 0;    /* for cancel request on opaque moves */
 static int opaqueMoveY = 0;
@@ -397,7 +396,7 @@ void HandleClientFrameMove (ClientData *pcd, XEvent *pev)
  *  Comments:
  *  --------
  *************************************<->***********************************/
-void UpdateAndDrawResize (ClientData *pcd)
+static void UpdateAndDrawResize(ClientData *pcd)
 {
     int tmpHeight, tmpWidth;
     
@@ -1108,11 +1107,13 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
 		int centerX;
 		int centerY;
 		int place;
-		IconPlacementData *pIPD, *pIPDnew;
+		IconPlacementData *pcdIPD, *pIPD, *pIPDnew;
 
 		/* 
 		 * Get correct icon placement data
 		 */
+		pcdIPD = pcd->pWsList[pcd->currentWsc].IPData;
+		
 		if (inIconBox) 
 		{
 		    pIPDnew = pIPD = &P_ICON_BOX(pcd)->IPD;
@@ -1121,8 +1122,11 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
 		}
 		else
 		{
-			pIPDnew = PositionToPlacementData(ACTIVE_WS, moveX, moveY);
-		    pIPD = pcd->IPData ? pcd->IPData : pIPDnew;
+			WmWorkspaceData *cwsd = GetWorkspaceData(
+				pcd->pSD, pcd->pWsList[pcd->currentWsc].wsID);
+
+			pIPDnew = PositionToPlacementData(cwsd, moveX, moveY);
+		    pIPD = pcdIPD ?	pcdIPD : pIPDnew;
 		}
 
         /*
@@ -1134,7 +1138,7 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
 		centerY = moveY + ICON_HEIGHT(pcd) / 2;
 		place = CvtIconPositionToPlace (pIPDnew, centerX, centerY);
 
-		if ( (pcd->IPData != pIPDnew) || (place != ICON_PLACE(pcd)) )
+		if ( (pcdIPD != pIPDnew) || (place != ICON_PLACE(pcd)) )
 		{
 		    if (pIPDnew->placeList[place].pCD)
 		    {
@@ -1172,14 +1176,14 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
 			}
 		    }
 		    if ((place != NO_ICON_PLACE) &&
-				((pcd->IPData != pIPDnew) || (place != ICON_PLACE(pcd))) )
+				((pcdIPD != pIPDnew) || (place != ICON_PLACE(pcd))) )
 		    {
 			if (inIconBox)
 			{
-			    CvtIconPlaceToPosition (pIPD, place,
-			    			&tmpX, &tmpY);
-	    		    if( (CheckIconBoxSize (P_ICON_BOX(pcd))) &&
-				(CheckVisualPlace(pcd, tmpX, tmpY)))
+			    CvtIconPlaceToPosition (pIPD, place, &tmpX, &tmpY);
+
+    		    if( (CheckIconBoxSize (P_ICON_BOX(pcd))) &&
+					(CheckVisualPlace(pcd, tmpX, tmpY)))
 			    {
 				/*
 				 * Move the icon to the new place.
@@ -1218,30 +1222,26 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
 			    XMoveWindow (DISPLAY, ICON_FRAME_WIN(pcd), 
 					 ICON_X(pcd), ICON_Y(pcd));
 
-			    if (pcd->pSD->moveOpaque &&
-				(ICON_DECORATION(pcd) & 
-				 ICON_ACTIVE_LABEL_PART) &&
-				(wmGD.keyboardFocus == pcd))
+			    if (pcd->pSD->moveOpaque && (ICON_DECORATION(pcd) & 
+					ICON_ACTIVE_LABEL_PART) && (wmGD.keyboardFocus == pcd))
 			    {
 				MoveActiveIconText(pcd);
 				ShowActiveIconText(pcd);
 			    }
 				
-				pcd->IPData = pIPDnew;
+				pcdIPD = pIPDnew;
 			}
 		    }
 		}
 		else if (pcd->pSD->moveOpaque && !inIconBox)
-                {
+            {
 		    /*
 		     * Replace icon into same place - as if it
 		     * didn't move.
 		     */
-		    XMoveWindow (DISPLAY, ICON_FRAME_WIN(pcd),
-				 ICON_X(pcd), ICON_Y(pcd));
-		    if ((ICON_DECORATION(pcd) & 
-			 ICON_ACTIVE_LABEL_PART) &&
-			(wmGD.keyboardFocus == pcd))
+		    XMoveWindow (DISPLAY, ICON_FRAME_WIN(pcd),ICON_X(pcd), ICON_Y(pcd));
+		    if ((ICON_DECORATION(pcd) & ICON_ACTIVE_LABEL_PART) &&
+					(wmGD.keyboardFocus == pcd))
 		    {
 			MoveActiveIconText(pcd);
 			ShowActiveIconText(pcd);
@@ -1272,24 +1272,20 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
 				     FALSE);
 	}
     }
-#ifdef WSM
+
     else if (wmGD.configAction == MARQUEE_SELECT)
     {
-	WmScreenData *pSD;
-
 	UndoGrabs();
 
-	pSD = pcd ? pcd->pSD : ACTIVE_PSD;
-
-	dtSendMarqueeSelectionNotification(pSD, DT_MARQUEE_SELECT_END, 
-			marqueeX, marqueeY, marqueeWidth, marqueeHeight);
+#ifdef DESKTOP
+	SendMarqueeSelectionNotification((pcd ? pcd->pSD : ACTIVE_PSD),
+		WM_MARQUEE_SELECT_END, marqueeX, marqueeY, marqueeWidth, marqueeHeight);
+#endif /* DESKTOP */
     }
-#endif /* WSM */
-	
+
     /*
      * Clear configuration flags and data.
      */
-
     wmGD.configAction = NO_ACTION;
     wmGD.configPart = FRAME_NONE;
     wmGD.configSet = False;
@@ -1297,10 +1293,8 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
     anyMotion = FALSE;
     wmGD.movingIcon = FALSE;
 
-#ifdef WSM
     if (pcd)
     {
-#endif /* WSM */
     /* hide the move/resize config data */
     HideFeedbackWindow(pcd->pSD);
 
@@ -1308,9 +1302,7 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
      * Set the focus back to something reasonable
      */
     RepairFocus ();	
-#ifdef WSM
     }
-#endif /* WSM */
 
 } /* END OF FUNCTION CompleteFrameConfig */
 
@@ -2502,7 +2494,6 @@ Boolean StartClientMove (ClientData *pcd, XEvent *pev)
 Boolean DoGrabs (Window grab_win, Cursor cursor, unsigned int pmask, Time grabTime, ClientData *pCD, Boolean alwaysGrab)
 {
 
-#ifdef WSM
     Window root;
 
     if (pCD)
@@ -2511,9 +2502,6 @@ Boolean DoGrabs (Window grab_win, Cursor cursor, unsigned int pmask, Time grabTi
 	root = RootWindow (DISPLAY, ACTIVE_PSD->screen);
 
     if (pCD && pCD->pSD->useIconBox && wmGD.movingIcon && P_ICON_BOX(pCD))
-#else
-    if (pCD->pSD->useIconBox && wmGD.movingIcon && P_ICON_BOX(pCD))
-#endif
     {
 	/*
 	 * Confine the pointer to the icon box clip window
@@ -2543,11 +2531,7 @@ Boolean DoGrabs (Window grab_win, Cursor cursor, unsigned int pmask, Time grabTi
 			 pmask,
 			 GrabModeAsync,		/* pointer_mode */
 			 GrabModeAsync,		/* keyboard_mode */
-#ifdef WSM
 			 root,
-#else
-			 ROOT_FOR_CLIENT(pCD),		/* confine_to window */
-#endif
 			 cursor,
 			 grabTime) != GrabSuccess)
 	{
@@ -2576,13 +2560,9 @@ Boolean DoGrabs (Window grab_win, Cursor cursor, unsigned int pmask, Time grabTi
    
     if (!wmGD.useWindowOutline) 
     {
-#ifdef WSM
+
 	if (!pCD || ((pCD->pSD->moveOpaque && alwaysGrab) ||
 	           (!(pCD->pSD->moveOpaque))))
-#else /* WSM */
-	if ((pCD->pSD->moveOpaque && alwaysGrab) ||
-	    (!(pCD->pSD->moveOpaque)))
-#endif /* WSM */
 	{
 	    XGrabServer(DISPLAY);
         }
@@ -2668,10 +2648,8 @@ void CancelFrameConfig (ClientData *pcd)
     UndoGrabs();
 
     /* turn off feedback window */
-#ifdef WSM
     if (pcd)
     {
-#endif /* WSM */
     HideFeedbackWindow(pcd->pSD);
 
     /* make sure title bar is popped out */
@@ -2705,20 +2683,17 @@ void CancelFrameConfig (ClientData *pcd)
 			 opaqueMoveX, opaqueMoveY);
 	}
     }
-#ifdef WSM
     }
     if (wmGD.configAction == MARQUEE_SELECT)
     {
-       dtSendMarqueeSelectionNotification(ACTIVE_PSD, DT_MARQUEE_SELECT_CANCEL, 
+#ifdef DESKTOP
+       SendMarqueeSelectionNotification(ACTIVE_PSD, WM_MARQUEE_SELECT_CANCEL, 
 			    marqueeX, marqueeY, 0, 0);
+#endif /* DESKTOP */
     }
-#endif /* WSM */
 
     /* replace pointer if no motion events received */
-#ifdef WSM
-    if (pcd)
-#endif /* WSM */
-    if (!anyMotion && wmGD.enableWarp) {
+    if (pcd && !anyMotion && wmGD.enableWarp) {
 	XWarpPointer(DISPLAY, None, ROOT_FOR_CLIENT(pcd), 
 			 0, 0, 0, 0, wmGD.preMoveX, wmGD.preMoveY);
     }
@@ -2765,20 +2740,16 @@ void
 CheckEatButtonRelease (ClientData *pcd, XEvent *pev)
 {
     Window grab_win;
-#ifdef WSM
     Window root;
 
     if (pcd != (ClientData *)NULL)
 	root = ROOT_FOR_CLIENT(pcd);
     else
 	root = RootWindow (DISPLAY, ACTIVE_PSD->screen);
-#endif /* WSM */
 
-#ifdef WSM
     if (pcd == (ClientData *) NULL)
 	grab_win = root;
     else
-#endif /* WSM */
     grab_win = GrabWin(pcd, pev);
 
     if ((pev->type == KeyPress || pev->type == KeyRelease) &&
@@ -2794,11 +2765,7 @@ CheckEatButtonRelease (ClientData *pcd, XEvent *pev)
 			 ButtonReleaseMask,
 			 GrabModeAsync,		/* pointer_mode */
 			 GrabModeAsync,		/* keyboard_mode */
-#ifdef WSM
 			 root,			/* confine_to window */
-#else /* WSM */
-			 ROOT_FOR_CLIENT(pcd),	/* confine_to window */
-#endif /* WSM */
 			 wmGD.configCursor,
 			 pev->xbutton.time) == GrabSuccess)
 	{
@@ -2839,9 +2806,8 @@ EatButtonRelease (unsigned int releaseButtons)
 
     while (releaseButtons)
     {
-#ifdef WSM
 	PullExposureEvents ();
-#endif /* WSM */
+
 	XMaskEvent (DISPLAY, ButtonReleaseMask, &event);
 
 	if (event.type == ButtonRelease)
@@ -3802,8 +3768,8 @@ Window GrabWin (ClientData *pcd, XEvent *pev)
     return (grab_win);
 
 } /* END OF FUNCTION GrabWin */
-#ifdef WSM
-
+
+
 /*************************************<->*************************************
  *
  *  HandleMarqueeSelect (pSD, event)
@@ -3887,7 +3853,7 @@ HandleMarqueeSelect (WmScreenData *pSD, XEvent *pev)
 
 } /* END OF FUNCTION HandleMarqueeSelect */
 
-
+
 /*************************************<->*************************************
  *
  *  StartMarqueeSelect ()
@@ -3914,8 +3880,7 @@ StartMarqueeSelect(WmScreenData *pSD, XEvent *pev)
 {
     Window grab_win, junk_win;
     Boolean grabbed;
-    int big_inc;
-    int junk, junkX, junkY;
+    int junk;
 
     if (!pSD->bMarqueeSelectionInitialized)
     {
@@ -3926,8 +3891,9 @@ StartMarqueeSelect(WmScreenData *pSD, XEvent *pev)
 	 *
 	 * (If we move off of ICCCM messaging, then this can go away.)
 	 */
-	dtSendMarqueeSelectionNotification(pSD, DT_MARQUEE_SELECT_END, 
-				0, 0, 0, 0);
+#ifdef DESKTOP
+	SendMarqueeSelectionNotification(pSD, WM_MARQUEE_SELECT_END, 0, 0, 0, 0);
+#endif  /* DESKTOP */
 	pSD->bMarqueeSelectionInitialized = True;
     }
 
@@ -3984,16 +3950,14 @@ StartMarqueeSelect(WmScreenData *pSD, XEvent *pev)
     marqueeHeight0 = marqueeHeight = 0;
     marqueeAnchor = ANCHOR_NW;
 
-    /* compute increment value for dynamic update */
-    big_inc = DisplayWidth (DISPLAY, pSD->screen) / 20;
-
     /* set configuring data */
     wmGD.configAction = MARQUEE_SELECT;
     wmGD.configButton = pev ? pev->xbutton.button: 0;
 
-    dtSendMarqueeSelectionNotification(pSD, DT_MARQUEE_SELECT_BEGIN, 
+#ifdef DESKTOP
+    SendMarqueeSelectionNotification(pSD, WM_MARQUEE_SELECT_BEGIN, 
 	    marqueeX, marqueeY, marqueeWidth, marqueeHeight);
-
+#endif  /* DESKTOP */
 } /* END OF FUNCTION StartMarqueeSelect  */
 
 
@@ -4143,9 +4107,10 @@ void UpdateMarqueeSelectData (WmScreenData *pSD)
         ((ABS(marqueeWidth-marqueeWidth0) > wmGD.marqueeSelectGranularity) ||
 	 (ABS(marqueeHeight-marqueeHeight0)>wmGD.marqueeSelectGranularity)))
     {
-	dtSendMarqueeSelectionNotification(pSD, DT_MARQUEE_SELECT_CONTINUE, 
+#ifdef DESKTOP
+	SendMarqueeSelectionNotification(pSD, WM_MARQUEE_SELECT_CONTINUE, 
 		marqueeX, marqueeY, marqueeWidth, marqueeHeight);
-
+#endif /* DESKTOP */
 	marqueeWidth0 = marqueeWidth;
 	marqueeHeight0 = marqueeHeight;
     }
@@ -4180,7 +4145,6 @@ void UpdateMarqueeSelectData (WmScreenData *pSD)
 Boolean HandleMarqueeKeyPress (WmScreenData *pSD, XEvent *pev)
 {
     KeySym keysym;
-    Boolean control;
     int keyMult;
     XEvent KeyEvent;
 
@@ -4196,7 +4160,6 @@ Boolean HandleMarqueeKeyPress (WmScreenData *pSD, XEvent *pev)
     }
 
     keysym = XkbKeycodeToKeysym (DISPLAY, pev->xkey.keycode, 0, 0);
-    control = (pev->xkey.state & ControlMask) != 0;
 
     switch (keysym) {
 
@@ -4215,5 +4178,3 @@ Boolean HandleMarqueeKeyPress (WmScreenData *pSD, XEvent *pev)
     } /* end switch(keysym) */
 
 } /* END OF FUNCTION HandleResizeKeyPress */
-
-#endif /* WSM */

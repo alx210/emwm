@@ -21,12 +21,6 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-#ifdef WSM
-/* Shared Variables */
-extern int smAckState;
-
-#endif /* WSM */
-
 extern Boolean CheckForButtonAction (XButtonEvent *buttonEvent, 
 				     Context context, Context subContext, 
 				     ClientData *pCD);
@@ -63,7 +57,5 @@ extern void WmGrabKey (Display *display, int keycode, unsigned int modifiers,
 extern void WmUngrabButton (Display *display, unsigned int button,
 		unsigned int modifiers, Window grab_window);
 extern Boolean ReplayedButtonEvent (XButtonEvent *pevB1, XButtonEvent *pevB2);
-#ifdef WSM
-extern void HandleDtWmClientMessage (XClientMessageEvent *clientEvent);
-extern void HandleDtWmRequest (WmScreenData *pSD, XEvent *pev);
-#endif /* WSM */
+extern void HandleWmClientMessage (XClientMessageEvent *clientEvent);
+

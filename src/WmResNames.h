@@ -21,16 +21,6 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-/*
- * Included Files:
- */
-
-/*
- * Value definitions:
- */
-
-
-
 /******************************<->*************************************
  *
  *  Window manager resource names ...
@@ -43,26 +33,17 @@
 
 /* mwm specific appearance and behavior resources: */
 
-#ifdef WSM
 #define WmNall				"all"
-#endif /* WSM */
 #define WmNautoKeyFocus			"autoKeyFocus"
 #define WmNautoRaiseDelay		"autoRaiseDelay"
-#ifdef WSM
 #define WmNbackdropDirectories		"backdropDirectories"
-#endif /* WSM */
 #define WmNbitmapDirectory		"bitmapDirectory"
-#ifdef MINIMAL_DT
-#define WmNblinkOnExec			"blinkOnExec"
-#endif /* MINIMAL_DT */
 #define WmNbuttonBindings		"buttonBindings"
 #define WmNcleanText			"cleanText"
 #define WmNclientAutoPlace		"clientAutoPlace"
 #define WmNcolormapFocusPolicy		"colormapFocusPolicy"
 #define WmNconfigFile			"configFile"
-#ifdef WSM
 #define WmNcppCommand			"cppCommand"
-#endif /* WSM */
 #define WmNdeiconifyKeyFocus		"deiconifyKeyFocus"
 #define WmNdoubleClickTime		"doubleClickTime"
 #define WmNenableWarp			"enableWarp"
@@ -70,10 +51,8 @@
 #define WmNfadeNormalIcon		"fadeNormalIcon"
 #define WmNfeedbackGeometry		"feedbackGeometry"
 #define WmNframeBorderWidth		"frameBorderWidth"
-#ifdef WSM
 #define WmNframeExternalShadowWidth	"frameExternalShadowWidth"
 #define WmNgeometry			"geometry"
-#endif /* WSM */
 #define WmNiconAutoPlace		"iconAutoPlace"
 #define WmNiconBoxGeometry		"iconBoxGeometry"
 #define WmNiconBoxLayout		"iconBoxLayout"
@@ -83,26 +62,20 @@
 #define WmNiconBoxTitle			"iconBoxTitle"
 #define WmNiconClick			"iconClick"
 #define WmNiconDecoration		"iconDecoration"
-#ifdef WSM
 #define WmNiconExternalShadowWidth	"iconExternalShadowWidth"
-#endif /* WSM */
 #define WmNiconImageMaximum		"iconImageMaximum"
 #define WmNiconImageMinimum		"iconImageMinimum"
 #define WmNiconPlacement		"iconPlacement"
 #define WmNiconPlacementMargin		"iconPlacementMargin"
-#ifdef WSM
 #define WmNimage			"image"
 #define WmNimageBackground		"imageBackground"
 #define WmNimageForeground		"imageForeground"
-#endif /* WSM */
 #define WmNinteractivePlacement		"interactivePlacement"
 #define WmNkeyBindings			"keyBindings"
 #define WmNkeyboardFocusPolicy		"keyboardFocusPolicy"
 #define WmNlimitResize			"limitResize"
 #define WmNlowerOnIconify		"lowerOnIconify"
-#ifdef WSM
 #define WmNmarqueeSelectGranularity	"marqueeSelectGranularity"
-#endif /* WSM */
 #define WmNmaximumMaximumSize		"maximumMaximumSize"
 #define WmNmoveThreshold		"moveThreshold"
 #define WmNmultiScreen			"multiScreen"
@@ -111,26 +84,15 @@
 #define WmNpositionOnScreen		"positionOnScreen"
 #define WmNquitTimeout			"quitTimeout"
 #define WmNraiseKeyFocus		"raiseKeyFocus"
-#ifdef WSM
 #define WmNrefreshByClearing		"refreshByClearing"
-#endif
 #define WmNresizeBorderWidth		"resizeBorderWidth"
 #define WmNresizeCursors		"resizeCursors"
 #define WmNrootButtonClick		"rootButtonClick"
-#ifndef WSM
-# define WmNrootMenu			"rootMenu"
-#endif /* WSM */
-#ifdef WSM
 #define WmNsecondariesOnTop		"secondariesOnTop"
-#define WmNsessionVersion               "sessionVersion"
-#endif /* WSM */
-#ifndef WSM
+#define WmNsessionVersion       "sessionVersion"
 #define WmNsessionClientDB		"sessionClientDB"
-#endif /* ! WSM */
 #define WmNshowFeedback			"showFeedback"
-#ifdef WSM
 #define WmNshowNames			"showNames"
-#endif /* WSM */
 #define WmNstartupKeyFocus		"startupKeyFocus"
 #define WmNsystemButtonClick		"wMenuButtonClick"
 #define WmNsystemButtonClick2		"wMenuButtonClick2"
@@ -139,9 +101,6 @@
 #define WmNuseIconBox			"useIconBox"
 #define WmNuseWindowOutline		"useWindowOutline"
 #define WmNoutlineWidth			"outlineWidth"
-#ifdef MINIMAL_DT
-#define WmNdtLite			"useDtLite"
-#endif /* MINIMAL_DT */
 #define WmNmoveOpaque                   "moveOpaque"
 #define WmNframeStyle			"frameStyle"
 #define WmNutilityDecoration    "utilityDecoration"
@@ -172,15 +131,10 @@
 
 /* mwm - client specific resources: */
 
-#ifdef WSM
 #define WmNabsentMapBehavior		"absentMapBehavior"
-#endif /* WSM */
 #define WmNclientDecoration		"clientDecoration"
 #define WmNclientFunctions		"clientFunctions"
 #define WmNfocusAutoRaise		"focusAutoRaise"
-#ifdef WSM
-#define WmNhelpResources                "helpResources"
-#endif /* WSM */
 #define WmNiconImage			"iconImage"
 #define WmNiconImageBackground		"iconImageBackground"
 #define WmNiconImageBottomShadowColor	"iconImageBottomShadowColor"
@@ -189,9 +143,7 @@
 #define WmNiconImageTopShadowColor	"iconImageTopShadowColor"
 #define WmNiconImageTopShadowPixmap	"iconImageTopShadowPixmap"
 #define WmNignoreWMSaveHints            "ignoreWMSaveHints"
-#ifdef WSM
 #define WmNinitialWorkspace             "initialWorkspace"
-#endif /* WSM */
 #define WmNmatteBackground		"matteBackground"
 #define WmNmatteBottomShadowColor	"matteBottomShadowColor"
 #define WmNmatteBottomShadowPixmap	"matteBottomShadowPixmap"
@@ -206,10 +158,8 @@
 #define WmNuseClientIcon		"useClientIcon"
 #define WmNusePPosition			"usePPosition"
 #define WmNoverrideGeometry		"overrideGeometry"
-#ifdef WSM
 #define WmNworkspaceList	        "workspaceList"
 #define WmNworkspaceCount	        "workspaceCount"
-#endif /* WSM */
 
 /* window manager part resource names: */
 
@@ -219,25 +169,21 @@
 #define WmNmenu				"menu"
 #define WmNtitle			"title"
 #define WmNdefaults			"defaults"
-#ifdef WSM
 #define WmNbackdrop			"backdrop"
 #define WmNcolorSetId			"colorSetId"
 #define WmNfrontPanel			"frontPanel"
 #define WmNworkspaceController		"workspaceController"
 #define WmNworkspacePresence		"workspacePresence"
 #define WmNworkspaceSwitch		"workspaceSwitch"
-#endif /* WSM */
+
 
 /* window manager client resource names: */
 
 #define WmNiconBox			"iconbox"
 #define WmNconfirmbox			"confirmbox"
-#ifdef WSM
 #define WmNswitcher			"switcher"
-#endif /* WSM */
 
 
-
 /*************************************<->*************************************
  *
  *  Window manager resource classes ...
@@ -252,21 +198,14 @@
 
 #define WmCAutoKeyFocus			"AutoKeyFocus"
 #define WmCAutoRaiseDelay		"AutoRaiseDelay"
-#ifdef WSM
 #define WmCBackdropDirectories		"BackdropDirectories"
-#endif /* WSM */
 #define WmCBitmapDirectory		"BitmapDirectory"
-#ifdef MINIMAL_DT
-#define WmCBlinkOnExec			"BlinkOnExec"
-#endif /* MINIMAL_DT */
 #define WmCButtonBindings		"ButtonBindings"
 #define WmCCleanText			"CleanText"
 #define WmCClientAutoPlace		"ClientAutoPlace"
 #define WmCColormapFocusPolicy		"ColormapFocusPolicy"
 #define WmCConfigFile			"ConfigFile"
-#ifdef WSM
 #define WmCCppCommand			"CppCommand"
-#endif /* WSM */
 #define WmCDeiconifyKeyFocus		"DeiconifyKeyFocus"
 #define WmCDoubleClickTime		"DoubleClickTime"
 #define WmCEnableWarp			"EnableWarp"
@@ -274,10 +213,8 @@
 #define WmCFadeNormalIcon		"FadeNormalIcon"
 #define WmCFeedbackGeometry		"FeedbackGeometry"
 #define WmCFrameBorderWidth		"FrameBorderWidth"
-#ifdef WSM
 #define WmCFrameExternalShadowWidth	"FrameExternalShadowWidth"
 #define WmCGeometry			"Geometry"
-#endif /* WSM */
 #define WmCIconAutoPlace		"IconAutoPlace"
 #define WmCIconBoxGeometry		"IconBoxGeometry"
 #define WmCIconBoxLayout		"IconBoxLayout"
@@ -287,26 +224,20 @@
 #define WmCIconBoxTitle			"IconBoxTitle"
 #define WmCIconClick			"IconClick"
 #define WmCIconDecoration		"IconDecoration"
-#ifdef WSM
 #define WmCIconExternalShadowWidth	"IconExternalShadowWidth"
-#endif /* WSM */
 #define WmCIconImageMaximum		"IconImageMaximum"
 #define WmCIconImageMinimum		"IconImageMinimum"
 #define WmCIconPlacement		"IconPlacement"
 #define WmCIconPlacementMargin		"IconPlacementMargin"
-#ifdef WSM
 #define WmCImage			"Image"
 #define WmCImageBackground		"ImageBackground"
 #define WmCImageForeground		"ImageForeground"
-#endif /* WSM */
 #define WmCInteractivePlacement		"InteractivePlacement"
 #define WmCKeyBindings			"KeyBindings"
 #define WmCKeyboardFocusPolicy		"KeyboardFocusPolicy"
 #define WmCLimitResize			"LimitResize"
 #define WmCLowerOnIconify		"LowerOnIconify"
-#ifdef WSM
 #define WmCMarqueeSelectGranularity	"MarqueeSelectGranularity"
-#endif /* WSM */
 #define WmCMaximumMaximumSize		"MaximumMaximumSize"
 #define WmCMoveThreshold		"MoveThreshold"
 #define WmCMultiScreen			"MultiScreen"
@@ -315,28 +246,17 @@
 #define WmCPositionOnScreen		"PositionOnScreen"
 #define WmCQuitTimeout			"QuitTimeout"
 #define WmCRaiseKeyFocus		"RaiseKeyFocus"
-#ifdef WSM
 #define WmCRefreshByClearing		"RefreshByClearing"
-#endif
 #define WmCResizeBorderWidth		"ResizeBorderWidth"
 #define WmCResizeCursors		"ResizeCursors"
 #define WmCRootButtonClick		"RootButtonClick"
-#ifndef WSM
-# define WmCRootMenu			"RootMenu"
-#endif /* WSM */
-#ifdef WSM
 #define WmCSecondariesOnTop		"SecondariesOnTop"
 #define WmCSessionVersion               "SessionVersion"
-#endif /* WSM */
-#ifndef WSM
 #define WmCSessionClientDB		"SessionClientDB"
-#endif /* ! WSM */
 #define WmCScreenList			"ScreenList"
 #define WmCScreens			"Screens"
 #define WmCShowFeedback			"ShowFeedback"
-#ifdef WSM
 #define WmCShowNames			"ShowNames"
-#endif /* WSM */
 #define WmCStartupKeyFocus		"StartupKeyFocus"
 #define WmCSystemButtonClick		"WMenuButtonClick"
 #define WmCSystemButtonClick2		"WMenuButtonClick2"
@@ -345,15 +265,10 @@
 #define WmCUseIconBox			"UseIconBox"
 #define WmCUseWindowOutline		"UseWindowOutline"
 #define WmCOutlineWidth			"OutlineWidth"
-#ifdef MINIMAL_DT
-#define WmCDtLite			"UseDtLite"
-#endif /* MINIMAL_DT */
 #define WmCMoveOpaque                   "MoveOpaque"
 #define WmCFrameStyle			"FrameStyle"
-#ifdef WSM
 #define WmCWorkspaceList	        "WorkspaceList"
 #define WmCWorkspaceCount	        "WorkspaceCount"
-#endif /* WSM */
 #define WmCUtilityDecoration     "UtilityDecoration"
 #define WmCUtilityFunctions      "UtilityFunctions"
 #define WmCPrimaryXineramaScreen	"PrimaryXineramaScreen"
@@ -382,15 +297,10 @@
 
 /* mwm - client specific resources: */
 
-#ifdef WSM
 #define WmCAbsentMapBehavior		"AbsentMapBehavior"
-#endif /* WSM */
 #define WmCClientDecoration		"ClientDecoration"
 #define WmCClientFunctions		"ClientFunctions"
 #define WmCFocusAutoRaise		"FocusAutoRaise"
-#ifdef WSM
-#define WmCHelpResources                "HelpResources"
-#endif /* WSM */
 #define WmCIconImage			"IconImage"
 #define WmCIconImageBackground		"IconImageBackground"
 #define WmCIconImageBottomShadowColor	"IconImageBottomShadowColor"
@@ -399,9 +309,7 @@
 #define WmCIconImageTopShadowColor	"IconImageTopShadowColor"
 #define WmCIconImageTopShadowPixmap	"IconImageTopShadowPixmap"
 #define WmCIgnoreWMSaveHints            "IgnoreWMSaveHints"
-#ifdef WSM
 #define WmCInitialWorkspace             "InitialWorkspace"
-#endif /* WSM */
 #define WmCMatteBackground		"MatteBackground"
 #define WmCMatteBottomShadowColor	"MatteBottomShadowColor"
 #define WmCMatteBottomShadowPixmap	"MatteBottomShadowPixmap"
@@ -423,25 +331,20 @@
 #define WmCMenu				"Menu"
 #define WmCTitle			"Title"
 #define WmCDefaults			"Defaults"
-#ifdef WSM
 #define WmCBackdrop			"Backdrop"
 #define WmCColorSetId			"ColorSetId"
 #define WmCFrontPanel			"FrontPanel"
 #define WmCWorkspaceController		"WorkspaceController"
 #define WmCWorkspacePresence		"WorkspacePresence"
 #define WmCWorkspaceSwitch		"WorkspaceSwitch"
-#endif /* WSM */
 
 /* window manager client resource names: */
 
 #define WmCIconBox			"Iconbox"
 #define WmCConfirmbox			"Confirmbox"
-#ifdef WSM
 #define WmCSwitcher			"Switcher"
-#endif /* WSM */
 
 
-
 /*************************************<->*************************************
  *
  *  Window manager resource converter names ...
@@ -452,9 +355,7 @@
  * 
  *************************************<->***********************************/
 
-#ifdef WSM
 #define WmRAbsentMapBehavior            "WmAMBehavior"
-#endif /* WSM */
 #define WmRCFocusPolicy			"WmCFocus"
 #define WmRClientDecor			"WmCDecor"
 #define WmRClientFunction		"WmCFunc"
@@ -468,7 +369,6 @@
 #define WmRUsePPosition			"WmUsePPosition"
 
 
-
 /*************************************<->*************************************
  *
  *  Window manager resource set definitions and default resource values ...
@@ -481,7 +381,6 @@
 
 
 
-
 /*************************************<->*************************************
  *
  *  Mwm resource description file definitions ...

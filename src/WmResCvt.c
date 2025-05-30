@@ -40,19 +40,9 @@
  */
 
 #include "WmResParse.h"
-
-/*
- * Function Declarations:
- */
-
-unsigned char *NextToken ();
-long           DecStrToL ();
-
 #include "WmResCvt.h"
 
 
-
-
 /*************************************<->*************************************
  *
  *  AddWmResourceConverters (args)
@@ -84,10 +74,8 @@ long           DecStrToL ();
 
 void AddWmResourceConverters (void)
 {
-#ifdef WSM
     XtAppAddConverter (wmGD.mwmAppContext, XtRString, WmRAbsentMapBehavior, 
 	(XtConverter)WmCvtStringToAMBehavior, NULL, 0);
-#endif /* WSM */
     XtAppAddConverter (wmGD.mwmAppContext, XtRString, WmRCFocusPolicy, 
 	(XtConverter)WmCvtStringToCFocus, NULL, 0);
     XtAppAddConverter (wmGD.mwmAppContext, XtRString, WmRClientDecor, 
@@ -111,7 +99,6 @@ void AddWmResourceConverters (void)
 
 } /* END OF FUNCTION AddWmResourceConverters */
 
-#ifdef WSM
 
 /*************************************<->*************************************
  *
@@ -198,7 +185,7 @@ void WmCvtStringToAMBehavior (XrmValue *args, Cardinal numArgs, XrmValue *fromVa
 
 
 } /* END OF FUNCTION WmCvtStringToAMBehavior */
-#endif /* WSM */
+
 
 
 /*************************************<->*************************************

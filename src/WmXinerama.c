@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 alx@fastestcode.org
+ * Copyright (C) 2018-2025 alx@fastestcode.org
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -22,7 +22,7 @@
 
 #include "WmGlobal.h"
 #include "WmError.h"
-#include <X11/extensions/Xinerama.h>
+#include "WmXinerama.h"
 
 static Bool is_active = False;
 static Bool is_present = False;

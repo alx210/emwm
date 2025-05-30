@@ -29,6 +29,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <unistd.h>
 
 
 /*
@@ -51,8 +52,6 @@
  */
 
 
-#ifdef WSM
-
 /*************************************<->*************************************
  *
  *  AbortWmSignalHandler ()
@@ -138,7 +137,7 @@ RestoreDefaultSignalHandlers (void)
     (void) sigaction (SIGSYS, &sa, (struct sigaction *) 0);
 #endif
 }
-#endif /* WSM */
+
 
 
 /*************************************<->*************************************
@@ -154,9 +153,6 @@ RestoreDefaultSignalHandlers (void)
 
 void SetupWmSignalHandlers (int dummy)
 {
-    void (*signalHandler) ();
-
-#ifdef WSM
     struct sigaction 	sa;
     struct sigaction 	osa;
 
@@ -209,28 +205,6 @@ void SetupWmSignalHandlers (int dummy)
 #ifdef SIGSYS
     (void) sigaction (SIGSYS, &sa, (struct sigaction *) 0);
 #endif
-
-#else /* not WSM - original mwm code*/
-
-    signalHandler = (void (*)())signal (SIGINT, SIG_IGN);
-    if (signalHandler != (void (*)())SIG_IGN)
-    {
-	signal (SIGINT, QuitWmSignalHandler);
-    }
-
-    signalHandler = (void (*)())signal (SIGHUP, SIG_IGN);
-    if (signalHandler != (void (*)())SIG_IGN)
-    {
-	signal (SIGHUP, QuitWmSignalHandler);
-    }
-
-    signal (SIGQUIT, QuitWmSignalHandler);
-
-    signal (SIGTERM, QuitWmSignalHandler);
-
-    signal (SIGCHLD, ChildProcSignalHandler);
-#endif /* WSM */
-
 
 } /* END OF FUNCTION SetupWmSignalHandlers */
 

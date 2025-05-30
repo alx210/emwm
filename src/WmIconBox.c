@@ -26,9 +26,6 @@
  */
 
 #include "WmGlobal.h"
-#ifdef WSM
-#include "WmHelp.h"
-#endif /* WSM */
 #include <X11/StringDefs.h>
 #include <X11/Intrinsic.h>
 #include <X11/Shell.h>
@@ -75,15 +72,13 @@
 #include "WmResParse.h"
 #include "WmResource.h"
 #include "WmWinInfo.h"
-#ifdef WSM
 #include "WmWrkspace.h"
-#endif /* WSM */
 
 #ifndef MAX
 #define MAX(a,b) ((a)>(b)?(a):(b))
 #endif
 
-
+void DestroyIconBox (WmWorkspaceData *pWS);
 
 /*
  * Global Variables:
@@ -115,16 +110,13 @@ const char *szvertical = "vertical";
 void InitIconBox (WmScreenData *pSD)
 
 {
-#ifdef WSM
     int iws;
-#endif /* WSM */
     /*
      * Start the process of making the icon boxes
      */
 
 
 
-#ifdef WSM
     /*
      * Manage a separate icon box in every workspace
      * on this screen.
@@ -134,10 +126,6 @@ void InitIconBox (WmScreenData *pSD)
 	AddIconBoxForWorkspace (&pSD->pWS[iws]);
     }
 
-#else /* WSM */
-    ManageWindow (pSD, None, MANAGEW_ICON_BOX);
-#endif /* WSM */
-
     if (pSD->fadeNormalIcon)
     {
 	MakeFadeIconGC (pSD);
@@ -146,8 +134,7 @@ void InitIconBox (WmScreenData *pSD)
 
 } /* END OF FUNCTION InitIconBox */
 
-#ifdef WSM
-
+
 /*************************************<->*************************************
  *
  *  AddIconBoxForWorkspace (pWS)
@@ -165,10 +152,10 @@ void AddIconBoxForWorkspace (WmWorkspaceData *pWS)
     extern WmWorkspaceData *pIconBoxInitialWS;
 
     pIconBoxInitialWS = pWS;
-    ManageWindow (pWS->pSD, NULL, MANAGEW_ICON_BOX);
+    ManageWindow (pWS->pSD, None, MANAGEW_ICON_BOX);
 
 } /* END OF FUNCTION AddIconBoxForWorkspace */
-#endif /* WSM */
+
 
 
 /*************************************<->*************************************
@@ -270,8 +257,7 @@ Boolean MakeIconBox (WmWorkspaceData *pWS, ClientData *pCD)
 
 } /* END OF FUNCTION MakeIconBox */
 
-#ifdef WSM
-
+
 /*************************************<->*************************************
  *
  *  DestroyIconBox (pWS)
@@ -314,7 +300,7 @@ void DestroyIconBox (WmWorkspaceData *pWS)
     XtFree ((char *) pIBD);
    
 } /* END OF FUNCTION DestroyIconBox */
-#endif /* WSM */
+
 
 
 /*************************************<->*************************************
@@ -353,9 +339,7 @@ void MakeShell (WmWorkspaceData *pWS, IconBoxData *pIBD)
 
     Arg setArgs[20];
     int i;
-#ifdef WSM
     char *pchIBTitle = NULL;
-#endif /* WSM */
 
     /*
      * Create top level application shell for icon box
@@ -369,7 +353,6 @@ void MakeShell (WmWorkspaceData *pWS, IconBoxData *pIBD)
 
     XtSetArg (setArgs[i], XmNkeyboardFocusPolicy, (XtArgVal)XmEXPLICIT); i++;
 
-#ifndef WSM
     if (!(Monochrome (XtScreen (pWS->pSD->screenTopLevelW))))
     {
 	XtSetArg (setArgs[i], XmNbackground,  
@@ -377,15 +360,6 @@ void MakeShell (WmWorkspaceData *pWS, IconBoxData *pIBD)
 	XtSetArg (setArgs[i], XmNforeground,  
 		  (XtArgVal) pWS->pSD->clientAppearance.foreground ); i++;
     }
-#else  /* WSM  */
-    if (pWS->pSD->iconBoxTitle)
-    {
-	pchIBTitle = WmXmStringToString (pWS->pSD->iconBoxTitle);
-
-	XtSetArg (setArgs[i], XmNtitle, (XtArgVal)pchIBTitle); i++;
-	XtSetArg (setArgs[i], XmNiconName, (XtArgVal)pchIBTitle); i++;
-    }
-#endif /* WSM */
     XtSetArg (setArgs[i], XmNmappedWhenManaged, (XtArgVal)False); i++;
     XtSetArg (setArgs[i], XmNdialogStyle, (XtArgVal)XmDIALOG_MODELESS); i++;
     XtSetArg (setArgs[i], XmNdepth, 
@@ -393,20 +367,12 @@ void MakeShell (WmWorkspaceData *pWS, IconBoxData *pIBD)
     XtSetArg (setArgs[i], XmNscreen, 
 	(XtArgVal) ScreenOfDisplay (DISPLAY, pWS->pSD->screen)); i++;
 
-#ifdef WSM
     pIBD->shellWidget = (Widget) XtCreatePopupShell (WmNclient, 
 					topLevelShellWidgetClass,
                                         pWS->workspaceTopLevelW,
 				        (ArgList)setArgs, i);
 
     if (pchIBTitle != NULL) XtFree (pchIBTitle);
-#else /* WSM */
-    pIBD->shellWidget = (Widget) XtCreatePopupShell (WmNiconBox, 
-					topLevelShellWidgetClass,
-                                        pWS->workspaceTopLevelW,
-				        (ArgList)setArgs, i);
-#endif /* WSM */
-
 } /* END OF FUNCTION MakeShell */
 
 
@@ -452,17 +418,6 @@ void MakeScrolledWindow (WmWorkspaceData *pWS, IconBoxData *pIBD)
      */
 
     i=0;
-#ifndef WSM
-/*
-    if (!(Monochrome (XtScreen (pWS->pSD->screenTopLevelW))))
-    {
-	XtSetArg (setArgs[i], XmNbackground,  
-		  (XtArgVal) pWS->pSD->clientAppearance.background ); i++;
-	XtSetArg (setArgs[i], XmNforeground,  
-		  (XtArgVal) pWS->pSD->clientAppearance.foreground ); i++;
-    }
-*/
-#endif /* WSM */
     XtSetArg (setArgs[i], XmNborderWidth,  (XtArgVal) 0 ); i++;
     XtSetArg (setArgs[i], XmNmarginWidth,  (XtArgVal) 0 ); i++;
     XtSetArg (setArgs[i], XmNmarginHeight, (XtArgVal) 0 ); i++;
@@ -474,11 +429,6 @@ void MakeScrolledWindow (WmWorkspaceData *pWS, IconBoxData *pIBD)
 					pIBD->shellWidget,
 					(ArgList)setArgs, i);
 
-#ifdef WSM
-    XtAddCallback (pIBD->frameWidget, XmNhelpCallback,
-                   WmDtWmTopicHelpCB, WM_DT_ICONBOX_TOPIC);
-
-#endif /* WSM */
     /*
      * Create scrolled window to hold row column manager 
      */
@@ -489,16 +439,6 @@ void MakeScrolledWindow (WmWorkspaceData *pWS, IconBoxData *pIBD)
 
     XtSetArg (setArgs[i], XmNborderWidth , (XtArgVal) 0 ); i++;
     XtSetArg (setArgs[i], XmNspacing , (XtArgVal) IB_MARGIN_WIDTH ); i++;
-#ifndef WSM
-
-    if (!(Monochrome (XtScreen (pWS->pSD->screenTopLevelW))))
-    {
-	XtSetArg (setArgs[i], XmNbackground,  
-		  (XtArgVal) pWS->pSD->clientAppearance.background ); i++;
-	XtSetArg (setArgs[i], XmNforeground,  
-		  (XtArgVal) pWS->pSD->clientAppearance.foreground ); i++;
-    }
-#endif /* WSM */
     /*
      * do we want to get these from a resource or set it here
      * to control the appearance of the iconBox
@@ -582,18 +522,6 @@ void MakeBulletinBoard (WmWorkspaceData *pWS, IconBoxData *pIBD)
 #endif /* DEBUG_ICON_BOX */
     
     XtSetArg (setArgs[i], XmNshadowThickness,(XtArgVal) 0); i++;
-#ifndef WSM
-    if (!(Monochrome (XtScreen (pWS->pSD->screenTopLevelW))))
-    {
-	XtSetArg (setArgs[i], XmNforeground,  
-		  (XtArgVal) pWS->pSD->clientAppearance.background ); i++;
-	XtSetArg (setArgs[i], XmNbottomShadowColor,  
-		(XtArgVal) pWS->pSD->clientAppearance.bottomShadowColor ); i++;
-	XtSetArg (setArgs[i], XmNtopShadowColor,  
-		  (XtArgVal) pWS->pSD->clientAppearance.topShadowColor ); i++;
-    }
-#endif /* WSM */
-
     XtSetArg (setArgs[i], XmNspacing , 0); i++; 
     XtSetArg (setArgs[i], XmNmarginHeight , 0); i++;
     XtSetArg (setArgs[i], XmNmarginWidth ,  0); i++;
@@ -837,9 +765,7 @@ void InitializeIconBoxData (WmWorkspaceData *pWS, IconBoxData *pIBD)
     pIBD->scrolledWidget = NULL;
     pIBD->bBoardWidget = NULL;
     pIBD->clipWidget = NULL; 
-#ifdef WSM
     pIBD->wsID = pWS->id;
-#endif /* WSM */
 
     ToLower ((unsigned char *) pWS->pSD->iconBoxSBDisplayPolicy);
     
@@ -857,11 +783,7 @@ void InitializeIconBoxData (WmWorkspaceData *pWS, IconBoxData *pIBD)
      * iconBoxGeometry width and height are not specified
      */
 
-#ifdef WSM
     if (pWS->iconBoxGeometry == NULL) /* not set by user */
-#else /* WSM */
-    if (pWS->pSD->iconBoxGeometry == NULL) /* not set by user */
-#endif /* WSM */
     {
 	/*
 	 * Use the iconPlacement resource 
@@ -884,14 +806,8 @@ void InitializeIconBoxData (WmWorkspaceData *pWS, IconBoxData *pIBD)
     }
     else
     {
-#ifdef WSM
 	mask = XParseGeometry(pWS->iconBoxGeometry, &X, &Y, 
 			      &width, &height);
-#else /* WSM */
-	mask = XParseGeometry(pWS->pSD->iconBoxGeometry, &X, &Y, 
-			      &width, &height);
-#endif /* WSM */
-
 	if ((mask & WidthValue) && (width > 0))
 	{
 	    pIBD->IPD.placementCols = (int)width; 
@@ -1370,15 +1286,9 @@ void SetGeometry (WmWorkspaceData *pWS, ClientData *pCD, IconBoxData *pIBD)
     /*
      * Set initial placement of icon box
      */
-
-#ifdef WSM
     mask = XParseGeometry(pWS->iconBoxGeometry, &X, &Y, 
 			      &width, &height);
-#else /* WSM */
-    mask = XParseGeometry(pCD->pSD->iconBoxGeometry, 
-			  &X, &Y, &width, &height);
-#endif /* WSM */    
-    
+
     if (mask & XValue)
     {
 	if (mask & XNegative)
@@ -1702,10 +1612,6 @@ void MapIconBoxes (WmWorkspaceData *pWS)
         while (pibd)
         {
 	    XtPopup(pibd->shellWidget, XtGrabNone);
-#ifndef WSM
-	    F_Raise (NULL, pibd->pCD_iconBox, (XEvent *)NULL);
-	    XMapWindow (DISPLAY, pibd->pCD_iconBox->clientFrameWin);
-#endif /* WSM */
 	    pibd = pibd->pNextIconBox;
         }
     }
@@ -1713,8 +1619,7 @@ void MapIconBoxes (WmWorkspaceData *pWS)
   
 } /* END OF FUNCTION MapIconBoxes */
 
-#ifdef WSM
-
+
 /*************************************<->*************************************
  *
  *  UnmapIconBoxes (pWS)
@@ -1757,7 +1662,7 @@ void UnmapIconBoxes (WmWorkspaceData *pWS)
     }
 
 } /* END OF FUNCTION UnmapIconBoxes */
-#endif /* WSM */
+
 
 
 /******************************<->*************************************
@@ -1785,12 +1690,10 @@ Boolean InsertIconIntoBox (IconBoxData *pIBD, ClientData *pCD)
     Widget iconWidget;
     IconInfo *pIconInfo;
     static XmString dummyString = NULL;
-#ifdef WSM
     WsClientData *pWsc;
     WmWorkspaceData *pWS = GetWorkspaceData (pCD->pSD, pIBD->wsID);
 
     pWsc = GetWsClientData (pWS, pCD);
-#endif /* WSM */
 
     /*
      * If we go to multiple icon boxes, find the box this client
@@ -1803,11 +1706,7 @@ Boolean InsertIconIntoBox (IconBoxData *pIBD, ClientData *pCD)
     if (pCD->client)
     {
 
-#ifdef WSM
         pWsc->pIconBox = tmpPointerToIconBox;
-#else /* WSM */
-        P_ICON_BOX(pCD) = tmpPointerToIconBox;
-#endif /* WSM */
 
         iconWidth = ICON_WIDTH(pCD)
 		+ (2 * IB_MARGIN_WIDTH); 
@@ -1815,19 +1714,11 @@ Boolean InsertIconIntoBox (IconBoxData *pIBD, ClientData *pCD)
         iconHeight = ICON_HEIGHT(pCD) 
 		+ (2 * IB_MARGIN_HEIGHT);
 
-#ifdef WSM
         pIconInfo = InsertIconInfo  (pWsc->pIconBox, pCD, (Widget) NULL);
-#else /* WSM */
-        pIconInfo = InsertIconInfo  (P_ICON_BOX(pCD), pCD, (Widget) NULL);
-#endif /* WSM */
 
 	if (pIconInfo)
 	{
-#ifdef WSM
 	    pWsc->pIconBox->numberOfIcons++;
-#else /* WSM */
-	    P_ICON_BOX(pCD)->numberOfIcons++;
-#endif /* WSM */
 
 	    i = 0;
 	    XtSetArg (setArgs[i], XmNbackground,  
@@ -1835,14 +1726,8 @@ Boolean InsertIconIntoBox (IconBoxData *pIBD, ClientData *pCD)
 	    XtSetArg (setArgs[i], XmNforeground,  
 			    (XtArgVal) ICON_APPEARANCE(pCD).foreground ); i++;
 
-#ifdef WSM
 	    XtSetArg (setArgs[i], XmNx ,  (XtArgVal) pWsc->iconX); i++;
 	    XtSetArg (setArgs[i], XmNy ,  (XtArgVal) pWsc->iconY); i++;
-#else /* WSM */
-	    XtSetArg (setArgs[i], XmNx ,  (XtArgVal) ICON_X(pCD)); i++;
-	    XtSetArg (setArgs[i], XmNy ,  (XtArgVal) ICON_Y(pCD)); i++;
-#endif /* WSM */
-
 	    XtSetArg (setArgs[i], XmNwidth ,  (XtArgVal) iconWidth); i++;
 	    XtSetArg (setArgs[i], XmNheight ,  (XtArgVal) iconHeight); i++;
 
@@ -1868,11 +1753,7 @@ Boolean InsertIconIntoBox (IconBoxData *pIBD, ClientData *pCD)
 
 	    iconWidget =  XtCreateManagedWidget("iconInIconBox",
 					   xmDrawnButtonWidgetClass,
-#ifdef WSM
 					   pWsc->pIconBox->bBoardWidget,
-#else /* WSM */
-					   P_ICON_BOX(pCD)->bBoardWidget,
-#endif /* WSM */
 					   (ArgList)setArgs, i);
 
 	    if (dummyString == NULL)
@@ -1888,12 +1769,7 @@ Boolean InsertIconIntoBox (IconBoxData *pIBD, ClientData *pCD)
 	    XtSetValues (iconWidget, setArgs, i);
 
 	    pIconInfo->theWidget = iconWidget;
-
-#ifdef WSM
 	    pWsc->iconFrameWin = XtWindow (iconWidget); 
-#else /* WSM */
-	    ICON_FRAME_WIN(pCD) = XtWindow (iconWidget); 
-#endif /* WSM */
 
 	    XtAddCallback (iconWidget, XmNactivateCallback, 
 			   (XtCallbackProc)IconActivateCallback, 
@@ -1933,19 +1809,10 @@ Boolean InsertIconIntoBox (IconBoxData *pIBD, ClientData *pCD)
 		}
 	    }
 
-#ifdef WSM
 	    ResetIconBoxMaxSize(pWsc->pIconBox->pCD_iconBox, 
 				pWsc->pIconBox->bBoardWidget);
-
 	    ResetArrowButtonIncrements (pWsc->pIconBox->pCD_iconBox);
 
-#else /* WSM */
-	    ResetIconBoxMaxSize(P_ICON_BOX(pCD)->pCD_iconBox, 
-				P_ICON_BOX(pCD)->bBoardWidget);
-
-	    ResetArrowButtonIncrements (P_ICON_BOX(pCD)->pCD_iconBox);
-
-#endif /* WSM */
 	    rval = True;
 	}
     } 
@@ -1992,9 +1859,7 @@ IconInfo *InsertIconInfo (pIBD, pCD, theWidget)
     Arg setArgs[3];
     Arg getArgs[4];
     Dimension clipWidth, clipHeight;
-#ifdef WSM
     WsClientData *pWsc;
-#endif /* WSM */
 
     place = GetNextIconPlace (&pIBD->IPD);
     if (place == NO_ICON_PLACE)
@@ -2036,7 +1901,6 @@ IconInfo *InsertIconInfo (pIBD, pCD, theWidget)
 
     pII->pCD = pCD;
 
-#ifdef WSM
     pWsc = GetWsClientData (GetWorkspaceData (pCD->pSD, pIBD->wsID), pCD);
     pWsc->iconPlace = place;
 
@@ -2048,20 +1912,6 @@ IconInfo *InsertIconInfo (pIBD, pCD, theWidget)
 
     pIBD->currentCol = pWsc->iconX / pIBD->pCD_iconBox->widthInc;
     pIBD->currentRow = pWsc->iconY / pIBD->pCD_iconBox->heightInc;
-
-#else /* WSM */
-    ICON_PLACE(pCD) = place;
-
-    CvtIconPlaceToPosition (&pIBD->IPD, ICON_PLACE(pCD),
-	    &ICON_X(pCD), &ICON_Y(pCD));
-
-
-    /* update next free position */
-
-    pIBD->currentCol = ICON_X(pCD) / pIBD->pCD_iconBox->widthInc;
-    pIBD->currentRow = ICON_Y(pCD) / pIBD->pCD_iconBox->heightInc;
-
-#endif /* WSM */
 
     /* 
      * Increase bboard size if necessary
@@ -2082,7 +1932,7 @@ IconInfo *InsertIconInfo (pIBD, pCD, theWidget)
 	if (pIBD->currentRow > pIBD->lastRow)
 	{
 	    pIBD->lastRow = pIBD->currentRow;
-#ifdef WSM
+
 	    if (clipHeight <= (Dimension) (pWsc->iconY + 
 	                                   pIBD->pCD_iconBox->heightInc))
 	    {
@@ -2092,16 +1942,6 @@ IconInfo *InsertIconInfo (pIBD, pCD, theWidget)
 		XtSetArg (setArgs[i], XmNheight, (XtArgVal) 
 			  pWsc->iconY + pIBD->pCD_iconBox->heightInc); i++;
 	    }
-#else /* WSM */
-	    if (clipHeight <= (pII->pCD->iconY + pIBD->pCD_iconBox->heightInc))
-	    {
-		/*
-		 * Increase bulletin board height as needed.
-		 */
-		XtSetArg (setArgs[i], XmNheight, (XtArgVal) 
-			  pII->pCD->iconY + pIBD->pCD_iconBox->heightInc); i++;
-	    }
-#endif /* WSM */
 	}
     }
     else
@@ -2109,7 +1949,7 @@ IconInfo *InsertIconInfo (pIBD, pCD, theWidget)
 	if (pIBD->currentCol > pIBD->lastCol)
 	{
 	    pIBD->lastCol = pIBD->currentCol;
-#ifdef WSM
+
 	    if (clipWidth <= (Dimension) 
 	                      (pWsc->iconX + pIBD->pCD_iconBox->widthInc))
 	    {
@@ -2120,17 +1960,6 @@ IconInfo *InsertIconInfo (pIBD, pCD, theWidget)
 		(XtArgVal) pWsc->iconX +
 			   pIBD->pCD_iconBox->widthInc); i++;
 	    }
-#else /* WSM */
-	    if (clipWidth <= (pII->pCD->iconX + pIBD->pCD_iconBox->widthInc))
-	    {
-		/*
-		 * Increase bulletin board width as needed
-		 */
-		XtSetArg (setArgs[i], XmNwidth, 
-		(XtArgVal) pII->pCD->iconX +
-			   pIBD->pCD_iconBox->widthInc); i++;
-	    }
-#endif /* WSM */
 	}
 
 	if (pIBD->currentRow > pIBD->lastRow)
@@ -2172,12 +2001,11 @@ void DeleteIconFromBox (IconBoxData *pIBD, ClientData *pCD)
     Dimension    oldWidth, oldHeight;
     int          newWidth, newHeight;
     int          i, newCols, newRows;
-#ifdef WSM
+
     WmWorkspaceData *pWS = GetWorkspaceData (pCD->pSD, pIBD->wsID);
     WsClientData *pWsc;
 
     pWsc = GetWsClientData (pWS, pCD);
-#endif /* WSM */
 
     i = 0;
     XtSetArg (args[i], XmNwidth, (XtArgVal) &oldWidth ); i++;
@@ -2207,7 +2035,6 @@ void DeleteIconFromBox (IconBoxData *pIBD, ClientData *pCD)
 	}
     }
 
-#ifdef WSM
     DeleteIconInfo (pWsc->pIconBox, pCD);
 
     pWsc->pIconBox->numberOfIcons--;
@@ -2216,13 +2043,6 @@ void DeleteIconFromBox (IconBoxData *pIBD, ClientData *pCD)
 
     pWsc->pIconBox = NULL;
     pWsc->iconPlace = NO_ICON_PLACE;
-#else /* WSM */
-    DeleteIconInfo (P_ICON_BOX(pCD), pCD);
-
-    pCD->pIconBox->numberOfIcons--;
-
-    theChild = XtWindowToWidget (DISPLAY, ICON_FRAME_WIN(pCD));
-#endif /* WSM */
     XtUnmanageChild (theChild);
 
     XtDestroyWidget (theChild);
@@ -2743,10 +2563,8 @@ void PackIconBox (IconBoxData *pIBD, Boolean packVert, Boolean packHorz, int pas
     int newWidth, newHeight;
     int i;
     Boolean rippling = False;
-#ifdef WSM
     WsClientData *pWsc;
     WmWorkspaceData *pWS;
-#endif /* WSM */
 
     i = 0;
     XtSetArg (args[i], XmNwidth, (XtArgVal) &oldWidth ); i++;
@@ -2823,7 +2641,6 @@ void PackIconBox (IconBoxData *pIBD, Boolean packVert, Boolean packHorz, int pas
 	     * We need to start rippling the icons into new positions if
 	     * their (x,y) position changed 
 	     */
-#ifdef WSM
 	    pWS = GetWorkspaceData (pII_2->pCD->pSD, pIBD->wsID);
 	    pWsc = GetWsClientData (pWS, pII_2->pCD);
 	    CvtIconPlaceToPosition (&pIBD->IPD, pWsc->iconPlace,
@@ -2831,13 +2648,6 @@ void PackIconBox (IconBoxData *pIBD, Boolean packVert, Boolean packHorz, int pas
 
 	    rippling = ((newX != pWsc->iconX) ||
 		        (newY != pWsc->iconY));
-#else /* WSM */
-	    CvtIconPlaceToPosition (&pIBD->IPD, pII_2->pCD->iconPlace,
-		&newX, &newY);
-
-	    rippling = ((newX != pII_2->pCD->iconX) ||
-		        (newY != pII_2->pCD->iconY));
-#endif /* WSM */
 	}
 
 	if ((pII_2->pCD == NULL) || rippling)
@@ -2858,15 +2668,10 @@ void PackIconBox (IconBoxData *pIBD, Boolean packVert, Boolean packHorz, int pas
 
 		CvtIconPlaceToPosition (&pIBD->IPD, ix2, &newX, &newY);
 
-#ifdef WSM
 		pWS = GetWorkspaceData (pII_2->pCD->pSD, pIBD->wsID);
 		pWsc = GetWsClientData (pWS, pII_2->pCD);
 		pWsc->iconX = newX;
 	 	pWsc->iconY = newY;
-#else /* WSM */
-		pII_2->pCD->iconX = newX;
-	 	pII_2->pCD->iconY = newY;
-#endif /* WSM */
 
 		if (hasActiveText && (pII_2->pCD == pCD_tmp))
 		{
@@ -3358,9 +3163,8 @@ void HandleIconBoxIconKeyPress (Widget icon, caddr_t dummy, XKeyEvent *keyEvent)
     if (!(XFindContext (DISPLAY, theIcon,
 			wmGD.windowContextType, (caddr_t *)&pCD)))
     {
-#ifdef WSM
 	SetClientWsIndex (pCD);
-#endif /* WSM */
+
 	keyEvent->window = ICON_FRAME_WIN(pCD);
 
 	if (pCD->clientState == MINIMIZED_STATE)
@@ -3450,32 +3254,16 @@ void GetIconBoxIconRootXY (ClientData *pCD, int *pX, int *pY)
 {
 
     Window child;
-#ifdef WSM
     WsClientData *pWsc = GetWsClientData (pCD->pSD->pActiveWS, pCD);
-#endif /* WSM */
 
-#ifdef WSM
     if (pCD->pSD->useIconBox && pWsc->pIconBox)
-#else /* WSM */
-    if (pCD->pSD->useIconBox && P_ICON_BOX(pCD))
-#endif /* WSM */
     {
-#ifdef WSM
         XTranslateCoordinates(DISPLAY,
                               XtWindow(pWsc->pIconBox->bBoardWidget),
                               ROOT_FOR_CLIENT(pCD),
                               pWsc->iconX + IB_MARGIN_WIDTH,
                               pWsc->iconY + IB_MARGIN_HEIGHT,
                               pX, pY, &child);
-#else /* WSM */
-        XTranslateCoordinates(DISPLAY,
-                              XtWindow(P_ICON_BOX(pCD)->bBoardWidget),
-                              ROOT_FOR_CLIENT(pCD),
-                              ICON_X(pCD) + IB_MARGIN_WIDTH,
-                              ICON_Y(pCD) + IB_MARGIN_HEIGHT,
-                              pX, pY, &child);
-#endif /* WSM */
-
     }
     else
     {
@@ -3513,11 +3301,7 @@ Boolean IconVisible (ClientData *pCD)
      */
 
     Boolean rval = True;
-#ifdef WSM
     WsClientData *pWsc = GetWsClientData (pCD->pSD->pActiveWS, pCD);
-#endif /* WSM */
-
-
     
     int i;
     Arg getArgs[5];
@@ -3535,17 +3319,11 @@ Boolean IconVisible (ClientData *pCD)
     XtSetArg (getArgs[i], XmNheight, (XtArgVal) &tmpHeight ); i++;
     XtSetArg (getArgs[i], XmNx, (XtArgVal) &tmpX ); i++;
     XtSetArg (getArgs[i], XmNy, (XtArgVal) &tmpY ); i++;
-#ifdef WSM
+
     XtGetValues (pWsc->pIconBox->clipWidget, getArgs, i);
     XtTranslateCoords(pWsc->pIconBox->scrolledWidget,
                         tmpX, tmpY,
                         &clipX, &clipY);
-#else /* WSM */
-    XtGetValues (P_ICON_BOX(pCD)->clipWidget, getArgs, i);
-    XtTranslateCoords(P_ICON_BOX(pCD)->scrolledWidget,
-                        tmpX, tmpY,
-                        &clipX, &clipY);
-#endif /* WSM */
 
     GetIconBoxIconRootXY(pCD, &iconX, &iconY);
 
@@ -3623,7 +3401,7 @@ String WmXmStringToString (XmString xmString)
 
 	XmStringFreeContext (xmStrContext);
     }
-    
-    return(asciiString);
+
+    return asciiString;
     
 } /* END OF FUNCTION WmXmStringToString */

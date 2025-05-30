@@ -21,19 +21,17 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-extern void InitWmGlobal (int argc, char *argv [], char *environ []);
-extern void InitWmScreen (WmScreenData *pSD, int sNum);
-extern void InitWmWorkspace (WmWorkspaceData *pWS, WmScreenData *pSD);
-extern void ProcessMotifWmInfo (Window rootWindowOfScreen);
-extern void SetupWmWorkspaceWindows (void);
-extern void MakeWorkspaceCursors (void);
-extern void MakeWmFunctionResources (WmScreenData *pSD);
-extern void MakeXorGC (WmScreenData *pSD);
-extern void CopyArgv (int argc, char *argv []);
-extern void InitScreenNames (void);
+void InitWmGlobal (int argc, char *argv [], char *environ []);
+void InitWmScreen (WmScreenData *pSD, int sNum);
+void InitWmWorkspace (WmWorkspaceData *pWS, WmScreenData *pSD);
+void ProcessMotifWmInfo (Window rootWindowOfScreen);
+void SetupWmWorkspaceWindows (void);
+void MakeWorkspaceCursors (void);
+void MakeWmFunctionResources (WmScreenData *pSD);
+void MakeXorGC (WmScreenData *pSD);
+void CopyArgv (int argc, char *argv []);
+void InitScreenNames (void);
 #ifndef NO_MESSAGE_CATALOG
-extern void InitNlsStrings( void ) ;
+void InitNlsStrings( void ) ;
 #endif
-#ifdef WSM
-extern void InitWmDisplayEnv( void ) ;
-#endif /* WSM */
+void InitWmDisplayEnv( void ) ;

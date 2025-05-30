@@ -21,33 +21,34 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-extern SizeHints * GetNormalHints (ClientData *pCD);
-extern void ProcessWmProtocols (ClientData *pCD);
-extern void ProcessMwmMessages (ClientData *pCD);
-extern void SetMwmInfo (Window propWindow, long flags, Window wmWindow);
-#ifdef WSM
+SizeHints * GetNormalHints (ClientData *pCD);
+void ProcessWmProtocols (ClientData *pCD);
+void ProcessMwmMessages (ClientData *pCD);
+void SetMwmInfo (Window propWindow, long flags, Window wmWindow);
 void SetMwmSaveSessionInfo (Window wmWindow);
-#endif /* WSM */
-extern PropWMState * GetWMState (Window window);
-extern void SetWMState (Window window, int state, Window icon);
-extern PropMwmHints * GetMwmHints (ClientData *pCD);
-extern PropMwmInfo * GetMwmInfo (Window rootWindowOfScreen);
-extern void ProcessWmColormapWindows (ClientData *pCD);
-extern Colormap FindColormap (ClientData *pCD, Window window);
-extern MenuItem * GetMwmMenuItems (ClientData *pCD);
-#ifdef WSM
-extern void GetInitialPropertyList (ClientData *pCD);
-extern Status GetWorkspaceHints (Display *display, Window window, Atom **ppWsAtoms, unsigned int *pCount, Boolean *pbAll);
+PropWMState * GetWMState (Window window);
+void SetWMState (Window window, int state, Window icon);
+PropMwmHints * GetMwmHints (ClientData *pCD);
+PropMwmInfo * GetMwmInfo (Window rootWindowOfScreen);
+void ProcessWmColormapWindows (ClientData *pCD);
+Colormap FindColormap (ClientData *pCD, Window window);
+MenuItem * GetMwmMenuItems (ClientData *pCD);
+void GetInitialPropertyList (ClientData *pCD);
+Status GetWorkspaceHints (Display *display,
+	Window window, Atom **ppWsAtoms, unsigned int *pCount, Boolean *pbAll);
 #ifdef HP_VUE
-extern void SetWorkspaceInfo (Window propWindow, WorkspaceInfo *pWsInfo, unsigned long cInfo);
+void SetWorkspaceInfo (Window propWindow,
+	WorkspaceInfo *pWsInfo, unsigned long cInfo);
 #endif /* HP_VUE */
-extern void SetWorkspacePresence (Window propWindow, Atom *pWsPresence, unsigned long cPresence);
-extern Boolean HasProperty(ClientData *pCD, Atom property);
-extern void DiscardInitialPropertyList (ClientData *pCD);
-extern void GetInitialPropertyList (ClientData *pCD);
-extern void SetWorkspaceListProperty (WmScreenData *pSD);
-extern void SetCurrentWorkspaceProperty (WmScreenData *pSD);
-extern void SetWorkspaceInfoProperty (WmWorkspaceData *pWS);
-extern void DeleteWorkspaceInfoProperty (WmWorkspaceData *pWS);
-extern char *WorkspacePropertyName (WmWorkspaceData *pWS);
-#endif /* WSM */
+void SetWorkspacePresence (Window propWindow,
+	Atom *pWsPresence, unsigned long cPresence);
+Boolean HasProperty(ClientData *pCD, Atom property);
+void DiscardInitialPropertyList (ClientData *pCD);
+void GetInitialPropertyList (ClientData *pCD);
+void SetWorkspaceListProperty (WmScreenData *pSD);
+void SetCurrentWorkspaceProperty (WmScreenData *pSD);
+void SetWorkspaceInfoProperty (WmWorkspaceData *pWS);
+void DeleteWorkspaceInfoProperty (WmWorkspaceData *pWS);
+char *WorkspacePropertyName (WmWorkspaceData *pWS);
+void SetWorkspaceInfoProperty(WmWorkspaceData *pWS);
+void DeleteWorkspaceInfoProperty(WmWorkspaceData *pWS);

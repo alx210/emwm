@@ -30,9 +30,7 @@
  * include extern functions
  */
 #include "WmEvent.h"
-#ifdef WSM
 #include "WmBackdrop.h"
-#endif /* WSM */
 #include "WmCDInfo.h"
 #include "WmCDecor.h"
 #include "WmCEvent.h"
@@ -41,10 +39,8 @@
 #include "WmKeyFocus.h"
 #include "WmManage.h"
 #include "WmMenu.h"
-#ifdef WSM
 #include "WmICCC.h"
 #include "WmProperty.h"
-#endif /* WSM */
 #include "WmWinInfo.h"
 #include "WmWinState.h"
 #include "WmXmP.h"
@@ -52,7 +48,6 @@
 #include <Xm/RowColumnP.h> /* for MS_LastManagedMenuTime */
 
 
-#ifdef WSM
 /*
  * FUNCTION PARSER TABLE
  */
@@ -66,7 +61,6 @@ typedef struct {
    Boolean       (*parseProc)();
 } FunctionTableEntry;
 
-#endif /* WSM */
 
 
 /*
@@ -74,11 +68,8 @@ typedef struct {
  */
 
 extern unsigned int buttonModifierMasks[];
-#ifdef WSM
-int smAckState = SM_UNITIALIZED;
 extern FunctionTableEntry functionTable[];
 extern int F_NOP_INDEX;
-#endif /* WSM */
 
 #ifndef MOTIF_ONE_DOT_ONE
 #include <Xm/MenuShellP.h>
@@ -1762,9 +1753,7 @@ void ProcessClickBPress (XButtonEvent *buttonEvent, ClientData *pCD, Context con
         wmGD.clickData.time = buttonEvent->time;
         wmGD.clickData.clickPending = True;
         wmGD.clickData.doubleClickPending = True;
-#ifdef WSM
         wmGD.clickData.bReplayed = wmGD.bReplayedButton;
-#endif /* WSM */
     }
 
 
@@ -1844,11 +1833,9 @@ void ProcessClickBRelease (XButtonEvent *buttonEvent, ClientData *pCD, Context c
 } /* END OF FUNCTION ProcessClickBRelease */
 
 
-#ifdef WSM
-
 /*************************************<->*************************************
  *
- *  HandleDtWmClientMessage (clientEvent)
+ *  HandleWmClientMessage (clientEvent)
  *
  *
  *  Description:
@@ -1864,25 +1851,13 @@ void ProcessClickBRelease (XButtonEvent *buttonEvent, ClientData *pCD, Context c
  * 
  *************************************<->***********************************/
 
-void HandleDtWmClientMessage (XClientMessageEvent *clientEvent)
+void HandleWmClientMessage (XClientMessageEvent *clientEvent)
 {
     int scr;
     /*
      * Process the client message event based on the message_type.
      */
     
-    if (clientEvent->message_type == wmGD.xa_DT_SM_WM_PROTOCOL)
-    {
-	if (clientEvent->data.l[0] == wmGD.xa_DT_SM_START_ACK_WINDOWS)
-	{
-	    smAckState = SM_START_ACK;
-	}
-	else if (clientEvent->data.l[0] == wmGD.xa_DT_SM_STOP_ACK_WINDOWS)
-	{
-	    smAckState = SM_STOP_ACK;
-	}
-    }
-
     if (clientEvent->message_type == wmGD.xa_WM_PROTOCOLS)
     {
 	if (clientEvent->data.l[0] == wmGD.xa_WM_SAVE_YOURSELF)
@@ -1891,211 +1866,16 @@ void HandleDtWmClientMessage (XClientMessageEvent *clientEvent)
 	    {
 		if (wmGD.Screens[scr].managed)
 		{
-		    /*
-		     * Write out current workspace, frontpanel 
-		     * position and iconbox position and size.
-		     */
-		    SaveResources(&wmGD.Screens[scr]);
+			/* TBD: Save any session data */
 		}
 	    } /*  for loop */
 	    XSetCommand(DISPLAY, wmGD.commandWindow, 0, 0);
 
 	} /* WM_SAVE_YOURSELF */     
     } /* WM_PROTOCOLS */
-} /* END OF FUNCTION HandleDtWmClientMessage */
-
-
-/*************************************<->*************************************
- *
- *  HandleDtWmRequest (pSD, pev)
- *
- *
- *  Description:
- *  -----------
- *  This function processes _DT_WM_REQUESTs that come in from 
- *  other clients
- *
- *
- *  Inputs:
- *  ------
- *  pSD - pointer to screen data
- *  pev - pointer to the triggering event (PropertyNotify)
- *
- *  Comments:
- *  ---------
- *  This reuses the global parse buffer. It assumes that no parsing 
- *  is in progress. All parsing of the config file must be completed 
- *  before we call this routine. 
- *
- *
- *************************************<->***********************************/
-
-void 
-HandleDtWmRequest (WmScreenData *pSD, XEvent *pev)
-{
-    Boolean more = True;
-    char *pchReq = NULL;
-    String sRequest = NULL;
-    unsigned char *lineP;
-    int iFuncIndex;
-    WmFunction   wmFunction;
-    String       wmFuncArgs;
-    ClientData	 *pCD;
-    Context	 ctxDisallowed;
-    DtWmpParseBuf wmPB;
-
-    /*
-     * Save state of global parse buffer
-     */
-    memcpy (&wmPB, wmGD.pWmPB, sizeof(DtWmpParseBuf));
-
-    while (more)
-    {
-	GetDtWmRequest (pSD, &pchReq, &more);
-
-	if (pchReq)
-	{
-	    pCD = NULL;
-	    ctxDisallowed = F_CONTEXT_ROOT;
-	    if (wmGD.requestContextWin != (Window) 0L)
-	    {
-		if (!XFindContext (DISPLAY, wmGD.requestContextWin, 
-					wmGD.windowContextType,
-					(caddr_t *)&pCD))
-		{
-		    /* 
-		     * A valid client window was specified
-		     * in a previous F_Set_Context request.
-		     * Remove the restriction to root-only context.
-		     */
-		    ctxDisallowed = F_CONTEXT_NONE;
-		}
-	    }
-	    sRequest = XtNewString (pchReq);
-	    _DtWmParseSetLine (wmGD.pWmPB, (unsigned char *)sRequest);
-	    lineP = wmGD.pWmPB->pchLine;
-            iFuncIndex = ParseWmFunction (&lineP, CRS_BUTTON|CRS_KEY, 
-		&wmFunction);
-
-	    if (iFuncIndex != F_NOP_INDEX)
-	    {
-		if (functionTable[iFuncIndex].greyedContext & ctxDisallowed)
-		{
-		    /* 
-		     * Sorry, we have to disallow this function request
-		     * based on context problems.
-		     */
-		    XtFree ((char *)sRequest);
-		    sRequest = NULL;
-		    break;
-		}
-
-		/*
-		 * Apply the function argument parser.
-		 */
-		if ((*(functionTable [iFuncIndex].parseProc))
-			   (&lineP, wmFunction, &wmFuncArgs))
-		{
-		    /* 
-		     * Found it in the function table! 
-		     * Apply the function.
-		     */
-		    wmFunction (wmFuncArgs, pCD, NULL);
-
-		    /*
-		     * Free up allocated args, if any
-		     */
-		    if (wmFuncArgs)
-		    {
-			if ((functionTable[iFuncIndex].parseProc ==
-			    		ParseWmFuncStrArg) ||
-			    (functionTable[iFuncIndex].parseProc ==
-					ParseWmFuncMaybeStrArg))
-			{
-			    XtFree ((char *)wmFuncArgs);
-			}
-			else if ((functionTable[iFuncIndex].parseProc ==
-			    		ParseWmFuncActionArg))
-			{
-			    WmActionArg *pAP = (WmActionArg *) wmFuncArgs;
-
-			    if (pAP->actionName)
-				XtFree ((char *) pAP->actionName);
-			    if (pAP->szExecParms)
-				XtFree ((char *) pAP->szExecParms);
-			    while (pAP->numArgs > 0)
-			    {
-				XtFree ((char *)
-				    pAP->aap[--(pAP->numArgs)].u.file.name);
-			    }
-			    XtFree ((char *) pAP);
-			}
-		    }
-		}
-	    }
-	    else if (!strncmp (pchReq, DTWM_REQ_CHANGE_BACKDROP,
-			strlen(DTWM_REQ_CHANGE_BACKDROP)))
-	    {
-		Pixmap pixmap = None;
-		char *pch;
-		char *pchFile = NULL;
-
-		/* skip function name */
-		pch = pchReq;
-		(void) strtok (pch, " ");
-
-		/* get path name */
-		pch = strtok (NULL, " ");
-		if (pch)
-		{
-		    pchFile = (char *) XtMalloc (1+strlen(pch));
-		}
-		else
-		{
-		    Warning (((char *)GETMESSAGE(32, 3, "Missing path name for backdrop change request.")));
-
-		}
-		if (pchFile)
-		{
-		    strcpy (pchFile, pch);
-
-		    /* get pixmap id */
-		    pch = strtok (NULL, " ");
-		    if (pch) 
-		    {
-			sscanf (pch, "%lx", &pixmap);  
-			SetNewBackdrop (ACTIVE_WS, pixmap, (String)pchFile);
-		    }
-		    else 
-		    {
-			Warning (((char *)GETMESSAGE(32, 4, "Missing pixmap id for backdrop change request.")));
-		    }
-		    XtFree (pchFile);
-		}
-		else
-		{
-		    Warning (((char *)GETMESSAGE(32, 2, "Insufficient memory to handle backdrop change.")));
-		}
-	    }
-	    if (sRequest)
-	    {
-		XtFree ((char *) sRequest);
-	    }
-	    XtFree (pchReq);
-	}
-    }
-
-    /*
-     * Restore state of global parse buffer
-     */
-    memcpy (wmGD.pWmPB, &wmPB, sizeof(DtWmpParseBuf));
-
-} /* END OF FUNCTION HandleDtWmRequest */
+} /* END OF FUNCTION HandleWmClientMessage */
 
 
-#endif /* WSM */
-
-
 /*************************************<->*************************************
  *
  *  HandleWsEnterNotify (enterEvent)
@@ -2585,20 +2365,14 @@ void PullExposureEvents (void)
      * Force the exposure events into the queue
      */
     XSync (DISPLAY, False);
-#ifdef WSM
     XSync (DISPLAY1, False);
-#endif /* WSM */
     /*
      * Selectively extract the exposure events
      */
-#ifdef WSM
     while (XCheckMaskEvent (DISPLAY, 
 	       ExposureMask|VisibilityChangeMask, &event) ||
 	   XCheckMaskEvent (DISPLAY1, 
 	       ExposureMask|VisibilityChangeMask, &event))
-#else /* WSM */
-    while (XCheckMaskEvent (DISPLAY, ExposureMask, &event))
-#endif /* WSM */
     {
         /*
 	 * Check for, and process non-widget events.  The events may be
@@ -2606,11 +2380,11 @@ void PullExposureEvents (void)
 	 * to an icon window, or to a "special" window management window.
 	 */
 
-#ifdef WSM
-      switch (event.type)
-      {
-       case Expose:
-#endif /* WSM */
+
+   switch (event.type)
+   {
+    case Expose:
+
 	if (event.xany.window == ACTIVE_ROOT)
 	{
 	    dispatchEvent = WmDispatchWsEvent (&event);
@@ -2619,11 +2393,11 @@ void PullExposureEvents (void)
 	{
 	    dispatchEvent = WmDispatchClientEvent (&event);
 	}
-#ifdef WSM
-       default:
+
+    default:
 	dispatchEvent = True;
-      }
-#endif /* WSM */
+   } 
+
 
 	if (dispatchEvent)
 	{

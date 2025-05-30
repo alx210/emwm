@@ -21,14 +21,14 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-extern void AdoptInitialClients (WmScreenData *pSD);
-extern void DeleteClientContext (ClientData *pCD);
-extern void ManageWindow (WmScreenData *pSD, Window clientWindow, long manageFlags);
-extern void UnManageWindow (ClientData *pCD);
-extern void WithdrawTransientChildren (ClientData *pCD);
-extern void WithdrawWindow (ClientData *pCD);
-extern void ResetWithdrawnFocii (ClientData *pCD);
-extern void FreeClientFrame (ClientData *pCD);
-extern void FreeIcon (ClientData *pCD);
-extern void WithdrawDialog (Widget dialogboxW);
-extern void ReManageDialog (WmScreenData *pSD, Widget dialogboxW);
+void AdoptInitialClients (WmScreenData *pSD);
+void DeleteClientContext (ClientData *pCD);
+void ManageWindow (WmScreenData *pSD, Window clientWindow, long manageFlags);
+void UnManageWindow (ClientData *pCD);
+void WithdrawTransientChildren (ClientData *pCD);
+void WithdrawWindow (ClientData *pCD);
+void ResetWithdrawnFocii (ClientData *pCD);
+void FreeClientFrame (ClientData *pCD);
+void FreeIcon (ClientData *pCD);
+void WithdrawDialog (Widget dialogboxW);
+void ReManageDialog (WmScreenData *pSD, Widget dialogboxW);
