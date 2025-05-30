@@ -1289,6 +1289,8 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 					       wmGD.topLevelW,
 					       args,
 					       argnum);
+	
+	XtRealizeWidget(pSD->screenTopLevelW);
 
 #ifdef WSM
     argnum = 0;
