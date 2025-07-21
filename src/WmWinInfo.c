@@ -170,8 +170,7 @@ GetClientInfo (WmScreenData *pSD, Window clientWindow, long manageFlags)
     pCD->pWorkspaceHints = NULL;
     pCD->numInhabited = 0;
     pCD->pWsList = NULL;
-    pCD->dtwmFunctions = DtWM_FUNCTION_OCCUPY_WS;
-    pCD->dtwmBehaviors = 0L;
+    pCD->wsmFunctions = WSM_FUNCTION_OCCUPY_WS;
     pCD->paInitialProperties = NULL;
     pCD->numInitialProperties = 0;
 
@@ -598,7 +597,7 @@ GetWmClientInfo (WmWorkspaceData *pWS,
         if (manageFlags & MANAGEW_ICON_BOX)
         {
             pCD->clientFunctions &= ICON_BOX_FUNCTIONS;
-		    pCD->dtwmFunctions &= ~DtWM_FUNCTION_OCCUPY_WS;
+		    pCD->wsmFunctions &= ~WSM_FUNCTION_OCCUPY_WS;
         }
 
 
@@ -3593,20 +3592,6 @@ void ProcessMwmHints (ClientData *pCD, Boolean first_time)
 		/* client indicating applicable functions */
 		pCD->clientFunctions &= pHints->functions;
 	    }
-#if 0
-	    if (!(pCD->clientFlags & GOT_DT_WM_HINTS) &&
-		!pHints->functions)
-	    {
-		/*
-		 * !!! Backward compatibility heurisitic !!!
-		 * 
-		 * If client doesn't want any functions and
-		 * no DT_WM_HINTS specified, then remove 
-		 * workspace functions.
-		 */
-		pCD->dtwmFunctions &= ~DtWM_FUNCTION_OCCUPY_WS;
-	    }
-#endif 
 	    /* !!! check for some minimal level of functionality? !!! */
 	}
 
@@ -3688,9 +3673,9 @@ void ProcessMwmHints (ClientData *pCD, Boolean first_time)
      * secondary window shouldn't either.
      */
     if (pCD->transientLeader &&
-	!(pCD->transientLeader->dtwmFunctions & DtWM_FUNCTION_OCCUPY_WS))
+	!(pCD->transientLeader->wsmFunctions & WSM_FUNCTION_OCCUPY_WS))
     {
-	pCD->dtwmFunctions &= ~DtWM_FUNCTION_OCCUPY_WS;
+	pCD->wsmFunctions &= ~WSM_FUNCTION_OCCUPY_WS;
     }
 
     /*

@@ -143,7 +143,7 @@ char builtinSystemMenu[] = BUILTINSYSTEMMENU;
 #else /* !defined(NO_MESSAGE_CATALOG)*/
 char *builtinSystemMenu = BUILTINSYSTEMMENU;
 
-#define DEFAULT_DTWM_SYSTEMMENU "_MwmWindowMenu_\n\
+#define DEFAULT_MWM_SYSTEMMENU "_MwmWindowMenu_\n\
 {\n\
 	Restore		_R	f.restore\n\
 	Move		_M	f.move\n\
@@ -347,16 +347,8 @@ void InitBuiltinSystemMenu(void)
 
     if (!gotItAll)
     {
-	if (DtwmBehavior)
-	{
 	    builtinSystemMenu = (char *) 
-			XtNewString((String)DEFAULT_DTWM_SYSTEMMENU);
-	}
-	else
-	{
-	    builtinSystemMenu = (char *) 
-			XtNewString((String)BUILTINSYSTEMMENU);
-	}
+			XtNewString((String)DEFAULT_MWM_SYSTEMMENU);
     }
     else
     {
@@ -391,16 +383,8 @@ void InitBuiltinSystemMenu(void)
 	{
 	   Warning (((char *)GETMESSAGE(62, 21, "Insufficient memory for localized default system menu")));
 
-	    if (DtwmBehavior)
-	    {
 		builtinSystemMenu = (char *) 
-			XtNewString((String)DEFAULT_DTWM_SYSTEMMENU);
-	    }
-	    else
-	    {
-		builtinSystemMenu = (char *) 
-			XtNewString((String)BUILTINSYSTEMMENU);
-	    }
+			XtNewString((String)DEFAULT_MWM_SYSTEMMENU);
 	}
 	else
 	{
@@ -573,17 +557,6 @@ XtResource wmGlobalResources[] =
 	XtRString,
 	(XtPointer)BITMAPDIR
     },
-#ifdef MINIMAL_DT
-    {
-	WmNblinkOnExec,
-	WmCBlinkOnExec,
-	XtRBoolean,
-	sizeof (Boolean),
-        XtOffsetOf(WmGlobalData, blinkOnExec),
-	XtRImmediate,
-	(XtPointer)False
-    },
-#endif /* MINIMAL_DT */
     {
 	WmNframeStyle,
 	WmCFrameStyle,
@@ -853,7 +826,6 @@ XtResource wmGlobalResources[] =
 	(XtPointer)True
     },
 
-#ifndef SM
     {
 	WmNsessionClientDB,
 	WmCSessionClientDB,
@@ -863,7 +835,6 @@ XtResource wmGlobalResources[] =
 	XtRImmediate,
 	(XtPointer)NULL
     },
-#endif /* ! SM */
 
     {
 	WmNshowFeedback,
@@ -904,29 +875,6 @@ XtResource wmGlobalResources[] =
 	XtRImmediate,
 	(XtPointer)True
     },
-#ifdef CDE_COMPAT
-    {
-	WmNhelpDirectory,
-	WmCHelpDirectory,
-	XtRString,
-	sizeof (String),
-        XtOffsetOf(WmGlobalData, helpDirectory),
-	XtRImmediate,
-	(XtPointer)"DT/Dtwm/"
-    },
-
-#endif /* CDE_COMPAT */
-#ifdef MINIMAL_DT
-    {
-	WmNdtLite,
-	WmCDtLite,
-	XtRBoolean,
-	sizeof (Boolean),
-        XtOffsetOf(WmGlobalData, dtLite),
-	XtRImmediate,
-	(XtPointer)False
-    },
-#endif /* MINIMAL_DT */
 	{
 	WmNprimaryXineramaScreen,
 	WmCPrimaryXineramaScreen,
@@ -3305,7 +3253,7 @@ ProcessWmColors (WmScreenData *pSD)
  *  Comments:
  *  --------
  *  N.B.  Must change to write out data on a PER-SCREEN basis.
- *        e.g., "Dtwm*0*background"
+ *        e.g., "Mwm*0*background"
  ******************************<->***********************************/
 
 static void 
@@ -3755,7 +3703,7 @@ WriteOutXrmColors (WmScreenData *pSD)
 			    XmNtroughColor), XtRPixel, &value);
 
 		/*
-		 * Set Dtwm dialog colors
+		 * Set Mwm dialog colors
 		 */
 		fpixset = pSD->pSecondaryPixelSet;
 
@@ -3944,11 +3892,9 @@ ResCat (String s1, String s2, String s3, String s4)
 
 	/*
 	 *
-	 *  if this routine is called with a class name
-	 *  ("Mwm" or "Dtwm"), then DON'T use it.
-	 *  We want our resources to be written out
-	 *  as:  *iconImageForeground:   <pixel_val>
-	 *
+	 *  if this routine is called with a class name, DON'T use it.
+	 *  We want our resources to be written out as:
+	 *  *iconImageForeground:   <pixel_val>
 	 *  as opposed to:  Mwm*iconImageForeground:   <pixel_val>
 	 *
 	 */

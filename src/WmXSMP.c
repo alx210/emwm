@@ -1088,7 +1088,7 @@ XrmDatabase SaveClientResourceDB(void)
 }
 
 /*
- *  As with FindDtSessionMatch(), sets properties and then returns
+ *  As with FindSessionMatch(), sets properties and then returns
  *  an allocated string of workspace names.  This string must be
  *  freed by the caller using XtFree().
  */

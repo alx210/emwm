@@ -942,14 +942,14 @@ Boolean WmDispatchWsEvent (XEvent *event)
 		    wmGD.windowContextType, (caddr_t *)&pCD)) &&
 		(pSD = GetScreenForWindow (event->xmaprequest.window)))
 	    {
-	        /*
-                 * The window is not yet managed and it's parented to a 
+	    /*
+         * The window is not yet managed and it's parented to a 
 		 * screen/root window that we manage. Start to manage the
 		 * new window.  Management details are dependent on the
 		 * type of the window.  For a typical top-level application
 		 * window reparent the window to a window frame, add it to
 		 * the wm saveset, ...
-                 */
+         */
 
                 ManageWindow (pSD, event->xmaprequest.window, MANAGEW_NORMAL);
 	    }

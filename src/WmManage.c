@@ -276,9 +276,9 @@ ManageWindow (WmScreenData *pSD, Window clientWindow, long manageFlags)
 	 * avoid the race condition of the window coming up
 	 * just as the user switches workspaces.
 	 */
-	pCD->dtwmFunctions |= DtWM_FUNCTION_OCCUPY_WS;
+	pCD->wsmFunctions |= WSM_FUNCTION_OCCUPY_WS;
 	F_AddToAllWorkspaces(0, pCD, 0);
-	pCD->dtwmFunctions &= ~DtWM_FUNCTION_OCCUPY_WS;
+	pCD->wsmFunctions &= ~WSM_FUNCTION_OCCUPY_WS;
     }
 
     if (manageFlags & MANAGEW_WM_RESTART)
@@ -1422,9 +1422,9 @@ void ReManageDialog (WmScreenData *pSD, Widget dialogboxW)
      * the modal window appears in all workspaces 
      */
 
-    pCD->dtwmFunctions |= DtWM_FUNCTION_OCCUPY_WS;
+    pCD->wsmFunctions |= WSM_FUNCTION_OCCUPY_WS;
     F_AddToAllWorkspaces(0, pCD, 0);
-    pCD->dtwmFunctions &= ~DtWM_FUNCTION_OCCUPY_WS;
+    pCD->wsmFunctions &= ~WSM_FUNCTION_OCCUPY_WS;
 
     if (pSD->clientList)
     {

@@ -91,7 +91,6 @@ void InitNlsStrings (void);
 #define UNSPECIFIED_SCREEN_NAME		"fbk"
 char        **dpy2Argv;    /* copy  for second display */
 int           dpy2Argc;
-WmScreenData *dtSD;       /* for the "DT screen" of the display */
 
 /*
  * Global Variables:
@@ -108,8 +107,7 @@ extern char * pWarningStringLine;
  * Special case for a two button mouse; move the BMENU binding 
  * from Button3 to Button2.  Fails for one-button mice.
  */
-static void
-InitMouseBinding(void)
+static void InitMouseBinding(void)
 {
     wmGD.numMouseButtons = XGetPointerMapping(DISPLAY, (unsigned char *)0, 0);
     
@@ -136,8 +134,7 @@ InitMouseBinding(void)
  *
  *
  *************************************<->***********************************/
-static void
-BuildLockMaskSequence(void)
+static void BuildLockMaskSequence(void)
 {
     int j, k;
     unsigned int mask;
@@ -250,8 +247,7 @@ static KeySym pksLockingMods[] = {
 
 #define NUM_LOCKING_MODS (sizeof(pksLockingMods)/sizeof(KeySym))
 
-static void
-SetupLockingModifierMask(void)
+static void SetupLockingModifierMask(void)
 {
     int i, j, start_index;
     XModifierKeymap *modifier_map = NULL;
@@ -569,31 +565,6 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 	    {
 		if (!processedGlobalResources)
 		{
-
-		    enum { 
-		      XA_DT_SESSION_HINTS, XA_DT_SM_WM_PROTOCOL,
-		      XA_DT_SM_START_ACK_WINDOWS, XA_DT_SM_STOP_ACK_WINDOWS,
-		      XA_DT_WM_WINDOW_ACK, XA_DT_WM_EXIT_SESSION,
-		      XA_DT_WM_LOCK_DISPLAY, XA_DT_WM_READY, NUM_ATOMS };
-		    static char *atom_names[] = {
-		      "_XA_DT_SESSION_HINTS", "_XA_DT_SM_WM_PROTOCOL",
-		      "_XA_DT_SM_START_ACK_WINDOWS", "_XA_DT_SM_STOP_ACK_WINDOWS",
-		      "_XA_DT_WM_WINDOW_ACK", "_XA_DT_WM_EXIT_SESSION",
-		      "_XA_DT_WM_LOCK_DISPLAY", "_XA_DT_WM_READY" };
-
-		    Atom atoms[XtNumber(atom_names)];
-		    XInternAtoms(DISPLAY, atom_names, XtNumber(atom_names), 
-				 False, atoms);
-
-		    wmGD.xa_DT_SESSION_HINTS = atoms[XA_DT_SESSION_HINTS];
-		    wmGD.xa_DT_SM_WM_PROTOCOL = atoms[XA_DT_SM_WM_PROTOCOL];
-		    wmGD.xa_DT_SM_START_ACK_WINDOWS = atoms[XA_DT_SM_START_ACK_WINDOWS]; 
-		    wmGD.xa_DT_SM_STOP_ACK_WINDOWS = atoms[XA_DT_SM_STOP_ACK_WINDOWS]; 
-		    wmGD.xa_DT_WM_WINDOW_ACK = atoms[XA_DT_WM_WINDOW_ACK];
-		    wmGD.xa_DT_WM_EXIT_SESSION = atoms[XA_DT_WM_EXIT_SESSION];
-            wmGD.xa_DT_WM_LOCK_DISPLAY = atoms[XA_DT_WM_LOCK_DISPLAY];
-            wmGD.xa_DT_WM_READY = atoms[XA_DT_WM_READY];
-
 #ifndef NO_OL_COMPAT
 		    InitOLCompat();
 #endif /* NO_OL_COMPAT */
@@ -603,7 +574,7 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 							  &wmGD.shapeErrorBase);
 #endif /*  NO_SHAPE  */
 
-                    wmGD.replayEnterEvent = False;
+            wmGD.replayEnterEvent = False;
 		    wmGD.menuActive = NULL;
 		    wmGD.menuUnpostKeySpec = NULL;
 		    wmGD.F_NextKeySpec = NULL;
@@ -758,24 +729,23 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
     }
 
     {
-      enum { XA_DT_WORKSPACE_HINTS, XA_DT_WORKSPACE_PRESENCE,
-	     XA_DT_WORKSPACE_INFO, XA_WmNall, XA_DT_WM_REQUEST,
-	     XA_DT_WORKSPACE_LIST, XA_DT_WORKSPACE_CURRENT, NUM_ATOMS };
+      enum { XA_MWM_WORKSPACE_HINTS, XA_MWM_WORKSPACE_PRESENCE,
+	     XA_MWM_WORKSPACE_INFO, XA_WmNall, XA_MWM_WM_REQUEST,
+	     XA_MWM_WORKSPACE_LIST, XA_MWM_WORKSPACE_CURRENT, NUM_ATOMS };
       static char *atom_names[] = {
-	     _XA_DT_WORKSPACE_HINTS, _XA_DT_WORKSPACE_PRESENCE,
-	     _XA_DT_WORKSPACE_INFO, WmNall, _XA_DT_WM_REQUEST,
-	     _XA_DT_WORKSPACE_LIST, _XA_DT_WORKSPACE_CURRENT };
+	     _XA_MWM_WORKSPACE_HINTS, _XA_MWM_WORKSPACE_PRESENCE,
+	     _XA_MWM_WORKSPACE_INFO, WmNall, _XA_MWM_WM_REQUEST,
+	     _XA_MWM_WORKSPACE_LIST, _XA_MWM_WORKSPACE_CURRENT };
 
       Atom atoms[XtNumber(atom_names)];
       XInternAtoms(DISPLAY, atom_names, XtNumber(atom_names), False, atoms);
 
-      wmGD.xa_DT_WORKSPACE_HINTS = atoms[XA_DT_WORKSPACE_HINTS];
-      wmGD.xa_DT_WORKSPACE_PRESENCE = atoms[XA_DT_WORKSPACE_PRESENCE];
-      wmGD.xa_DT_WORKSPACE_INFO = atoms[XA_DT_WORKSPACE_INFO];
+      wmGD.xa_MWM_WORKSPACE_HINTS = atoms[XA_MWM_WORKSPACE_HINTS];
+      wmGD.xa_MWM_WORKSPACE_PRESENCE = atoms[XA_MWM_WORKSPACE_PRESENCE];
+      wmGD.xa_MWM_WORKSPACE_INFO = atoms[XA_MWM_WORKSPACE_INFO];
       wmGD.xa_ALL_WORKSPACES = atoms[XA_WmNall];
-      wmGD.xa_DT_WM_REQUEST = atoms[XA_DT_WM_REQUEST];
-      wmGD.xa_DT_WORKSPACE_LIST = atoms[XA_DT_WORKSPACE_LIST];
-      wmGD.xa_DT_WORKSPACE_CURRENT = atoms[XA_DT_WORKSPACE_CURRENT];
+      wmGD.xa_MWM_WORKSPACE_LIST = atoms[XA_MWM_WORKSPACE_LIST];
+      wmGD.xa_MWM_WORKSPACE_CURRENT = atoms[XA_MWM_WORKSPACE_CURRENT];
     }
 
     /* Initialize properties used in session management. */
@@ -960,10 +930,13 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 			}
 			XFlush (DISPLAY);
 		}
+		UpdateEwmhWorkspaceProperties(pSD);
+		UpdateEwmhActiveWorkspace(pSD, pSD->pActiveWS->id);
 	}
     
 	InitKeyboardFocus();
 	InitWmDisplayEnv();
+	
 	ShowWaitState (FALSE);
 
 	firstTime = 0;
@@ -1074,7 +1047,7 @@ void InitWmScreen (WmScreenData *pSD, int sNum)
     pSD->woS = (Window) 0L;
     pSD->woE = (Window) 0L;
     pSD->woW = (Window) 0L;
-    pSD->displayResolutionType = VGA_RES_DISPLAY;
+    pSD->displayResolutionType = XGA_RES_DISPLAY;
 
     /*
      *  We've got display resolution type--now, let's get color
@@ -1321,6 +1294,9 @@ void InitWmWorkspace (WmWorkspaceData *pWS, WmScreenData *pSD)
     					pSD->screenTopLevelW,
 					   	args,
 						argnum);
+	
+	/* Window handles required for EWMH virtual roots */
+	XtRealizeWidget(pWS->workspaceTopLevelW);
 
     /* internalize the workspace name */
     pWS->id = XInternAtom (DISPLAY, pWS->name, False);
@@ -1907,9 +1883,8 @@ void InitNlsStrings (void)
     /*
      * Initialize messages
      */
-    wmGD.okLabel=XmStringCreateLocalized(_DtOkString);
-    wmGD.cancelLabel=XmStringCreateLocalized(_DtCancelString);
-    wmGD.helpLabel=XmStringCreateLocalized(_DtHelpString);
+    wmGD.okLabel=XmStringCreateLocalized("OK");
+    wmGD.cancelLabel=XmStringCreateLocalized("Cancel");
 
     /*
      * catgets returns a pointer to an area that is over written
@@ -1953,7 +1928,7 @@ void InitNlsStrings (void)
     }
 
 
-    tmpString = ((char *)GETMESSAGE(40, 22, "About Workspace Manager"));
+    tmpString = ((char *)GETMESSAGE(40, 22, "About Window Manager"));
     if ((wmNLS.defaultVersionTitle =
 	 (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
     {
@@ -1963,30 +1938,6 @@ void InitNlsStrings (void)
     else
     {
 	strcpy(wmNLS.defaultVersionTitle, tmpString);
-    }
-
-    tmpString = ((char *)GETMESSAGE(40, 23, "Workspace Manager - Help"));
-    if ((wmNLS.defaultDtwmHelpTitle =
-	 (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
-    {
-	Warning (((char *)GETMESSAGE(40, 15, "Insufficient memory for local message string")));
-	wmNLS.defaultDtwmHelpTitle = "Workspace Manager - Help";
-    }
-    else
-    {
-	strcpy(wmNLS.defaultDtwmHelpTitle, tmpString);
-    }
-
-    tmpString = ((char *)GETMESSAGE(40, 24, "Workspace Manager - Help"));
-    if ((wmNLS.defaultHelpTitle =
-	 (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
-    {
-	Warning (((char *)GETMESSAGE(40, 15, "Insufficient memory for local message string")));
-	wmNLS.defaultHelpTitle = "Workspace Manager - Help";
-    }
-    else
-    {
-	strcpy(wmNLS.defaultHelpTitle, tmpString);
     }
 
 } /* InitNlsStrings  */

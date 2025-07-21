@@ -73,10 +73,9 @@ extern Pixel		FPselectcolor;
 #define  USE_PRIMARY_PIXELSET		2
 #define  USE_SECONDARY_PIXELSET		3
 
-/* These need to be figured out */
-#define MwmBehavior		(True)
 #define LOW_RES_DISPLAY 0
 #define VGA_RES_DISPLAY 1
+#define XGA_RES_DISPLAY 2
 
 
 /* ICCC atom names: */
@@ -89,15 +88,15 @@ extern Pixel		FPselectcolor;
 #define _XA_WM_COLORMAP_WINDOWS	"WM_COLORMAP_WINDOWS"
 
 /* Workspace atom names */
-#define _XA_DT_MARQUEE_SELECTION	"_MWM_MARQUEE_SELECTION"
-#define _XA_DT_WM_REQUEST		"_MWM_WM_REQUEST"
-#define _XA_DT_WORKSPACE_HINTS		"_MWM_WORKSPACE_HINTS"
-#define _XA_DT_WORKSPACE_PRESENCE	"_MWM_WORKSPACE_PRESENCE"
-#define _XA_DT_WORKSPACE_INFO		"_MWM_WORKSPACE_INFO"
-#define _XA_DT_WM_HINTS			"_MWM_WM_HINTS"
-#define _XA_DT_WORKSPACE_LIST		"_MWM_WORKSPACE_LIST"
-#define _XA_DT_WORKSPACE_CURRENT	"_MWM_WORKSPACE_CURRENT"
-#define _XA_DT_WORKSPACE_ALL		"all"
+#define _XA_MWM_MARQUEE_SELECTION	"_MWM_MARQUEE_SELECTION"
+#define _XA_MWM_WM_REQUEST		"_MWM_WM_REQUEST"
+#define _XA_MWM_WORKSPACE_HINTS		"_MWM_WORKSPACE_HINTS"
+#define _XA_MWM_WORKSPACE_PRESENCE	"_MWM_WORKSPACE_PRESENCE"
+#define _XA_MWM_WORKSPACE_INFO		"_MWM_WORKSPACE_INFO"
+#define _XA_MWM_WM_HINTS			"_MWM_WM_HINTS"
+#define _XA_MWM_WORKSPACE_LIST		"_MWM_WORKSPACE_LIST"
+#define _XA_MWM_WORKSPACE_CURRENT	"_MWM_WORKSPACE_CURRENT"
+#define _XA_MWM_WORKSPACE_ALL		"all"
 
 
 /* window manager exit value on fatal errors: */
@@ -277,8 +276,8 @@ extern Pixel		FPselectcolor;
 /* workspace presence definitions */
 #define PRESENCE_BOX_FUNCTIONS	(MWM_FUNC_MOVE)
 
-#define WSM_FUNC_ALL		(1L << 0)
-#define WSM_FUNC_OCCUPY_WS		(1L << 16)
+#define WSM_FUNCTION_ALL		(1L << 0)
+#define WSM_FUNCTION_OCCUPY_WS		(1L << 16)
 
 
 /* show feedback definitions */
@@ -647,13 +646,6 @@ typedef struct _SessionGeom
     int          clientWidth;
     int          clientHeight;
 } SessionGeom;
-
-/*      
- *  Status of Session Manager Contention Management
- */
-#define  SM_UNITIALIZED			 0
-#define  SM_START_ACK			 1
-#define  SM_STOP_ACK             2
 
 
 /*************************************<->*************************************
@@ -1216,7 +1208,7 @@ typedef struct _WmScreenData
 
 
     /* workspace list for this screen */
-    String                      initialWorkspace; /* private resource */
+    String			initialWorkspace; /* private resource */
     String			workspaceList;    /* resource */
     int				numWorkspaces;
     int				numWsDataAllocated;
@@ -1578,12 +1570,10 @@ typedef struct _ClientData
     int		sizeWsList;		/* size of wsc data list */
     struct _WsClientData *pWsList;	/* list of workspace-client data */
     int		currentWsc;		/* index to current wsc data */
-    WorkspaceID	*pWorkspaceHints;	/* _DT_WORKSPACE_HINTS */
+    WorkspaceID	*pWorkspaceHints;	/* _MWM_WORKSPACE_HINTS */
     int		numWorkspaceHints;	/* size of pWorkspaceHints */
     Boolean	putInAll;		/* persistent window flag */
-    long	dtwmFunctions;		/* _DT_WM_HINTS */
-    long	dtwmBehaviors;		/* _DT_WM_HINTS */	
-    Window	attachWindow;		/* _DT_WM_HINTS */
+    long	wsmFunctions;
 
 #ifndef NO_SHAPE
     short       wShaped;                /* this window has a bounding shape */
@@ -1832,24 +1822,12 @@ typedef struct _WmGlobalData
 
     /* atoms used for workspace management: */
 
-    Atom	xa_DT_WORKSPACE_HINTS;
-    Atom	xa_DT_WORKSPACE_PRESENCE;
-    Atom	xa_DT_WORKSPACE_INFO;
-    Atom	xa_DT_EMBEDDED_CLIENTS;
-    Atom	xa_DT_WORKSPACE_LIST;
-    Atom	xa_DT_WORKSPACE_CURRENT;
-
+    Atom	xa_MWM_WORKSPACE_HINTS;
+    Atom	xa_MWM_WORKSPACE_PRESENCE;
+    Atom	xa_MWM_WORKSPACE_INFO;
+    Atom	xa_MWM_WORKSPACE_LIST;
+    Atom	xa_MWM_WORKSPACE_CURRENT;
     Atom	xa_ALL_WORKSPACES;
-    Atom        xa_DT_SESSION_HINTS;
-    Atom	xa_DT_WM_REQUEST;
-
-    Atom        xa_DT_SM_WM_PROTOCOL;
-    Atom        xa_DT_SM_START_ACK_WINDOWS;
-    Atom        xa_DT_SM_STOP_ACK_WINDOWS;
-    Atom        xa_DT_WM_WINDOW_ACK;
-    Atom        xa_DT_WM_EXIT_SESSION;
-    Atom        xa_DT_WM_LOCK_DISPLAY;
-    Atom        xa_DT_WM_READY;
 
 #ifndef NO_OL_COMPAT
     Atom	xa_OL_WIN_ATTR;

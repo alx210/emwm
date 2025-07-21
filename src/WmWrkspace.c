@@ -38,6 +38,18 @@
 #include "WmError.h"
 #include "WmXinerama.h"
 #include "WmPresence.h"
+#include "WmFunction.h"
+#include "WmIDecor.h"
+#include "WmIconBox.h"
+#include "WmMenu.h"
+#include "WmProperty.h"
+#include "WmResParse.h"
+#include "WmWinInfo.h"
+#include "WmWinList.h"
+#include "WmWinState.h"
+#include "WmXSMP.h"
+#include "WmBackdrop.h"
+#include "WmEwmh.h"
 
 /* local macros */
 #ifndef MIN
@@ -59,19 +71,6 @@ static void InsureUniqueWorkspaceHints(
                         ClientData *pCD) ;
 
 /********    End Static Function Declarations    ********/
-
-/* external functions */
-#include "WmFunction.h"
-#include "WmIDecor.h"
-#include "WmIconBox.h"
-#include "WmMenu.h"
-#include "WmProperty.h"
-#include "WmResParse.h"
-#include "WmWinInfo.h"
-#include "WmWinList.h"
-#include "WmWinState.h"
-#include "WmXSMP.h"
-#include "WmBackdrop.h"
 
 /*
  * Global Variables:
@@ -100,9 +99,7 @@ static WorkspaceID *pResIDs = NULL;
  * 
  *************************************<->***********************************/
 
-void 
-ChangeToWorkspace(
-        WmWorkspaceData *pNewWS )
+void ChangeToWorkspace(WmWorkspaceData *pNewWS )
 
 {
     ClientData *pCD;
@@ -229,9 +226,7 @@ ChangeToWorkspace(
 
     SetCurrentWorkspaceProperty (pSD);
 
-    /* send workspace change broadcast message */
-    /* TBD: SendWorkspaceModifyNotification(pSD, (Atom) pNewWS->id,
-				WM_WSM_REASON_CURRENT); */
+	UpdateEwmhActiveWorkspace(pSD, pNewWS->id);
 
 } /* END OF FUNCTION ChangeToWorkspace */
 
@@ -257,10 +252,7 @@ ChangeToWorkspace(
  *  
  ******************************<->***********************************/
 
-void 
-ChangeWorkspaceTitle(
-        WmWorkspaceData *pWS,
-	char * pchTitle)
+void ChangeWorkspaceTitle(WmWorkspaceData *pWS, char * pchTitle)
 {
     XmString xmstr;
 
@@ -285,8 +277,7 @@ ChangeWorkspaceTitle(
     SetWorkspaceInfoProperty (pWS);
     XFlush (DISPLAY);
 
-    /* TBD: Inform the world of the new workspace title
-    SendWorkspaceModifyNotification(pWS->pSD, pWS->id, WM_WSM_REASON_TITLE); */
+	UpdateEwmhWorkspaceProperties(pWS->pSD);
 
 } /* END OF FUNCTION ChangeWorkspaceTitle */
 
@@ -298,7 +289,7 @@ ChangeWorkspaceTitle(
  *
  *  Description:
  *  -----------
- *  This function updates the _DT_WORKSPACE_PRESENCE property for a
+ *  This function updates the _MWM_WORKSPACE_PRESENCE property for a
  *  client window
  *
  *  Inputs:
@@ -309,8 +300,7 @@ ChangeWorkspaceTitle(
  *************************************<->***********************************/
 
 void 
-UpdateWorkspacePresenceProperty(
-        ClientData *pCD )
+UpdateWorkspacePresenceProperty(ClientData *pCD)
 
 {
     static Atom 	*pPresence = NULL;
@@ -438,8 +428,7 @@ void AddPersistentWindows(WmWorkspaceData *pWS)
  * 
  *************************************<->***********************************/
 
-WmWorkspaceData * 
-CreateWorkspace(
+WmWorkspaceData* CreateWorkspace(
         WmScreenData *pSD,
         unsigned char *pchTitle )
 
@@ -508,6 +497,8 @@ CreateWorkspace(
      */
     UpdatePresenceWorkspaces(pSD);
 
+	UpdateEwmhWorkspaceProperties(pSD);
+	
     return (pWS);
 } /* END OF FUNCTION CreateWorkspace */
 
@@ -530,9 +521,7 @@ CreateWorkspace(
  * 
  *************************************<->***********************************/
 
-void 
-DeleteWorkspace(
-        WmWorkspaceData *pWS )
+void DeleteWorkspace(WmWorkspaceData *pWS)
 
 {
     WmWorkspaceData *pWSdest;		/* destination WS */
@@ -700,6 +689,8 @@ DeleteWorkspace(
 	 * Update workspace presence dialog data
 	 */
 	UpdatePresenceWorkspaces(pSD);
+	
+	UpdateEwmhWorkspaceProperties(pSD);
     }
 } /* END OF FUNCTION DeleteWorkspace */
 
@@ -725,10 +716,7 @@ DeleteWorkspace(
  *
  *************************************<->***********************************/
 
-Boolean 
-GetClientWorkspaceInfo(
-        ClientData *pCD,
-        long manageFlags )
+Boolean GetClientWorkspaceInfo(ClientData *pCD, long manageFlags )
 
 {
     Atom *pIDs;
@@ -1217,7 +1205,7 @@ GenerateWorkspaceName(
         int wsnum )
 
 {
-    static unsigned char nameReturned[13];
+    static unsigned char nameReturned[20];
     int i;
 
     /*
@@ -1227,7 +1215,7 @@ GenerateWorkspaceName(
     for (i=0; i <= pSD->numWorkspaces; i++)
     {
 	/* generate a name */
-	sprintf ((char *)nameReturned, "ws%d", i);
+	snprintf ((char *)nameReturned, 20, "ws%d", i);
 	if (!DuplicateWorkspaceName (pSD, nameReturned, wsnum))
 	    break;
     }
@@ -2277,7 +2265,7 @@ F_AddToAllWorkspaces(
     WmScreenData *pSD;
     int i;
 
-    if (pCD && (pCD->dtwmFunctions & DtWM_FUNCTION_OCCUPY_WS))
+    if (pCD && (pCD->wsmFunctions & WSM_FUNCTION_OCCUPY_WS))
     {
 	pSD = pCD->pSD;
 
@@ -2338,7 +2326,7 @@ F_Remove(
     /*
      * Only remove if in more than one workspace.
      */
-    if ((pCD && (pCD->dtwmFunctions & DtWM_FUNCTION_OCCUPY_WS)) &&
+    if ((pCD && (pCD->wsmFunctions & WSM_FUNCTION_OCCUPY_WS)) &&
 	(pCD->numInhabited > 1))
     {
 	if (ClientInWorkspace (ACTIVE_WS, pCD))
@@ -2633,11 +2621,10 @@ Boolean GetMyOwnPresence(ClientData *pCD,
 	WorkspaceID **ppIDs, unsigned int *pnumIDs )
 
 {
-    Boolean rval = False;
     /*
      * Get the workspace presence property 
      */
-    if (HasProperty (pCD, wmGD.xa_DT_WORKSPACE_PRESENCE))
+    if (HasProperty (pCD, wmGD.xa_MWM_WORKSPACE_PRESENCE))
     {
 		WorkspaceID *IDs;
 		unsigned long nIDs = 0;
@@ -2649,14 +2636,14 @@ Boolean GetMyOwnPresence(ClientData *pCD,
 		nIDs = pCD->pSD->numWorkspaces;
 		
 		status = XGetWindowProperty(DISPLAY, pCD->client,
-			wmGD.xa_DT_WORKSPACE_PRESENCE, 0L,
-			nIDs, False, wmGD.xa_DT_WORKSPACE_PRESENCE,
+			wmGD.xa_MWM_WORKSPACE_PRESENCE, 0L,
+			nIDs, False, wmGD.xa_MWM_WORKSPACE_PRESENCE,
 			&actualType, &actualFormat, &nIDs, &leftover,
 			(unsigned char **)&IDs);
 
 		if(status != Success) return False;	
 		
-		if( (actualType != wmGD.xa_DT_WORKSPACE_PRESENCE)
+		if( (actualType != wmGD.xa_MWM_WORKSPACE_PRESENCE)
 			|| (actualFormat != 32) || leftover) {
 
 			XFree(IDs);
@@ -2666,7 +2653,7 @@ Boolean GetMyOwnPresence(ClientData *pCD,
 	    *pnumIDs = nIDs;
     }
 
-    return (rval);
+    return True;
 
 } /* END OF FUNCTION GetMyOwnPresence */
 

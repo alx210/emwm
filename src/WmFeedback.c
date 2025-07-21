@@ -66,12 +66,11 @@ static Cursor  waitCursor = (Cursor)0L;
 #ifndef NO_MESSAGE_CATALOG
 static char *confirm_mesg[4] = {"Switch to Default Behavior?",
 				"Switch to Custom Behavior?",
-                                "Restart EMWM?",
-                                "QUIT EMWM?"};
+                                "Restart Window Manager?",
+                                "QUIT Window Manager?"};
 
 
-void
-initMesg()
+void initMesg()
 {
 
     char * tmpString;
@@ -105,88 +104,41 @@ initMesg()
 	strcpy(confirm_mesg[1], tmpString);
     }
 
-    if (MwmBehavior)
-    {
-	tmpString = ((char *)GETMESSAGE(22, 3, "Restart EMWM?"));
-    }
-    else
-    {
-	tmpString = ((char *)GETMESSAGE(22, 10, "Restart Workspace Manager?"));
-    }
+	tmpString = ((char *)GETMESSAGE(22, 3, "Restart Window Manager?"));
+
     if ((confirm_mesg[2] =
          (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
     {
         Warning (((char *)GETMESSAGE(22, 5, "Insufficient memory for local message string")));
-	if (MwmBehavior)
-	{
-	    confirm_mesg[2] = "Restart EMWM?";
+    
+	confirm_mesg[2] = "Restart Window Manager?";
+	
 	}
-	else
-	{
-	    confirm_mesg[2] = "Restart Workspace Manager?";
-	}
-    }
     else
     {
 	strcpy(confirm_mesg[2], tmpString);
     }
 
 
-
-    if (MwmBehavior)
-    {
-	tmpString = ((char *)GETMESSAGE(22, 6, "QUIT EMWM?"));
-    }
-    else
-    {
-#ifdef MINIMAL_DT
-	if (wmGD.dtLite)
-	{
-	    tmpString = ((char *)GETMESSAGE(22, 9, "Log out?"));
-	}
-	else
-	{
-	    tmpString = ((char *)GETMESSAGE(22, 11, "QUIT Workspace Manager?"));
-	}
-#else /* MINIMAL_DT */
-	tmpString = ((char *)GETMESSAGE(22, 11, "QUIT Workspace Manager?"));
-#endif /* MINIMAL_DT */
-    }
+	tmpString = ((char *)GETMESSAGE(22, 6, "QUIT Window Manager?"));
     
     if ((confirm_mesg[3] =
          (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
     {
         Warning (((char *)GETMESSAGE(22, 8, "Insufficient memory for local message string")));
-	if (MwmBehavior)
-	{
-	    confirm_mesg[3] = "QUIT EMWM?";
+
+	    confirm_mesg[3] = "QUIT Window Manager?";
 	}
-	else
-#ifdef MINIMAL_DT
-	if (wmGD.dtLite)
-	{
-	    confirm_mesg[3] = "Log out?";
-	}
-	else
-	{
-	    confirm_mesg[3] = "QUIT Workspace Manager?";
-	}
-#else /* MINIMAL_DT */
-	tmpString = ((char *)GETMESSAGE(22, 11, "QUIT Workspace Manager?"));
-#endif /* MINIMAL_DT */
-    }
     else
     {
 	strcpy(confirm_mesg[3], tmpString);
     }
-
-
 }
 #else
 static char *confirm_mesg[4] = {"Toggle to Default Behavior?",
 				"Toggle to Custom Behavior?",
-                                "Restart EMWM?",
-                                "QUIT EMWM?"};
+                                "Restart Window Manager?",
+                                "QUIT Window Manager?"};
 
 #endif
 static char *confirm_widget[4] = {"confirmDefaultBehavior",
@@ -860,13 +812,13 @@ void ConfirmAction (WmScreenData *pSD, int nbr)
         XtSetArg (args[n], XmNhighlightThickness, 
 		  (XtArgVal) CB_HIGHLIGHT_THICKNESS); n++;
 #ifndef NO_MESSAGE_CATALOG
-	XtSetArg(args[n], XmNlabelString, wmGD.okLabel); n++;
+	    XtSetArg(args[n], XmNlabelString, wmGD.okLabel); n++;
 #endif
         XtSetValues ( XmMessageBoxGetChild (pSD->confirmboxW[nbr], 
 			    XmDIALOG_OK_BUTTON), args, n);
 #ifndef NO_MESSAGE_CATALOG
-	n--;
-	XtSetArg(args[n], XmNlabelString, wmGD.cancelLabel); n++;
+	    n--;
+	    XtSetArg(args[n], XmNlabelString, wmGD.cancelLabel); n++;
 #endif
         XtSetValues ( XmMessageBoxGetChild (pSD->confirmboxW[nbr], 
 			    XmDIALOG_CANCEL_BUTTON), args, n);
@@ -993,9 +945,8 @@ void ShowWaitState (Boolean flag)
 
         XQueryColors (DISPLAY, 
 		      DefaultColormapOfScreen(DefaultScreenOfDisplay
-					      (DISPLAY)), 
-		      xcolors, 2);
-	waitCursor = XCreatePixmapCursor (DISPLAY, pixmap, maskPixmap,
+					      (DISPLAY)), xcolors, 2);
+        waitCursor = XCreatePixmapCursor (DISPLAY, pixmap, maskPixmap,
 	                                  &(xcolors[0]), &(xcolors[1]),
                                           xHotspot, yHotspot);
         XFreePixmap (DISPLAY, pixmap);

@@ -616,7 +616,7 @@ static Boolean AdjustPBs (MenuSpec *menuSpec, ClientData  *pCD,
 	    /* PushButton might not apply */
 	    {
 	        if ((pCD->clientFunctions & menuItem->mgtMask & MWM_MGT_MASK) ||
-		    (pCD->dtwmFunctions & menuItem->mgtMask & WSM_MGT_MASK))
+		    (pCD->wsmFunctions & menuItem->mgtMask & WSM_MGT_MASK))
 	        /* function applies -- manage it */
 	        {
 	            if (!menuButton->managed)

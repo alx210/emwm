@@ -3921,7 +3921,7 @@ Boolean F_Workspace_Presence (String args, ClientData *pCD, XEvent *event)
 {
     Context wsContext = (Context)NULL;
 
-    if (pCD && (pCD->dtwmFunctions & DtWM_FUNCTION_OCCUPY_WS))
+    if (pCD && (pCD->wsmFunctions & WSM_FUNCTION_OCCUPY_WS))
     {
 	if (pCD->clientState == NORMAL_STATE)
 	{

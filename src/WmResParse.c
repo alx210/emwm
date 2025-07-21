@@ -386,7 +386,7 @@ FunctionTableEntry functionTable[] = {
 			(FunctionTableParseProcT)ParseWmFuncNoArg},
     {"f.occupy_all", F_CONTEXT_ICONBOX|F_CONTEXT_ROOT,
 			CRS_ANY,
-			WSM_FUNC_OCCUPY_WS,
+			WSM_FUNCTION_OCCUPY_WS,
  			F_AddToAllWorkspaces,
 			(FunctionTableParseProcT)ParseWmFuncNoArg},
     {"f.pack_icons",	0,
@@ -452,7 +452,7 @@ FunctionTableEntry functionTable[] = {
 			(FunctionTableParseProcT)ParseWmFuncNoArg},
     {"f.remove",	F_CONTEXT_ROOT,
 			CRS_ANY,
-			WSM_FUNC_OCCUPY_WS,
+			WSM_FUNCTION_OCCUPY_WS,
 			F_Remove,
 			(FunctionTableParseProcT)ParseWmFuncNoArg},
     {"f.resize",	F_CONTEXT_ICON|F_CONTEXT_ROOT|
@@ -510,7 +510,7 @@ FunctionTableEntry functionTable[] = {
     {"f.workspace_presence", F_CONTEXT_ROOT|F_CONTEXT_ICONBOX|
                         F_SUBCONTEXT_IB_WICON,
  			CRS_ANY,
-			WSM_FUNC_OCCUPY_WS,
+			WSM_FUNCTION_OCCUPY_WS,
  			F_Workspace_Presence,
             (FunctionTableParseProcT)ParseWmFuncNoArg},
 #if defined(DEBUG)

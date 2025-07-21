@@ -30,7 +30,7 @@
 #define _XA_MWM_SM_CLIENT_ID		"SM_CLIENT_ID"
 #define _XA_MWM_WMSAVE_HINT		"_MWM_WMSAVE_HINT"
 
-/* _DT_WMSAVE_HINT flag definitions */
+/* _MWM_WMSAVE_HINT flag definitions */
 #define WMSAVE_X		(1L << 0)
 #define WMSAVE_Y		(1L << 1)
 #define WMSAVE_WIDTH		(1L << 2)

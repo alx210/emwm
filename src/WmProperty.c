@@ -1080,12 +1080,12 @@ GetMwmMenuItems(
  *
  *  Description:
  *  -----------
- *  This function sets up the _DT_WORKSPACE_INFO property
+ *  This function sets up the _MWM_WORKSPACE_INFO property
  *
  *
  *  Inputs:
  *  ------
- *  propWindow = window on which the _DT_WORKSPACE_INFO property is to be set
+ *  propWindow = window on which the _MWM_WORKSPACE_INFO property is to be set
  *  pWsInfo =  pointer to workspace info data
  *  cInfo = size of workspace info data
  * 
@@ -1094,8 +1094,8 @@ GetMwmMenuItems(
 
 void SetWorkspaceInfo (Window propWindow, WorkspaceInfo *pWsInfo, unsigned long cInfo)
 {
-    XChangeProperty (DISPLAY, propWindow, wmGD.xa_DT_WORKSPACE_INFO, 
-	wmGD.xa_DT_WORKSPACE_INFO,
+    XChangeProperty (DISPLAY, propWindow, wmGD.xa_MWM_WORKSPACE_INFO, 
+	wmGD.xa_MWM_WORKSPACE_INFO,
 	32, PropModeReplace, (unsigned char *)pWsInfo,
 	(cInfo * sizeof(WorkspaceInfo))/sizeof(long));
 
@@ -1110,7 +1110,7 @@ void SetWorkspaceInfo (Window propWindow, WorkspaceInfo *pWsInfo, unsigned long 
  *
  *  Description:
  *  -----------
- *  This function sets up the _DT_WORKSPACE_LIST property
+ *  This function sets up the _MWM_WORKSPACE_LIST property
  *
  *
  *  Inputs:
@@ -1138,7 +1138,7 @@ SetWorkspaceListProperty (WmScreenData *pSD)
     }
 
     XChangeProperty (DISPLAY, pSD->wmWorkspaceWin, 
-        wmGD.xa_DT_WORKSPACE_LIST, 
+        wmGD.xa_MWM_WORKSPACE_LIST, 
 	XA_ATOM,
 	32, PropModeReplace, (unsigned char *)pWsList,
 	(pSD->numWorkspaces * sizeof(Atom))/sizeof(long));
@@ -1155,7 +1155,7 @@ SetWorkspaceListProperty (WmScreenData *pSD)
  *
  *  Description:
  *  -----------
- *  This function sets up the _DT_WORKSPACE_CURRENT property
+ *  This function sets up the _MWM_WORKSPACE_CURRENT property
  *
  *
  *  Inputs:
@@ -1173,7 +1173,7 @@ SetCurrentWorkspaceProperty (WmScreenData *pSD)
     aCurrent = pSD->pActiveWS->id;
 
     XChangeProperty (DISPLAY, pSD->wmWorkspaceWin, 
-        wmGD.xa_DT_WORKSPACE_CURRENT, 
+        wmGD.xa_MWM_WORKSPACE_CURRENT, 
 	XA_ATOM,
 	32, PropModeReplace, (unsigned char *)&aCurrent,
 	(sizeof(Atom))/sizeof(long));
@@ -1190,7 +1190,7 @@ SetCurrentWorkspaceProperty (WmScreenData *pSD)
  *
  *  Description:
  *  -----------
- *  This function sets up the _DT_WORKSPACE_INFO_<name> property
+ *  This function sets up the _MWM_WORKSPACE_INFO_<name> property
  *  for a particular workspace
  *
  *
@@ -1316,7 +1316,7 @@ void SetWorkspaceInfoProperty (WmWorkspaceData *pWS)
  *
  *  Description:
  *  -----------
- *  This function deletes a _DT_WORKSPACE_INFO_<name> property
+ *  This function deletes a _MWM_WORKSPACE_INFO_<name> property
  *  for a particular workspace
  *
  *
@@ -1384,10 +1384,10 @@ WorkspacePropertyName (WmWorkspaceData *pWS)
      * Construct our property name
      */
     pchName = pWS->name;
-    len = strlen(pchName) + strlen (_XA_DT_WORKSPACE_INFO) + 4;
+    len = strlen(pchName) + strlen (_XA_MWM_WORKSPACE_INFO) + 4;
 
     pch = (char *) XtMalloc (len);
-    strcpy (pch, _XA_DT_WORKSPACE_INFO);
+    strcpy (pch, _XA_MWM_WORKSPACE_INFO);
     strcat (pch, "_");
     strcat (pch, pchName);
 
@@ -1403,12 +1403,12 @@ WorkspacePropertyName (WmWorkspaceData *pWS)
  *
  *  Description:
  *  -----------
- *  This function sets up the _DT_WORKSPACE_PRESENCE property
+ *  This function sets up the _MWM_WORKSPACE_PRESENCE property
  *
  *
  *  Inputs:
  *  ------
- *  propWindow = window on which the _DT_WORKSPACE_PRESENCE property 
+ *  propWindow = window on which the _MWM_WORKSPACE_PRESENCE property 
  *               is to be set
  *  pWsPresence =  pointer to workspace presence data
  *  cPresence = size of workspace presence data
@@ -1418,8 +1418,8 @@ WorkspacePropertyName (WmWorkspaceData *pWS)
 
 void SetWorkspacePresence (Window propWindow, Atom *pWsPresence, unsigned long cPresence)
 {
-    XChangeProperty (DISPLAY, propWindow, wmGD.xa_DT_WORKSPACE_PRESENCE, 
-	wmGD.xa_DT_WORKSPACE_PRESENCE, 32, PropModeReplace, 
+    XChangeProperty (DISPLAY, propWindow, wmGD.xa_MWM_WORKSPACE_PRESENCE, 
+	wmGD.xa_MWM_WORKSPACE_PRESENCE, 32, PropModeReplace, 
 	(unsigned char *)pWsPresence, cPresence);
     XFlush (DISPLAY);
 

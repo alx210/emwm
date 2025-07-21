@@ -21,19 +21,6 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-/* DtWmHints "flags" definitions */
-#define DtWM_HINTS_FUNCTIONS		(1L << 0)
-#define DtWM_HINTS_BEHAVIORS		(1L << 1)
-#define DtWM_HINTS_ATTACH_WINDOW	(1L << 2)	/* (reserved) */
-
-/* DtWmHints "functions" definitions */
-#define DtWM_FUNCTION_ALL		(1L << 0)
-#define DtWM_FUNCTION_OCCUPY_WS		(1L << 16)
-
-/* DtWmHints "behaviors" definitions */
-#define DtWM_BEHAVIOR_PANEL		(1L << 1)
-#define DtWM_BEHAVIOR_SUBPANEL		(1L << 2)
-#define DtWM_BEHAVIOR_SUB_RESTORED	(1L << 3)
 
 /********    Public Function Declarations    ********/
 

@@ -178,6 +178,39 @@ void ProcessBackdropResources(WmWorkspaceData *pWS, unsigned long callFlags )
 
     pWS->backdrop.flags = BACKDROP_NONE;	/* by default */
 
+	/* Create a backdrop window if none exists yet */
+	if(!pWS->backdrop.window) {
+		xswa.override_redirect = True;    
+		xswa.background_pixel = pWS->backdrop.background; 
+		xswamask = CWOverrideRedirect | CWBackPixel;
+
+		if ((wmGD.keyboardFocusPolicy == KEYBOARD_FOCUS_POINTER) ||
+			(wmGD.colormapFocusPolicy == CMAP_FOCUS_POINTER))
+		{
+			/*
+			 * Listen for enter/levae events if we
+			 * have a pointer tracking focus policy
+			 */
+			xswamask |= CWEventMask;
+			xswa.event_mask = EnterWindowMask | LeaveWindowMask;
+		}
+		xswa.backing_store = NotUseful;
+		xswa.save_under = False;
+		xswamask |= (CWBackingStore | CWSaveUnder);
+
+		pWS->backdrop.window = XCreateWindow(DISPLAY, 
+			pWS->pSD->rootWindow, 
+			0, 0, 
+			DisplayWidth(DISPLAY, pWS->pSD->screen), 
+			DisplayHeight(DISPLAY, pWS->pSD->screen),
+			0, 
+			XDefaultDepth(DISPLAY,pWS->pSD->screen), 
+			CopyFromParent,
+			CopyFromParent, 
+			xswamask, 
+			&xswa);
+	}
+
     /*
      *  see if we're using a bitmap 
      */
@@ -225,7 +258,6 @@ void ProcessBackdropResources(WmWorkspaceData *pWS, unsigned long callFlags )
 		/*
 		 * No backdrop (root window shows through)
 		 */
-		pWS->backdrop.window = None;
 		pWS->backdrop.nameAtom = xa_NO_BACKDROP;
 		bNone = True;
 	    }
@@ -233,10 +265,7 @@ void ProcessBackdropResources(WmWorkspaceData *pWS, unsigned long callFlags )
 	    if (pch && !bNone)
 	    {
 		/*
-		 * Bitmap backdrop 
-		 * Load in the bitmap, create a pixmap of
-		 * the right depth, and make the backdrop
-		 * window if necessary.
+		 * Load in the bitmap, create a pixmap of the right depth.
 		 */
 		if ((callFlags & CHANGE_BACKDROP))
 		{
@@ -283,13 +312,15 @@ void ProcessBackdropResources(WmWorkspaceData *pWS, unsigned long callFlags )
 				 (char *)pch,
 				 pWS->backdrop.foreground,
 				 pWS->backdrop.background);
+
+			XSetWindowBackgroundPixmap (DISPLAY,
+			    pWS->backdrop.window,
+			    pWS->backdrop.imagePixmap);
 		}
 
-		if ((callFlags & CHANGE_BACKDROP) &&
-		    (pWS->backdrop.window))
+		if ((callFlags & CHANGE_BACKDROP))
 		{
-		    if (pWS->backdrop.imagePixmap !=
-			    XmUNSPECIFIED_PIXMAP)
+		    if (pWS->backdrop.imagePixmap != XmUNSPECIFIED_PIXMAP)
 		    {
 			XSetWindowBackgroundPixmap (DISPLAY,
 			    pWS->backdrop.window,
@@ -305,55 +336,6 @@ void ProcessBackdropResources(WmWorkspaceData *pWS, unsigned long callFlags )
 			    pWS->backdrop.window, 
 			    pWS->backdrop.background);
 		    }
-		}
-		else
-		{
-		    if (pWS->backdrop.imagePixmap !=
-			    XmUNSPECIFIED_PIXMAP)
-		    {
-			xswa.override_redirect = True;    
-			xswa.background_pixmap = 
-			    pWS->backdrop.imagePixmap; 
-			xswamask = CWOverrideRedirect | CWBackPixmap;
-		    }
-		    else
-		    {
-			xswa.override_redirect = True;    
-			xswa.background_pixel = 
-			    pWS->backdrop.background; 
-			xswamask = CWOverrideRedirect | CWBackPixel;
-		    }
-
-		    if ((wmGD.keyboardFocusPolicy == 
-					KEYBOARD_FOCUS_POINTER) ||
-			(wmGD.colormapFocusPolicy == 
-					CMAP_FOCUS_POINTER))
-		    {
-			/*
-			 * Listen for enter/levae events if we
-			 * have a pointer tracking focus policy
-			 */
-			xswamask |= CWEventMask;
-			xswa.event_mask = EnterWindowMask | 
-						LeaveWindowMask;
-		    }
-
-		    xswa.backing_store = NotUseful;
-		    xswa.save_under = False;
-		    xswamask |= (CWBackingStore | CWSaveUnder);
-
-		    pWS->backdrop.window = XCreateWindow(DISPLAY, 
-		       pWS->pSD->rootWindow, 
-		       0, 0, 
-		       DisplayWidth(DISPLAY, pWS->pSD->screen), 
-		       DisplayHeight(DISPLAY, pWS->pSD->screen),
-		       0, 
-		       XDefaultDepth(DISPLAY,pWS->pSD->screen), 
-		       CopyFromParent,
-		       CopyFromParent, 
-		       xswamask, 
-		       &xswa);
-
 		}
 
 		if (pch &&

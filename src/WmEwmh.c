@@ -38,6 +38,7 @@
 #include "WmWinConf.h"
 #include "WmFunction.h"
 #include "WmProtocol.h"
+#include "WmWrkspace.h"
 #include "WmEwmh.h"
 
 static void* FetchWindowProperty(Window wnd, Atom prop,
@@ -53,6 +54,8 @@ enum ewmh_atom {
 	_NET_SUPPORTED, _NET_SUPPORTING_WM_CHECK, _NET_CLOSE_WINDOW,
 	_NET_REQUEST_FRAME_EXTENTS, _NET_MOVERESIZE_WINDOW, 
 	_NET_FRAME_EXTENTS, _NET_ACTIVE_WINDOW, _NET_CLIENT_LIST,
+	_NET_NUMBER_OF_DESKTOPS, _NET_DESKTOP_GEOMETRY, _NET_DESKTOP_VIEWPORT,
+	_NET_CURRENT_DESKTOP, _NET_DESKTOP_NAMES,
 	_NET_WM_NAME, _NET_WM_ICON_NAME, _NET_WM_STATE,
 	_NET_WM_STATE_FULLSCREEN, _NET_WM_STATE_MAXIMIZED_VERT,
 	_NET_WM_STATE_MAXIMIZED_HORZ, _NET_WM_STATE_HIDDEN,
@@ -73,6 +76,8 @@ static char *ewmh_atom_names[_NUM_EWMH_ATOMS]={
 	"_NET_SUPPORTED", "_NET_SUPPORTING_WM_CHECK", "_NET_CLOSE_WINDOW",
 	"_NET_REQUEST_FRAME_EXTENTS", "_NET_MOVERESIZE_WINDOW", 
 	"_NET_FRAME_EXTENTS", "_NET_ACTIVE_WINDOW", "_NET_CLIENT_LIST",
+	"_NET_NUMBER_OF_DESKTOPS","_NET_DESKTOP_GEOMETRY", "_NET_DESKTOP_VIEWPORT",
+	"_NET_CURRENT_DESKTOP", "_NET_DESKTOP_NAMES",
 	"_NET_WM_NAME", "_NET_WM_ICON_NAME", "_NET_WM_STATE",
 	"_NET_WM_STATE_FULLSCREEN", "_NET_WM_STATE_MAXIMIZED_VERT",
 	"_NET_WM_STATE_MAXIMIZED_HORZ", "_NET_WM_STATE_HIDDEN",
@@ -84,6 +89,7 @@ static char *ewmh_atom_names[_NUM_EWMH_ATOMS]={
 	"_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_SPLASH",
 	"_NET_WM_WINDOW_TYPE_TOOLBAR", "_NET_WM_WINDOW_TYPE_UTILITY",
 	"_NET_WM_WINDOW_TYPE_DIALOG"
+
 };
 
 /* Initialized in SetupEwhm() */
@@ -133,7 +139,7 @@ void ProcessEwmh(ClientData *pCD)
 	unsigned long size = 0;
 	
 	sz = FetchWindowProperty(pCD->client,
-		ewmh_atoms[_NET_WM_NAME],XA_UTF8_STRING,&size);
+		ewmh_atoms[_NET_WM_NAME], XA_UTF8_STRING, &size);
 	if(size){
 		if(pCD->ewmhClientTitle) XmStringFree(pCD->ewmhClientTitle);
 		pCD->ewmhClientTitle = XmStringCreateLocalized(sz);
@@ -549,6 +555,107 @@ void ConfigureEwmhFullScreen(ClientData *pCD, Boolean set)
 }
 
 /*
+ * Sets/updates workspace (AKA EWMH virtual desktops) properties
+ */
+void UpdateEwmhWorkspaceProperties(WmScreenData *pSD)
+{
+	int i;
+	unsigned long nws = (unsigned long)pSD->numWorkspaces;
+	unsigned long ws_geom[2];
+	char *names;
+	size_t names_len = 0;
+	
+	for(i = 0; i < pSD->numWorkspaces; i++)
+		names_len += XmStringLength(pSD->pWS[i].title) + 1;
+
+	if((names = malloc(names_len + 1)) ) {
+		char *ptr = names;
+		names_len = 0;
+		
+		for(i = 0; i < pSD->numWorkspaces; i++) {
+			size_t len;
+			char *title_sz = XmStringUnparse(pSD->pWS[i].title,
+				NULL, XmMULTIBYTE_TEXT, XmMULTIBYTE_TEXT,
+				NULL, 0, XmOUTPUT_ALL);
+
+			len = strlen(title_sz);
+
+			memcpy(ptr, title_sz, len);
+			ptr += len;
+			ptr[0] = '\0';
+			ptr++;
+			
+			names_len += len + 1;
+
+			XtFree(title_sz);
+		}
+	} else {
+		Warning("Failed to set EWMH workspace names. "
+			"Memory allocation error.\n");
+		names_len = 1;
+		names = strdup("\0");
+	}
+	
+	XChangeProperty(DISPLAY, pSD->rootWindow,
+		ewmh_atoms[_NET_DESKTOP_NAMES], XA_UTF8_STRING, 8,
+		PropModeReplace, (unsigned char*)names, names_len);
+	
+	XChangeProperty(DISPLAY, pSD->rootWindow,
+		ewmh_atoms[_NET_NUMBER_OF_DESKTOPS], XA_CARDINAL,
+		32, PropModeReplace, (unsigned char*)&nws, 1);
+	
+	ws_geom[0] = (unsigned long) DisplayWidth(DISPLAY, pSD->screen);
+	ws_geom[1] = (unsigned long) DisplayHeight(DISPLAY, pSD->screen);
+	XChangeProperty(DISPLAY, pSD->rootWindow,
+		ewmh_atoms[_NET_DESKTOP_GEOMETRY], XA_CARDINAL,
+		32, PropModeReplace, (unsigned char*)ws_geom, 2);
+
+	ws_geom[0] = 0L;
+	ws_geom[1] = 0L;
+	XChangeProperty(DISPLAY, pSD->rootWindow,
+		ewmh_atoms[_NET_DESKTOP_VIEWPORT], XA_CARDINAL,
+		32, PropModeReplace, (unsigned char*)ws_geom, 2);
+	
+	free(names);
+}
+
+/*
+ * Sets the EWMH current desktop property
+ */
+void UpdateEwmhActiveWorkspace(WmScreenData *pSD, WorkspaceID id)
+{
+	int i;
+	unsigned long data;
+
+	/* EWMH works with workspace indices */
+	for(i = 0; i < pSD->numWorkspaces; i++)
+		if(pSD->pWS[i].id == id) break;
+	
+	data = (unsigned long) i;
+
+	XChangeProperty(DISPLAY, pSD->rootWindow,
+		ewmh_atoms[_NET_CURRENT_DESKTOP], XA_CARDINAL,
+		32, PropModeReplace, (unsigned char*)&data, 1);
+}
+
+/*
+ * Handle EWMH client messages sent to the root window.
+ * Called from HandleClientMessage() after all ICCCM processing is done.
+ */
+void HandleEwmhRootClientMessage(WmScreenData *pSD, XClientMessageEvent *evt)
+{
+	if(evt->message_type == ewmh_atoms[_NET_CURRENT_DESKTOP]) {
+		int wsi = (int)evt->data.l[0];
+		
+		if(wsi < pSD->numWorkspaces)
+			ChangeToWorkspace(&pSD->pWS[wsi]);
+		else
+			Warning("Invalid workspace index in "
+				"_NET_CURRENT_DESKTOP request.\n");
+	}
+}
+
+/*
  * Sets the _NET_WM_ACTIVE_WINDOW property on client's root
  */
 void SetEwmhActiveWindow(ClientData *pCD)
@@ -767,9 +874,9 @@ static Pixmap GetIconPixmap(const ClientData *pCD)
 	bg.red >>= 8; bg.green >>= 8; bg.blue >>= 8;
 	
 	/* figure out what server pixels are like */
-	red_shift = visual->red_mask?ffs(visual->red_mask)-1:0;
-	green_shift = visual->green_mask?ffs(visual->green_mask)-1:0;
-	blue_shift = visual->blue_mask?ffs(visual->blue_mask)-1:0;
+	red_shift = visual->red_mask ? ffs(visual->red_mask) -1 : 0;
+	green_shift = visual->green_mask ? ffs(visual->green_mask) -1 : 0;
+	blue_shift = visual->blue_mask ? ffs(visual->blue_mask) -1 : 0;
 
 	/* scale and alpha-blend RGBA to XImage, then  make a pixmap out of it */
 	dx = (float)rgb_width / dest_img->width;

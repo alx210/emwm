@@ -3789,7 +3789,7 @@ Window GrabWin (ClientData *pcd, XEvent *pev)
  *  Comments:
  *  --------
  *  Selection info is dumped into a root window property:
- *    _DT_MARQUEE_SELECTION
+ *    _MWM_MARQUEE_SELECTION
  * 
  *************************************<->***********************************/
 void

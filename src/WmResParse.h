@@ -62,7 +62,6 @@ void ParseSessionWorkspaces (WmScreenData *pSD,  int count,
 			     unsigned char *string);
 void ParseSessionHost (WmScreenData *pSD,  int count,
 			     unsigned char *string);
-void ParseDtSessionHints (WmScreenData *pSD, unsigned char *property);
 int             ParseWmFunction (unsigned char **linePP, unsigned int res_spec, WmFunction *pWmFunction);
 void            PWarning (char *message);
 void            SaveMenuAccelerators (WmScreenData *pSD, MenuSpec *newMenuSpec);

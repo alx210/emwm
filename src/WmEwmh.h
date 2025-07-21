@@ -30,8 +30,11 @@ void ProcessEwmhWindowType(ClientData *pCD);
 void SetEwmhActiveWindow(ClientData *pCD);
 void HandleEwmhCPropertyNotify(ClientData *pCD, XPropertyEvent *evt);
 void HandleEwmhClientMessage(ClientData *pCD, XClientMessageEvent *evt);
+void HandleEwmhRootClientMessage(WmScreenData *pCD, XClientMessageEvent *evt);
 void ConfigureEwmhFullScreen(ClientData *pCD, Boolean set);
 void UpdateEwmhClientList(WmScreenData *pSD);
 void UpdateEwmhClientState(ClientData *pCD);
+void UpdateEwmhWorkspaceProperties(WmScreenData *pSD);
+void UpdateEwmhActiveWorkspace(WmScreenData *pSD, WorkspaceID id);
 
 #endif /* WmEwmh_h */
