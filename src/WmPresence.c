@@ -517,28 +517,21 @@ wspCreateShell(
 
     i=0;
 
+    XtSetArg (setArgs[i], XmNuseAsyncGeometry, True);	i++;
     XtSetArg (setArgs[i], XmNallowShellResize, (XtArgVal)True);	i++; 
-    
     XtSetArg (setArgs[i], XmNborderWidth, (XtArgVal)0); 	i++; 
-
     XtSetArg (setArgs[i], XmNkeyboardFocusPolicy, 
 	(XtArgVal)XmEXPLICIT); 					i++;
-
     XtSetArg (setArgs[i], XmNmappedWhenManaged, 
 	(XtArgVal)False); 					i++;
-
     XtSetArg (setArgs[i], XmNmwmFunctions, 
 	PRESENCE_BOX_FUNCTIONS);				i++;
-
     XtSetArg (setArgs[i], XmNmwmDecorations, 
-	(MWM_DECOR_TITLE|MWM_DECOR_BORDER));	i++;
-
+		(MWM_DECOR_TITLE|MWM_DECOR_BORDER));	i++;
     XtSetArg (setArgs[i], XmNdepth, 
 	(XtArgVal) DefaultDepth (DISPLAY1, pSD->screen)); 	i++;
-
     XtSetArg (setArgs[i], XmNscreen, (XtArgVal) 
 	ScreenOfDisplay (DISPLAY1, pSD->screen)); 		i++;
-
     XtSetArg (setArgs[i], XtNcolormap, 
 	(XtArgVal )DefaultColormap(DISPLAY1, pSD->screen));	i++;
 
