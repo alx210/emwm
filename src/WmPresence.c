@@ -43,6 +43,7 @@
 #include <Xm/List.h>
 #include <Xm/SeparatoG.h>
 #include <Xm/ToggleB.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <signal.h>
 #include <stdio.h>
@@ -76,6 +77,7 @@ static void wspCancelCB( Widget buttonW,
 	XtPointer client_data, XtPointer call_data);
 static void wspExtendedSelectCB(Widget w,
 	XtPointer client_data, XmListCallbackStruct *cb);
+static XmString ShortenXmString(XmString, size_t max_chrs, Boolean ltor);
 
 /* static Dimension wspCharWidth(XmFontList xmfl); */
 
@@ -94,6 +96,10 @@ static void wspExtendedSelectCB(Widget w,
 #include "WmWinInfo.h"
 #include "WmWrkspace.h"
 
+/* Contemporary applications tend to set window titles to enormously long
+ * strings, which blow up dialogs that show them in labels, hence we'll
+ * abbreviate anything longer than this */
+#define WINDOW_TITLE_MAX 24
 
 /*
  * Global Variables:
@@ -232,6 +238,8 @@ ShowPresenceBox(
 	HidePresenceBox (pSD, True);
     }
 
+	XmProcessTraversal(pPres->workspaceListW, XmTRAVERSE_CURRENT);
+
     /* update workspace list  */
     wspUpdateWorkspaceList (pPres);
 
@@ -272,6 +280,7 @@ ShowPresenceBox(
 
 static void wspSetWindowName(PtrWsPresenceData pPres)
 {
+	XmString title;
 	Arg nameArgs[1];
 	Arg labelArgs[1];
 
@@ -280,23 +289,29 @@ static void wspSetWindowName(PtrWsPresenceData pPres)
 	 */
 	if(pPres->contextForClient == F_CONTEXT_ICON)
 	{
-		XtSetArg(nameArgs[0], XmNlabelString,
-			pPres->pCDforClient->ewmhIconTitle ?
+		title = ShortenXmString(
+			(pPres->pCDforClient->ewmhIconTitle ?
 			pPres->pCDforClient->ewmhIconTitle :
-			pPres->pCDforClient->iconTitle);
+			pPres->pCDforClient->iconTitle),
+			WINDOW_TITLE_MAX, False);
 		
+		XtSetArg(nameArgs[0], XmNlabelString, title);
 		XtSetArg(labelArgs[0], XmNlabelString, iconLabelString);
 	} else {
-		XtSetArg(nameArgs[0], XmNlabelString,
-			pPres->pCDforClient->ewmhClientTitle ?
+		title = ShortenXmString(
+			(pPres->pCDforClient->ewmhClientTitle ?
 			pPres->pCDforClient->ewmhClientTitle :
-			pPres->pCDforClient->clientTitle);
-		
+			pPres->pCDforClient->clientTitle),
+			WINDOW_TITLE_MAX, False);
+
+		XtSetArg(nameArgs[0], XmNlabelString, title);
 		XtSetArg(labelArgs[0], XmNlabelString, windowLabelString);
 	}
 
 	XtSetValues(pPres->windowNameW, nameArgs, 1);
 	XtSetValues(pPres->windowLabelW, labelArgs, 1);
+
+	XmStringFree(title);
 
 } /* END OF FUNCTION  wspSetWindowName */
 
@@ -1260,10 +1275,8 @@ wspLayout(
     XtSetArg (args[n], XmNtopAttachment, XmATTACH_WIDGET);	n++;
     XtSetArg (args[n], XmNtopWidget, pPres->sepW);		n++;
     XtSetArg (args[n], XmNtopOffset, SEP_OFFSET);		n++;
-    XtSetArg (args[n], XmNleftAttachment, XmATTACH_POSITION);	n++;
-    XtSetArg (args[n], XmNleftPosition, 5);			n++;
-    XtSetArg (args[n], XmNrightAttachment, XmATTACH_POSITION);	n++;
-    XtSetArg (args[n], XmNrightPosition, 30);			n++;
+    XtSetArg (args[n], XmNleftAttachment, XmATTACH_FORM);	n++;
+    XtSetArg (args[n], XmNleftOffset, 5);			n++;
     XtSetArg (args[n], XmNbottomAttachment, XmATTACH_POSITION);	n++;
     XtSetArg (args[n], XmNbottomPosition, 95);			n++;
     XtSetValues (pPres->OkW, args, n);
@@ -1272,10 +1285,8 @@ wspLayout(
     XtSetArg (args[n], XmNtopAttachment, XmATTACH_WIDGET);	n++;
     XtSetArg (args[n], XmNtopWidget, pPres->sepW);		n++;
     XtSetArg (args[n], XmNtopOffset, SEP_OFFSET);		n++;
-    XtSetArg (args[n], XmNleftAttachment, XmATTACH_POSITION);	n++;
-    XtSetArg (args[n], XmNleftPosition, 36);			n++;
-    XtSetArg (args[n], XmNrightAttachment, XmATTACH_POSITION);	n++;
-    XtSetArg (args[n], XmNrightPosition, 66);			n++;
+    XtSetArg (args[n], XmNrightAttachment, XmATTACH_FORM);	n++;
+    XtSetArg (args[n], XmNrightOffset, 5);			n++;
     XtSetArg (args[n], XmNbottomAttachment, XmATTACH_POSITION);	n++;
     XtSetArg (args[n], XmNbottomPosition, 95);			n++;
     XtSetValues (pPres->CancelW, args, n);
@@ -1660,5 +1671,72 @@ UpdatePresenceWorkspaces(
     }
 
 } /* END OF FUNCTION UpdatePresenceWorkspaces */
+
+/* 
+ * Shortens an XmString to max_chrs. Always returns a newly allocated,
+ * eventually shortened, version on success, or NULL on failure.
+ */
+XmString ShortenXmString(XmString xmstr, size_t max_chrs, Boolean ltor)
+{
+	char *sz;
+	size_t nbytes;
+	size_t nchrs = 0;
+	size_t i = 0;
+	char *result;
+	XmString new_xmstr;
+
+	sz = XmStringUnparse(xmstr, NULL, XmMULTIBYTE_TEXT,
+			XmMULTIBYTE_TEXT, NULL, 0, XmOUTPUT_ALL);
+	
+	if(!sz) return NULL;
+
+	mblen(NULL, 0);
+	
+	nbytes = strlen(sz);
+		
+	while(sz[i]) {
+		int n = mblen(sz + i, nbytes - i);
+		if(n <= 0) break;
+		nchrs++;
+		i += n;
+	}
+
+	if(nchrs <= max_chrs) {
+		return XmStringCopy(xmstr);
+	}
+	
+	mblen(NULL, 0);
+	
+	if(ltor) {
+		int i;
+		size_t n, nskip = nchrs - (max_chrs - 3);
+		
+		for(n = 0, i = 0; n < nskip; n++) { 
+			i += mblen(sz + i, nbytes - i);
+		}
+		nbytes = strlen(sz + i);
+		result = malloc(nbytes + 4);
+		if(!result) return NULL;
+		sprintf(result, "...%s", sz + i);
+	} else {
+		int i;
+		size_t n, nskip = nchrs - (nchrs - (max_chrs - 3));
+		
+		for(n = 0, i = 0; n < nskip; n++) { 
+			i += mblen(sz + i, nbytes - i);
+		}
+		result = malloc(i + 4);
+		if(!result) return NULL;
+		strncpy(result, sz, i);
+		result[i] = '\0';
+		strcat(result, "...");	
+	}
+	
+	new_xmstr = XmStringGenerate(result, NULL, XmMULTIBYTE_TEXT, NULL);
+	free(result);
+	
+	return new_xmstr;
+}
+
 
 /****************************   eof    ***************************/
