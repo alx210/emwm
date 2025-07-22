@@ -1,0 +1,27 @@
+Libraries and Headers required for building:
+
+libx11 
+libxt
+libxext
+libxrandr
+libxinerama
+libxm (open-motif/motif)
+
+BUILDING AND INSTALLING
+=======================
+To modify installation prefix and other options, edit the target platform
+specific makefile in the mf subdirectory: mf/Makefile.<platform name> (The
+target platform name is picked from uname(1)).
+
+Run 'make' in the top-level directory of the source distribution.
+When the build process finishes, run 'make install' as root.
+
+CONFIGURATION
+=============
+The app-defaults file installed in PREFIX/X11/app-defaults/Emwm includes basic
+font and color configuration for window decorations. See emwm(1) Component
+Appearance Resources section for more information.
+
+A sample emwmrc, which defines key bindings and root/window menus, is installed
+in PREFIX/X11/system.emwmrc. This file may be copied to $HOME/.emwmrc for
+customization. The emwmrc(4) man-page describes the syntax in detail.

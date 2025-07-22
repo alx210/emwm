@@ -1,30 +1,81 @@
-EMWM is a lightweight window manager for X11. It is derived from MWM, adding
-support for UTF-8, Xinerama and Extended Window Manager Hints.
+EMWM - WSM Branch Readme
+-------------------------
+Restoring the Workspace Manager/Virtual Desktop support that originally
+appeared with Motif 2.0 release, and became dysfunctional in 2.1
 
-Libraries and Headers required for building:
+This is mostly the original implementation, with all external dependencies
+removed, and the simple EWMH interface attached to it. The aim for this branch
+is to make it the master, once it's considered stable enough.
 
-libx11 
-libxt
-libxext
-libxrandr
-libxinerama
-libxm (open-motif/motif)
+Note that due to many changes to the code, and only mandatory testing done,
+it's not recommended for everyday use yet.
 
-BUILDING AND INSTALLING
-=======================
-To modify installation prefix and other options, edit the target platform
-specific makefile in the mf subdirectory: mf/Makefile.<platform name> (The
-target platform name is picked from uname(1)).
+See the INSTALL file for prerequisites and build instructions.
 
-Run 'make' in the top-level directory of the source distribution.
-When the build process finishes, run 'make install' as root.
+The documentation hasn't been updated to reflect the changes yet, but here are
+a few pointers to get it working...
 
-CONFIGURATION
-=============
-The app-defaults file installed in PREFIX/X11/app-defaults/Emwm includes basic
-font and color configuration for window decorations. See emwm(1) Component
-Appearance Resources section for more information.
+RC Files
+----------
+EMWM 1.3 configuration files in /etc/X11/system.emwmrc and ~/.emwmrc will
+interfere with the workspace functionality, since they don't have any bindings
+(window and root menu) defined for it. The repository includes an updated
+configuration file "src/system.emwmrc" which should be used instead.
 
-A sample emwmrc, which defines key bindings and root/window menus, is installed
-in PREFIX/X11/system.emwmrc. This file may be copied to $HOME/.emwmrc for
-customization. The emwmrc(4) man-page describes the syntax in detail.
+X Resources
+-----------
+Emwm*workspaceCount: <integer>
+Specifies the number of workspaces to create.
+
+Workspaces are referred to as Emwm*ws<number>, while number is the zero based
+workspace index. That is, "Emwm*ws0*image: backdrop.xpm" will set the backdrop
+image for the first workspace, while "Emwm*ws0*color: olivedrab" sets its
+background color.
+
+Key Bindings
+------------
+There is no workspace switcher, but here are sample bindings for the root menu,
+which include Previous/Next commands as well as a sub-menu for direct switching:
+
+Menu DefaultRootMenu
+{
+    "Main Menu"         f.title
+    "New Xterm"         f.exec "xterm &"
+     no-label           f.separator
+    "Shuffle Up"        f.circle_up
+    "Shuffle Down"      f.circle_down
+    "Pack Icons"        f.pack_icons
+     no-label           f.separator
+    "Prev. Workspace"   f.prev_workspace
+    "Next Workspace"    f.next_workspace
+    "Go To Workspace"   f.menu WorkspaceList
+     no-label           f.separator
+    "Restart..."        f.restart
+    "Quit..."           f.quit
+}
+
+!! Sub-menu for "Go To Workspace"
+Menu WorkspaceList
+{
+    "Workspace I"   f.goto_workspace ws0
+    "Workspace II"  f.goto_workspace ws1
+    "Workspace III" f.goto_workspace ws2
+    "Workspace IV"  f.goto_workspace ws3
+}
+
+!! Window Menu with workspace switching bindings
+Menu DefaultWindowMenu
+{
+	Restore		_R	Alt<Key>F5	f.restore
+	Move		_M	Alt<Key>F7	f.move
+	Size		_S	Alt<Key>F8	f.resize
+	Minimize	_n	Alt<Key>F9	f.minimize
+	Maximize	_x	Alt<Key>F10	f.maximize
+	Lower		_L	Alt<Key>F3	f.lower
+	no-label				f.separator
+	"Occupy Workspace..."	_O	Alt<Key>F2 f.workspace_presence
+    "Occupy All Workspaces"	_A	f.occupy_all
+    "Unoccupy Workspace"	_U	f.remove
+	no-label				f.separator	
+	Close		_C	Alt<Key>F4	f.kill
+}
