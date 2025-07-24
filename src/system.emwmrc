@@ -1,21 +1,23 @@
 ! Default menu and keybinding configuration for EMWM.
 ! Copy this file to ~/.emwmrc for customization.
 
-! Root Menu 
+! Root Menu
 Menu DefaultRootMenu
 {
-	"Root Menu"		f.title
-	"New Terminal"	f.exec "xterm &"
-	"Shuffle Up"	f.circle_up
-	"Shuffle Down"	f.circle_down
-	"Refresh"		f.refresh
-	"Pack Icons"	f.pack_icons
+	"Main Menu"		f.title
+	"New Xterm"		f.exec "xterm &"
 	 no-label		f.separator
-	"Restart..."	f.restart
-	"Quit..."		f.quit_wm
+	"Shuffle Up"		f.circle_up
+	"Shuffle Down"		f.circle_down
+	"Pack Icons"		f.pack_icons
+	 no-label		f.separator
+	"Next Workspace" f.next_workspace
+	"Prev. Workspace" f.prev_workspace
+	 no-label		f.separator
+	"Restart..."		f.restart
 }
 
-! Window Menu
+! Window menu
 Menu DefaultWindowMenu
 {
 	Restore		_R	Alt<Key>F5	f.restore
@@ -24,7 +26,11 @@ Menu DefaultWindowMenu
 	Minimize	_n	Alt<Key>F9	f.minimize
 	Maximize	_x	Alt<Key>F10	f.maximize
 	Lower		_L	Alt<Key>F3	f.lower
-	no-label	f.separator
+	no-label				f.separator
+	"Occupy Workspace..."	_O	Alt<Key>F2 f.workspace_presence
+	"Occupy All Workspaces"	_A	f.occupy_all
+	"Unoccupy Workspace"	_U	f.remove
+	no-label				f.separator	
 	Close		_C	Alt<Key>F4	f.kill
 }
 
