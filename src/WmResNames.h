@@ -171,17 +171,15 @@
 #define WmNdefaults			"defaults"
 #define WmNbackdrop			"backdrop"
 #define WmNcolorSetId			"colorSetId"
-#define WmNfrontPanel			"frontPanel"
 #define WmNworkspaceController		"workspaceController"
 #define WmNworkspacePresence		"workspacePresence"
-#define WmNworkspaceSwitch		"workspaceSwitch"
+#define WmNcolor             "color"
 
 
 /* window manager client resource names: */
 
 #define WmNiconBox			"iconbox"
 #define WmNconfirmbox			"confirmbox"
-#define WmNswitcher			"switcher"
 
 
 /*************************************<->*************************************
@@ -333,16 +331,15 @@
 #define WmCDefaults			"Defaults"
 #define WmCBackdrop			"Backdrop"
 #define WmCColorSetId			"ColorSetId"
-#define WmCFrontPanel			"FrontPanel"
 #define WmCWorkspaceController		"WorkspaceController"
 #define WmCWorkspacePresence		"WorkspacePresence"
-#define WmCWorkspaceSwitch		"WorkspaceSwitch"
+#define WmCColor            "Color"
 
 /* window manager client resource names: */
 
 #define WmCIconBox			"Iconbox"
-#define WmCConfirmbox			"Confirmbox"
-#define WmCSwitcher			"Switcher"
+#define WmCConfirmbox		"Confirmbox"
+
 
 
 /*************************************<->*************************************
@@ -355,7 +352,7 @@
  * 
  *************************************<->***********************************/
 
-#define WmRAbsentMapBehavior            "WmAMBehavior"
+#define WmRAbsentMapBehavior    "WmAMBehavior"
 #define WmRCFocusPolicy			"WmCFocus"
 #define WmRClientDecor			"WmCDecor"
 #define WmRClientFunction		"WmCFunc"

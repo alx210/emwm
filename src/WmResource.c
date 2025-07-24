@@ -1361,7 +1361,7 @@ XtResource wmScreenResources[] =
 	sizeof (int),
         XtOffsetOf (WmScreenData, numWorkspaces),
 	XtRImmediate,
-	(XtPointer)0
+	(XtPointer)4
     }
 
 };
@@ -1539,6 +1539,16 @@ XtResource wmStdWorkspaceResources[] =
 
 XtResource wmBackdropResources[] =
 {
+    {
+	WmNcolor,
+	WmCColor,
+	XtRPixel,
+	sizeof (Pixel),
+	XtOffsetOf (BackdropData, defBackground),
+	XtRString,
+	(XtPointer) "#4C719E"
+    },
+
     {
 	WmNcolorSetId,
 	WmCColorSetId,
@@ -2645,14 +2655,13 @@ void _WmBackdropBgDefault (Widget widget, int offset, XrmValue *value)
 	/*
 	 *  Color server is unavailable.  Has user specified a colorset?
 	 *
-	 *  If not, go monochrome.
+	 *  If not, use fallback.
 	 *
 	 */
-	    pixValue = WhitePixel (DISPLAY, pResWS->pSD->screen);
+	    pixValue = pResWS->backdrop.defBackground;
     }
 
     /* return the dynamic default */
-
     value->addr = (char *) &pixValue;
     value->size = sizeof (Pixel);
 
@@ -2690,7 +2699,7 @@ void _WmBackdropFgDefault (Widget widget, int offset, XrmValue *value)
 	/*
 	 *  Color server is unavailable.  Has user specified a colorset?
 	 *
-	 *  If not, go monochrome.
+	 *  If not, use fallback.
 	 *
 	 */
 	    pixValue = BlackPixel (DISPLAY, pResWS->pSD->screen);
@@ -4616,16 +4625,16 @@ ProcessScreenResources (WmScreenData *pSD, unsigned char *screenName)
 		((double) DisplayWidthMM(DISPLAY, pSD->screen)));
 	yres = (((double) DisplayHeight(DISPLAY, pSD->screen)) / 
 		((double) DisplayHeightMM(DISPLAY, pSD->screen)));
-
+	
 	avg_res = (xres + yres) / 2.0;
 
 	/* Multiply times width in mm (avg. 7-8 pixels) */
 	if (pSD->resizeBorderWidth == (Dimension)BIGSIZE)
 	{
-	    pSD->resizeBorderWidth = (int) (avg_res * 2.2);
+	    pSD->resizeBorderWidth = (int) (avg_res * 2.5);
 
 	    /* limit size because big borders look ugly */
-		if (pSD->resizeBorderWidth > 6) pSD->resizeBorderWidth = 6;
+		if (pSD->resizeBorderWidth > 7) pSD->resizeBorderWidth = 7;
 	}
 
 	/* Multiply times width in mm (avg. 5-6 pixels) */
@@ -4634,18 +4643,17 @@ ProcessScreenResources (WmScreenData *pSD, unsigned char *screenName)
 	    pSD->frameBorderWidth = (int) (avg_res * 1.7);
 
 	    /* limit size because big borders look ugly */
-            if (wmGD.frameStyle == WmSLAB)
-	    {
-		if (pSD->frameBorderWidth > 4) pSD->frameBorderWidth = 4;
-	    }
-	    else
+        if (wmGD.frameStyle == WmSLAB)
 	    {
 		if (pSD->frameBorderWidth > 5) pSD->frameBorderWidth = 5;
 	    }
+	    else
+	    {
+		if (pSD->frameBorderWidth > 6) pSD->frameBorderWidth = 6;
+	    }
 	}
     }
-
-
+	
     pSD->externalBevel = FRAME_EXTERNAL_SHADOW_WIDTH;
     pSD->joinBevel = FRAME_INTERNAL_SHADOW_WIDTH;
     if (pSD->frameBorderWidth < 

@@ -1278,6 +1278,7 @@ typedef struct _WmBackdropData
     int			colorSet;		/* resource */
     Pixel 		background;		/* resource */
     Pixel 		foreground;		/* resource */
+	Pixel       defBackground;  /* resource */
     unsigned int	flags;
     Window		window;
 } BackdropData;
