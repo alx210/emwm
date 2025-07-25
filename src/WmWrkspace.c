@@ -992,6 +992,7 @@ PutClientIntoWorkspace(
 	{
 	    k = pCD->sizeWsList - j;
 	    pCD->pWsList[k].iconPlace = NO_ICON_PLACE;
+		pCD->pWsList[k].IPData = NULL;
 	    pCD->pWsList[k].iconX = 0;
 	    pCD->pWsList[k].iconY = 0;
 	    pCD->pWsList[k].iconFrameWin = (Window) 0;
@@ -2424,8 +2425,7 @@ InsureIconForWorkspace(
     if (pCD->clientFunctions & MWM_FUNC_MINIMIZE)
     {
 	pWsc = GetWsClientData (pWS, pCD);
-
-	if ((!pCD->pSD->useIconBox) || (pCD->clientFlags & ICON_BOX))
+	if ((pCD->pSD->useIconBox) && !(pCD->clientFlags & CLIENT_WM_CLIENTS))
 	{
 	    /*
 	     * Create a new widget for the icon box
@@ -2458,9 +2458,9 @@ InsureIconForWorkspace(
 	    pWsc->iconFrameWin = pCD->pWsList[0].iconFrameWin;
 	    pWsc->iconX = ICON_X(pCD); 
 	    pWsc->iconY = ICON_Y(pCD);
-		
-		pWS->IPData = PositionToPlacementData(pWS, pWsc->iconX, pWsc->iconY);
-			
+
+		pWsc->IPData = PositionToPlacementData(pWS, pWsc->iconX, pWsc->iconY);
+
 	    if ((pCD->clientState & ~UNSEEN_STATE) != MINIMIZED_STATE)
 	    {
 		pWsc->iconPlace = NO_ICON_PLACE;
@@ -2474,6 +2474,7 @@ InsureIconForWorkspace(
 		pWsc->iconPlace = 
 		CvtIconPositionToPlace (pWsc->IPData,
 					pWsc->iconX, pWsc->iconY);
+
 		if (pWsc->IPData->placeList[pWsc->iconPlace].pCD)
 		{
 		    /* The spot is already occupied!  Find a 

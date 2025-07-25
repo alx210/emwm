@@ -1109,11 +1109,10 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
 		int place;
 		IconPlacementData *pcdIPD, *pIPD, *pIPDnew;
 
-		/* 
-		 * Get correct icon placement data
-		 */
+		/* Current icon placement data */
 		pcdIPD = pcd->pWsList[pcd->currentWsc].IPData;
-		
+
+		/* Get new icon placement data */
 		if (inIconBox) 
 		{
 		    pIPDnew = pIPD = &P_ICON_BOX(pcd)->IPD;
@@ -1229,7 +1228,7 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
 				ShowActiveIconText(pcd);
 			    }
 				
-				pcdIPD = pIPDnew;
+				pcd->pWsList[pcd->currentWsc].IPData = pIPDnew;
 			}
 		    }
 		}
