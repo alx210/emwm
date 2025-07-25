@@ -4788,7 +4788,8 @@ ProcessDefaultBackdropImages (WmScreenData *pSD)
 void 
 ProcessWorkspaceList (WmScreenData *pSD)
 {
-    int i, wsNameCount, wsNamesAlloced;
+    int i, wsNameCount = 0;
+	int wsNamesAlloced = 0;
     WmWorkspaceData *pwsI;
     unsigned char *lineP = NULL;
     unsigned char *string;
