@@ -3,7 +3,7 @@
 SYSLIBS =  -lm -lXm -lXt -lXext -lXrandr -lXinerama -lX11
 
 DEFINES = -DUNMAP_ON_RESTART -DNO_OL_COMPAT \
-	-DNO_MESSAGE_CATALOG -DWSM -DRCDIR='"$(RCDIR)"'
+	-DNO_MESSAGE_CATALOG -DRCDIR='"$(RCDIR)"'
 
 CFLAGS += $(DEFINES)
 
@@ -15,7 +15,7 @@ mwm_objs = \
 	WmWinState.o WmXSMP.o WmImage.o WmInitWs.o WmMenu.o	WmProtocol.o \
 	WmBackdrop.o WmPresence.o WmWrkspace.o WmXinerama.o WmEwmh.o
 
-emwm-wsm: $(mwm_objs)
+emwm: $(mwm_objs)
 	$(CC) $(LDFLAGS) $(LIBDIRS) -o $@ $(mwm_objs) $(SYSLIBS)
 
 .depend:
@@ -24,7 +24,7 @@ emwm-wsm: $(mwm_objs)
 .PHONY: clean install common_install
 
 clean:
-	-rm -f $(mwm_objs) $(wsm_objs) emwm-wsm
+	-rm -f $(mwm_objs) $(wsm_objs) emwm
 	-rm .depend
 
 common_install:

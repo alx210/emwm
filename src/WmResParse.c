@@ -5094,6 +5094,7 @@ void ProcessCommandLine (int argc,  char *argv[])
 	else if (!strcmp((char *)string, VERSION_OPT))
 	{
 		PrintVersionInfo();
+		exit(0);
 		}
     }
 
