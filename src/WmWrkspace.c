@@ -102,131 +102,130 @@ static WorkspaceID *pResIDs = NULL;
 void ChangeToWorkspace(WmWorkspaceData *pNewWS )
 
 {
-    ClientData *pCD;
-    int i;
-    WmScreenData *pSD = pNewWS->pSD;
+	ClientData *pCD;
+	ClientData *setFocus = NULL;
+	int i;
+	WmScreenData *pSD = pNewWS->pSD;
 
-    ClientData *pWsPCD;
-    Context   wsContext = F_CONTEXT_NONE;
+	ClientData *pWsPCD;
+	Context   wsContext = F_CONTEXT_NONE;
 
-    if (pNewWS == pSD->pActiveWS)
-	return;				/* already there */
+	/* already there ? */ 
+	if (pNewWS == pSD->pActiveWS) return;				
 
-    pSD->pLastWS = pSD->pActiveWS;
+	pSD->pActiveWS->lastFocus = wmGD.keyboardFocus;
+	pSD->pLastWS = pSD->pActiveWS;
 
-    /*
-     * Go through client list of old workspace and hide windows
-     * that shouldn't appear in new workspace.
-     */
+	/*
+	 * Go through client list of old workspace and hide windows
+	 * that shouldn't appear in new workspace.
+	 */
 
-    if (pSD->presence.shellW && 
-	pSD->presence.onScreen &&
-	pSD->presence.contextForClient == F_CONTEXT_ICON)
-    {
-	pWsPCD = pSD->presence.pCDforClient;
-	wsContext = pSD->presence.contextForClient;
-	HidePresenceBox (pSD, False);
-    }
-
-    for (i = 0; i < pSD->pActiveWS->numClients; i++)
-    {
-	pCD = pSD->pActiveWS->ppClients[i];
-	if (!ClientInWorkspace (pNewWS, pCD))
+	if (pSD->presence.shellW && 
+		pSD->presence.onScreen &&
+		pSD->presence.contextForClient == F_CONTEXT_ICON)
 	{
-	   SetClientWsIndex(pCD);
-	   SetClientState (pCD, pCD->clientState | UNSEEN_STATE,
-		 CurrentTime);
-	}
-    }
-
-    /*
-     * Hide active icon text label
-     */
-     if ((pSD->iconDecoration & ICON_ACTIVE_LABEL_PART) &&
-	 wmGD.activeIconTextDisplayed)
-     {
-	 HideActiveIconText(pSD);
-     }
-    
-    /*
-     * Unmap old icon box
-     */
-    if (pSD->useIconBox)
-    {
-	UnmapIconBoxes (pSD->pLastWS);
-    }
-    
-    /* 
-     * Set new active workspace 
-     */
-    pSD->pActiveWS = pNewWS;
-    ChangeBackdrop (pNewWS);
-
-    /*
-     * Go through client list of new workspace and show windows
-     * that should appear.
-     */
-    for (i = 0; i < pNewWS->numClients; i++)
-    {
-	pCD = pNewWS->ppClients[i];
-	SetClientWsIndex(pCD);
-        if (pCD->clientState & UNSEEN_STATE)
-	{
-	    SetClientState (pCD, 
-		(pCD->clientState & ~UNSEEN_STATE), CurrentTime);
-	}
-	if ((pCD->clientState == MINIMIZED_STATE) &&
-			 ((!pCD->pSD->useIconBox) || 
-			  (!P_ICON_BOX(pCD))))
-	{
-	    XMoveWindow (DISPLAY, ICON_FRAME_WIN(pCD), 
-			ICON_X(pCD), ICON_Y(pCD));
+		pWsPCD = pSD->presence.pCDforClient;
+		wsContext = pSD->presence.contextForClient;
+		HidePresenceBox (pSD, False);
 	}
 
-	if (pCD->iconWindow)
+	for (i = 0; i < pSD->pActiveWS->numClients; i++)
 	{
-	    unsigned int xOffset, yOffset;
-
-	    /*
-	     * Adjust for icons in the box
-	     */
-
-	    if (pNewWS->pIconBox)
-	    {
-		xOffset = IB_MARGIN_WIDTH;
-		yOffset = IB_MARGIN_HEIGHT;
-	    }
-	    else
-	    {
-		xOffset = 0;
-		yOffset = 0;
-	    }
-
-	    /*
-	     * reparent icon window to frame in this workspace
-	     */
-	    if ((ICON_DECORATION(pCD) & ICON_IMAGE_PART) && 
-		(pCD->iconWindow))
-	    {
-		ReparentIconWindow (pCD, xOffset, yOffset);
-	    }
+		pCD = pSD->pActiveWS->ppClients[i];
+		if (!ClientInWorkspace (pNewWS, pCD))
+		{
+		   SetClientWsIndex(pCD);
+		   SetClientState (pCD, pCD->clientState | UNSEEN_STATE, CurrentTime);
+		}
 	}
-    }
 
-    if ( (wsContext == F_CONTEXT_ICON &&
-	  ClientInWorkspace (ACTIVE_WS, pWsPCD)) ||
-	
-	 (pSD->presence.shellW && 
-	  ! pSD->presence.userDismissed &&
-	  ClientInWorkspace (ACTIVE_WS, pSD->presence.pCDforClient) &&
-	  pSD->presence.contextForClient == F_CONTEXT_ICON))
-    {
-	ShowPresenceBox(pSD->presence.pCDforClient, F_CONTEXT_ICON);
-    }
+	/*
+	 * Hide active icon text label
+	 */
+	if ((pSD->iconDecoration & ICON_ACTIVE_LABEL_PART) &&
+	 	wmGD.activeIconTextDisplayed)
+	{
+		HideActiveIconText(pSD);
+	}
 
-    SetCurrentWorkspaceProperty (pSD);
+	/*
+	 * Unmap old icon box
+	 */
+	if (pSD->useIconBox)
+	{
+		UnmapIconBoxes (pSD->pLastWS);
+	}
+
+	/* 
+	 * Set new active workspace 
+	 */
+	pSD->pActiveWS = pNewWS;
+	ChangeBackdrop (pNewWS);
+
+	/*
+	 * Go through client list of new workspace and show windows
+	 * that should appear.
+	 */
+	for (i = 0; i < pNewWS->numClients; i++)
+	{
+		pCD = pNewWS->ppClients[i];
+		SetClientWsIndex(pCD);
+		if(pCD->clientState & UNSEEN_STATE)
+		{
+			SetClientState (pCD, 
+			(pCD->clientState & ~UNSEEN_STATE), CurrentTime);
+		}
+		if((pCD->clientState == MINIMIZED_STATE) &&
+				((!pCD->pSD->useIconBox) || (!P_ICON_BOX(pCD))))
+		{
+			XMoveWindow (DISPLAY, ICON_FRAME_WIN(pCD), 
+				ICON_X(pCD), ICON_Y(pCD));
+		}
+
+		if(pCD->iconWindow)
+		{
+			unsigned int xOffset, yOffset;
+
+			/* Adjust for icons in the box */
+
+			if (pNewWS->pIconBox)
+			{
+				xOffset = IB_MARGIN_WIDTH;
+				yOffset = IB_MARGIN_HEIGHT;
+			}
+			else
+			{
+				xOffset = 0;
+				yOffset = 0;
+			}
+
+			/* reparent icon window to frame in this workspace */
+			if((ICON_DECORATION(pCD) & ICON_IMAGE_PART) &&  (pCD->iconWindow))
+				ReparentIconWindow (pCD, xOffset, yOffset);
+		}
+		/* check if last focused client still exsits/in workspace */
+		if(pCD == pNewWS->lastFocus) setFocus = pNewWS->lastFocus;
+	}
+
+	if( (wsContext == F_CONTEXT_ICON &&
+		ClientInWorkspace (ACTIVE_WS, pWsPCD)) ||
+		(pSD->presence.shellW && ! pSD->presence.userDismissed &&
+		ClientInWorkspace (ACTIVE_WS, pSD->presence.pCDforClient) &&
+		pSD->presence.contextForClient == F_CONTEXT_ICON))
+	{
+		
+		ShowPresenceBox(pSD->presence.pCDforClient, F_CONTEXT_ICON);
+	}
+
+	SetCurrentWorkspaceProperty (pSD);
 
 	UpdateEwmhActiveWorkspace(pSD, pNewWS->id);
+	
+	/* F_Focus_Key will pick first reasonable client if setFocus is NULL */
+	F_Focus_Key(NULL, setFocus, NULL);
+
+	pNewWS->lastFocus = NULL;
 
 } /* END OF FUNCTION ChangeToWorkspace */
 
