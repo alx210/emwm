@@ -424,7 +424,7 @@ FunctionTableEntry functionTable[] = {
 			0,
 			F_Quit_Mwm,
 			(FunctionTableParseProcT)ParseWmFuncNoArg},
-    {"f.quit_wm",	0,
+    {"f.quit",	0,
 			CRS_ANY,
 			0,
 			F_Quit_Mwm,
