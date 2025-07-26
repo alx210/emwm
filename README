@@ -74,8 +74,8 @@ Menu DefaultWindowMenu
 	Lower		_L	Alt<Key>F3	f.lower
 	no-label				f.separator
 	"Occupy Workspace..."	_O	Alt<Key>F2 f.workspace_presence
-    "Occupy All Workspaces"	_A	f.occupy_all
-    "Unoccupy Workspace"	_U	f.remove
+	"Occupy All Workspaces"	_A	f.occupy_all
+	"Unoccupy Workspace"	_U	f.remove
 	no-label				f.separator	
 	Close		_C	Alt<Key>F4	f.kill
 }
