@@ -14,7 +14,8 @@ Menu DefaultRootMenu
 	"Next Workspace" f.next_workspace
 	"Prev. Workspace" f.prev_workspace
 	 no-label		f.separator
-	"Restart..."		f.restart
+	"Restart..."	f.restart
+	"Quit..."       f.quit
 }
 
 ! Window menu
