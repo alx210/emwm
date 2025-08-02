@@ -835,9 +835,7 @@ int GetBitmapIndex (WmScreenData *pSD, char *name, Boolean bReportError)
  * 
  *************************************<->***********************************/
 
-char *BitmapPathName (string)
-    char *string;
-
+char *BitmapPathName(char *string)
 {
     static char  fileName[MAXWMPATH+1];
     char *retname;

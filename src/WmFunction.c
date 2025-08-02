@@ -1754,10 +1754,7 @@ Boolean F_Prev_Key (String args, ClientData *pCD, XEvent *event)
  *
  *************************************<->***********************************/
 
-Boolean F_Pass_Key (args, pCD, event)
-    String args;
-    ClientData *pCD;
-    XEvent *event;
+Boolean F_Pass_Key(String args, ClientData *pCD, XEvent *event)
 
 {
     if (wmGD.passKeysActive)

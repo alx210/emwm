@@ -257,11 +257,11 @@ void QuitWmSignalHandler (int dummy)
 void ChildProcSignalHandler (int dummy)
 {
    int status;
-   void (*intStat) ();
-   void (*quitStat) ();
+   void (*intStat) (int);
+   void (*quitStat) (int);
    
-   intStat = (void (*)())signal (SIGINT, SIG_IGN);
-   quitStat = (void (*)())signal (SIGQUIT, SIG_IGN);
+   intStat = (void (*)(int))signal (SIGINT, SIG_IGN);
+   quitStat = (void (*)(int))signal (SIGQUIT, SIG_IGN);
 
    wait(&status);
    signal(SIGCHLD, ChildProcSignalHandler); 

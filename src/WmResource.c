@@ -55,8 +55,7 @@
 /*
  * Function Declarations:
  */
-XmColorData *_WmGetDefaultColors ();
-
+XmColorData * _WmGetDefaultColors(Screen*, Colormap, String);
 void _WmTopShadowPixmapDefault (Widget widget, int offset, XrmValue *value);
 void _WmIconImageFDefault (Widget widget, int offset, XrmValue *value);
 void _WmIconImageBDefault (Widget widget, int offset, XrmValue *value);
@@ -5713,10 +5712,8 @@ _WmGetDynamicDefault (Widget widget, unsigned char type, String defaultColor, Pi
  * 
  *************************************<->***********************************/
 
-XmColorData * _WmGetDefaultColors (screen, colormap, defaultColor)
-	Screen *screen;
-	Colormap colormap;
-	String defaultColor;
+XmColorData * _WmGetDefaultColors(Screen *screen,
+	Colormap colormap, String defaultColor)
 
 {
     static XmColorData *defaultSet[2] = {NULL, NULL};
@@ -5849,10 +5846,7 @@ XmColorData * _WmGetDefaultColors (screen, colormap, defaultColor)
  * 
  *************************************<->***********************************/
 
-char * WmRealloc (ptr, size)
-	char *ptr;
-	unsigned size;
-
+char * WmRealloc(char *ptr,	unsigned size)
 {
     if (ptr)
     {
@@ -5897,10 +5891,7 @@ char * WmRealloc (ptr, size)
  * 
  *************************************<->***********************************/
 
-char * WmMalloc (ptr, size)
-	char *ptr;
-	unsigned size;
-
+char * WmMalloc(char *ptr, unsigned size)
 {
     if (ptr)
     {
@@ -5945,11 +5936,7 @@ char * WmMalloc (ptr, size)
  *
  *************************************<->***********************************/
 
-void
-SetupDefaultResources (pSD)
-
-WmScreenData *pSD;
-
+void SetupDefaultResources(WmScreenData *pSD)
 {
 #ifdef NO_MESSAGE_CATALOG
 	MenuSpec *menuSpec;
