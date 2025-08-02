@@ -13,7 +13,7 @@ mwm_objs = \
 	WmIconBox.o WmKeyFocus.o WmMain.o WmManage.o WmProperty.o WmResCvt.o\
 	WmResParse.o WmResource.o WmSignal.o WmWinConf.o WmWinInfo.o WmWinList.o\
 	WmWinState.o WmXSMP.o WmImage.o WmInitWs.o WmMenu.o	WmProtocol.o\
-	WmXinerama.o WmEwmh.o WmVersion.o
+	WmXinerama.o WmEwmh.o
 
 emwm: $(mwm_objs)
 	$(CC) $(LDFLAGS) $(LIBDIRS) -o $@ $(mwm_objs) $(SYSLIBS)

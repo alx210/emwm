@@ -180,3 +180,10 @@ main (int argc, char *argv [], char *environ [])
     }
 
 } /* END OF FUNCTION main */
+
+void PrintVersionInfo(void)
+{
+        fprintf(stdout, "%s - Version %d.%d.%d (Motif %d.%d.%d)\n\n",
+                MWM_NAME, MWM_VERSION, MWM_REVISION, MWM_UPDATE,
+                XmVERSION, XmREVISION, XmUPDATE_LEVEL);
+}

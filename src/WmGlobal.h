@@ -51,6 +51,11 @@
 /*
  * Value definitions and macros:
  */
+/* Version info */
+#define MWM_NAME "EMWM"
+#define MWM_VERSION  1
+#define MWM_REVISION 3
+#define MWM_UPDATE 1
 
 /* window manager name and class used to get resources: */
 #define	WM_RESOURCE_CLASS	"Emwm"
@@ -2261,3 +2266,5 @@ extern char *_DtGetMessage(char *filename, int set, int n, char *s);
     string
 #endif
 #endif /* _WmGlobal_h */
+
+void PrintVersionInfo(void);
