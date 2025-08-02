@@ -45,8 +45,10 @@
  * Function Declarations:
  */
 
-unsigned char *NextToken ();
-long           DecStrToL ();
+unsigned char *NextToken (unsigned char *pchIn, int *pLen, 
+	unsigned char **ppchNext);
+
+long DecStrToL (unsigned char *str, unsigned char **ptr);
 
 #include "WmResCvt.h"
 

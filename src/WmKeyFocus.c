@@ -561,8 +561,7 @@ void ClearFocusIndication (ClientData *pCD, Boolean refresh)
  *        
  *************************************<->***********************************/
 
-ClientData *GetClientUnderPointer (pSameScreen)
-    Boolean *pSameScreen;
+ClientData *GetClientUnderPointer (Boolean *pSameScreen)
 
 {
     Window root;
@@ -874,9 +873,8 @@ Boolean FocusNextTransient (ClientData *pCD, unsigned long type, Boolean initiat
  *
  *************************************<->***********************************/
 
-ClientData *FindLastTransientTreeFocus (pCD, pcdNoFocus)
-    ClientData *pCD;
-    ClientData *pcdNoFocus;
+ClientData *FindLastTransientTreeFocus (ClientData *pCD,
+    ClientData *pcdNoFocus)
 
 {
     ClientData *pcdNext;
@@ -937,10 +935,7 @@ ClientData *FindLastTransientTreeFocus (pCD, pcdNoFocus)
  *
  *************************************<->***********************************/
 
-ClientData *FindNextTFocusInSeq (pCD, startAt)
-    ClientData *pCD;
-    unsigned long startAt;
-
+ClientData *FindNextTFocusInSeq (ClientData *pCD, unsigned long startAt)
 {
     ClientData *pcdNextFocus = NULL;
     ClientData *pcdNext;
@@ -1219,10 +1214,7 @@ Boolean FocusPrevTransient (ClientData *pCD, unsigned long type, Boolean initiat
  *
  *************************************<->***********************************/
 
-ClientData *FindPrevTFocusInSeq (pCD, startAt)
-    ClientData *pCD;
-    unsigned long startAt;
-
+ClientData *FindPrevTFocusInSeq(ClientData *pCD, unsigned long startAt)
 {
     ClientData *pcdNextFocus = NULL;
     ClientData *pcdNext;
