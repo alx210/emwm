@@ -1187,15 +1187,22 @@ ProcessWmHints (ClientData *pCD, Boolean firstTime)
 		     */
 		    for (iws = 0; iws < pCD->numInhabited; iws++)
 		    {
-				pWsc = &pCD->pWsList[iws];
+			    WmWorkspaceData *pWsd;
+
+			    pWsc = &pCD->pWsList[iws];
+			    pWsd = GetWorkspaceData(pCD->pSD, pWsc->wsID);
+
 			    tmpIconX = (pCD->clientFlags & SM_ICON_X) ?
 			      pWsc->iconX : pXWMHints->icon_x;
 			    tmpIconY = (pCD->clientFlags & SM_ICON_Y) ?
 			      pWsc->iconY : pXWMHints->icon_y;
+
+			    pWsc->IPData =
+					PositionToPlacementData(pWsd, tmpIconX, tmpIconY);
 			    pWsc->iconPlace =
-				
-				FindIconPlace(pCD, pWsc->IPData, tmpIconX, tmpIconY);
-			    if(pWsc->iconPlace != NO_ICON_PLACE)
+					FindIconPlace(pCD, pWsc->IPData, tmpIconX, tmpIconY);
+
+				if(pWsc->iconPlace != NO_ICON_PLACE)
 			    {
 				CvtIconPlaceToPosition(pWsc->IPData,
 				    pWsc->iconPlace,
