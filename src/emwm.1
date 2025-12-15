@@ -85,18 +85,28 @@ tab();
 lw(1.803823i) lw(1.062374i) lw(2.633803i).
 SelectionAcceleratorDescription
 RestoreT{
-Restores the window to its size before minimizing
-or maximizing\&.
+Restores the window to its size before minimizing or maximizing\&.
 T}
 MoveT{
-Allows the window to be moved with keys or
-mouse\&.
+Allows the window to be moved with keys or mouse\&.
 T}
 SizeAllows the window to be resized\&.
 MinimizeTurns the window into an icon\&.
 MaximizeMakes the window fill the screen\&.
 LowerT{
 Moves window to bottom of window stack\&.
+T}
+Occupy Workspace...T{
+Displays the workspace selection dialog
+to change the workspaces the window is visible on.
+T}
+Unoccupy WorkspaceT{
+Removes the window from current workspace if
+the window is visible on more than one workspace.
+T}
+Occupy All WorkspacesT{
+Causes the windows to be displayed on all
+workspaces.
 T}
 CloseAlt+F4Causes client to terminate\&.
 .TE
@@ -877,9 +887,9 @@ resizeCursorsResizeCursorsTrue/FalseTrue
 transientDecorationTransientDecorationstringmenu title
 transientFunctionsTransientFunctionsstring-minimize-maximize
 useIconBoxUseIconBoxTrue/FalseFalse
-utilityDecorationutilityDecorationstringmenu title
-utilityFunctionsutilityFunctionsstring-minimize-maximize
-
+utilityDecorationUtilityDecorationstringmenu title
+utilityFunctionsUtilityFunctionsstring-minimize-maximize
+workspaceCountWorkspaceCountinteger4
 .TE
 .IP "\fIbuttonBindings\fP\ (class\  \fIButtonBindings\fP)" 10
 This resource identifies the set of button bindings for window management
@@ -1053,6 +1063,9 @@ This resource is used to indicate which window management functions
 are applicable (or not applicable) to utility windows\&.
 The function specification is exactly the same as for the \fIclientFunctions\fP
 (client specific) resource\&. The default value for this resource is -maximize\&.
+.IP "\fIworkspaceCount\fP (class \fIWorkspaceCount\fP)" 10
+Specifies the number of workspaces to be allocated on startup.
+The default value is 4.
 .SS "Client Specific Resources"
 .PP
 The syntax for specifying client specific resources is
@@ -1290,7 +1303,39 @@ menu button on the client window frame)\&. Menu panes are specified in the \fBem
 a client class basis by creating custom menus in your \fBmwmrc\fP
 file (see \fBemwmrc\fP(4) and specifying resources to activate
 the custom menus\&. The resources have the form \fIEmwm*\fP \fBclient_name_or_class\fP\fI*windowMenu\fP\&. The default
-value of this resource is DefaultWindowMenu\&.
+value of this resource is DefaultWindowMenu.
+.SS "Workspace Specific Resources"
+.PP
+Workspace title, backdrop color and image may be specified using workspace
+specific resources. Workspaces are referred to by \fBname\fP that consists
+of the zero based workspace index prefixed by \fIws\fP (e.g. \fBws0\fP,
+\fBws1\fP, \fBws2\fP). Note that workspace name is different from workspace
+title, which unlike former, can be set by the user.
+.PP
+The syntax is:
+.PP
+.nf
+Emwm[\fI*screen_name\fP]*workspace_name*resource_id
+.fi
+For example, \fIEmwm*ws0*image: backdrop.xpm\fP will set the backdrop image
+for the first workspace. 
+.IP "\fIcolor\fP (class \fIColor\fP)" 10
+Specifies the background color for the workspace.
+.IP "\fIimage\fP (class \fIImage\fP)" 10
+Specifies a bitmap or pixmap backdrop image. If the image is monochrome
+(X bitmap), it will be colored using colors specified with
+\fIimageForeground\fP and \fBimageBackground\fP resources.
+.IP "\fIimageForeground\fP (class \fIImageForeground\fP)" 10
+Specifies the color to use for coloring white pixels of a monochrome
+(X bitmap) backdrop image.
+.IP "\fIimageBackgound\fP (class \fIImageBackground\fP)" 10
+Specifies the color to use for coloring black pixels of a monochrome
+(X bitmap) backdrop image.
+.IP "\fItitle\fP (class \fITitle\fP)" 10
+Specifies the user-visible workspace title. Note that it differs from workspace
+\fBname\fP that is used to refer to a workspace using X resources. The default
+is the same as workspace name, which is a zero based workspace index prefixed
+by \fIws\fP.
 .SS "Resource Description File"
 .PP
 The \fBemwm\fP resource description file is a supplementary
