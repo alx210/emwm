@@ -2604,8 +2604,6 @@ void HandleClientMessage (ClientData *pCD, XClientMessageEvent *clientEvent)
 	SetClientState (pCD, newState, GetTimestamp ());
 
     }
-	
-	HandleEwmhRootClientMessage(ACTIVE_PSD, clientEvent);
 
 } /* END OF FUNCTION HandleClientMessage */
 

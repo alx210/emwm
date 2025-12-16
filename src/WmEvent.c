@@ -44,6 +44,7 @@
 #include "WmWinInfo.h"
 #include "WmWinState.h"
 #include "WmXmP.h"
+#include "WmEwmh.h"
 
 #include <Xm/RowColumnP.h> /* for MS_LastManagedMenuTime */
 
@@ -972,6 +973,12 @@ Boolean WmDispatchWsEvent (XEvent *event)
 	case FocusOut:
 	{
 	    break;
+	}
+	
+	case ClientMessage:
+	{
+		HandleEwmhRootClientMessage(ACTIVE_PSD, (XClientMessageEvent*)event);
+		break;
 	}
 
     } /* end of event.type switch */

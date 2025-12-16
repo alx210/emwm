@@ -646,7 +646,7 @@ void HandleEwmhRootClientMessage(WmScreenData *pSD, XClientMessageEvent *evt)
 {
 	if(evt->message_type == ewmh_atoms[_NET_CURRENT_DESKTOP]) {
 		int wsi = (int)evt->data.l[0];
-		
+
 		if(wsi < pSD->numWorkspaces)
 			ChangeToWorkspace(&pSD->pWS[wsi]);
 		else
