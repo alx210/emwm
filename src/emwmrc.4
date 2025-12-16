@@ -106,6 +106,11 @@ transient windows) are restacked with their associated primary window\&. If
 an \fIicon\fP function argument is specified then
 the function applies only to icons\&. If an \fIwindow\fP
 function argument is specified then the function applies only to windows\&.
+.IP "\fBf.create_workspace\fP" 10
+This function creates a new workspace.
+.IP "\fBf.delete_workspace\fP" 10
+This function deletes the currently active workspace. Any windows residing on
+the deleted workspace will be moved to the next.
 .IP "\fBf\&.exec\fP \fBcommand\fP (or \fI!\fP \fBcommand\fP)" 10
 This function causes \fIcommand\fP to be
 executed (using the value of the \fI$MWMSHELL\fP or \fI$SHELL\fP environment variable if set; otherwise, \fB/bin/sh\fP )\&. The \fI!\fP notation can be used in place of the \fBf\&.exec\fP function name\&.
@@ -119,6 +124,9 @@ is not explicit\&.
 .IP "\fBf\&.focus_key\fP" 10
 This function sets the keyboard input focus to a client window or icon\&.
 This function is treated as \fBf\&.nop\fP if \fIkeyboardFocusPolicy\fP is not explicit or the function is executed in a root context\&.
+.IP "\fBf.goto_workspace\fP \fIname\fP
+This function activates the workspace specified. If no such workspace exists,
+no action takes place.
 .IP "\fBf\&.kill\fP" 10
 This function is used to close application windows\&. The actual processing
 that occurs depends on the protocols that the application observes\&. The application
@@ -175,6 +183,9 @@ is specified, traversal is done only to the last focused window in a transient
 group)\&. If an \fIicon\fP function argument is specified,
 then the function applies only to icons\&. If a \fIwindow\fP function argument is specified, then the function applies only to
 windows\&.
+.IP "\fBf.next_workspace\fP" 10
+This function activates the next workspace in the workspace list, wrapping
+around to the first at the end of the list.
 .IP "\fBf\&.nop\fP" 10
 This function does nothing\&.
 .IP "\fBf\&.normalize\fP" 10
@@ -186,6 +197,8 @@ This function causes a client window to be displayed with its normal
 size and raised to the top of the window stack\&. Secondary windows (that is,
 transient windows) are placed in their normal state along with their associated
 primary window\&.
+.IP "\fBf.occupy_all\fP" 10
+This function causes the associated window to be placed on all workspaces.
 .IP "\fBf\&.pack_icons\fP" 10
 This function is used to relayout icons (based on the layout policy
 being used) on the root window or in the icon box\&. In general this causes
@@ -218,6 +231,9 @@ in a transient group)\&. If an \fIicon\fP function
 argument is specified then the function applies only to icons\&. If an
 \fIwindow\fP function argument is specified then the function
 applies only to windows\&.
+.IP "\fBf.prev_workspace\fP" 10
+This function activates the previous workspace in the workspace list, wrapping
+around to the last one at the beginning of the list.
 .IP "\fBf\&.quit_wm\fP" 10
 This function terminates emwm (but NOT the X window system)\&.
 .IP "\fBf\&.raise\fP\ [\fI-\fP\fIclient\fP | \fIwithin\fP | \fIfreeFamily\fP]" 10
@@ -246,6 +262,9 @@ and lowers the family to the bottom of the global window stack\&.
 This function causes all windows to be redrawn\&.
 .IP "\fBf\&.refresh_win\fP" 10
 This function causes a client window to be redrawn\&.
+.IP "\fBf.remove\fP" 10
+This function removes the associated window from the currently active workspace.
+No action is taken if the active workspace is the only one occupied by the window.
 .IP "\fBf\&.resize\fP" 10
 This function initiates an interactive resize of a client window\&.
 .IP "\fBf\&.restore\fP" 10
@@ -288,6 +307,8 @@ behavior (if a custom behavior is configured) or a custom behavior (if a
 default behavior is configured)\&. By default this is bound to \fIShift\ Ctrl\ Alt\ <Key>!\fP\&.
 .IP "\fBf\&.title\fP" 10
 This function inserts a title in the menu pane at the specified location\&.
+.IP "\fBf.workspace_presence\fP" 10
+This function displays the workspace selection dialog for the associated window.
 .SS "Function Constraints"
 .PP
 Each function may be constrained as to which resource types can specify
@@ -316,9 +337,12 @@ _
 \fBf\&.beep\fProot,icon,windowbutton,key,menu
 \fBf\&.circle_down\fProot,icon,windowbutton,key,menu
 \fBf\&.circle_up\fProot,icon,windowbutton,key,menu
+\fBf\&.create_workspace\fProot,icon,windowbutton,key,menu
+\fBf\&.delete_workspace\fProot,icon,windowbutton,key,menu
 \fBf\&.exec\fProot,icon,windowbutton,key,menu
 \fBf\&.focus_color\fProot,icon,windowbutton,key,menu
 \fBf\&.focus_key\fProot,icon,windowbutton,key,menu
+\fBf\&.goto_workspace\fProot,icon,windowbutton,key,menu
 \fBf\&.kill\fPicon,windowbutton,key,menu
 \fBf\&.lower\fProot,icon,windowbutton,key,menu
 \fBf\&.maximize\fPicon,window(normal)button,key,menu
@@ -327,14 +351,17 @@ _
 \fBf\&.move\fPicon,windowbutton,key,menu
 \fBf\&.next_cmap\fProot,icon,windowbutton,key,menu
 \fBf\&.next_key\fProot,icon,windowbutton,key,menu
+\fBf\&.next_workspace\fProot,icon,windowbutton,key,menu
 \fBf\&.nop\fProot,icon,windowbutton,key,menu
 \fBf\&.normalize\fPicon,window(maximized)button,key,menu
 \fBf\&.normalize_and_raise\fPicon,windowbutton,key,menu
+\fBf\&.occupy_all\fPicon,windowbutton,key,menu
 \fBf\&.pack_icons\fProot,icon,windowbutton,key,menu
 \fBf\&.pass_keys\fProot,icon,windowbutton,key,menu
 \fBf\&.post_wmenu\fProot,icon,windowbutton,key
 \fBf\&.prev_cmap\fProot,icon,windowbutton,key,menu
 \fBf\&.prev_key\fProot,icon,windowbutton,key,menu
+\fBf\&.prev_workspace\fProot,icon,windowbutton,key,menu
 \fBf\&.quit_wm\fProot,icon,windowbutton,key,menu
 \fBf\&.raise\fProot,icon,windowbutton,key,menu
 \fBf\&.raise_lower\fPicon,windowbutton,key,menu
@@ -344,6 +371,7 @@ _
 \fBf\&.restart\fProot,icon,windowbutton,key,menu
 \fBf\&.restore\fPicon,windowbutton,key,menu
 \fBf\&.restore_and_raise\fPicon,windowbutton,key,menu
+\fBf\&.remove\fPicon,windowbutton,key,menu
 \fBf\&.screen\fProot,icon,windowbutton,key,menu
 \fBf\&.send_msg\fPicon,windowbutton,key,menu
 \fBf\&.separator\fProot,icon,windowmenu
