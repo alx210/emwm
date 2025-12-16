@@ -280,7 +280,7 @@ window is iconified, then \fBf\&.restore_and_raise\fP restores
 it to its normalized state and raises it to the top of the window stack\&.
 .IP "\fBf\&.restart\fP" 10
 This function causes emwm to be restarted (effectively terminated and
-re-executed)\&. Restart is necessary for \fBmwm\fP to incorporate
+re-executed)\&. Restart is necessary for \fBemwm\fP to incorporate
 changes in both the \fBemwmrc\fP file and X resources\&.
 .IP "\fBf\&.screen\fP\ [ \fInext\fP | \fIprev\fP | \fIback\fP | \fIscreen_number\fP]" 10
 This function causes the pointer to be warp to a specific screen number
@@ -389,7 +389,7 @@ binding sets, and menu panes\&. Button events have the following syntax:
 .fi
 .PP
 .PP
-The following table indicates the values that can be used for \fBmodifier_name\fP\&. Note that [Alt] and [Meta] can be used interchangably
+The following table indicates the values that can be used for \fBmodifier_name\fP\&. Note that [Alt] and [Meta] can be used interchangeably
 on some hardware\&.
 .PP
 .TS
@@ -512,7 +512,7 @@ key binding syntax is:
 .PP
 .PP
 If an \fBf\&.nop\fP function is specified for a key binding,
-the key binding is not done\&. If an \fBf\&.post_wmenu\fP or \fBf\&.menu\fP function is bound to a key, \fBmwm\fP automatically
+the key binding is not done\&. If an \fBf\&.post_wmenu\fP or \fBf\&.menu\fP function is bound to a key, \fBemwm\fP automatically
 uses the same key for removing the menu from the screen after it has been
 popped up\&. The \fBcontext\fP specification syntax is the same
 as for button bindings with one addition\&. The context \fIifkey\fP
