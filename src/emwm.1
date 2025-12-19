@@ -1308,34 +1308,64 @@ value of this resource is DefaultWindowMenu.
 .PP
 Workspace title, backdrop color and image may be specified using workspace
 specific resources. Workspaces are referred to by \fBname\fP that consists
-of the zero based workspace index prefixed by \fIws\fP (e.g. \fBws0\fP,
-\fBws1\fP, \fBws2\fP). Note that workspace name is different from workspace
+of the zero based workspace index prefixed by \fIws\fP (\fBws0\fP,
+\fBws1\fP, etc.). Note that workspace name is different from workspace
 title, which unlike former, can be set by the user.
 .PP
-The syntax is:
+The syntax for specifying workspace resources is:
 .PP
 .nf
 Emwm[\fI*screen_name\fP]*workspace_name*resource_id
 .fi
-For example, \fIEmwm*ws0*image: backdrop.xpm\fP will set the backdrop image
-for the first workspace. 
+.PP
+For example, \fIEmwm*ws0*title: Workspace I\fP will set the
+title for the first workspace. 
+The following workspace specific resources can be specified:
+.SS "Workspace Resources"
+.TS
+tab();
+lw(1.528376i) lw(1.592955i) lw(1.054795i) lw(1.323875i).
+NameClassValue TypeDefault
+titleTitleStringSame as name
+.TE
+.IP "\fItitle\fP (class \fITitle\fP)" 10
+Specifies the user-visible workspace title. Note that it differs from workspace
+\fBname\fP that is used to refer to a workspace using X resources. The default
+is the same as workspace name.
+.SS "Workspace Backdrop Resources"
+.PP
+The syntax for specifying backdrop resources is:
+.PP
+.nf
+Emwm[\fI*screen_name\fP]*workspace_name*backdrop*resource_id\(dg
+.fi
+For example, \fIEmwm*ws0*backdrop*image: backdrop.xpm\fP will set the
+backdrop image for the first workspace. 
+.PP
+\(dg See the \fBWorkspace Specific Resources\fP section on workspace naming.
+.PP
+The following workspace backdrop specific resources can be specified:
+.TS
+tab();
+lw(1.528376i) lw(1.592955i) lw(1.054795i) lw(1.323875i).
+NameClassValue TypeDefault
+colorColorPixeldynamic
+imageImagePixmapXmUNSPECIFIED_PIXMAP
+imageForegroundImageForegroundPixeldynamic
+imageBackgroundImageBackgroundPixeldynamic
+.TE
 .IP "\fIcolor\fP (class \fIColor\fP)" 10
 Specifies the background color for the workspace.
 .IP "\fIimage\fP (class \fIImage\fP)" 10
 Specifies a bitmap or pixmap backdrop image. If the image is monochrome
 (X bitmap), it will be colored using colors specified with
-\fIimageForeground\fP and \fBimageBackground\fP resources.
+\fIimageForeground\fP and \fIimageBackground\fP resources.
 .IP "\fIimageForeground\fP (class \fIImageForeground\fP)" 10
 Specifies the color to use for coloring white pixels of a monochrome
 (X bitmap) backdrop image.
 .IP "\fIimageBackgound\fP (class \fIImageBackground\fP)" 10
 Specifies the color to use for coloring black pixels of a monochrome
 (X bitmap) backdrop image.
-.IP "\fItitle\fP (class \fITitle\fP)" 10
-Specifies the user-visible workspace title. Note that it differs from workspace
-\fBname\fP that is used to refer to a workspace using X resources. The default
-is the same as workspace name, which is a zero based workspace index prefixed
-by \fIws\fP.
 .SS "Resource Description File"
 .PP
 The \fBemwm\fP resource description file is a supplementary
