@@ -142,7 +142,8 @@ void ProcessEwmh(ClientData *pCD)
 		ewmh_atoms[_NET_WM_NAME], XA_UTF8_STRING, &size);
 	if(size){
 		if(pCD->ewmhClientTitle) XmStringFree(pCD->ewmhClientTitle);
-		pCD->ewmhClientTitle = XmStringCreateLocalized(sz);
+		pCD->ewmhClientTitle =
+			XmStringGenerate(sz, NULL, XmMULTIBYTE_TEXT, NULL);
 	}	
 	if(sz) XFree(sz);
 
@@ -150,7 +151,8 @@ void ProcessEwmh(ClientData *pCD)
 		ewmh_atoms[_NET_WM_ICON_NAME],XA_UTF8_STRING,&size);
 	if(size){
 		if(pCD->ewmhIconTitle) XmStringFree(pCD->ewmhIconTitle);
-		pCD->ewmhIconTitle = XmStringCreateLocalized(sz);
+		pCD->ewmhIconTitle = 
+			XmStringGenerate(sz, NULL, XmMULTIBYTE_TEXT, NULL);
 	}else if(pCD->ewmhClientTitle){
 		pCD->ewmhIconTitle = XmStringCopy(pCD->ewmhClientTitle);
 	}
@@ -212,7 +214,8 @@ void HandleEwmhCPropertyNotify(ClientData *pCD, XPropertyEvent *evt)
 			ewmh_atoms[_NET_WM_NAME],XA_UTF8_STRING,&size);
 		if(size){
 			if(pCD->ewmhClientTitle) XmStringFree(pCD->ewmhClientTitle);
-			pCD->ewmhClientTitle = XmStringCreateLocalized(sz);
+			pCD->ewmhClientTitle = 
+				XmStringGenerate(sz, NULL, XmMULTIBYTE_TEXT, NULL);
 			DrawWindowTitle(pCD,True);
 		}
 		if(sz) XFree(sz);
@@ -222,7 +225,8 @@ void HandleEwmhCPropertyNotify(ClientData *pCD, XPropertyEvent *evt)
 			ewmh_atoms[_NET_WM_ICON_NAME],XA_UTF8_STRING,&size);
 		if(size){
 			if(pCD->ewmhIconTitle) XmStringFree(pCD->ewmhIconTitle);
-			pCD->ewmhIconTitle = XmStringCreateLocalized(sz);
+			pCD->ewmhIconTitle =
+				XmStringGenerate(sz, NULL, XmMULTIBYTE_TEXT, NULL);
 			RedisplayIconTitle(pCD);
 		}else if(pCD->ewmhClientTitle){
 			pCD->ewmhIconTitle = XmStringCopy(pCD->ewmhClientTitle);
