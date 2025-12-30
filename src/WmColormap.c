@@ -384,7 +384,7 @@ void AddColormapWindowReference (ClientData *pCD, Window window)
     new_cmap_window_data[i] = pCD;
     new_cmap_window_data[i + 1] = NULL;
     XSaveContext (DISPLAY, window, wmGD.cmapWindowContextType,
-                        (caddr_t)new_cmap_window_data);
+                        (XPointer)new_cmap_window_data);
 }
 
 /*************************************<->*************************************
@@ -443,7 +443,7 @@ void RemoveColormapWindowReference (ClientData *pCD, Window window)
         {
             XSaveContext (DISPLAY, window,
                         wmGD.cmapWindowContextType,
-                        (caddr_t)new_cmap_window_data);
+                        (XPointer)new_cmap_window_data);
         }
     }
 }

@@ -148,7 +148,7 @@ void AdoptInitialClients (WmScreenData *pSD)
                 continue;
 	    }
 	    if (!XFindContext (DISPLAY, clients[i], wmGD.windowContextType,
-	        (caddr_t *)&pcd)) 
+	        (XPointer*)&pcd)) 
 	    {
 		/* don't manage a window we've already established a 
 		   context for (e.g. icon windows) */
@@ -378,7 +378,7 @@ ManageWindow (WmScreenData *pSD, Window clientWindow, long manageFlags)
 		    else 
 		    {
 			XSaveContext (DISPLAY, pCD->pWsList[i].iconFrameWin, 
-				wmGD.windowContextType, (caddr_t)pCD);
+				wmGD.windowContextType, (XPointer)pCD);
 
 			if (pCD->iconWindow && pCD->pWsList[i].iconFrameWin)
 			{
@@ -429,19 +429,19 @@ ManageWindow (WmScreenData *pSD, Window clientWindow, long manageFlags)
      * Register window contexts to facilitate event handling:
      */
 
-    XSaveContext (DISPLAY, pCD->clientFrameWin, wmGD.windowContextType,
-	(caddr_t)pCD);
+    XSaveContext (DISPLAY, pCD->clientFrameWin,
+		wmGD.windowContextType, (XPointer)pCD);
 
-    XSaveContext (DISPLAY, pCD->clientBaseWin, wmGD.windowContextType,
-	(caddr_t)pCD);
+    XSaveContext (DISPLAY, pCD->clientBaseWin,
+		wmGD.windowContextType, (XPointer)pCD);
 
     if (DECOUPLE_TITLE_APPEARANCE(pCD) && pCD->clientTitleWin)
     {
 	/* 
 	 * handle exposures on title bar if it has its own appearance
 	 */
-	XSaveContext (DISPLAY, pCD->clientTitleWin, wmGD.windowContextType,
-	    (caddr_t)pCD);
+	XSaveContext (DISPLAY, pCD->clientTitleWin,
+		wmGD.windowContextType, (XPointer)pCD);
     }
 
     if (pCD->clientCmapCount > 0)
@@ -1348,7 +1348,7 @@ void WithdrawDialog (Widget dialogboxW)
      */
 
     if (XFindContext (DISPLAY, XtWindow (XtParent (dialogboxW)),
-		      wmGD.windowContextType, (caddr_t *)&pCD))
+		      wmGD.windowContextType, (XPointer*)&pCD))
       return;
 
     XtUnmanageChild (dialogboxW);
@@ -1404,7 +1404,7 @@ void ReManageDialog (WmScreenData *pSD, Widget dialogboxW)
      */
 
     if (XFindContext (DISPLAY, XtWindow (XtParent (dialogboxW)),
-		      wmGD.windowContextType, (caddr_t *)&pCD))
+		      wmGD.windowContextType, (XPointer*)&pCD))
       return;
 
     /*

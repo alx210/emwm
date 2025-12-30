@@ -1541,7 +1541,7 @@ void UnpostMenu (MenuSpec *menuSpec)
  * 
  *************************************<->***********************************/
 
-void ActivateCallback (Widget w, caddr_t client_data, caddr_t call_data)
+void ActivateCallback (Widget w, XtPointer client_data, XtPointer call_data)
 {
     WmScreenData *pSD;
 
@@ -1774,7 +1774,7 @@ void FreeCustomMenuSpec (MenuSpec *menuSpec)
      *                   not get called, leaving MWM in a failure state.
      */
      if (wmGD.menuActive == menuSpec)
-       UnmapCallback((Widget)NULL, (caddr_t)NULL, (caddr_t)NULL);
+       UnmapCallback((Widget)NULL, (XtPointer)NULL, (XtPointer)NULL);
     /*
      * End fix for CR 5450
      */

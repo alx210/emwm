@@ -408,7 +408,7 @@ Boolean AddWmTimer (unsigned int timerType, unsigned long timerInterval, ClientD
 
     /* !!! handle for XtAppAddTimeOut error !!! */
     pWmTimer->timerId = XtAppAddTimeOut (wmGD.mwmAppContext, 
-			    timerInterval, (XtTimerCallbackProc)TimeoutProc, (caddr_t)pCD);
+			    timerInterval, (XtTimerCallbackProc)TimeoutProc, (XtPointer)pCD);
     pWmTimer->timerCD = pCD;
     pWmTimer->timerType = timerType;
     pWmTimer->nextWmTimer = wmGD.wmTimers;
@@ -496,7 +496,7 @@ void DeleteClientWmTimers (ClientData *pCD)
  *
  *************************************<->***********************************/
 
-void TimeoutProc (caddr_t client_data, XtIntervalId *id)
+void TimeoutProc (XtPointer client_data, XtIntervalId *id)
 {
     WmTimer *pPrevTimer;
     WmTimer *pWmTimer;

@@ -188,7 +188,7 @@ WmXErrorHandler (Display *display, XErrorEvent *errorEvent)
 
     if ((errorEvent->error_code == BadWindow) &&
 	!XFindContext (DISPLAY, errorEvent->resourceid, wmGD.windowContextType,
-	     (caddr_t *)&pCD))
+	     (XPointer*)&pCD))
     {
 	if (errorEvent->resourceid == pCD->client)
 	{

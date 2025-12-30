@@ -2432,7 +2432,7 @@ InsureIconForWorkspace(
 	    if (MakeIcon (pWS, pCD)) 
 	    {
 		XSaveContext (DISPLAY, pWsc->iconFrameWin, 
-			wmGD.windowContextType, (caddr_t)pCD);
+			wmGD.windowContextType, (XPointer)pCD);
 
 		if (pCD->iconWindow && pWsc->iconFrameWin)
 		{

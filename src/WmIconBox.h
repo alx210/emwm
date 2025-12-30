@@ -24,7 +24,7 @@
 void AddIconBoxForWorkspace (WmWorkspaceData *pWS);
 
 void AddNewBox (WmWorkspaceData *pWS, IconBoxData *pIBD);
-void ChangeActiveIconboxIconText (Widget icon, caddr_t dummy, 
+void ChangeActiveIconboxIconText (Widget icon, XtPointer dummy, 
 					 XFocusChangeEvent *event);
 void CheckIconBoxResize (ClientData *pCD, unsigned int changedValues, 
 				int newWidth, int newHeight);
@@ -38,15 +38,15 @@ void FindNewPosition (Cardinal *newPosition, IconPlacementData *pIPD,
 			     int newPlace);
 MenuItem *GetIconBoxMenuItems (WmScreenData *pSD);
 void GetIconBoxIconRootXY (ClientData *pCD, int *pX, int *pY);
-void HandleIconBoxButtonMotion (Widget icon, caddr_t client_data, 
+void HandleIconBoxButtonMotion (Widget icon, XtPointer client_data, 
 				       XEvent *pev);
-void HandleIconBoxIconKeyPress (Widget icon, caddr_t dummy, 
+void HandleIconBoxIconKeyPress (Widget icon, XtPointer dummy, 
 				       XKeyEvent *keyEvent);
 #ifndef MOTIF_ONE_DOT_ONE
-void IconScrollVisibleCallback (Widget w, caddr_t client_data, 
+void IconScrollVisibleCallback (Widget w, XtPointer client_data, 
 				  XmAnyCallbackStruct *call_data);
 #endif
-void IconActivateCallback (Widget w, caddr_t client_data, 
+void IconActivateCallback (Widget w, XtPointer client_data, 
 				  XmAnyCallbackStruct *call_data);
 Boolean IconVisible (ClientData *pCD);
 IconInfo *InsertIconInfo (IconBoxData *pIBD, ClientData *pCD, 

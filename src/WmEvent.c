@@ -940,7 +940,7 @@ Boolean WmDispatchWsEvent (XEvent *event)
 	     */
 
 	    if ((XFindContext (DISPLAY, event->xmaprequest.window,
-		    wmGD.windowContextType, (caddr_t *)&pCD)) &&
+		    wmGD.windowContextType, (XPointer*)&pCD)) &&
 		(pSD = GetScreenForWindow (event->xmaprequest.window)))
 	    {
 	    /*
@@ -1295,7 +1295,7 @@ void HandleWsButtonPress (XButtonEvent *buttonEvent)
 
     if ((buttonEvent->subwindow == None) ||
 	(XFindContext (DISPLAY, buttonEvent->subwindow, wmGD.windowContextType,
-	     (caddr_t *)&pCD)))
+	     (XPointer*)&pCD)))
     {
 	/* no managed window under the pointer */
 	pCD = NULL;
@@ -1368,7 +1368,7 @@ void HandleWsButtonRelease (XButtonEvent *buttonEvent)
 
     if ((buttonEvent->subwindow == None) ||
 	(XFindContext (DISPLAY, buttonEvent->subwindow, wmGD.windowContextType,
-	     (caddr_t *)&pCD)))
+	     (XPointer*)&pCD)))
     {
 	/* no managed window under the pointer */
 	pCD = NULL;
@@ -1910,7 +1910,7 @@ void HandleWsEnterNotify (XEnterWindowEvent *enterEvent)
      */
     if (wmGD.queryScreen &&
 	(!XFindContext (DISPLAY, enterEvent->window, wmGD.screenContextType,
-	    (caddr_t *)&pSD)))
+	    (XPointer*)&pSD)))
     {
 	SetActiveScreen (pSD);
     }
@@ -2008,7 +2008,7 @@ void HandleWsLeaveNotify (XLeaveWindowEvent *leaveEvent)
 	/*  Set new active screen */
 
 	if (!XFindContext (DISPLAY, leaveEvent->root, wmGD.screenContextType,
-	    (caddr_t *)&pSD))
+	    (XPointer*)&pSD))
 	{
 	    /* moved to another screen we manage! */
 	    SetActiveScreen (pSD);
@@ -2060,7 +2060,7 @@ void HandleWsConfigureRequest (XConfigureRequestEvent *configureEvent)
      */
 
     if (XFindContext (DISPLAY, configureEvent->window, wmGD.windowContextType,
-	    (caddr_t *)&pCD))
+	    (XPointer*)&pCD))
     {
 	/*
 	 * Get window attribute information; this is used later on

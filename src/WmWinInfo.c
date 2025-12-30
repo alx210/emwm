@@ -233,7 +233,7 @@ GetClientInfo (WmScreenData *pSD, Window clientWindow, long manageFlags)
      * Register the client window to facilitate event handling:
      */
 
-    XSaveContext (DISPLAY, clientWindow, wmGD.windowContextType, (caddr_t)pCD);
+    XSaveContext (DISPLAY, clientWindow, wmGD.windowContextType, (XPointer)pCD);
 
 
     /*
@@ -713,7 +713,7 @@ GetWmClientInfo (WmWorkspaceData *pWS,
      * Register the client window to facilitate event handling.
      */
 
-    XSaveContext (DISPLAY, pCD->client, wmGD.windowContextType, (caddr_t)pCD);
+    XSaveContext (DISPLAY, pCD->client, wmGD.windowContextType, (XPointer)pCD);
 
 
     /*
@@ -1009,7 +1009,7 @@ ProcessWmHints (ClientData *pCD, Boolean firstTime)
 
 		if ((pCD->client != pCD->windowGroup) &&
 		    !XFindContext (DISPLAY, pCD->windowGroup, 
-			wmGD.windowContextType, (caddr_t *)&leader))
+			wmGD.windowContextType, (XPointer*)&leader))
 		{
 		    pCD->transientFor = pCD->windowGroup;
 		    pCD->transientLeader = leader;
@@ -2333,7 +2333,7 @@ ProcessWmTransientFor (ClientData *pCD)
 
 	if ((pCD->client != window) &&
 	    !XFindContext (DISPLAY, window, wmGD.windowContextType,
-		(caddr_t *)&leader))
+		(XPointer*)&leader))
 	{
 	    pCD->transientFor = window;
 	    pCD->transientLeader = leader;
@@ -3485,7 +3485,7 @@ SetupClientIconWindow (ClientData *pCD, Window window)
      */
 
     if (!XFindContext (DISPLAY, window, wmGD.windowContextType,
-	     (caddr_t *)&pcd))
+	     (XPointer*)&pcd))
     {
 	if (window == pCD->client)
 	{

@@ -27,4 +27,4 @@ void SendClientOffsetMessage (ClientData *pCD);
 void SendClientMsg (Window window, long type, long data0, Time time, long *pData, int dataLen);
 Boolean AddWmTimer (unsigned int timerType, unsigned long timerInterval, ClientData *pCD);
 void DeleteClientWmTimers (ClientData *pCD);
-void TimeoutProc (caddr_t client_data, XtIntervalId *id);
+void TimeoutProc (XtPointer client_data, XtIntervalId *id);

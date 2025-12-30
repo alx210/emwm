@@ -43,7 +43,7 @@
  * Function Declarations:
  */
 #define ManagedRoot(w) (!XFindContext (DISPLAY, (w), wmGD.screenContextType, \
-(caddr_t *)&pSD) ? (SetActiveScreen (pSD), True) : \
+(char**)&pSD) ? (SetActiveScreen (pSD), True) : \
 (IsBackdropWindow (ACTIVE_PSD, (w))))
 
 WmScreenData *pSD;

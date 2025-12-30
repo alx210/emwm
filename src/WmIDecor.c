@@ -1912,7 +1912,7 @@ void ShowActiveIconText (ClientData *pcd)
 
 	/* save context for this window */
 	XSaveContext (DISPLAY, pcd->pSD->activeIconTextWin, 
-	    wmGD.windowContextType, (caddr_t) pcd);
+	    wmGD.windowContextType, (XPointer) pcd);
     }
 } /* END OF FUNCTION ShowActiveIconText */
 

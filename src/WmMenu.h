@@ -24,8 +24,8 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-void ActivateCallback (Widget w, caddr_t client_data, 
-			      caddr_t call_data);
+void ActivateCallback (Widget w, XtPointer client_data, 
+			      XtPointer call_data);
 Widget CreateMenuWidget (WmScreenData *pSD,
 				String menuName, Widget parent,
 				Boolean fTopLevelPane, MenuSpec *topMenuSpec,

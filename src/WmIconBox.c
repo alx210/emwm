@@ -459,7 +459,7 @@ void MakeScrolledWindow (WmWorkspaceData *pWS, IconBoxData *pIBD)
 
 #ifndef MOTIF_ONE_DOT_ONE
     XtAddCallback(pIBD->scrolledWidget, XmNtraverseObscuredCallback,
-		  (XtCallbackProc) IconScrollVisibleCallback, (caddr_t)NULL);
+		  (XtCallbackProc) IconScrollVisibleCallback, (XtPointer)NULL);
 #endif
 
     XtAddEventHandler(pIBD->scrolledWidget, 
@@ -2018,7 +2018,7 @@ void DeleteIconFromBox (IconBoxData *pIBD, ClientData *pCD)
      */
 
     if (!(XFindContext (DISPLAY, pCD->pSD->activeIconTextWin,
-			wmGD.windowContextType, (caddr_t *)&pCD_tmp)))
+			wmGD.windowContextType, (XPointer*)&pCD_tmp)))
     {
 	if (pCD == pCD_tmp)
 	{
@@ -2615,7 +2615,7 @@ void PackIconBox (IconBoxData *pIBD, Boolean packVert, Boolean packHorz, int pas
     if (ICON_DECORATION(pMyCD) & ICON_ACTIVE_LABEL_PART)
     {
 	if (XFindContext (DISPLAY, pMyCD->pSD->activeIconTextWin,
-			wmGD.windowContextType, (caddr_t *)&pCD_tmp))
+			wmGD.windowContextType, (XPointer*)&pCD_tmp))
 	{
 	    hasActiveText = 0;
 	}
@@ -2985,7 +2985,7 @@ void ShowClientIconState (ClientData *pCD, int newState)
  * 
  *************************************<->***********************************/
 
-void IconScrollVisibleCallback (Widget w, caddr_t client_data, XmAnyCallbackStruct *call_data)
+void IconScrollVisibleCallback (Widget w, XtPointer client_data, XmAnyCallbackStruct *call_data)
 {
     XmTraverseObscuredCallbackStruct *vis_data;
 
@@ -3013,7 +3013,7 @@ void IconScrollVisibleCallback (Widget w, caddr_t client_data, XmAnyCallbackStru
  * 
  *************************************<->***********************************/
 
-void IconActivateCallback (Widget w, caddr_t client_data, XmAnyCallbackStruct *call_data)
+void IconActivateCallback (Widget w, XtPointer client_data, XmAnyCallbackStruct *call_data)
 {
     ClientData    	*pCD;
     Window		theIcon;
@@ -3026,7 +3026,7 @@ void IconActivateCallback (Widget w, caddr_t client_data, XmAnyCallbackStruct *c
      */
 
     if (!(XFindContext (DISPLAY, theIcon,
-			wmGD.windowContextType, (caddr_t *)&pCD)))
+			wmGD.windowContextType, (XPointer*)&pCD)))
     {
 	F_Restore_And_Raise ((String)NULL, pCD, (XEvent *)NULL );
 /*	F_Normalize_And_Raise ((String)NULL, pCD, (XEvent *)NULL );
@@ -3088,7 +3088,7 @@ void ResetArrowButtonIncrements (ClientData *pCD)
  * 
  *************************************<->***********************************/
 
-void ChangeActiveIconboxIconText (Widget icon, caddr_t dummy, XFocusChangeEvent *event)
+void ChangeActiveIconboxIconText (Widget icon, XtPointer dummy, XFocusChangeEvent *event)
 {
 
     ClientData    	*pCD;
@@ -3103,7 +3103,7 @@ void ChangeActiveIconboxIconText (Widget icon, caddr_t dummy, XFocusChangeEvent 
     theIcon = XtWindow(icon);
 
     if (!(XFindContext (DISPLAY, theIcon,
-			wmGD.windowContextType, (caddr_t *)&pCD)) &&
+			wmGD.windowContextType, (XPointer*)&pCD)) &&
 	P_ICON_BOX(pCD) &&
 	P_ICON_BOX(pCD)->pCD_iconBox &&
 	P_ICON_BOX(pCD)->pCD_iconBox->clientState !=  MINIMIZED_STATE)
@@ -3140,7 +3140,7 @@ void ChangeActiveIconboxIconText (Widget icon, caddr_t dummy, XFocusChangeEvent 
  *
  *************************************<->***********************************/
 
-void HandleIconBoxIconKeyPress (Widget icon, caddr_t dummy, XKeyEvent *keyEvent)
+void HandleIconBoxIconKeyPress (Widget icon, XtPointer dummy, XKeyEvent *keyEvent)
 {
     
     Context context; 
@@ -3153,7 +3153,7 @@ void HandleIconBoxIconKeyPress (Widget icon, caddr_t dummy, XKeyEvent *keyEvent)
     
     theIcon = XtWindow(icon);
     if (!(XFindContext (DISPLAY, theIcon,
-			wmGD.windowContextType, (caddr_t *)&pCD)))
+			wmGD.windowContextType, (XPointer*)&pCD)))
     {
 	SetClientWsIndex (pCD);
 
@@ -3211,7 +3211,7 @@ void HandleIconBoxIconKeyPress (Widget icon, caddr_t dummy, XKeyEvent *keyEvent)
  * 
  *************************************<->***********************************/
 
-void HandleIconBoxButtonMotion (Widget icon, caddr_t client_data, XEvent *pev)
+void HandleIconBoxButtonMotion (Widget icon, XtPointer client_data, XEvent *pev)
 {
 
 } /* END OF FUNCTION HandleIconBoxButtonMotion */

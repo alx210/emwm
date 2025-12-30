@@ -611,7 +611,7 @@ void UpdateFeedbackText (WmScreenData *pSD, int x, int y, unsigned int width, un
  * 
  *************************************<->***********************************/
 
-static void OkCB(Widget w, caddr_t client_data, caddr_t call_data)
+static void OkCB(Widget w, XtPointer client_data, XtPointer call_data)
 {
     WithdrawDialog (w);
 
@@ -649,7 +649,7 @@ static void OkCB(Widget w, caddr_t client_data, caddr_t call_data)
  * 
  *************************************<->***********************************/
 
-static void CancelCB(Widget w, caddr_t client_data, caddr_t call_data)
+static void CancelCB(Widget w, XtPointer client_data, XtPointer call_data)
 {
     WithdrawDialog (w);
 

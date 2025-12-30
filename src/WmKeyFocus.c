@@ -570,8 +570,7 @@ ClientData *GetClientUnderPointer(Boolean *pSameScreen)
 			   &rootX, &rootY, &winX, &winY, &mask)) != False)
     {
 	if (child && 
-	    !XFindContext (DISPLAY, child, wmGD.windowContextType,
-		 (caddr_t *)&pCD))
+	    !XFindContext (DISPLAY, child, wmGD.windowContextType, (XPointer*)&pCD))
 	{
 	    /*
 	     * There is a client window or icon under the pointer.

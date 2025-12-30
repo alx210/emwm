@@ -863,7 +863,7 @@ void ProcessWmColormapWindows (ClientData *pCD)
 		    colormapCount++;
 		}
 		else if (XFindContext (DISPLAY, property[i],
-		             wmGD.windowContextType, (caddr_t *)&pcd))
+		             wmGD.windowContextType, (XPointer*)&pcd))
 		{
 		    /*
 		     * The window is not a top level window or a window that

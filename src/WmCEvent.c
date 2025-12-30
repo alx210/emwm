@@ -172,9 +172,9 @@ Boolean WmDispatchClientEvent (XEvent *event)
      */
 
     if ((XFindContext (DISPLAY, event->xany.window, wmGD.windowContextType,
-            (caddr_t *)&pCD)) &&
+            (XPointer*)&pCD)) &&
         (XFindContext (DISPLAY, event->xany.window, wmGD.cmapWindowContextType,
-            (caddr_t *)&cmap_window_data)))
+            (XPointer*)&cmap_window_data)))
     {
 	/*
 	 *  Set active screen if we're not sure. 
@@ -529,7 +529,7 @@ Boolean HandleEventsOnSpecialWindows (XEvent *pEvent)
 	dispatchEvent = False; /* don't have the toolkit dispatch the event */
     }
     else if (!XFindContext (DISPLAY, pEvent->xany.window,
-		    wmGD.mwmWindowContextType, (caddr_t *)&pSD))
+		    wmGD.mwmWindowContextType, (XPointer*)&pSD))
     {
 	if (pEvent->type == ClientMessage)
 	{
@@ -831,7 +831,7 @@ void HandleCPropertyNotify (ClientData *pCD, XPropertyEvent *propertyEvent)
 	            if((decor_diff & WM_DECOR_TITLE) &&
 		            (DECOUPLE_TITLE_APPEARANCE(pCD) && pCD->clientTitleWin)) {
 		            XSaveContext(DISPLAY, pCD->clientTitleWin,
-			            wmGD.windowContextType, (caddr_t)pCD);
+			            wmGD.windowContextType, (XPointer)pCD);
                 }
                 
                 /* Adjust maximized config if border dimensions had changed */
@@ -2288,7 +2288,7 @@ void HandleCConfigureRequest (ClientData *pCD, XConfigureRequestEvent *configure
 	if (changeMask & CWSibling)
 	{
 	    if (XFindContext (DISPLAY, configureRequest->above,
-		    wmGD.windowContextType, (caddr_t *)&pcdSibling))
+		    wmGD.windowContextType, (XPointer*)&pcdSibling))
 	    {
 		changeMask &= ~CWSibling;
 	    }
@@ -2498,7 +2498,7 @@ void HandleCColormapNotify (ClientData *pCD, XColormapEvent *colorEvent)
 	}
 
     if (!XFindContext (DISPLAY, colorEvent->window,
-        wmGD.cmapWindowContextType, (caddr_t *)&cmap_window_data))
+        wmGD.cmapWindowContextType, (XPointer*)&cmap_window_data))
     {
         /*
          * The WM_COLORMAP_WINDOWS property of a toplevel window may
@@ -2774,7 +2774,7 @@ WmScreenData * GetScreenForWindow(Window win)
     if (XGetWindowAttributes (DISPLAY, win, &attribs))
     {
 	if (!XFindContext (DISPLAY, attribs.root, wmGD.screenContextType, 
-			    (caddr_t *)&pSD))
+			    (XPointer*)&pSD))
 	{
 	    if (pSD && !pSD->screenTopLevelW)
 	    {
