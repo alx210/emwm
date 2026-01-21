@@ -1128,6 +1128,7 @@ matteWidthMatteWidthpixels0
 maximumClientSizeMaximumClientSizewxh
 vertical horizontalfill the screen
 overrideGeometryOverrideGeometryWxH{+-}X{+-}Ynone
+occupyWorkspacesOccupyWorkspaces<Workspace ID> ... | allnone
 useClientIconUseClientIconTrue/FalseTrue
 usePPositionUsePPositionstringnonzero
 windowMenuWindowMenustringDefaultWindowMenu
@@ -1289,6 +1290,13 @@ If the value given for this resource is True, a client-supplied icon
 image takes precedence over a user-supplied icon image\&. The default value
 is True, giving the client-supplied icon image higher precedence than the
 user-supplied icon image\&.
+.IP "\fIoccupyWorkspaces\fP\ (class\  \fIOccupyWorkspaces\fP)" 10
+This resource allows to specify a list of workspaces the client should occupy.
+The list may contain one or more, whitespace separated, workspace IDs or titles,
+or the keyword \fBall\fP. Workspace IDs consist of zero based workspace index
+prefixed with /fBws\fP (e.g. ws0, ws1 etc.) Workspace titles may be specified
+by the user (see the \fBWorkspace Specific Resources\fP section).
+The resource has the form Emwm*\fI<client name or class>\fP*occupyWorkspaces".
 .IP "\fIusePPosition\fP\ (class\  \fIUsePPosition\fP)" 10
 This resource specifies whether emwm honors program specified position \fBPPosition\fP specified in the \fIWM_NORMAL_HINTS\fP property in the absence of an user specified position\&. Setting
 this resource to on, causes \fBemwm\fP to always honor program

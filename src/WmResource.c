@@ -1826,7 +1826,18 @@ XtResource wmClientResources[] =
 	XtOffsetOf(ClientData, overrideGeometry),
 	XtRImmediate,
 	(XtPointer)NULL
+	},
+	
+	{
+	WmNoccupyWorkspaces,
+	WmCOccupyWorkspaces,
+	XmRString,
+	sizeof(String),
+	XtOffsetOf(ClientData, occupyWorkspaces),
+	XtRImmediate,
+	(XtPointer)NULL
 	}
+
 
 }; /* END OF STRUCTURE wmClientResources */
 

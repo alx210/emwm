@@ -1477,6 +1477,7 @@ typedef struct _ClientData
     Boolean	useClientIcon;			/* resource */
     int		wmSaveHintFlags;		/* WMSAVE_HINT */
 	String  overrideGeometry;
+	String  occupyWorkspaces;
 
     /* client frame data: */
 

@@ -102,6 +102,8 @@
 #define WmNuseWindowOutline		"useWindowOutline"
 #define WmNoutlineWidth			"outlineWidth"
 #define WmNmoveOpaque                   "moveOpaque"
+#define WmNworkspaceList	        "workspaceList"
+#define WmNworkspaceCount	        "workspaceCount"
 #define WmNframeStyle			"frameStyle"
 #define WmNutilityDecoration    "utilityDecoration"
 #define WmNutilityFunctions     "utilityFunctions"
@@ -158,8 +160,8 @@
 #define WmNuseClientIcon		"useClientIcon"
 #define WmNusePPosition			"usePPosition"
 #define WmNoverrideGeometry		"overrideGeometry"
-#define WmNworkspaceList	        "workspaceList"
-#define WmNworkspaceCount	        "workspaceCount"
+#define WmNoccupyWorkspaces		"occupyWorkspaces"
+
 
 /* window manager part resource names: */
 
@@ -320,6 +322,7 @@
 #define WmCUseClientIcon		"UseClientIcon"
 #define WmCUsePPosition			"UsePPosition"
 #define WmCOverrideGeometry		"OverrideGeometry"
+#define WmCOccupyWorkspaces		"OccupyWorkspaces"
 
 /* window manager part resource names: */
 

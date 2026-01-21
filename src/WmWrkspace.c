@@ -27,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 #include "WmGlobal.h"
 #include "WmResNames.h"
 #include "WmIPlace.h"
@@ -67,8 +68,7 @@
 
 /********    Static Function Declarations    ********/
 
-static void InsureUniqueWorkspaceHints( 
-                        ClientData *pCD) ;
+static void InsureUniqueWorkspaceHints(ClientData *pCD) ;
 
 /********    End Static Function Declarations    ********/
 
@@ -716,7 +716,6 @@ void DeleteWorkspace(WmWorkspaceData *pWS)
  *************************************<->***********************************/
 
 Boolean GetClientWorkspaceInfo(ClientData *pCD, long manageFlags )
-
 {
     Atom *pIDs;
     int i;
@@ -771,11 +770,31 @@ Boolean GetClientWorkspaceInfo(ClientData *pCD, long manageFlags )
 
     if (pCD->numInhabited == 0)
     {
-	/*
-	 * If not in any workspaces, then put the client into
-	 * the current one.
-	 */
-	PutClientIntoWorkspace (pCD->pSD->pActiveWS, pCD);
+		/* Process the client specific occupyWorkspaces resource */
+	    if(pCD->occupyWorkspaces &&
+			ConvertNamesToIDs(pCD->pSD,
+				(unsigned char*)pCD->occupyWorkspaces, &pIDs, &numIDs)) {
+
+			ProcessWorkspaceHintList(pCD, pIDs, numIDs);
+			/* Don't free pIDs, ProcessWorkspaceHintList reuses it in pCD */
+
+		} else if(GetMyOwnPresence(pCD, &pIDs, &numIDs)) {
+
+			/* Allow clients to put themselves into all workspaces */
+			CheckForPutInAllRequest(pCD, pIDs, numIDs);
+			XtFree((char*)pIDs);
+			
+			if(pCD->putInAll) {
+				for(i=0; i < pCD->pSD->numWorkspaces; i++)
+				    PutClientIntoWorkspace(&pCD->pSD->pWS[i], pCD);
+			}
+		} else {
+			/*
+			 * If not in any workspaces, then put the client into
+			 * the current one.
+			 */
+			PutClientIntoWorkspace(pCD->pSD->pActiveWS, pCD);
+		}
     }
 
     return (True);
@@ -816,89 +835,89 @@ Boolean GetClientWorkspaceInfo(ClientData *pCD, long manageFlags )
  *
  *************************************<->***********************************/
 
-Boolean 
-ConvertNamesToIDs(
-        WmScreenData *pSD,
-        unsigned char *pchIn,
-        WorkspaceID **ppAtoms,
-        unsigned int *pNumAtoms )
+Boolean ConvertNamesToIDs(WmScreenData *pSD, unsigned char *pchIn,
+        WorkspaceID **ppAtoms, unsigned int *pNumAtoms )
 
 {
-    unsigned char *pchLocal, *pch, *pchName;
-    int num = 0;
-    int numLocalIDs;
-    WorkspaceID *pLocalIDs;
+	unsigned char *pchLocal, *pch, *pchName;
+	int num = 0;
+	int numLocalIDs;
+	WorkspaceID *pLocalIDs;
+	
+    if(!pchIn) return False;
+    
+    if ((pLocalIDs = (WorkspaceID *)
+		XtMalloc(WS_ALLOC_AMOUNT * sizeof(WorkspaceID))) == NULL) {
 
-    if ((pLocalIDs = (WorkspaceID *) XtMalloc (WS_ALLOC_AMOUNT *
-	sizeof(WorkspaceID))) == NULL)
+		Warning (((char *)GETMESSAGE(76, 5, "Insufficient Memory (ConvertNamesToIDs)")));
+		ExitWM (WM_ERROR_EXIT_VALUE);
+	}
+	numLocalIDs = WS_ALLOC_AMOUNT;
+
+	pch = pchLocal = (unsigned char*)XtNewString((char*)pchIn);
+
+    while ((pchName = GetSmartString (&pch)))
     {
-	Warning (((char *)GETMESSAGE(76, 5, "Insufficient Memory (ConvertNamesToIDs)")));
-	ExitWM (WM_ERROR_EXIT_VALUE);
-    }
-    numLocalIDs = WS_ALLOC_AMOUNT;
+		int iwsx;
 
-   if (pchIn && (pchLocal = (unsigned char *) XtMalloc(1+strlen((char *)pchIn))))
-   {
-        strcpy ((char *)pchLocal, (char *)pchIn);
-	pch = pchLocal;
-
-	while ((pchName = GetSmartString (&pch)))
-	{
-	    int iwsx;
-	    XmString xms;
-
-	    /*
-	     * Check workspace for workspace titles; map to 
-	     * workspace names.
-	     */
-            xms = XmStringCreateLocalized ((char *)pchName);
-	    for (iwsx = 0; iwsx < pSD->numWorkspaces; iwsx++)
-	    {
-		if (XmStringCompare (xms, pSD->pWS[iwsx].title))
-		{
-		    break;
-		}
-	    }
-	    XmStringFree (xms);
-
-	    if (iwsx < pSD->numWorkspaces)
-	    {
-	       /*
-		* Found a workspace title we've got,
-		* use id for workspace name
-		*/
-		pLocalIDs[num] = pSD->pWS[iwsx].id;
-		num++;
-	    }
-	    else 
-	    {
 		/*
 		 * Try for match on workspace name
 		 */
-		pLocalIDs[num] = (WorkspaceID) 
-			    XInternAtom (DISPLAY, (char *)pchName, False);
-		num++;
-	    }
+		if( (pLocalIDs[num] = (WorkspaceID) 
+			XInternAtom(DISPLAY, (char *)pchName, True)) ) {
 
-	    if (num >= numLocalIDs)
-	    {
-		/* list too small */
-		numLocalIDs += WS_ALLOC_AMOUNT;
-		if ((pLocalIDs = (WorkspaceID *) XtRealloc ((char *)pLocalIDs,
-			    numLocalIDs * sizeof(WorkspaceID))) == NULL)
+			for (iwsx = 0; iwsx < pSD->numWorkspaces; iwsx++) {
+				if((pSD->pWS[iwsx].id == pLocalIDs[num]) ||
+					(pLocalIDs[num] == wmGD.xa_ALL_WORKSPACES) )
+						num++;
+			}
+		} else {
+			/*
+			 * Check workspace for workspace titles; map to 
+			 * workspace names.
+			 */
+			XmString xms;
+
+			xms = XmStringCreateLocalized ((char *)pchName);
+			for (iwsx = 0; iwsx < pSD->numWorkspaces; iwsx++)
+			{
+				if(XmStringCompare(xms, pSD->pWS[iwsx].title)) break;
+			}
+			XmStringFree (xms);
+
+			if (iwsx < pSD->numWorkspaces)
+			{
+				/*
+				 * Found a workspace title we've got,
+				 * use id for workspace name
+				 */
+				pLocalIDs[num] = pSD->pWS[iwsx].id;
+				num++;
+			}
+        }
+
+		if (num >= numLocalIDs)
 		{
-		    Warning (((char *)GETMESSAGE(76, 6, "Insufficient Memory (ConvertNamesToIDs)")));
-		    ExitWM (WM_ERROR_EXIT_VALUE);
+			/* list too small */
+			numLocalIDs += WS_ALLOC_AMOUNT;
+			if ((pLocalIDs = (WorkspaceID *) XtRealloc ((char *)pLocalIDs,
+					numLocalIDs * sizeof(WorkspaceID))) == NULL)
+			{
+				Warning (((char *)GETMESSAGE(76, 6, "Insufficient Memory (ConvertNamesToIDs)")));
+				ExitWM (WM_ERROR_EXIT_VALUE);
+			}
 		}
-	    }
 	}
-
-	XtFree ((char *)pchLocal);
-    }
-
-    *ppAtoms = pLocalIDs;
-    *pNumAtoms = num;
-    return (num != 0);
+	XtFree((char *)pchLocal);
+	
+	if(num) {
+		*ppAtoms = pLocalIDs;
+		*pNumAtoms = num;
+	} else {
+		if(pchIn) Warning("occupyWorkspaces set for client, but contains no valid workspace IDs");
+		XtFree((char*)pLocalIDs);
+	}
+	return (num > 0) ? True : False;
     
 } /* END OF FUNCTION ConvertNamesToIDs */
 
@@ -966,56 +985,53 @@ CheckForPutInAllRequest(
  *
  *************************************<->***********************************/
 
-void 
-PutClientIntoWorkspace(
-        WmWorkspaceData *pWS,
-        ClientData *pCD )
-
+void PutClientIntoWorkspace(WmWorkspaceData *pWS, ClientData *pCD )
 {
-    int i = pCD->numInhabited;
-    int iAdded, j, k;
-
-    /* insure the client's got enough workspace data */
-    if (pCD->sizeWsList < pCD->pSD->numWorkspaces)
-    {
-	iAdded = pCD->pSD->numWorkspaces - pCD->sizeWsList;
-
-	pCD->sizeWsList = pCD->pSD->numWorkspaces;
-	pCD->pWsList = (WsClientData *) 
-		XtRealloc((char *)pCD->pWsList, 
-		    (pCD->pSD->numWorkspaces * sizeof(WsClientData)));
-
-	/* intialized new data */
-	j = pCD->sizeWsList - 1;
-	for (j=1; j <= iAdded; j++)
+	int i = pCD->numInhabited;
+	int iAdded, j, k;
+	
+	/* insure the client's got enough workspace data */
+	if (pCD->sizeWsList < pCD->pSD->numWorkspaces)
 	{
-	    k = pCD->sizeWsList - j;
-	    pCD->pWsList[k].iconPlace = NO_ICON_PLACE;
-		pCD->pWsList[k].IPData = NULL;
-	    pCD->pWsList[k].iconX = 0;
-	    pCD->pWsList[k].iconY = 0;
-	    pCD->pWsList[k].iconFrameWin = (Window) 0;
-	    pCD->pWsList[k].pIconBox = NULL;
+		iAdded = pCD->pSD->numWorkspaces - pCD->sizeWsList;
+
+		pCD->sizeWsList = pCD->pSD->numWorkspaces;
+		pCD->pWsList = (WsClientData *) 
+			XtRealloc((char *)pCD->pWsList, 
+				(pCD->pSD->numWorkspaces * sizeof(WsClientData)));
+
+		/* intialized new data */
+		j = pCD->sizeWsList - 1;
+		for (j=1; j <= iAdded; j++)
+		{
+			k = pCD->sizeWsList - j;
+			pCD->pWsList[k].iconPlace = NO_ICON_PLACE;
+			pCD->pWsList[k].IPData = NULL;
+			pCD->pWsList[k].iconX = 0;
+			pCD->pWsList[k].iconY = 0;
+			pCD->pWsList[k].iconFrameWin = (Window) 0;
+			pCD->pWsList[k].pIconBox = NULL;
+		}
 	}
-    }
 
+	assert(i < pCD->pSD->numWorkspaces);
+	
+	/* update the client's list of workspace data */
+	pCD->pWsList[i].wsID = pWS->id; 
+	pCD->numInhabited++;
 
-    /* update the client's list of workspace data */
-    pCD->pWsList[i].wsID = pWS->id; 
-    pCD->numInhabited++;
+	if (!(pCD->clientFlags & WM_INITIALIZATION))
+	{
+		/* 
+		 * Make sure there's an icon 
+		 * (Don't do this during initialization, the pCD not
+		 * ready for icon making yet).
+		 */
+		InsureIconForWorkspace (pWS, pCD);
+	}
 
-    if (!(pCD->clientFlags & WM_INITIALIZATION))
-    {
-	/* 
-	 * Make sure there's an icon 
-	 * (Don't do this during initialization, the pCD not
-	 * ready for icon making yet).
-	 */
-	InsureIconForWorkspace (pWS, pCD);
-    }
-
-    /* update the workspace list of clients */
-    AddClientToWsList (pWS, pCD);
+	/* update the workspace list of clients */
+	AddClientToWsList (pWS, pCD);
 
 } /* END OF FUNCTION PutClientIntoWorkspace */
 
@@ -2651,9 +2667,11 @@ Boolean GetMyOwnPresence(ClientData *pCD,
 		}
 		*ppIDs = IDs;
 	    *pnumIDs = nIDs;
+
+		return True;
     }
 
-    return True;
+    return False;
 
 } /* END OF FUNCTION GetMyOwnPresence */
 
