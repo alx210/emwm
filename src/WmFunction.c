@@ -1474,17 +1474,17 @@ void Do_Focus_Key (ClientData *pCD, Time focusTime, long flags)
 		   /* user clicked on the frame but we don't want the focus */
 		   /* set it to the client's frame */
 		   XSetInputFocus (DISPLAY, pcdFocus->clientBaseWin,
-				RevertToPointerRoot, CurrentTime);
+				RevertToPointerRoot, focusTime);
 		  } else if ( !(flags & CLIENT_AREA_FOCUS) &&
 		       !(pcdFocus->protocolFlags & PROTOCOL_WM_TAKE_FOCUS) &&
 		        pcdFocus->inputFocusModel
 		     )
 		  {
 		    XSetInputFocus (DISPLAY, focusWindow,
-				    RevertToPointerRoot, CurrentTime);
+				    RevertToPointerRoot, focusTime);
 		  } else {
 		    XSetInputFocus (DISPLAY, focusWindow,
-				      RevertToParent, CurrentTime);
+				      RevertToParent, focusTime);
 		  }
 		}
 		else
