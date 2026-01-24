@@ -21,7 +21,6 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-#define FIX_1350    1
 
 /*
  * Included Files:
@@ -1476,19 +1475,14 @@ void Do_Focus_Key (ClientData *pCD, Time focusTime, long flags)
 		   /* set it to the client's frame */
 		   XSetInputFocus (DISPLAY, pcdFocus->clientBaseWin,
 				RevertToPointerRoot, CurrentTime);
-		  }
-#ifndef FIX_1350
-                  else if ( !(flags & CLIENT_AREA_FOCUS)                   &&
+		  } else if ( !(flags & CLIENT_AREA_FOCUS) &&
 		       !(pcdFocus->protocolFlags & PROTOCOL_WM_TAKE_FOCUS) &&
 		        pcdFocus->inputFocusModel
 		     )
 		  {
 		    XSetInputFocus (DISPLAY, focusWindow,
 				    RevertToPointerRoot, CurrentTime);
-		  }
-#endif
-                  else
-		  {
+		  } else {
 		    XSetInputFocus (DISPLAY, focusWindow,
 				      RevertToParent, CurrentTime);
 		  }
