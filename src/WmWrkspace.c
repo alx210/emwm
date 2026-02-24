@@ -787,6 +787,8 @@ Boolean GetClientWorkspaceInfo(ClientData *pCD, long manageFlags )
 			if(pCD->putInAll) {
 				for(i=0; i < pCD->pSD->numWorkspaces; i++)
 				    PutClientIntoWorkspace(&pCD->pSD->pWS[i], pCD);
+			} else {
+				PutClientIntoWorkspace(pCD->pSD->pActiveWS, pCD);
 			}
 		} else {
 			/*
