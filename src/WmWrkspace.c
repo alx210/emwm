@@ -104,6 +104,7 @@ void ChangeToWorkspace(WmWorkspaceData *pNewWS )
 {
 	ClientData *pCD;
 	ClientData *setFocus = NULL;
+	Boolean keepFocus = False;
 	int i;
 	WmScreenData *pSD = pNewWS->pSD;
 
@@ -115,7 +116,11 @@ void ChangeToWorkspace(WmWorkspaceData *pNewWS )
 
 	pSD->pActiveWS->lastFocus = wmGD.keyboardFocus;
 	pSD->pLastWS = pSD->pActiveWS;
-
+	
+	/* Keep focus if active client is in both workspaces */
+	if(wmGD.keyboardFocus && ClientInWorkspace(pNewWS, wmGD.keyboardFocus))
+		keepFocus = True;
+	
 	/*
 	 * Go through client list of old workspace and hide windows
 	 * that shouldn't appear in new workspace.
@@ -223,7 +228,7 @@ void ChangeToWorkspace(WmWorkspaceData *pNewWS )
 	UpdateEwmhActiveWorkspace(pSD, pNewWS->id);
 	
 	/* F_Focus_Key will pick first reasonable client if setFocus is NULL */
-	F_Focus_Key(NULL, setFocus, NULL);
+	if(!keepFocus) F_Focus_Key(NULL, setFocus, NULL);
 
 	pNewWS->lastFocus = NULL;
 
