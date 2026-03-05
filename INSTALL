@@ -9,15 +9,19 @@ libxm (open-motif/motif)
 
 BUILDING AND INSTALLING
 =======================
-To modify installation prefix and other options, edit the target platform
-specific makefile in the mf subdirectory: mf/Makefile.<platform name> (The
-target platform name is picked from uname(1)).
+
+Make sure to review the target platform makefile (mf/Makefile.<platform>).
+Adjust the installation prefix and X resources installation path if necessary.
+Read comments in the makefile for additional compile time options available.
+The target platform is picked by the master Makefile from uname(1). If no
+platform specific Makefile exists, try "Makefile.generic".
 
 Run 'make' in the top-level directory of the source distribution.
 When the build process finishes, run 'make install' as root.
 
 CONFIGURATION
 =============
+
 The app-defaults file installed in PREFIX/X11/app-defaults/Emwm includes basic
 font and color configuration for window decorations. See emwm(1) Component
 Appearance Resources section for more information.
