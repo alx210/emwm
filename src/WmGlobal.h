@@ -6,6 +6,7 @@
  * Motif
  *
  * Copyright (c) 1987-2012, The Open Group. All rights reserved.
+ * Copyright (c) 2018-2026, alx@fastestcode.org
  *
  * These libraries and programs are free software; you can
  * redistribute them and/or modify them under the terms of the GNU
