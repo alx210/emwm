@@ -1819,6 +1819,7 @@ typedef struct _WmGlobalData
     Atom	xa_COMPOUND_TEXT;
     Atom	xa_SM_CLIENT_ID;
     Atom	xa_WMSAVE_HINT;
+    Atom	xa_MWM_WM_REQUEST;
 
 
     /* atoms used for workspace management: */

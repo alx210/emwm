@@ -43,6 +43,7 @@ void SetWorkspaceInfo (Window propWindow,
 #endif /* HP_VUE */
 void SetWorkspacePresence (Window propWindow,
 	Atom *pWsPresence, unsigned long cPresence);
+void GetWmRequest(WmScreenData *pSD, char **pszReq, Boolean *pmore);
 Boolean HasProperty(ClientData *pCD, Atom property);
 void DiscardInitialPropertyList (ClientData *pCD);
 void GetInitialPropertyList (ClientData *pCD);

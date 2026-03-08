@@ -532,6 +532,12 @@ Boolean HandleEventsOnSpecialWindows (XEvent *pEvent)
     else if (!XFindContext (DISPLAY, pEvent->xany.window,
 		    wmGD.mwmWindowContextType, (XPointer*)&pSD))
     {
+	if ((pEvent->type == PropertyNotify) &&
+	    (pEvent->xproperty.atom == wmGD.xa_MWM_WM_REQUEST) &&
+	    (pEvent->xproperty.state == PropertyNewValue))
+	{
+	    HandleMwmRequest (pSD, pEvent);
+	}
 	if (pEvent->type == ClientMessage)
 	{
 	    HandleWmClientMessage ((XClientMessageEvent *)pEvent);

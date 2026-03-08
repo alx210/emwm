@@ -1426,6 +1426,137 @@ void SetWorkspacePresence (Window propWindow, Atom *pWsPresence, unsigned long c
 
 } /* END OF FUNCTION SetWorkspacePresence */
 
+/*************************************<->*************************************
+ *
+ *  GetWmRequest (pSD, pszReq, pmore)
+ *
+ *
+ *  Description:
+ *  -----------
+ *  This function returns the next request
+ *
+ *
+ *  Inputs:
+ *  ------
+ *  pSD - pointer to screen data
+ *  psdReq - pointer to a char pointer
+ *
+ *
+ *  Outputs:
+ *  -------
+ *  *pszReq	- pointer to null terminated string containing next
+ *                request
+ *  *pmore	- set to true if more data is left in the property
+ *
+ *  Comments:
+ *  ---------
+ *  The data for pszReq is allocated in here. The caller must free up
+ *  this space using XtFree.
+ *
+ *
+ *************************************<->***********************************/
+
+void GetWmRequest(WmScreenData *pSD, char **pszReq, Boolean *pmore)
+{
+
+    int           rValue;
+    char	 *chRequest = NULL;
+    static char  *property = NULL;
+    static int    iNext = -1;
+    int 	  i;
+    Atom          actualType;
+    int           actualFormat;
+    unsigned long leftover;
+    static unsigned long nitems = 0;
+
+    
+    /*
+     * We need to read the property again if we have no data left
+     * over from last time;
+     */
+    if (property == NULL)
+    {
+	/*
+	 * Read the property and delete it.
+	 */
+	rValue = XGetWindowProperty (DISPLAY, pSD->wmWorkspaceWin,
+				     wmGD.xa_MWM_WM_REQUEST, 0L,
+				     (long)1000000, True, AnyPropertyType,
+				     &actualType, &actualFormat, &nitems,
+				     &leftover, (unsigned char **)&property);
+
+	/* 
+	 * Validate the property that we've read
+	 */
+	if ((rValue != Success) || 
+	    (actualType == None) || 
+	    (actualFormat != 8))
+	{
+	    /* The property does not exist or it is an invalid type. */
+	    property = NULL;
+	    iNext = -1;
+	    nitems = 0;
+	}
+	else
+	{
+	    /* the property is fine, set the index of the next char. */
+	    iNext = 0;
+	}
+    }
+
+
+    /* 
+     * If we've got something, then extract and return the next
+     * request.
+     */
+    if (property && iNext >= 0)
+    {
+	int len = 0;
+
+	for (i=iNext; i<nitems; i++)
+	{
+	    if (property [i] == '\0')
+	    {
+		break;
+	    }
+	}
+	if (i>=nitems) i=nitems;
+
+	len = i - iNext + 1 + ((property[i] == '\0') ? 0 : 1);
+
+        chRequest = (char *) XtMalloc (len);
+	if (chRequest == NULL)
+	{
+	    Warning ("Insufficient memory for window management data");
+	}
+	else
+	{
+	    /* dequeue the request */
+	    strncpy (chRequest, &property[iNext], len);
+	    if (property[i] != '\0')
+	    {
+		chRequest[len-1]='\0';
+	    }
+	    iNext = i+1;
+	}
+	
+	if (iNext >= nitems)
+	{
+	    /*
+	     * Extracted the last request, free up the storage
+	     * and reset for next time.
+	     */
+	    XFree ((char *)property);
+	    iNext = -1;
+	    property = NULL;
+	}
+    }
+    
+    *pmore = (property != NULL);
+    *pszReq = chRequest;
+
+} /* END OF FUNCTION GetWmRequest */
+
 
 /*************************************<->*************************************
  *

@@ -747,6 +747,7 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
       wmGD.xa_ALL_WORKSPACES = atoms[XA_WmNall];
       wmGD.xa_MWM_WORKSPACE_LIST = atoms[XA_MWM_WORKSPACE_LIST];
       wmGD.xa_MWM_WORKSPACE_CURRENT = atoms[XA_MWM_WORKSPACE_CURRENT];
+      wmGD.xa_MWM_WM_REQUEST = atoms[XA_MWM_WM_REQUEST];
     }
 
     /* Initialize properties used in session management. */

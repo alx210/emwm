@@ -1885,6 +1885,26 @@ void HandleWmClientMessage (XClientMessageEvent *clientEvent)
 
 
 /*************************************<->*************************************
+ * Processes the _MWM_WM_REQUEST property change
+ *************************************<->*************************************/
+void HandleMwmRequest (WmScreenData *pSD, XEvent *pev)
+{
+	Boolean more = True;
+	char *pchReq = NULL;
+
+	while (more)
+    {
+		GetWmRequest (pSD, &pchReq, &more);
+
+		if (pchReq)
+		{
+
+			XtFree (pchReq);
+		}
+	}
+}
+
+/*************************************<->*************************************
  *
  *  HandleWsEnterNotify (enterEvent)
  *

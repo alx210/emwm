@@ -22,41 +22,41 @@
  * Floor, Boston, MA 02110-1301 USA
 */ 
 
-extern Boolean CheckForButtonAction (XButtonEvent *buttonEvent, 
+Boolean CheckForButtonAction (XButtonEvent *buttonEvent, 
 				     Context context, Context subContext, 
 				     ClientData *pCD);
-extern Time GetTimestamp (void);
-extern Boolean HandleKeyPress (XKeyEvent *keyEvent, KeySpec *keySpecs, 
+Time GetTimestamp (void);
+Boolean HandleKeyPress (XKeyEvent *keyEvent, KeySpec *keySpecs, 
 			       Boolean checkContext, Context context, 
 			       Boolean onlyFirst, ClientData *pCD);
-extern void HandleWsButtonPress (XButtonEvent *buttonEvent);
-extern void HandleWsButtonRelease (XButtonEvent *buttonEvent);
-extern void HandleWsConfigureRequest (XConfigureRequestEvent *configureEvent);
-extern void HandleWsEnterNotify (XEnterWindowEvent *enterEvent);
-extern void HandleWsFocusIn (XFocusInEvent *focusEvent);
-extern Boolean HandleWsKeyPress (XKeyEvent *keyEvent);
-extern void HandleWsLeaveNotify (XLeaveWindowEvent *leaveEvent);
-extern void IdentifyEventContext (XButtonEvent *event, ClientData *pCD, 
+void HandleWsButtonPress (XButtonEvent *buttonEvent);
+void HandleWsButtonRelease (XButtonEvent *buttonEvent);
+void HandleWsConfigureRequest (XConfigureRequestEvent *configureEvent);
+void HandleWsEnterNotify (XEnterWindowEvent *enterEvent);
+void HandleWsFocusIn (XFocusInEvent *focusEvent);
+Boolean HandleWsKeyPress (XKeyEvent *keyEvent);
+void HandleWsLeaveNotify (XLeaveWindowEvent *leaveEvent);
+void IdentifyEventContext (XButtonEvent *event, ClientData *pCD, 
 				  Context *pContext, int *pPartContext);
-extern void InitEventHandling (void);
-extern void ProcessClickBPress (XButtonEvent *buttonEvent, ClientData *pCD, 
+void InitEventHandling (void);
+void ProcessClickBPress (XButtonEvent *buttonEvent, ClientData *pCD, 
 				Context context, Context subContext);
-extern void ProcessClickBRelease (XButtonEvent *buttonEvent, ClientData *pCD, 
+void ProcessClickBRelease (XButtonEvent *buttonEvent, ClientData *pCD, 
 				  Context context, Context subContext);
-extern void PullExposureEvents (void);
-extern int SetupKeyBindings (KeySpec *keySpecs, Window grabWindow, 
+void PullExposureEvents (void);
+int SetupKeyBindings (KeySpec *keySpecs, Window grabWindow, 
 			     int keyboardMode, long context);
-extern Boolean WmDispatchMenuEvent (XButtonEvent *event);
-extern Boolean WmDispatchWsEvent (XEvent *event);
-extern void WmGrabButton (Display *display, unsigned int button, 
+Boolean WmDispatchMenuEvent (XButtonEvent *event);
+Boolean WmDispatchWsEvent (XEvent *event);
+void WmGrabButton (Display *display, unsigned int button, 
 		unsigned int modifiers, Window grab_window, 
 		unsigned int event_mask, Bool owner_events, int pointer_mode, 
 		int keyboard_mode, Window confine_to, Cursor cursor);
-extern void WmGrabKey (Display *display, int keycode, unsigned int modifiers, 
+void WmGrabKey (Display *display, int keycode, unsigned int modifiers, 
 		Window grab_window, Bool owner_events, int pointer_mode, 
 		int keyboard_mode);
-extern void WmUngrabButton (Display *display, unsigned int button,
+void WmUngrabButton (Display *display, unsigned int button,
 		unsigned int modifiers, Window grab_window);
-extern Boolean ReplayedButtonEvent (XButtonEvent *pevB1, XButtonEvent *pevB2);
-extern void HandleWmClientMessage (XClientMessageEvent *clientEvent);
-
+Boolean ReplayedButtonEvent (XButtonEvent *pevB1, XButtonEvent *pevB2);
+void HandleWmClientMessage (XClientMessageEvent *clientEvent);
+void HandleMwmRequest (WmScreenData *pSD, XEvent *pev);
