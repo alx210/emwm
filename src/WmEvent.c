@@ -25,7 +25,6 @@
 /*
  * Included Files:
  */
-
 #include "WmGlobal.h"
 /*
  * include extern functions
@@ -44,8 +43,11 @@
 #include "WmProperty.h"
 #include "WmWinInfo.h"
 #include "WmWinState.h"
+#include "WmWrkspace.h"
 #include "WmXmP.h"
 #include "WmEwmh.h"
+#include "WmRequest.h"
+#include "WmError.h"
 
 #include <Xm/RowColumnP.h> /* for MS_LastManagedMenuTime */
 
@@ -1898,8 +1900,8 @@ void HandleMwmRequest (WmScreenData *pSD, XEvent *pev)
 
 		if (pchReq)
 		{
-
-			XtFree (pchReq);
+			ProcessWmRequest(pSD, pchReq);
+			XtFree(pchReq);
 		}
 	}
 }

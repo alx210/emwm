@@ -30,6 +30,6 @@ void ProcessBackdropResources(WmWorkspaceData *pWS, unsigned long callFlags);
 
 String FullBitmapFilePath(String pch);
 
-void SetNewBackdrop(WmWorkspaceData *pWS, Pixmap pixmap, String bitmapFile);
+void SetNewBackdrop(WmWorkspaceData *pWS, String bitmapFile);
 
 Boolean IsBackdropWindow(WmScreenData *pSD, Window win);

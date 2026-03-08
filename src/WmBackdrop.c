@@ -22,8 +22,6 @@
  * Floor, Boston, MA 02110-1301 USA
  */
 
-#define	BANDWIDTH		16
-#define	BOTTOM			 0
 #define CHANGE_BACKDROP		(1L << 0)
 
 #include "WmGlobal.h"
@@ -179,133 +177,135 @@ void ProcessBackdropResources(WmWorkspaceData *pWS, unsigned long callFlags )
 			&xswa);
 	}
 
-	/*
-	 *  see if we're using a bitmap 
-	 */
+	/*  see if we're using a bitmap  */
 	if (pWS->backdrop.image)
 	{
-
-	/*
-	 * Use a copy of the string because our parsing routines
-	 * destroy the thing being parsed. 
-	 */
-
-	if ((pLine = pchImageName = (unsigned char *) 
-				strdup (pWS->backdrop.image)) &&
-				(pch = GetString(&pLine)))
-	{
-	    pchL = (unsigned char *) strdup ((char *)pch);
-
-		if (*pchL) ToLower((unsigned char *)pchL);
-	
-		if(!(strcmp ((char *)pchL, (char *)none_string)))
-		{
-			/*
-			 * No backdrop (root window shows through)
-			 */
-			pWS->backdrop.nameAtom = xa_NO_BACKDROP;
-			bNone = True;
-		}
-
-		if (pch && !bNone)
-		{
 		/*
-		 * Load in the bitmap, create a pixmap of the right depth.
+		 * Use a copy of the string because our parsing routines
+		 * destroy the thing being parsed. 
 		 */
-		if ((callFlags & CHANGE_BACKDROP))
-		{
-			GC gc;
-			Display *display;
-			Window win;
-			int status, x, y;
-			unsigned int bw, depth, h, w;
 
+		if ((pLine = pchImageName = (unsigned char *) 
+					strdup (pWS->backdrop.image)) &&
+					(pch = GetString(&pLine)))
+		{
+	    	pchL = (unsigned char *) strdup ((char *)pch);
+
+			if (*pchL) ToLower((unsigned char *)pchL);
+
+			if(!(strcmp ((char *)pchL, (char *)none_string)))
+			{
+				XSetWindowBackground(DISPLAY, pWS->backdrop.window,
+					pWS->backdrop.background);
+
+				pWS->backdrop.nameAtom = xa_NO_BACKDROP;
+				bNone = True;
+			}
+
+			if (pch && !bNone)
+			{
 			/*
-			 * We're changing the backdrop, so the
-			 * imagePixmap actually contains a depth 1
-			 * pixmap. Convert it into a pixmap of the
-			 * proper depth.
+			 * Load in the bitmap, create a pixmap of the right depth.
 			 */
-			tmpPix = pWS->backdrop.imagePixmap;
-			if (XmUNSPECIFIED_PIXMAP != tmpPix)
+			if ((callFlags & CHANGE_BACKDROP))
 			{
-				display = XtDisplay(pWS->workspaceTopLevelW);
-				XGetGeometry(display, tmpPix,
-					&win, &x, &y, &w, &h, &bw, &depth);
+				GC gc;
+				Display *display;
+				Window win;
+				int status, x, y;
+				unsigned int bw, depth, h, w;
+
+				/*
+				 * We're changing the backdrop, so the
+				 * imagePixmap actually contains a depth 1
+				 * pixmap. Convert it into a pixmap of the
+				 * proper depth.
+				 */
+				tmpPix = pWS->backdrop.imagePixmap;
+				if (XmUNSPECIFIED_PIXMAP != tmpPix)
+				{
+					display = XtDisplay(pWS->workspaceTopLevelW);
+					XGetGeometry(display, tmpPix,
+						&win, &x, &y, &w, &h, &bw, &depth);
+					pWS->backdrop.imagePixmap =
+					  XCreatePixmap(display, tmpPix, w, h, depth);
+					gc = XCreateGC(display, tmpPix, 0, NULL);
+					status = XCopyArea(XtDisplay(pWS->workspaceTopLevelW),
+						tmpPix, pWS->backdrop.imagePixmap, gc,
+						0, 0, w, h, 0, 0);
+					XFreeGC(display, gc);
+				}
+
+				if (XmUNSPECIFIED_PIXMAP == tmpPix || BadDrawable == status) {
+					pWS->backdrop.imagePixmap = WmXmGetPixmap2(
+						XtScreen(pWS->workspaceTopLevelW), (char *)pch,
+						pWS->backdrop.foreground, pWS->backdrop.background);
+				}
+			} else {
 				pWS->backdrop.imagePixmap =
-				  XCreatePixmap(display, tmpPix, w, h, depth);
-				gc = XCreateGC(display, tmpPix, 0, NULL);
-				status = XCopyArea(XtDisplay(pWS->workspaceTopLevelW),
-					tmpPix, pWS->backdrop.imagePixmap, gc,
-					0, 0, w, h, 0, 0);
-				XFreeGC(display, gc);
+				WmXmGetPixmap2 (XtScreen(pWS->workspaceTopLevelW), (char *)pch,
+					pWS->backdrop.foreground,pWS->backdrop.background);
+
+				XSetWindowBackgroundPixmap(DISPLAY,
+					pWS->backdrop.window, pWS->backdrop.imagePixmap);
 			}
 
-			if (XmUNSPECIFIED_PIXMAP == tmpPix || BadDrawable == status) {
-				pWS->backdrop.imagePixmap = WmXmGetPixmap2(
-					XtScreen(pWS->workspaceTopLevelW), (char *)pch,
-					pWS->backdrop.foreground, pWS->backdrop.background);
-			}
-		} else {
-			pWS->backdrop.imagePixmap =
-			WmXmGetPixmap2 (XtScreen(pWS->workspaceTopLevelW), (char *)pch,
-				pWS->backdrop.foreground,pWS->backdrop.background);
-
-			XSetWindowBackgroundPixmap(DISPLAY,
-				pWS->backdrop.window, pWS->backdrop.imagePixmap);
-		}
-
-		if ((callFlags & CHANGE_BACKDROP))
-		{
-			if (pWS->backdrop.imagePixmap != XmUNSPECIFIED_PIXMAP)
+			if ((callFlags & CHANGE_BACKDROP))
 			{
-			XSetWindowBackgroundPixmap (DISPLAY,
-				pWS->backdrop.window,
-				pWS->backdrop.imagePixmap);
+				if (pWS->backdrop.imagePixmap != XmUNSPECIFIED_PIXMAP)
+				{
+				XSetWindowBackgroundPixmap (DISPLAY,
+					pWS->backdrop.window,
+					pWS->backdrop.imagePixmap);
+				}
+				else
+				{
+				/*
+				 * Failed to find bitmap
+				 * set background to "background"
+				 */
+				XSetWindowBackground (DISPLAY, 
+					pWS->backdrop.window, 
+					pWS->backdrop.background);
+				}
+			}
+
+			if (pch &&
+		    	(pWS->backdrop.imagePixmap != XmUNSPECIFIED_PIXMAP) &&
+		    	(pWS->backdrop.window))
+			{
+				/* 
+				 * Succeeded in setting up a bitmap backdrop.
+				 */
+				pWS->backdrop.flags |= BACKDROP_BITMAP;
+
+				pWS->backdrop.nameAtom = XmInternAtom (DISPLAY, 
+							pWS->backdrop.image, False);
 			}
 			else
 			{
-			/*
-			 * Failed to find bitmap
-			 * set background to "background"
-			 */
-			XSetWindowBackground (DISPLAY, 
-				pWS->backdrop.window, 
-				pWS->backdrop.background);
+				char *msg;
+				size_t len;
+				const char fmt[] = "Unable to get image %s for workspace %s.";
+
+				len = snprintf(NULL, 0, fmt, pWS->backdrop.image, pWS->name);
+				msg = malloc(len + 1);
+				sprintf(msg, fmt, pWS->backdrop.image, pWS->name);
+				Warning(msg);
+				free(msg);
 			}
+			pch = NULL;
+	    	}
+
+			if (pchImageName) free(pchImageName);	/* temporary string */
+	    	if (pchL) free(pchL);	/* temporary string */
 		}
 
-		if (pch &&
-		    (pWS->backdrop.imagePixmap != XmUNSPECIFIED_PIXMAP) &&
-		    (pWS->backdrop.window))
-		{
-			/* 
-			 * Succeeded in setting up a bitmap backdrop.
-			 */
-			pWS->backdrop.flags |= BACKDROP_BITMAP;
-
-			pWS->backdrop.nameAtom = XmInternAtom (DISPLAY, 
-						pWS->backdrop.image, False);
-		}
-		else
-		{
-			char *msg;
-			size_t len;
-			const char fmt[] = "Unable to get image %s for workspace %s.";
-			
-			len = snprintf(NULL, 0, fmt, pWS->backdrop.image, pWS->name);
-			msg = malloc(len + 1);
-			sprintf(msg, fmt, pWS->backdrop.image, pWS->name);
-			Warning(msg);
-			free(msg);
-		}
-		pch = NULL;
-	    }
-	    
-		if (pchImageName) free(pchImageName);	/* temporary string */
-	    if (pchL) free(pchL);	/* temporary string */
+    } else {
+		/* only solid color specified */
+		XSetWindowBackground(DISPLAY, pWS->backdrop.window,
+				pWS->backdrop.background);
 	}
-    }
 }
 
 
@@ -436,54 +436,35 @@ String FullBitmapFilePath(String pch)
  *  ---------
  *
  *************************************<->***********************************/
-void 
-SetNewBackdrop(
-        WmWorkspaceData *pWS,
-        Pixmap pixmap,
-        String bitmapFile )
+void SetNewBackdrop(WmWorkspaceData *pWS, String bitmapFile )
 {
-    String pchNewBitmap = NULL;
-
-    if (!bitmapFile || !strlen(bitmapFile) ||
-		!strcmp(bitmapFile, none_string)){
-		pixmap = None;
-    }
-
-    if (bitmapFile)
-		pchNewBitmap = (String) XtNewString(bitmapFile);
+    String pchNewBitmap = (String) XtNewString(bitmapFile);
 
     /*
      * Free up old resources 
      */
-    if ((pWS->backdrop.imagePixmap) &&
-	(pWS->backdrop.imagePixmap != pixmap))
+    if (pWS->backdrop.imagePixmap)
     {
-	if (!XmDestroyPixmap (XtScreen(pWS->workspaceTopLevelW), 
-			pWS->backdrop.imagePixmap))
-	{
-	    /* not in Xm pixmap cache */
-	}
-	pWS->backdrop.imagePixmap = None;
+		XmDestroyPixmap(XtScreen(pWS->workspaceTopLevelW), 
+			pWS->backdrop.imagePixmap);
+		pWS->backdrop.imagePixmap = None;
     }
 
     /* free pWS->backdrop.image */
     if ((pWS->backdrop.flags & BACKDROP_IMAGE_ALLOCED) &&
 	(pWS->backdrop.image))
     {
-	free (pWS->backdrop.image);
+		free (pWS->backdrop.image);
     }
 	
-    pWS->backdrop.imagePixmap = pixmap;
+    pWS->backdrop.imagePixmap = XmUNSPECIFIED_PIXMAP;
     pWS->backdrop.image = pchNewBitmap;
 
     ProcessBackdropResources (pWS, CHANGE_BACKDROP);
 
-    if (pchNewBitmap)
-    {
 	pWS->backdrop.flags |= BACKDROP_IMAGE_ALLOCED;
-    }
 
-    ChangeBackdrop (pWS);
+    if(pWS == ACTIVE_WS) ChangeBackdrop (pWS);
     SetWorkspaceInfoProperty (pWS);
 
 }
