@@ -1067,8 +1067,6 @@ typedef struct _WmScreenData
     Widget	screenTopLevelW1;       /* for internal WM components */
     Widget      confirmboxW[4];
     WsPresenceData	presence;	/* workspace presence dialog*/
-    Widget	switcherW;		/* workspace switcher */
-    Widget	switcherShellW;		/* shell for ws switcher */
     Window	wmWorkspaceWin;		/* holds wm properties */
     Window	feedbackWin;
     Window	activeIconTextWin;
