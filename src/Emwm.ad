@@ -5,6 +5,10 @@ Emwm*client*background: #8C8C8C
 Emwm*client*activeBackground: #7399BA
 Emwm*icon*activeBackground: #7399BA
 
+!! The Workspace Presence dialog
+Emwm*feedback*XmPushButton.marginWidth: 5
+Emwm*feedback*XmPushButton.marginHeight: 5
+
 !! Default font (menus and dialogs)
 Emwm*renderTable: variable
 Emwm*renderTable.variable.fontType: FONT_IS_XFT
