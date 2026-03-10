@@ -45,6 +45,16 @@
 static void PutIconLabelOnScreen(int screen, int icon_x, int icon_y,
     int *px, int *py, unsigned int width, unsigned int height);
 
+static void DrawIconTitle (ClientData *pcd);
+static void GetIconDimensions (WmScreenData *pSD, unsigned int *pWidth, 
+			       unsigned int *pLabelHeight, 
+			       unsigned int *pImageHeight);
+static void GetIconTitleBox (ClientData *pcd, XRectangle *pBox);
+static void MakeIconShadows (ClientData *pcd, int xOffset, int yOffset);
+static void PutBoxInIconBox (ClientData *pCD, int *px, int *py, 
+			     unsigned int *width, unsigned int *height);
+
+
 /*
  * Global Variables:
  */
@@ -235,7 +245,7 @@ Boolean MakeIcon (WmWorkspaceData *pWS, ClientData *pcd)
  * 
  *************************************<->***********************************/
 
-void MakeIconShadows (ClientData *pcd, int xOffset, int yOffset)
+static void MakeIconShadows (ClientData *pcd, int xOffset, int yOffset)
 {        
 
     /*
@@ -682,7 +692,7 @@ void IconExposureProc (ClientData *pcd, Boolean expose)
  * 
  *************************************<->***********************************/
 
-void GetIconTitleBox (ClientData *pcd, XRectangle *pBox)
+static void GetIconTitleBox (ClientData *pcd, XRectangle *pBox)
 {
     int xOffset;
     int yOffset;
@@ -819,7 +829,7 @@ void GetIconTitleBox (ClientData *pcd, XRectangle *pBox)
  * 
  *************************************<->***********************************/
 
-void DrawIconTitle (ClientData *pcd)
+static void DrawIconTitle (ClientData *pcd)
 {
     XRectangle textBox;
     GC iconGC;
@@ -977,7 +987,8 @@ void RedisplayIconTitle (ClientData *pcd)
  *  --------
  * 
  *************************************<->***********************************/
-void GetIconDimensions (WmScreenData *pSD, unsigned int *pWidth, unsigned int *pLabelHeight, unsigned int *pImageHeight)
+static void GetIconDimensions (WmScreenData *pSD, unsigned int *pWidth,
+    unsigned int *pLabelHeight, unsigned int *pImageHeight)
 {
     /*
      * The icon width is always keyed to the icon image maximum regardless
@@ -1601,7 +1612,8 @@ static void PutIconLabelOnScreen (int screen, int icon_x, int icon_y,
  *  --------
  * 
  *************************************<->***********************************/
-void PutBoxInIconBox (ClientData *pCD, int *px, int *py, unsigned int *width, unsigned int *height)
+static void PutBoxInIconBox (ClientData *pCD, int *px, int *py,
+    unsigned int *width, unsigned int *height)
 {
 
     int i;

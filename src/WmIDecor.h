@@ -23,24 +23,14 @@
 */ 
 
 void CreateActiveIconTextWindow (WmScreenData *pSD);
-void DrawIconTitle (ClientData *pcd);
-void GetIconDimensions (WmScreenData *pSD, unsigned int *pWidth, 
-			       unsigned int *pLabelHeight, 
-			       unsigned int *pImageHeight);
-void GetIconTitleBox (ClientData *pcd, XRectangle *pBox);
 void HideActiveIconText (WmScreenData *pSD);
 void IconExposureProc (ClientData *pcd, Boolean clearFirst);
 void InitIconSize (WmScreenData *pSD);
 Boolean MakeIcon (WmWorkspaceData *pWS, ClientData *pcd);
-void MakeIconShadows (ClientData *pcd, int xOffset, int yOffset);
 void MoveActiveIconText (ClientData *pcd);
 void PaintActiveIconText (ClientData *pcd, Boolean erase);
-void PutBoxInIconBox (ClientData *pCD, int *px, int *py, 
-			     unsigned int *width, unsigned int *height);
 void RedisplayIconTitle (ClientData *pcd);
 void ReparentIconWindow (ClientData *pcd, int xOffset, int yOffset);
 void ShowActiveIcon (ClientData *pcd);
 void ShowActiveIconText (ClientData *pcd);
 void ShowInactiveIcon (ClientData *pcd, Boolean refresh);
-
-
