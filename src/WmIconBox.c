@@ -354,13 +354,13 @@ void MakeShell (WmWorkspaceData *pWS, IconBoxData *pIBD)
 
     XtSetArg (setArgs[i], XmNkeyboardFocusPolicy, (XtArgVal)XmEXPLICIT); i++;
 
-    if (!(Monochrome (XtScreen (pWS->pSD->screenTopLevelW))))
+    if (pWS->pSD->iconBoxTitle)
     {
-	XtSetArg (setArgs[i], XmNbackground,  
-		  (XtArgVal) pWS->pSD->clientAppearance.background ); i++;
-	XtSetArg (setArgs[i], XmNforeground,  
-		  (XtArgVal) pWS->pSD->clientAppearance.foreground ); i++;
+		pchIBTitle = WmXmStringToString (pWS->pSD->iconBoxTitle);
+		XtSetArg (setArgs[i], XmNtitle, (XtArgVal)pchIBTitle); i++;
+		XtSetArg (setArgs[i], XmNiconName, (XtArgVal)pchIBTitle); i++;
     }
+	
     XtSetArg (setArgs[i], XmNmappedWhenManaged, (XtArgVal)False); i++;
     XtSetArg (setArgs[i], XmNdialogStyle, (XtArgVal)XmDIALOG_MODELESS); i++;
     XtSetArg (setArgs[i], XmNdepth, 
@@ -368,7 +368,7 @@ void MakeShell (WmWorkspaceData *pWS, IconBoxData *pIBD)
     XtSetArg (setArgs[i], XmNscreen, 
 	(XtArgVal) ScreenOfDisplay (DISPLAY, pWS->pSD->screen)); i++;
 
-    pIBD->shellWidget = (Widget) XtCreatePopupShell (WmNclient, 
+    pIBD->shellWidget = (Widget) XtCreatePopupShell (WmNiconBox, 
 					topLevelShellWidgetClass,
                                         pWS->workspaceTopLevelW,
 				        (ArgList)setArgs, i);
