@@ -37,8 +37,6 @@ void MoveActiveIconText (ClientData *pcd);
 void PaintActiveIconText (ClientData *pcd, Boolean erase);
 void PutBoxInIconBox (ClientData *pCD, int *px, int *py, 
 			     unsigned int *width, unsigned int *height);
-void PutBoxOnScreen (int screen, int *px, int *py, unsigned int width, 
-			    unsigned int height);
 void RedisplayIconTitle (ClientData *pcd);
 void ReparentIconWindow (ClientData *pcd, int xOffset, int yOffset);
 void ShowActiveIcon (ClientData *pcd);

@@ -40,8 +40,10 @@
 #include "WmMenu.h"
 #include "WmWinInfo.h"
 #include "WmWrkspace.h"
+#include "WmXinerama.h"
 
-
+static void PutIconLabelOnScreen(int screen, int icon_x, int icon_y,
+    int *px, int *py, unsigned int width, unsigned int height);
 
 /*
  * Global Variables:
@@ -1514,7 +1516,7 @@ void ReparentIconWindow (ClientData *pcd, int xOffset, int yOffset)
 
 /*************************************<->*************************************
  *
- *  PutBoxOnScreen (screen, px, py, width, height)
+ *  PutIconLabelOnScreen (screen, icon_x, icon_y, px, py, width, height)
  *
  *
  *  Description:
@@ -1525,6 +1527,8 @@ void ReparentIconWindow (ClientData *pcd, int xOffset, int yOffset)
  *  Inputs:
  *  ------
  *  screen 	- screen we're talking about
+ *  icon_x
+ *  icon_y  - upper left icon coordinates
  *  px		- pointer to x-coord
  *  py		- pointer to y-coord
  *  width	- width of box
@@ -1540,23 +1544,31 @@ void ReparentIconWindow (ClientData *pcd, int xOffset, int yOffset)
  *  --------
  * 
  *************************************<->***********************************/
-void PutBoxOnScreen (int screen, int *px, int *py, unsigned int width, unsigned int height)
+static void PutIconLabelOnScreen (int screen, int icon_x, int icon_y,
+    int *px, int *py, unsigned int width, unsigned int height)
 {
+    XineramaScreenInfo xsi = { 0 };
+    
+    if(!GetXineramaScreenFromLocation(icon_x, icon_y, &xsi)) {
+        xsi.width = DisplayWidth (DISPLAY, screen);
+        xsi.height = DisplayHeight (DISPLAY, screen);
+    }
+
     /*
      * Place active label text nicely on screen
      */
 
-    if (*px+width+1 > DisplayWidth (DISPLAY, screen))
-	*px -= (*px+width+1) - DisplayWidth (DISPLAY, screen);
+    if ((*px + width + 1) > (xsi.x_org + xsi.width))
+        *px -= (*px + width + 1) - (xsi.x_org + xsi.width);
 
-    if (*py+height+1 > DisplayHeight (DISPLAY, screen))
-	*py -= (*py+height+1) - DisplayHeight (DISPLAY, screen);
+    if ((*py + height + 1) > (xsi.y_org + xsi.height))
+        *py -= (*py + height + 1) - (xsi.y_org + xsi.height);
 
-    if (*px < 1) *px = 1;
+    if (*px < xsi.x_org + 1) *px = xsi.x_org + 1;
 
-    if (*py < 1) *py = 1;
+    if (*py < xsi.y_org + 1) *py = xsi.y_org + 1;
 
-} /* END OF FUNCTION PutBoxOnScreen */
+} /* END OF FUNCTION PutIconLabelOnScreen */
 
 
 /*************************************<->*************************************
@@ -1793,6 +1805,7 @@ void ShowActiveIconText (ClientData *pcd)
     XWindowChanges windowChanges;
     unsigned int mask;
     int x, y; 
+    int icon_x, icon_y;
     unsigned int junk;
     Window root;
     Dimension dWidth, dHeight;
@@ -1831,12 +1844,11 @@ void ShowActiveIconText (ClientData *pcd)
 
 	XGetGeometry (DISPLAY, 
 			(Drawable) ICON_FRAME_WIN(pcd), 
-			&root, &x, &y, 
-		        &junk, &junk, &junk, &junk);
+			&root, &icon_x, &icon_y, &junk, &junk, &junk, &junk);
 
 
-	y += ICON_IMAGE_HEIGHT(pcd);
-	x -= (activeIconTextWidth - ICON_WIDTH(pcd))/2;
+	y = icon_y + ICON_IMAGE_HEIGHT(pcd);
+	x = icon_x - (activeIconTextWidth - ICON_WIDTH(pcd))/2;
 
 
 
@@ -1845,7 +1857,8 @@ void ShowActiveIconText (ClientData *pcd)
 	    /* 
 	     * This is a normal icon
 	     */
-	    PutBoxOnScreen (SCREEN_FOR_CLIENT(pcd), &x, &y, 
+	    PutIconLabelOnScreen (SCREEN_FOR_CLIENT(pcd),
+            icon_x, icon_y, &x, &y, 
 		    activeIconTextWidth, activeIconTextHeight);
 	    if (ACTIVE_LABEL_PARENT(pcd) != root)
 	    {
@@ -1984,7 +1997,7 @@ void HideActiveIconText (WmScreenData *pSD)
  *************************************<->***********************************/
 void MoveActiveIconText (ClientData *pcd)
 {
-    int x, y; 
+    int x, y, icon_x, icon_y; 
     unsigned int junk;
     Window root;
     Dimension dWidth, dHeight;
@@ -2013,20 +2026,19 @@ void MoveActiveIconText (ClientData *pcd)
 	
 	activeIconTextWidth += 2 * ICON_EXTERNAL_SHADOW_WIDTH;
 
-	XGetGeometry (DISPLAY, 
-			(Drawable) ICON_FRAME_WIN(pcd), 
-			&root, &x, &y, 
-		        &junk, &junk, &junk, &junk);
+	XGetGeometry (DISPLAY, (Drawable) ICON_FRAME_WIN(pcd), 
+			&root, &icon_x, &icon_y, &junk, &junk, &junk, &junk);
 
 	
-	y += ICON_IMAGE_HEIGHT(pcd);
-        x -= (activeIconTextWidth - ICON_WIDTH(pcd))/2;
+	y = icon_y + ICON_IMAGE_HEIGHT(pcd);
+    x = icon_x - (activeIconTextWidth - ICON_WIDTH(pcd))/2;
 
 	if (!(P_ICON_BOX(pcd)))
 	{
 	    /* This is a normal icon */
-	    PutBoxOnScreen (SCREEN_FOR_CLIENT(pcd), &x, &y, 
-		activeIconTextWidth, activeIconTextHeight);
+	    PutIconLabelOnScreen(SCREEN_FOR_CLIENT(pcd),
+            icon_x, icon_y, &x, &y, 
+            activeIconTextWidth, activeIconTextHeight);
 	}
 	else 
 	{
