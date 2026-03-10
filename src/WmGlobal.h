@@ -48,9 +48,9 @@
  */
 
 /* Version info */
-#define MWM_NAME "EMWM [WSM Branch - Alpha]"
-#define MWM_VERSION  1
-#define MWM_REVISION 4
+#define MWM_NAME "EMWM [WSM Branch - Beta 1]"
+#define MWM_VERSION  2
+#define MWM_REVISION 0
 
 /* window manager name and class used to get resources: */
 #define	WM_RESOURCE_CLASS	"Emwm"
