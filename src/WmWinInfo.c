@@ -1260,7 +1260,7 @@ ProcessWmHints (ClientData *pCD, Boolean firstTime)
     }
     else /* not the first time the hints are processed */
     {
-	if (flags & IconPixmapHint)
+	if ((flags & IconPixmapHint) && (pCD->useClientIcon || !pCD->iconImage))
 	{
 	    /*
              * Process an icon image change if the icon image was initially
