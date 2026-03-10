@@ -1902,14 +1902,12 @@ static void ComputeGadgetRectangles (ClientData *pcd)
 void GetSystemMenuPosition (ClientData *pcd, int *px, int *py, 
 			    unsigned int width, unsigned int height, Context context)
 {
-	XineramaScreenInfo xsi;
-
-	if(!GetXineramaScreenFromLocation(pcd->clientX, pcd->clientY, &xsi)){
-		xsi.x_org = 0;
-		xsi.y_org = 0;
-		xsi.width = XDisplayWidth(DISPLAY, pcd->pSD->screen);
-		xsi.height = XDisplayHeight(DISPLAY, pcd->pSD->screen);
-	}
+	XineramaScreenInfo xsi = {
+		.x_org = 0,
+		.y_org = 0,
+		.width = XDisplayWidth(DISPLAY, pcd->pSD->screen),
+		.height = XDisplayHeight(DISPLAY, pcd->pSD->screen)
+	};
 
     if ((pcd->clientState == MINIMIZED_STATE) ||
         ((pcd->clientState != MINIMIZED_STATE) &&
@@ -1924,9 +1922,11 @@ void GetSystemMenuPosition (ClientData *pcd, int *px, int *py,
 	 */
 
 
-	if (pcd->pSD->useIconBox && P_ICON_BOX(pcd))
+		if (pcd->pSD->useIconBox && P_ICON_BOX(pcd))
         {
             GetIconBoxIconRootXY (pcd, px, py);
+
+			GetXineramaScreenFromLocation(*px, *py, &xsi);
 
             wmGD.hotspotRectangle.x = *px;
             wmGD.hotspotRectangle.y = *py;
@@ -1936,23 +1936,23 @@ void GetSystemMenuPosition (ClientData *pcd, int *px, int *py,
             if (*py < 0)
             {
                 *py += height + ICON_HEIGHT(pcd);
-                if (*py + height >= DisplayHeight (DISPLAY, 
-						   SCREEN_FOR_CLIENT(pcd)))
+                if (*py + height >= (xsi.y_org + xsi.height))
                 {
                     wmGD.checkHotspot = FALSE;
                 }
             }
         }
-	else
+		else
         {
 	    *px = ICON_X(pcd);
 	    *py = ICON_Y(pcd) - height;
+
+		GetXineramaScreenFromLocation(*px, *py, &xsi);
 	    
 	    if (*py < 0)
 	    {
 		*py = ICON_Y(pcd) + ICON_HEIGHT(pcd);
-		if (*py + height >= DisplayHeight (DISPLAY, 
-						   SCREEN_FOR_CLIENT(pcd)))
+		if (*py + height >= (xsi.y_org + xsi.height))
 		{
 		    wmGD.checkHotspot = FALSE;
 		}
@@ -1960,7 +1960,10 @@ void GetSystemMenuPosition (ClientData *pcd, int *px, int *py,
 	    
 	    wmGD.hotspotRectangle.x = ICON_X(pcd);
 	    wmGD.hotspotRectangle.y = ICON_Y(pcd);
-	}
+		}
+		if(*px + width > (xsi.x_org + xsi.width)) {
+			*px -= (*px + width - (xsi.x_org + xsi.width));
+		}
 
 	/* setup the hotspot rectangle data */
 
@@ -1969,6 +1972,8 @@ void GetSystemMenuPosition (ClientData *pcd, int *px, int *py,
     }
     else
     {
+	
+	GetXineramaScreenFromLocation(pcd->clientX, pcd->clientY, &xsi);
 	/* 
 	 * Try to put the menu directly below the SW corner of the 
 	 *   titlebar/border.
