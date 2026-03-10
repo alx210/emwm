@@ -1806,7 +1806,7 @@ XtResource wmClientResources[] =
 	sizeof (Boolean),
         XtOffsetOf (ClientData, useClientIcon),
 	XtRImmediate,
-	(XtPointer)True
+	(XtPointer)False
     },
 
     {
