@@ -51,6 +51,7 @@
 #include "WmWinState.h"
 #include "WmXSMP.h"
 #include "WmBackdrop.h"
+#include "WmKeyFocus.h"
 #include "WmEwmh.h"
 
 /* local macros */
@@ -119,8 +120,9 @@ void ChangeToWorkspace(WmWorkspaceData *pNewWS )
 	pSD->pLastWS = pSD->pActiveWS;
 	
 	/* Keep focus if active client is in both workspaces */
-	if(wmGD.keyboardFocus && ClientInWorkspace(pNewWS, wmGD.keyboardFocus))
-		keepFocus = True;
+	if(wmGD.keyboardFocusPolicy == KEYBOARD_FOCUS_EXPLICIT &&
+		wmGD.keyboardFocus && ClientInWorkspace(pNewWS, wmGD.keyboardFocus))
+			keepFocus = True;
 	
 	/*
 	 * Go through client list of old workspace and hide windows
@@ -228,8 +230,10 @@ void ChangeToWorkspace(WmWorkspaceData *pNewWS )
 
 	UpdateEwmhActiveWorkspace(pSD, pNewWS->id);
 	
-	/* F_Focus_Key will pick first reasonable client if setFocus is NULL */
-	if(!keepFocus) F_Focus_Key(NULL, setFocus, NULL);
+	if(wmGD.keyboardFocusPolicy == KEYBOARD_FOCUS_EXPLICIT) {
+		if(!keepFocus) F_Focus_Key(NULL, setFocus, NULL);
+		if(wmGD.keyboardFocus) SetFocusIndication(wmGD.keyboardFocus);
+	}
 
 	pNewWS->lastFocus = NULL;
 
