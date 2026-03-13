@@ -314,12 +314,10 @@ void ChangeWorkspaceTitle(WmWorkspaceData *pWS, char * pchTitle)
  * 
  *************************************<->***********************************/
 
-void 
-UpdateWorkspacePresenceProperty(ClientData *pCD)
-
+void UpdateWorkspacePresenceProperty(ClientData *pCD)
 {
-    static Atom 	*pPresence = NULL;
-    static unsigned long   cPresence = 0;
+    Atom *pPresence = NULL;
+    unsigned long cPresence = 0;
     unsigned long i;
 
     if (wmGD.useStandardBehavior)
@@ -331,41 +329,27 @@ UpdateWorkspacePresenceProperty(ClientData *pCD)
 	return;
     }
 
-    if (!pPresence)
-    {
-	/* allocate initial list */
-	if (!(pPresence = (Atom *) 
-		    XtMalloc (pCD->pSD->numWorkspaces * sizeof(Atom))))
+	if(!(pPresence = (Atom *) XtMalloc(pCD->numInhabited * sizeof(Atom))))
 	{
-	    Warning (((char *)GETMESSAGE(76, 1, "Insufficient memory for workspace presence property")));
+	    Warning (((char *)GETMESSAGE(76, 2,
+			"Insufficient memory for workspace presence property")));
+		return;
 	}
-	else
-	{
-	    cPresence = pCD->pSD->numWorkspaces;
-	}
-    }
 
-    if (cPresence < pCD->numInhabited)
-    {
-	/* allocate bigger list */
-	if (!(pPresence = (Atom *) 
-		XtRealloc ((char *)pPresence, pCD->numInhabited * sizeof(Atom))))
-	{
-	    Warning (((char *)GETMESSAGE(76, 2, "Insufficient memory for workspace presence property")));
+	if(pCD->putInAll) {
+		pPresence[0] = wmGD.xa_ALL_WORKSPACES;
+		cPresence = 1;
+	} else {
+	    for (i = 0; i < pCD->numInhabited ; i++)
+    	{
+			pPresence[i] = pCD->pWsList[i].wsID;
+    	}
+		cPresence = pCD->numInhabited;
 	}
-	else
-	{
-	    cPresence = pCD->numInhabited;
-	}
-    }
 
-    for (i = 0; (i < pCD->numInhabited) && (i < cPresence) ; i++)
-    {
-	pPresence[i] = pCD->pWsList[i].wsID;
-    }
-
-    SetWorkspacePresence (pCD->client, pPresence,
-				MIN(pCD->numInhabited, cPresence));
+    SetWorkspacePresence (pCD->client, pPresence, cPresence);
+	
+	XtFree((char*)pPresence);
 
 } /* END OF FUNCTION UpdateWorkspacePresenceProperty */
 
