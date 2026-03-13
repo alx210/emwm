@@ -116,7 +116,9 @@ void ChangeToWorkspace(WmWorkspaceData *pNewWS )
 	/* already there ? */ 
 	if (pNewWS == pSD->pActiveWS) return;				
 
-	pSD->pActiveWS->lastFocus = wmGD.keyboardFocus;
+	pSD->pActiveWS->keyFocus = wmGD.keyboardFocus;
+	pSD->pActiveWS->nextKeyFocus = wmGD.nextKeyboardFocus;
+	wmGD.nextKeyboardFocus = NULL;
 	pSD->pLastWS = pSD->pActiveWS;
 	
 	/* Keep focus if active client is in both workspaces */
@@ -213,7 +215,10 @@ void ChangeToWorkspace(WmWorkspaceData *pNewWS )
 				ReparentIconWindow (pCD, xOffset, yOffset);
 		}
 		/* check if last focused client still exsits/in workspace */
-		if(pCD == pNewWS->lastFocus) setFocus = pNewWS->lastFocus;
+		if(pCD == pNewWS->keyFocus) setFocus = pNewWS->keyFocus;
+
+		if(pCD == pNewWS->nextKeyFocus)
+			wmGD.nextKeyboardFocus = pNewWS->nextKeyFocus;
 	}
 
 	if( (wsContext == F_CONTEXT_ICON &&
@@ -235,7 +240,8 @@ void ChangeToWorkspace(WmWorkspaceData *pNewWS )
 		if(wmGD.keyboardFocus) SetFocusIndication(wmGD.keyboardFocus);
 	}
 
-	pNewWS->lastFocus = NULL;
+	pNewWS->keyFocus = NULL;
+	pNewWS->nextKeyFocus = NULL;
 
 } /* END OF FUNCTION ChangeToWorkspace */
 

@@ -1328,7 +1328,8 @@ typedef struct _WmWorkspaceData
     Widget		workspaceTopLevelW;
 
     /* workspace state information */
-    struct _ClientData	*lastFocus;	/* ptr to client with the key focus */
+    struct _ClientData	*keyFocus;	/* ptr to client with the key focus */
+    struct _ClientData  *nextKeyFocus;
     struct _ClientData **ppClients;	/* list of client data ptrs */
     unsigned int	numClients; 	/* number of client in list */
     unsigned int	sizeClientList;	/* size of client list */

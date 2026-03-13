@@ -1277,7 +1277,8 @@ void InitWmWorkspace (WmWorkspaceData *pWS, WmScreenData *pSD)
 	pWS->sizeClientList = 0;
 	pWS->ppClients = 0;
 	pWS->buttonW = NULL;
-	pWS->lastFocus = NULL;
+	pWS->keyFocus = NULL;
+	pWS->nextKeyFocus = NULL;
 
 	/*
 	 * Create widget for workspace resource hierarchy
