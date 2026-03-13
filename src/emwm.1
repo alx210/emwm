@@ -1352,6 +1352,10 @@ backdrop image for the first workspace.
 .PP
 \(dg See the \fBWorkspace Specific Resources\fP section on workspace naming.
 .PP
+For image file names with no absolute path specified, \fB$HOME/.backdrops\fP
+and \fB/usr/share/backdrops\fP directories will be searched in addition to
+locations described in the \fBEnvironment\fP sub\-section.
+.PP
 The following workspace backdrop specific resources can be specified:
 .TS
 tab();
@@ -1373,7 +1377,9 @@ Specifies the color to use for coloring white pixels of a monochrome
 (X bitmap) backdrop image.
 .IP "\fIimageBackgound\fP (class \fIImageBackground\fP)" 10
 Specifies the color to use for coloring black pixels of a monochrome
-(X bitmap) backdrop image.
+(X bitmap) backdrop images, and the translucent (\fBnone\fP) color
+in XPM (X Pixmap) images. If none specified, workspace background
+color will be used.
 .SS "Resource Description File"
 .PP
 The \fBemwm\fP resource description file is a supplementary
@@ -1402,7 +1408,7 @@ for the \fBemwm\fP message catalog and the \fBemwm\fP
 resource description file\&.
 .PP
 The \fBemwm\fP window uses the environment variable \fBXFILESEARCHPATH\fP, \fBXUSERFILESEARCHPATH\fP, \fBXAPPLRESDIR\fP, \fBXENVIRONMENT\fP, \fBLANG\fP, and \fBHOME\fP in determining search paths for resource defaults files\&.
-The \fBemwm\fP window manager may also us \fBXBMLANGPATH\fP to search for bitmap files\&.
+The \fBemwm\fP window manager may also use \fBXBMLANGPATH\fP to search for bitmap files\&.
 .PP
 The \fBemwm\fP window manager reads the \fB$HOME/\&.motifbind\fP
 file if it exists to install a virtual key bindings property on
