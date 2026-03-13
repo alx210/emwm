@@ -941,9 +941,14 @@ void WithdrawWindow (ClientData *pCD)
      */
     for (i = pCD->numInhabited - 1; i >= 0; i--)
     {
-	TakeClientOutOfWorkspace (
-	    GetWorkspaceData(pCD->pSD, pCD->pWsList[i].wsID),
-	    pCD);
+		WmWorkspaceData *wsData = GetWorkspaceData(
+			pCD->pSD, pCD->pWsList[i].wsID);
+	
+		if(wsData->keyFocus == pCD) wsData->keyFocus = NULL;
+
+		if(wsData->nextKeyFocus == pCD) wsData->nextKeyFocus = NULL;
+
+		TakeClientOutOfWorkspace(wsData, pCD);
     }
 
     /*
