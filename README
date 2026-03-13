@@ -1,21 +1,41 @@
-EMWM - WSM Branch Readme
--------------------------
-Restoring the Workspace Manager/Virtual Desktop support that originally
-appeared with Motif 2.0 release, and became dysfunctional in 2.1
+EMWM 2.0 - BETA 1
+=================
 
-This is mostly the original implementation, with all external dependencies
-removed, and the simple EWMH interface attached to it (not fully implemented
-yet). The aim for this branch is to make it the master, once it's considered
-stable enough.
+Libraries and Headers required for building:
 
-Note that due to many changes to the code, and only mandatory testing done,
-it's not recommended for everyday use yet.
+libx11 
+libxt
+libxext
+libxrandr
+libxinerama
+libxm (open-motif/motif)
 
-See the INSTALL file for prerequisites and build instructions.
+BUILDING AND INSTALLING
+=======================
 
-Important note on RC Files
---------------------------
-EMWM 1.3 configuration files in /etc/X11/system.emwmrc and ~/.emwmrc will
-interfere with the workspace functionality, since they don't have any bindings
-(window and root menu) defined for it. The repository includes an updated
-configuration file "src/system.emwmrc" which should be used instead.
+Make sure to review the target platform makefile (mf/Makefile.<platform>).
+Adjust the installation prefix and X resources installation path if necessary.
+Read comments in the makefile for additional compile time options available.
+The target platform is picked by the master Makefile from uname(1). If no
+platform specific Makefile exists, try "Makefile.generic".
+
+Run 'make' in the top-level directory of the source distribution.
+When the build process finishes, run 'make install' as root.
+
+CONFIGURATION
+=============
+
+The app-defaults file installed in PREFIX/X11/app-defaults/Emwm includes basic
+font and color configuration for window decorations. See emwm(1) Component
+Appearance Resources section for more information.
+
+A sample emwmrc, which defines key bindings and root/window menus, is installed
+in PREFIX/X11/system.emwmrc. This file may be copied to $HOME/.emwmrc for
+customization. The emwmrc(4) man-page describes the syntax in detail.
+
+IMPORTANT NOTE ON EXISTING RC FILES
+-----------------------------------
+
+Any existing EMWM 1.3 (or earlier) configuration files will interfere with the
+workspace functionality, since they don't have any related bindings (window and
+root menu) defined. The distribution archive includes an updated template file.
