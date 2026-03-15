@@ -37,7 +37,7 @@
 /* DELWKSPC <id> */
 
 #define REQ_NAMWKSPC "NAMWKSPC"
-/* DELWKSPC <id> <title> */
+/* NAMWKSPC <id> <title> */
 
 void ProcessWmRequest(WmScreenData *pSD, char *pchReq);
 
