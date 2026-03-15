@@ -744,7 +744,8 @@ void UpdateEwmhClientState(ClientData *pCD)
 		state[i++] = ewmh_atoms[_NET_WM_STATE_MAXIMIZED_HORZ];
 		state[i++] = ewmh_atoms[_NET_WM_STATE_MAXIMIZED_VERT];
 	}
-	else if(pCD->clientState == MINIMIZED_STATE){
+	else if(pCD->clientState == MINIMIZED_STATE ||
+		(pCD->clientState & UNSEEN_STATE)){
 		state[i++] = ewmh_atoms[_NET_WM_STATE_HIDDEN];
 	}
 
