@@ -814,7 +814,7 @@ void ShowIconForMinimizedClient (WmWorkspaceData *pWS, ClientData *pCD)
 	     * find a free place to put the icon.
          */
 		if(!ipd) {
-			ipd = PositionToPlacementData(pSD->pWS, pCD->clientX, pCD->clientY);
+			ipd = PositionToPlacementData(pWS, pCD->clientX, pCD->clientY);
 		}
 		
 	    if ((ICON_PLACE(pCD) = GetNextIconPlace(ipd)) == NO_ICON_PLACE)
