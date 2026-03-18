@@ -551,6 +551,7 @@ GetWmClientInfo (WmWorkspaceData *pWS,
     for (i = 0; i < pCD->pSD->numWorkspaces; i++)
     {
 	pCD->pWsList[i].wsID = None;
+	pCD->pWsList[i].IPData = NULL;
 	pCD->pWsList[i].iconPlace = NO_ICON_PLACE;
 	pCD->pWsList[i].iconX = 0;
 	pCD->pWsList[i].iconY = 0;
