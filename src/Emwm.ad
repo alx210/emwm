@@ -1,5 +1,29 @@
 !! EMWM application defaults
 
+!! Display outlines when moving windows
+Emwm*moveOpaque: False
+
+!! Move/Resize outline width in pixels
+Emwm*outlineWidth: 4
+
+!! Number of workspaces to create at startup
+Emwm*workspaceCount: 4
+
+!! Icon layout. Defaults to left to right, bottom to top.
+Ewmw*iconPlacement: left bottom
+
+!! If False, the root menu will be unposted when the mouse button is released
+Emwm*rootButtonClick: False
+
+!! Whether the active Xinerama screen follows the pointer or keyboard focus
+Emwm*xineramaFollowPointer: False
+
+!! Whether windows should always be iconified to the primary Xinerama screen
+Emwm*xineramaIconifyToPrimary: False
+
+!! Primary Xinerama screen index
+Emwm*primaryXineramaScreen: 0
+
 !! Window decoration colors
 Emwm*client*background: #8C8C8C
 Emwm*client*activeBackground: #7399BA
