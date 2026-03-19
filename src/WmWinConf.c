@@ -916,7 +916,8 @@ Boolean HandleResizeKeyPress (ClientData *pcd, XEvent *pev)
 void DoFeedback (ClientData *pcd, int x, int y, unsigned int width, unsigned int height, unsigned long newStyle, Boolean resizing)
 {
     unsigned int cwidth, cheight;
-
+	unsigned int decor_x = pcd->clientOffset.x * 2;
+	unsigned int decor_y = pcd->clientOffset.y + pcd->clientOffset.x * 2;
     /* If resizing, make sure configuration is valid. */
     if (resizing)
     {
@@ -924,6 +925,10 @@ void DoFeedback (ClientData *pcd, int x, int y, unsigned int width, unsigned int
 				 (unsigned int) pcd->widthInc, 
 				 (unsigned int) pcd->heightInc);
     }
+	
+	/* Show client window (rather than frame) size if increment is specified */
+	if(pcd->widthInc > 1 && width >= decor_x) width -= decor_x;
+	if(pcd->heightInc > 1 && height >= decor_y) height -= decor_y;
 
     /*
      * Put size in client specific units.  Do not include base into calculations
