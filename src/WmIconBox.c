@@ -3347,10 +3347,10 @@ Boolean IconVisible (ClientData *pCD)
     return(rval);
 
 } /* END OF FUNCTION IconVisible */
-
+
 /*************************************<->*************************************
  *
- *  WmXmStringToString (xmString
+ *  WmXmStringToString (xmString)
  *
  *
  *  Description:
@@ -3373,28 +3373,13 @@ Boolean IconVisible (ClientData *pCD)
 
 String WmXmStringToString (XmString xmString)
 { 
-    XmStringContext       xmStrContext;
-    char                 *asciiString = NULL; 
-    XmStringCharSet      ibTitleCharset; 
-    XmStringDirection    ibTitleDirection; 
-    Boolean              separator; 
-    
-    if (xmString)
-    {
-	XmStringInitContext (&xmStrContext, xmString);
-    
-	XmStringGetNextSegment (xmStrContext, &asciiString, 
-				&ibTitleCharset, &ibTitleDirection, 
-				&separator);
-
-	if (ibTitleCharset != NULL) 
-	{
-	    XtFree ((char *)ibTitleCharset);
+	char *sz = NULL; 
+	
+	if(xmString) {
+		sz = XmStringUnparse(xmString, NULL, XmMULTIBYTE_TEXT,
+			XmMULTIBYTE_TEXT, NULL, 0, XmOUTPUT_ALL);
 	}
-
-	XmStringFreeContext (xmStrContext);
-    }
-
-    return asciiString;
+	
+	return sz;
     
 } /* END OF FUNCTION WmXmStringToString */
