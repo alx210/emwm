@@ -52,6 +52,8 @@
 #define MWM_VERSION  2
 #define MWM_REVISION 0
 
+#define NO_MESSAGE_CATALOG
+
 /* window manager name and class used to get resources: */
 #define	WM_RESOURCE_CLASS	"Emwm"
 #define WM_RESOURCE_NAME	"emwm"
