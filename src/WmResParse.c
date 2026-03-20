@@ -51,8 +51,6 @@
 #endif
 #include <signal.h>
 
-#define FIX_1127
-
 /* maximum string lengths */
 
 #define MAX_KEYSYM_STRLEN    100
@@ -3696,10 +3694,8 @@ GetNextLine (void)
     {
 	string = line;
 
-#ifdef FIX_1127
 	chlen = mblen((char *)parseP, MB_CUR_MAX);
 	if(chlen==-1) string = NULL;
-#endif
 
 	while ((*parseP != '\0') &&
                ((chlen = mblen ((char *)parseP, MB_CUR_MAX)) > 0) &&

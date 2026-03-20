@@ -115,10 +115,9 @@ void AdoptInitialClients (WmScreenData *pSD)
     if (XQueryTree (DISPLAY, pSD->rootWindow, &root, &parent, &clients,
 	    &nclients))
     {
-#ifndef DONT_FILTER_ICON_WINDOWS
 	/*
 	 * Filter out icon windows so they don't get managed as a client
-	 * window.  Icon windows will be process in SetupClientIconWindow().
+	 * window.  Icon windows will be processed in SetupClientIconWindow().
 	 */
 	XWMHints *tmphint;
 
@@ -137,7 +136,6 @@ void AdoptInitialClients (WmScreenData *pSD)
 		}
 	    }
 	}
-#endif /* DONT_FILTER_ICON_WINDOWS */
 
 	for (i = 0; i < nclients; i++)
 	{
