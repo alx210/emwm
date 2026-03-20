@@ -2486,7 +2486,9 @@ CalculateGravityOffset (ClientData *pCD, int *xoff, int *yoff)
     int borderWidth = pCD->xBorderWidth;
 
     if (pCD->windowGravity < ForgetGravity ||
-	pCD->windowGravity > StaticGravity)
+       pCD->windowGravity > StaticGravity ||
+       ((pCD->sizeFlags & (P_POSITION | US_POSITION)) &&
+       (pCD->windowGravity == StaticGravity)) )
     {
 	*xoff = 0;
 	*yoff = 0;
