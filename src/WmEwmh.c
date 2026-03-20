@@ -66,7 +66,7 @@ enum ewmh_atom {
 	_NET_WM_ACTION_CLOSE, _NET_WM_FULLSCREEN_MONITORS,
 	_NET_WM_WINDOW_TYPE, _NET_WM_WINDOW_TYPE_SPLASH,
 	_NET_WM_WINDOW_TYPE_TOOLBAR, _NET_WM_WINDOW_TYPE_UTILITY,
-	_NET_WM_WINDOW_TYPE_DIALOG,
+	_NET_WM_WINDOW_TYPE_DIALOG, _NET_WM_FULL_PLACEMENT,
 
 	_NUM_EWMH_ATOMS
 };
@@ -88,7 +88,7 @@ static char *ewmh_atom_names[_NUM_EWMH_ATOMS]={
 	"_NET_WM_ACTION_CLOSE", "_NET_WM_FULLSCREEN_MONITORS",
 	"_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_SPLASH",
 	"_NET_WM_WINDOW_TYPE_TOOLBAR", "_NET_WM_WINDOW_TYPE_UTILITY",
-	"_NET_WM_WINDOW_TYPE_DIALOG"
+	"_NET_WM_WINDOW_TYPE_DIALOG", "_NET_WM_FULL_PLACEMENT"
 
 };
 
@@ -103,28 +103,28 @@ void SetupWmEwmh(void)
 {
 	int i;
 
-	XInternAtoms(DISPLAY,ewmh_atom_names,_NUM_EWMH_ATOMS,False,ewmh_atoms);
-	XA_UTF8_STRING = XInternAtom(DISPLAY,"UTF8_STRING",False);
+	XInternAtoms(DISPLAY, ewmh_atom_names, _NUM_EWMH_ATOMS, False, ewmh_atoms);
+	XA_UTF8_STRING = XInternAtom(DISPLAY, "UTF8_STRING", False);
 
 	/* Add root properties indicating what EWMH protocols we support */
 	for(i = 0; i < wmGD.numScreens; i++){
 		Window check_wnd = XtWindow(wmGD.Screens[i].screenTopLevelW);
 		
-		XChangeProperty(DISPLAY,wmGD.Screens[i].rootWindow,
-			ewmh_atoms[_NET_SUPPORTED],XA_ATOM,32,PropModeReplace,
+		XChangeProperty(DISPLAY, wmGD.Screens[i].rootWindow,
+			ewmh_atoms[_NET_SUPPORTED], XA_ATOM, 32, PropModeReplace,
 			(unsigned char*)&ewmh_atoms[1],	_NUM_EWMH_ATOMS-1);
 	
 		/* Set up _NET_SUPPORTING_WM_CHECK */
-		XChangeProperty(DISPLAY,wmGD.Screens[i].rootWindow,
-			ewmh_atoms[_NET_SUPPORTING_WM_CHECK],XA_WINDOW,32,PropModeReplace,
-			(unsigned char*)&check_wnd,1);
+		XChangeProperty(DISPLAY, wmGD.Screens[i].rootWindow,
+			ewmh_atoms[_NET_SUPPORTING_WM_CHECK], XA_WINDOW,32, PropModeReplace,
+			(unsigned char*)&check_wnd, 1);
 
 		XChangeProperty(DISPLAY,check_wnd,
-			ewmh_atoms[_NET_SUPPORTING_WM_CHECK],XA_WINDOW,32,PropModeReplace,
-			(unsigned char*)&check_wnd,1);
+			ewmh_atoms[_NET_SUPPORTING_WM_CHECK], XA_WINDOW, 32,
+			PropModeReplace, (unsigned char*)&check_wnd,1);
 			
-		XChangeProperty(DISPLAY,check_wnd,ewmh_atoms[_NET_WM_NAME],
-			XA_STRING,8,PropModeReplace,(unsigned char*)WM_RESOURCE_NAME,
+		XChangeProperty(DISPLAY, check_wnd,ewmh_atoms[_NET_WM_NAME],
+			XA_STRING, 8, PropModeReplace, (unsigned char*)WM_RESOURCE_NAME,
 			strlen(WM_RESOURCE_NAME));
 	}
 }
