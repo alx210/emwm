@@ -964,7 +964,7 @@ This resource specifies the icon placement scheme to be used\&. The resource
 value has the following syntax:
 .IP "" 10
 \fBprimary_layout secondary_layout [tight]\fP
-.PP
+.IP
 The layout values are one of the following:
 .TS
 tab();
@@ -975,18 +975,18 @@ bottomLay the icons out bottom to top\&.
 leftLay the icons out left to right\&.
 rightLay the icons out right to left\&.
 .TE
-.PP
+.IP
 A horizontal (vertical) layout value should not be used for both the \fBprimary_layout\fP and the \fBsecondary_layout\fP (for
 example, don\&'t use top for the \fBprimary_layout\fP and bottom
 for the \fBsecondary_layout\fP)\&.
-.PP
+.IP
 The \fBprimary_layout\fP indicates whether, when an icon
 placement is done, the icon is placed in a row or a column and the direction
 of placement\&. The \fBsecondary_layout\fP indicates where to place
 new rows or columns\&. For example, top right indicates that icons should be
 placed top to bottom on the screen and that columns should be added from right
 to left on the screen\&.
-.PP
+.IP
 The default placement is left bottom (icons are placed left to right
 on the screen, with the first row on the bottom of the screen, and new rows
 added from the bottom of the screen to the top of the screen)\&. A \fBtight\fP value places icons with zero spacing in between icons\&. This
@@ -1172,7 +1172,7 @@ Window menu button (includes title bar)\&.
 T}
 titleTitle bar (includes border)\&.
 .TE
-.PP
+.IP
 Examples: \fIEmwm*XClock\&.clientDecoration: -resizeh -maximize\fP This removes the resize handles and maximize button from XClock
 windows\&. \fIEmwm*XClock\&.clientDecoration: menu minimize border\fP This does the same thing as above\&. Note that either \fImenu\fP or \fIminimize\fP implies
 \fItitle\fP\&.
@@ -1192,7 +1192,7 @@ only those functions indicated by both the application and the \fIclientFunction
 the functions indicated by the \fIclientFunctions\fP resource\&.
 For more information see the description of \fBXmNemwmFunctions\fP on the \fBVendorShell\fP(3) reference
 page\&.
-.PP
+.IP
 The following table lists the functions available for this resource:
 .TS
 tab();
@@ -1208,7 +1208,7 @@ minimizef\&.minimize\(dg\&.
 maximizef\&.maximize\(dg\&.
 closef\&.kill\(dg\&.
 .TE
-.PP
+.IP
 \(dgSee \fBemwmrc\fP(4)\&.
 .IP "\fIfocusAutoRaise\fP\ (class\  \fIFocusAutoRaise\fP)" 10
 When the value of this resource is True, clients are raised when they
