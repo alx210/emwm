@@ -146,7 +146,7 @@ Bool GetPrimaryXineramaScreen(XineramaScreenInfo *xsi)
 
 	if(wmGD.primaryXineramaScreen >= g_nxsi ||
 		wmGD.primaryXineramaScreen < 0){
-		Warning("PrimaryXineramaScreen out of range\n");
+		Warning("PrimaryXineramaScreen out of range");
 		memcpy(xsi, &g_xsi[0], sizeof(XineramaScreenInfo));
 		return True;
 	}

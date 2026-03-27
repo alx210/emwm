@@ -35,6 +35,7 @@ void WmCvtStringToKFocus (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, X
 void WmCvtStringToSize (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, XrmValue *toVal);
 void WmCvtStringToShowFeedback (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, XrmValue *toVal);
 void WmCvtStringToUsePPosition (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, XrmValue *toVal);
+void WmCvtStringToXRSFocus(XrmValue*, Cardinal, XrmValue*, XrmValue*);
 unsigned char *NextToken (unsigned char *pchIn, int *pLen, unsigned char **ppchNext);
 Boolean StringsAreEqual (unsigned char *pch1, unsigned char *pch2, int len);
 long DecStrToL (unsigned char *str, unsigned char **ptr);

@@ -1924,7 +1924,7 @@ typedef struct _WmGlobalData
     int numMouseButtons;		/* num of mouse buttons available */
     unsigned int bMenuButton;		/* BMenu binding (button/state) */
     int primaryXineramaScreen;
-	Boolean xineramaFollowPointer;
+	int xineramaScreenFocus;
 	Boolean xineramaIconifyToPrimary;
 	
 	/* Extension info */
@@ -1959,6 +1959,11 @@ typedef struct _WmGlobalData
 /* keyboard input focus policy values (keyboardFocus): */
 #define KEYBOARD_FOCUS_EXPLICIT	0
 #define KEYBOARD_FOCUS_POINTER	1
+
+/* xinerama screen focus policy (xineramaScreenFocus) */
+#define XRS_FOCUS_POINTER  0
+#define XRS_FOCUS_KEYBOARD 1
+#define XRS_FOCUS_PRIMARY  2
 
 /* icon appearance values (iconAppearance): */
 #define ICON_LABEL_PART			(1L << 0)

@@ -16,7 +16,7 @@ Ewmw*iconPlacement: left bottom
 Emwm*rootButtonClick: False
 
 !! Whether the active Xinerama screen follows the pointer or keyboard focus
-Emwm*xineramaFollowPointer: False
+Emwm*xineramaScreenFocus: pointer
 
 !! Whether windows should always be iconified to the primary Xinerama screen
 Emwm*xineramaIconifyToPrimary: False

@@ -598,7 +598,7 @@ useWindowOutlineUseWindowOutlineTrue/FalseTrue
 wMenuButtonClickWMenuButtonClickTrue/FalseTrue
 wMenuButtonClick2WMenuButtonClick2True/FalseTrue
 xineramaIconifyToPrimaryXineramaIconifyToPrimaryTrue/FalseFalse
-xineramaFollowPointerXineramaFollowPointerTrue/FalseFalse
+xineramaScreenFocusXineramaScreenFocusstringpointer
 .TE
 .PP
 \(dgThe resource doubleClickTime is included for backward compatibility\&.
@@ -747,7 +747,7 @@ off-screen\&. The default value of this resource is True\&.
 .IP "\fIprimaryXineramaScreen\fP\ (class\ \fIPrimaryXineramaScreen\fP)" 10
 This resource specifies the index of a Xinerama screen that is preferred for
 placing newly mapped application windows, modal dialog boxes and client icons
-(see also \fIxineramaIconifyToPrimary\fP and \fIxineramaFollowPointer\fP
+(see also \fIxineramaIconifyToPrimary\fP and \fIxineramaScreenFocus\fP
 resources)\.
 .IP "\fIquitTimeout\fP\ (class\  \fIQuitTimeout\fP)" 10
 This resource specifies the amount of time (in milliseconds) that \fBemwm\fP will wait for a client to update the \fIWM_COMMAND\fP
@@ -800,7 +800,7 @@ If the sign of the first option is minus, \fBemwm\fP assumes
 all options are present and starts subtracting from that set\&. If the sign
 of the first decoration is plus (or not specified), \fBemwm\fP
 starts with no options and builds up a list from the resource\&.
-.PP
+.IP
 The names of the feedback options are shown below:
 .TS
 tab();
@@ -818,14 +818,13 @@ quitConfirm quitting \fBemwm\fP\&.
 resizeShow size during resize\&.
 restartConfirm \fBemwm\fP restart\&.
 .TE
-.PP
+.IP
 The following command line illustrates the syntax for showFeedback:
-.PP
+.IP
 .nf
 \f(CW\fIEmwm*showFeedback: placement resize behavior restart\fP\fR
 .fi
-.PP
-.PP
+.IP
 This resource specification provides feedback for initial client placement
 and resize, and enables the dialog boxes to confirm the restart and set behavior
 functions\&. It disables feedback for the move function\&. The default value for
@@ -852,10 +851,20 @@ action on the window menu button does an \fIf\&.kill function\fP\&.
 If this resource is set to True, client windows will be initially iconified to
 the primary Xinerama screen (see \fIprimaryXineramaScreen\fP resource), rather
 than the screen they reside on\.
-.IP "\fIxineramaFollowPointer\fP\ (class\  \fIXineramaFollowPointer\fP)" 10
-If this resource is set to True, new windows will be placed on Xinerama screen that
-contains the pointer\&. By default, new windows are placed on Xinerama screen
-containing the currently focused window\&.
+.IP "\fIxineramaScreenFocus\fP\ (class\  \fIXineramaScreenFocus\fP)" 10
+Specifies which Xinerama screen newly managed client windows will be placed on.
+Only top-level shells with no user or program specified position will be
+affected.
+.IP
+Following values are accepted:
+.TS
+tab();
+lw(1.097588i) lw(4.402412i).
+NameDescription
+keyboardFollows keyboard focus (falls back to pointer position)\&.
+pointerFollows pointer position (default)\&.
+primaryAlways the screen specified with \fBprimaryXineramaScreen\fP\&.
+.TE
 .SS "Screen Specific Appearance and Behavior Resources"
 .PP
 The syntax for specifying screen specific resources is \fIEmwm*\fP \fBscreen_name\fP\fI*\fP\fBresource_id\fP For example, \fIEmwm*1*keyBindings\fP specifies

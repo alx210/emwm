@@ -97,6 +97,8 @@ void AddWmResourceConverters (void)
 	(XtConverter)WmCvtStringToShowFeedback, NULL, 0);
     XtAppAddConverter (wmGD.mwmAppContext, XtRString, WmRUsePPosition, 
 	(XtConverter)WmCvtStringToUsePPosition, NULL, 0);
+    XtAppAddConverter (wmGD.mwmAppContext, XtRString, WmRXineramaScreenFocus, 
+	(XtConverter)WmCvtStringToXRSFocus, NULL, 0);
 
 } /* END OF FUNCTION AddWmResourceConverters */
 
@@ -1444,7 +1446,69 @@ void WmCvtStringToUsePPosition (XrmValue *args, Cardinal numArgs, XrmValue *from
 
 } /* END OF FUNCTION WmCvtStringToUsePPosition */
 
-
+/*************************************<->*************************************
+ *
+ *  WmCvtStringToXRSFocus (args, numArgs, fromVal, toVal)
+ *
+ *
+ *  Description:
+ *  -----------
+ *  This function converts a string to a Xinerama screen focus policy.
+ *
+ *
+ *  Inputs:
+ *  ------
+ *  args = additional XrmValue arguments to the converter - NULL here
+ *
+ *  numArgs = number of XrmValue arguments - 0 here
+ *
+ *  fromVal = resource value to convert
+ *
+ * 
+ *  Outputs:
+ *  -------
+ *  toVal = descriptor to use to return converted value
+ *
+ *************************************<->***********************************/
+void WmCvtStringToXRSFocus(XrmValue *args, Cardinal numArgs, XrmValue *fromVal, XrmValue *toVal)
+{
+	unsigned char *pch = (unsigned char *) (fromVal->addr);
+	unsigned char *pchNext;
+	int len;
+	static int cval;
+	Boolean fHit = False;
+	unsigned char sz_keyboard[] = "keyboard";
+	unsigned char sz_pointer[] = "pointer";
+	unsigned char sz_primary[] = "primary";
+
+	if (*pch && NextToken(pch, &len, &pchNext))
+	{
+		if ((*pch == 'P') || (*pch == 'p')) {
+			if(StringsAreEqual(pch, sz_pointer, len)) {
+				cval = XRS_FOCUS_POINTER;
+				fHit = True;
+			} else if(StringsAreEqual(pch, sz_primary, len)) {
+				cval = XRS_FOCUS_PRIMARY;
+				fHit = True;
+			}
+		}else if((*pch == 'K') || (*pch == 'k')) {
+			if (StringsAreEqual(pch, sz_keyboard, len)) {
+				cval = XRS_FOCUS_KEYBOARD;
+				fHit = True;
+			}
+		}
+	}
+
+	if (!fHit) {
+		cval =  XRS_FOCUS_KEYBOARD;
+	}
+
+	(*toVal).size = sizeof (int);
+	(*toVal).addr = (XtPointer)&cval;
+
+}
+
+
 /*************************************<->*************************************
  *
  *  NextToken (pchIn, pLen, ppchNext)

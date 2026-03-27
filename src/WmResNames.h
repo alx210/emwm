@@ -109,7 +109,7 @@
 #define WmNutilityDecoration    "utilityDecoration"
 #define WmNutilityFunctions     "utilityFunctions"
 #define WmNprimaryXineramaScreen	"primaryXineramaScreen"
-#define WmNxineramaFollowPointer    "xineramaFollowPointer"
+#define WmNxineramaScreenFocus    "xineramaScreenFocus"
 #define WmNxineramaIconifyToPrimary "xineramaIconifyToPrimary"
 
 /* conponent appearance resources: */
@@ -273,7 +273,7 @@
 #define WmCUtilityDecoration     "UtilityDecoration"
 #define WmCUtilityFunctions      "UtilityFunctions"
 #define WmCPrimaryXineramaScreen	"PrimaryXineramaScreen"
-#define WmCXineramaFollowPointer    "XineramaFollowPointer"
+#define WmCXineramaScreenFocus    "XineramaScreenFocus"
 #define WmCXineramaIconifyToPrimary "XineramaIconifyToPrimary"
 
 /* component appearance resources: */
@@ -368,7 +368,7 @@
 #define WmRSize				"WmSize"
 #define WmRShowFeedback			"WmShowFeedback"
 #define WmRUsePPosition			"WmUsePPosition"
-
+#define WmRXineramaScreenFocus  "WmXineramaScreenFocus"
 
 /*************************************<->*************************************
  *

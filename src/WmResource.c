@@ -886,13 +886,13 @@ XtResource wmGlobalResources[] =
 	},
 	
 	{
-	WmNxineramaFollowPointer,
-	WmCXineramaFollowPointer,
-	XtRBoolean,
-	sizeof(Boolean),
-	XtOffsetOf (WmGlobalData, xineramaFollowPointer),
+	WmNxineramaScreenFocus,
+	WmCXineramaScreenFocus,
+	WmRXineramaScreenFocus,
+	sizeof(int),
+	XtOffsetOf (WmGlobalData, xineramaScreenFocus),
 	XtRImmediate,
-	(XtPointer)False
+	(XtPointer)XRS_FOCUS_POINTER
 	},
 
 	{
