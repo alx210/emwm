@@ -546,11 +546,6 @@ int FindIconPlace (ClientData *pCD, IconPlacementData *pIPD, int x, int y)
 	x -= pIPD->xiOrgX;
 	y -= pIPD->xiOrgY;
 
-	if(x < 0 || y < 0) {
-		x = 0;
-		y = 0;
-	}
-	
     for (i = 0; i < 2; i++)
     {
 	switch (i)
@@ -756,11 +751,6 @@ int CvtIconPositionToPlace (IconPlacementData *pIPD, int x, int y)
 	 */
 	x -= pIPD->xiOrgX;
 	y -= pIPD->xiOrgY;
-	
-	if(x < 0 || y < 0) {
-		x = 0;
-		y = 0;
-	}
 	
 	for (row = 1; row < pIPD->placementRows; row++)
 	{
