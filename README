@@ -1,14 +1,17 @@
-EMWM 2.0 - BETA 1
-=================
+PREREQUISITES
+=============
+
+C99 compliant C compiler
+SysVR4 compatible make
 
 Libraries and Headers required for building:
 
-libx11 
-libxt
-libxext
-libxrandr
-libxinerama
-libxm (open-motif/motif)
+libX11 
+libXt
+libXext
+libXrandr
+libXinerama
+libXm (open-motif/motif)
 
 BUILDING AND INSTALLING
 =======================
