@@ -1,10 +1,19 @@
 # EMWM Linux Makefile
 
+# Installation prefix. Typically /usr or /usr/local.
 PREFIX = /usr
 MANDIR = $(PREFIX)/share/man
-RCDIR = /etc/X11
-APPLRESDIR = /etc/X11/app-defaults
 
+# X11 configuration directory.
+# On recent Linuxen it's usually either /etc/X11, /usr/share/X11
+# or less likely /usr/lib/X11. Some symlink them one way or another.
+RCDIR = /etc/X11
+
+# Default application resources directory.
+# By convention located in the X11 configuration directory. 
+APPLRESDIR = $(RCDIR)/app-defaults
+
+# Usually nothing needs to be changed beyond this point
 INCDIRS = -I/usr/local/include 
 LIBDIRS = -L/usr/local/lib
 
