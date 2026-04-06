@@ -1270,7 +1270,7 @@ void SetWorkspaceInfoProperty (WmWorkspaceData *pWS)
 
     /* number of backdrop windows */
     ix = (i * WIP_NUMBER_SIZE);
-    if ((pWS->backdrop.window == None))
+    if(pWS->backdrop.window == None)
     {
 	strcpy (&pch[ix], "0");
     }

@@ -75,12 +75,6 @@ static Boolean ForceRaiseWindow(ClientData *pcd);
 void DumpWindowList(void);
 #endif
 
-#if (defined(USL) || defined(__uxp__) || defined(linux)) && !defined(_NFILE)
-#define _NFILE FOPEN_MAX
-#endif
-#define CLOSE_FILES_ON_EXEC() \
-{int ifx; for (ifx=3; ifx < _NFILE; ifx++) (void) fcntl (ifx, F_SETFD, 1);}
-
 /*
  * Global Variables:
  */
@@ -854,8 +848,6 @@ Boolean F_Exec (String args, ClientData *pCD, XEvent *event)
 	 * Fix up signal handling.
 	 */
 	RestoreDefaultSignalHandlers ();
-
-	CLOSE_FILES_ON_EXEC();
 
 	/*
 	 * Exec the command using $WMSHELL if set or 
@@ -2762,7 +2754,6 @@ void RestartWm (long startupFlags)
     XSetInputFocus (DISPLAY, PointerRoot, RevertToPointerRoot, CurrentTime);
     XSync (DISPLAY, False);
 
-    CLOSE_FILES_ON_EXEC();
     /*
      * Restart the window manager with the initial arguments plus
      * the restart settings.
