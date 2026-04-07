@@ -4444,7 +4444,7 @@ static Boolean ParseKeySym (unsigned char **linePP, unsigned int closure,
     if ((*detail = XStringToKeysym(keySymName)) == NoSymbol &&
 	 (mblen (keySymName, MB_CUR_MAX) == 1))
     {
-        if (!isdigit (keySymName[0]) ||
+        if (!isdigit((int)keySymName[0]) ||
             ((*detail = StrToNum ((unsigned char *)&keySymName[0])) == -1))
         {
             *detail = NoSymbol;

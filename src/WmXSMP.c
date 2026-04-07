@@ -301,8 +301,7 @@ static void setClientDBName(void)
 
 	for (p1 = ++ptr; *p1 != '\0'; p1++)
 	{
-	    if (!isdigit(*p1))
-		break;
+	    if (!isdigit((int)*p1))	break;
 	}
 
 	if (*p1 == '\0')
