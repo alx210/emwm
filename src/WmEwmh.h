@@ -25,16 +25,16 @@
 #define WmEwmh_h
 
 void SetupWmEwmh(void);
-void ProcessEwmh(ClientData *pCD);
-void ProcessEwmhWindowType(ClientData *pCD);
-void SetEwmhActiveWindow(ClientData *pCD);
-void HandleEwmhCPropertyNotify(ClientData *pCD, XPropertyEvent *evt);
-void HandleEwmhClientMessage(ClientData *pCD, XClientMessageEvent *evt);
-void HandleEwmhRootClientMessage(WmScreenData *pCD, XClientMessageEvent *evt);
-void ConfigureEwmhFullScreen(ClientData *pCD, Boolean set);
-void UpdateEwmhClientList(WmScreenData *pSD);
-void UpdateEwmhClientState(ClientData *pCD);
-void UpdateEwmhWorkspaceProperties(WmScreenData *pSD);
-void UpdateEwmhActiveWorkspace(WmScreenData *pSD, WorkspaceID id);
+void ProcessEwmh(ClientData*);
+void ProcessEwmhWindowType(ClientData*);
+void SetEwmhActiveWindow(ClientData*);
+void HandleEwmhCPropertyNotify(ClientData*, XPropertyEvent*);
+void HandleEwmhClientMessage(ClientData*, XClientMessageEvent*);
+Boolean HandleEwmhRootClientMessage(WmScreenData*, XClientMessageEvent*);
+void ConfigureEwmhFullScreen(ClientData*, Boolean);
+void UpdateEwmhClientList(WmScreenData*);
+void UpdateEwmhClientState(ClientData*);
+void UpdateEwmhWorkspaceProperties(WmScreenData*);
+void UpdateEwmhActiveWorkspace(WmScreenData*, WorkspaceID);
 
 #endif /* WmEwmh_h */

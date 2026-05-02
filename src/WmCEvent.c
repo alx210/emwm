@@ -586,6 +586,12 @@ Boolean HandleEventsOnSpecialWindows (XEvent *pEvent)
 		}
 		break;
 	    }
+		
+		/* EWMH messages for windows that haven't been managed yet */
+		case ClientMessage:
+		if(HandleEwmhRootClientMessage(ACTIVE_PSD, &pEvent->xclient))
+			dispatchEvent = False;
+		break;
 	}
     }
 

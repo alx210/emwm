@@ -980,7 +980,9 @@ Boolean WmDispatchWsEvent (XEvent *event)
 	
 	case ClientMessage:
 	{
-		HandleEwmhRootClientMessage(ACTIVE_PSD, (XClientMessageEvent*)event);
+		if(HandleEwmhRootClientMessage(ACTIVE_PSD, &event->xclient))
+			dispatchEvent = False;
+
 		break;
 	}
 
